@@ -36,7 +36,7 @@ getPlugins = function() {
 };
 
 module.exports = {
-	entry: './src/index.coffee',
+	entry: './src/index.js',
 	plugins: getPlugins(),
 	output: {
 		filename: (process.env.WEBPACK_ENV === 'build' ? './public/bundle.js' : 'bundle.js')
@@ -46,6 +46,14 @@ module.exports = {
 		rules: [
 			{
 				test: /\.jsx$/,
+				loader: 'babel-loader',
+        		exclude: /node_modules/,
+        		query: {
+          			presets: ['@babel/react', '@babel/env']
+        		}
+			},
+			{
+				test: /\.js$/,
 				loader: 'babel-loader',
         		exclude: /node_modules/,
         		query: {

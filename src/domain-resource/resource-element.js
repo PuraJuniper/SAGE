@@ -1,0 +1,189 @@
+/*
+ * decaffeinate suggestions:
+ * DS101: Remove unnecessary use of Array.from
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS103: Rewrite code to no longer use __guard__, or convert again using --optional-chaining
+ * DS206: Consider reworking classes to avoid initClass
+ * DS207: Consider shorter variations of null checks
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+import React from "react";
+import ReactDOM from "react-dom";
+
+import State from "../state";
+import PrimitiveValidator from "../helpers/primitive-validator";
+
+import ValueEditor from "./value-editor";
+import ValueDisplay from "./value-display";
+import ValueNode from "./value-node";
+import ValueArrayNode from "./value-array-node";
+import ElementMenu from "./element-menu";
+
+class ResourceElement extends React.Component {
+	static initClass() {
+	
+		this.prototype.displayName = "ResourceElement";
+	}
+
+	isValid(node) {
+		//this is hacky - need to find a better place for pre-commit validation
+		for (let editNode of Array.from(node.children || [node])) {
+			var message;
+			if (node.ui != null ? node.ui.validationErr : undefined) { return false; }
+			if (message = PrimitiveValidator(editNode.fhirType, editNode.value, true)) {
+				State.trigger("value_change", editNode, editNode.value, message);
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	shouldComponentUpdate(nextProps) {
+		return nextProps.node !== this.props.node;
+	}
+
+	componentDidMount() {
+		if (this.refs.complexElement && ((this.props.node != null ? this.props.node.nodeCreator : undefined) === "user")) {
+			const domNode = ReactDOM.findDOMNode(this.refs.complexElement);
+			domNode.scrollIntoView(true);
+			//account for fixed header
+			const {
+                scrollY
+            } = window;
+			if (scrollY) {
+				return window.scroll(0, scrollY - 60);
+			}
+		}
+	}
+
+	handleEditStart(e) {
+		State.trigger("start_edit", this.props.node);
+		if (e) { return e.preventDefault(); }
+	}
+
+	handleEditCancel(e) {
+		//don't allow cancel if no previous value
+		if ([null, undefined, ""].includes(__guard__(__guard__(this.props.node != null ? this.props.node.ui : undefined, x1 => x1.prevState), x => x.value))) {
+			return;
+		}
+		State.trigger("cancel_edit", this.props.node);
+		if (e) { return e.preventDefault(); }
+	}
+
+	handleEditCommit(e) {
+		if (!this.isValid(this.props.node)) { return; }
+		State.trigger("end_edit", this.props.node, this.props.parent);
+		if (e) { return e.preventDefault(); }
+	}
+
+	handleNodeDelete(e) {
+		State.trigger("delete_node", this.props.node, this.props.parent);
+		if (e) { return e.preventDefault(); }
+	}
+
+	handleAddContained(e) {
+		State.trigger("show_open_contained", this.props.node);
+		if (e) { return e.preventDefault(); }
+	}
+
+	handleObjectMenu(e) {
+		if (__guard__(this.props.node != null ? this.props.node.ui : undefined, x => x.status) === "menu") { return; }
+		State.trigger("show_object_menu", this.props.node, this.props.parent);
+		if (e) { return e.preventDefault(); }
+	}
+
+	renderChildren() {
+		const children = [];
+		for (let child of Array.from(this.props.node.children)) {
+			children.push(<ResourceElement 
+				key={child.id} node={child} 
+				parent={this.props.node}
+			/>
+			);
+		}		
+		return children;
+	}
+
+	render() {
+
+		if ((this.props.node.nodeType === "value") || !this.props.node.fhirType) {
+			
+				return <ValueNode 
+					node={this.props.node} 
+					parent={this.props.parent} 
+					onEditStart={this.handleEditStart.bind(this)}
+					onEditCommit={this.handleEditCommit.bind(this)}
+					onEditCancel={this.handleEditCancel.bind(this)}
+					onNodeDelete={this.handleNodeDelete.bind(this)}
+				/>;
+
+
+		} else if (this.props.node.nodeType === "valueArray") {
+				
+				return <ValueArrayNode 
+					node={this.props.node} 
+					parent={this.props.parent} 
+					onEditStart={this.handleEditStart.bind(this)}
+					onEditCommit={this.handleEditCommit.bind(this)}
+					onEditCancel={this.handleEditCancel.bind(this)}
+					onNodeDelete={this.handleNodeDelete.bind(this)}
+				/>;
+
+		} else if (this.props.node.nodeType === "objectArray") {
+
+			return <div className="fhir-data-element row" ref="complexElement">
+				<div className="col-sm-12">
+					{this.renderChildren()}
+				</div>
+			</div>;
+
+		//handle contained resources
+		} else if (this.props.node.fhirType === "Resource") {
+
+				return <div className="fhir-array-complex-wrap" ref="complexElement">
+					<ElementMenu node={this.props.node} 
+						parent={this.props.parent} display="heading" />
+					<div className="fhir-array-complex text-center">
+						<button className="btn btn-primary" onClick={this.handleAddContained.bind(this)}>
+							Choose Resource
+						</button>
+					</div>
+				</div>;
+
+
+		} else if (this.props.node.nodeType === "arrayObject") {
+
+				return <div className="fhir-array-complex-wrap" ref="complexElement">
+					<ElementMenu node={this.props.node} 
+						parent={this.props.parent} display="heading" />
+					<div className="fhir-array-complex">
+						{this.renderChildren()}
+					</div>
+				</div>;
+
+		} else if (this.props.node.nodeType === "object") {
+
+			return <div className="fhir-data-element row" ref="complexElement">
+				<div className="col-sm-3">
+					<ElementMenu node={this.props.node} 
+						parent={this.props.parent} display="inline" 
+					/>
+				</div>
+				<div className="col-sm-9">
+					{this.renderChildren()}
+				</div>
+			</div>;
+		}
+	}
+}
+ResourceElement.initClass();
+
+
+
+
+export default ResourceElement;
+
+function __guard__(value, transform) {
+  return (typeof value !== 'undefined' && value !== null) ? transform(value) : undefined;
+}
