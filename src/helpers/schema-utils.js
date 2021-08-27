@@ -372,7 +372,7 @@ export var decorateFhirData = function(profiles, data) {
 				decorated.fhirType = null;
 			}
 
-			if (fhirType && (error = PrimitiveValidator.isValid(fhirType, dataNode))) {
+			if (fhirType && (error = PrimitiveValidator(fhirType, dataNode))) {
 				decorated.ui = {validationErr: error, status: "editing"};
 			}
 		}

@@ -78321,7 +78321,7 @@
             "code": "DomainResource"
           }
         ],
-        "short": "A fixed quantity (no comparator)"
+        "short": "A measured or measurable amount"
       },
       "Quantity.id": {
         "index": 1,
@@ -78364,7 +78364,7 @@
         "index": 4,
         "path": "Quantity.comparator",
         "min": 0,
-        "max": "0",
+        "max": "1",
         "type": [
           {
             "code": "code"
@@ -79536,6 +79536,114 @@
           "strength": "example",
           "reference": "http://hl7.org/fhir/ValueSet/use-context"
         }
+      }
+    },
+    "Quantity:simplequantity": {
+      "Quantity:simplequantity": {
+        "index": 0,
+        "path": "Quantity",
+        "min": 0,
+        "max": "*",
+        "type": [
+          {
+            "code": "DomainResource"
+          }
+        ],
+        "short": "A fixed quantity (no comparator)"
+      },
+      "Quantity:simplequantity.id": {
+        "index": 1,
+        "path": "Quantity.id",
+        "min": 0,
+        "max": "1",
+        "type": [
+          {
+            "code": "string"
+          }
+        ],
+        "short": "xml:id (or equivalent in JSON)"
+      },
+      "Quantity:simplequantity.extension": {
+        "index": 2,
+        "path": "Quantity.extension",
+        "min": 0,
+        "max": "*",
+        "type": [
+          {
+            "code": "Extension"
+          }
+        ],
+        "short": "Additional Content defined by implementations"
+      },
+      "Quantity:simplequantity.value": {
+        "index": 3,
+        "path": "Quantity.value",
+        "min": 0,
+        "max": "1",
+        "type": [
+          {
+            "code": "decimal"
+          }
+        ],
+        "isSummary": true,
+        "short": "Numerical value (with implicit precision)"
+      },
+      "Quantity:simplequantity.comparator": {
+        "index": 4,
+        "path": "Quantity.comparator",
+        "min": 0,
+        "max": "0",
+        "type": [
+          {
+            "code": "code"
+          }
+        ],
+        "isSummary": true,
+        "isModifier": true,
+        "short": "< | <= | >= | > - how to understand the value",
+        "binding": {
+          "strength": "required",
+          "reference": "http://hl7.org/fhir/ValueSet/quantity-comparator"
+        }
+      },
+      "Quantity:simplequantity.unit": {
+        "index": 5,
+        "path": "Quantity.unit",
+        "min": 0,
+        "max": "1",
+        "type": [
+          {
+            "code": "string"
+          }
+        ],
+        "isSummary": true,
+        "short": "Unit representation"
+      },
+      "Quantity:simplequantity.system": {
+        "index": 6,
+        "path": "Quantity.system",
+        "min": 0,
+        "max": "1",
+        "type": [
+          {
+            "code": "uri"
+          }
+        ],
+        "isSummary": true,
+        "short": "System that defines coded unit form"
+      },
+      "Quantity:simplequantity.code": {
+        "index": 7,
+        "path": "Quantity.code",
+        "min": 0,
+        "max": "1",
+        "type": [
+          {
+            "code": "code"
+          }
+        ],
+        "isSummary": true,
+        "short": "Coded form of the unit"
       }
     }
   },
