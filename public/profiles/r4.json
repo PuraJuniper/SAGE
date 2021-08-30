@@ -351,7 +351,7 @@
       },
       "CPGGenerateReportActivity.extension:knowledgeCapability": {
         "index": 8,
-        "path": "ActivityDefinition.extension",
+        "path": "knowledgeCapability",
         "min": 1,
         "max": "*",
         "type": [
@@ -367,7 +367,7 @@
       },
       "CPGGenerateReportActivity.extension:knowledgeRepresentationLevel": {
         "index": 9,
-        "path": "ActivityDefinition.extension",
+        "path": "knowledgeRepresentationLevel",
         "min": 0,
         "max": "*",
         "type": [
@@ -383,7 +383,7 @@
       },
       "CPGGenerateReportActivity.extension:reportWith": {
         "index": 10,
-        "path": "ActivityDefinition.extension",
+        "path": "reportWith",
         "min": 0,
         "max": "1",
         "type": [
@@ -1379,7 +1379,7 @@
       },
       "CodeSystem.extension:knowledgeCapability": {
         "index": 8,
-        "path": "CodeSystem.extension",
+        "path": "knowledgeCapability",
         "min": 1,
         "max": "*",
         "type": [
@@ -1395,7 +1395,7 @@
       },
       "CodeSystem.extension:knowledgeRepresentationLevel": {
         "index": 9,
-        "path": "CodeSystem.extension",
+        "path": "knowledgeRepresentationLevel",
         "min": 0,
         "max": "*",
         "type": [
@@ -2821,7 +2821,7 @@
       },
       "MedicationRequest.extension:rationale": {
         "index": 8,
-        "path": "MedicationRequest.extension",
+        "path": "rationale",
         "min": 0,
         "max": "1",
         "type": [
@@ -3798,7 +3798,7 @@
       },
       "PlanDefinition.extension:knowledgeCapability": {
         "index": 8,
-        "path": "PlanDefinition.extension",
+        "path": "knowledgeCapability",
         "min": 1,
         "max": "*",
         "type": [
@@ -3814,7 +3814,7 @@
       },
       "PlanDefinition.extension:knowledgeRepresentationLevel": {
         "index": 9,
-        "path": "PlanDefinition.extension",
+        "path": "knowledgeRepresentationLevel",
         "min": 0,
         "max": "*",
         "type": [
@@ -3830,7 +3830,7 @@
       },
       "PlanDefinition.extension:enabled": {
         "index": 10,
-        "path": "PlanDefinition.extension",
+        "path": "enabled",
         "min": 0,
         "max": "1",
         "type": [
@@ -3847,7 +3847,7 @@
       },
       "PlanDefinition.extension:partOf": {
         "index": 11,
-        "path": "PlanDefinition.extension",
+        "path": "partOf",
         "min": 0,
         "max": "1",
         "type": [
@@ -4597,7 +4597,7 @@
       },
       "PlanDefinition.action.extension:strengthOfRecommendation": {
         "index": 62,
-        "path": "PlanDefinition.action.extension",
+        "path": "strengthOfRecommendation",
         "min": 0,
         "max": "1",
         "type": [
@@ -4613,7 +4613,7 @@
       },
       "PlanDefinition.action.extension:directionOfRecommendation": {
         "index": 63,
-        "path": "PlanDefinition.action.extension",
+        "path": "directionOfRecommendation",
         "min": 0,
         "max": "1",
         "type": [
@@ -4629,7 +4629,7 @@
       },
       "PlanDefinition.action.extension:qualityOfEvidence": {
         "index": 64,
-        "path": "PlanDefinition.action.extension",
+        "path": "qualityOfEvidence",
         "min": 0,
         "max": "1",
         "type": [
@@ -5506,7 +5506,7 @@
       },
       "ServiceRequest.extension:rationale": {
         "index": 8,
-        "path": "ServiceRequest.extension",
+        "path": "rationale",
         "min": 0,
         "max": "1",
         "type": [
@@ -6603,7 +6603,7 @@
       },
       "Library.relatedArtifact:asset": {
         "index": 37,
-        "path": "Library.relatedArtifact",
+        "path": "asset",
         "min": 0,
         "max": "*",
         "type": [
@@ -6752,7 +6752,7 @@
       },
       "Library.relatedArtifact:requiredAsset": {
         "index": 47,
-        "path": "Library.relatedArtifact",
+        "path": "requiredAsset",
         "min": 0,
         "max": "*",
         "type": [
@@ -7063,7 +7063,7 @@
       },
       "Flag.extension:instantiatesCaseFeature": {
         "index": 8,
-        "path": "Flag.extension",
+        "path": "instantiatesCaseFeature",
         "min": 0,
         "max": "1",
         "type": [
@@ -7079,7 +7079,7 @@
       },
       "Flag.extension:caseFeatureType": {
         "index": 9,
-        "path": "Flag.extension",
+        "path": "caseFeatureType",
         "min": 0,
         "max": "1",
         "type": [
@@ -7095,7 +7095,7 @@
       },
       "Flag.extension:caseFeaturePertinence": {
         "index": 10,
-        "path": "Flag.extension",
+        "path": "caseFeaturePertinence",
         "min": 0,
         "max": "1",
         "type": [
@@ -7111,7 +7111,7 @@
       },
       "Flag.extension:pertinent": {
         "index": 11,
-        "path": "Flag.extension",
+        "path": "pertinent",
         "min": 0,
         "max": "*",
         "type": [
@@ -7386,7 +7386,7 @@
       },
       "StructureDefinition.extension:knowledgeCapability": {
         "index": 8,
-        "path": "StructureDefinition.extension",
+        "path": "knowledgeCapability",
         "min": 1,
         "max": "*",
         "type": [
@@ -7402,7 +7402,7 @@
       },
       "StructureDefinition.extension:knowledgeRepresentationLevel": {
         "index": 9,
-        "path": "StructureDefinition.extension",
+        "path": "knowledgeRepresentationLevel",
         "min": 0,
         "max": "*",
         "type": [
@@ -7418,7 +7418,7 @@
       },
       "StructureDefinition.extension:inferenceExpression": {
         "index": 10,
-        "path": "StructureDefinition.extension",
+        "path": "inferenceExpression",
         "min": 0,
         "max": "1",
         "type": [
@@ -7435,7 +7435,7 @@
       },
       "StructureDefinition.extension:assertionExpression": {
         "index": 11,
-        "path": "StructureDefinition.extension",
+        "path": "assertionExpression",
         "min": 0,
         "max": "1",
         "type": [
@@ -7452,7 +7452,7 @@
       },
       "StructureDefinition.extension:featureExpression": {
         "index": 12,
-        "path": "StructureDefinition.extension",
+        "path": "featureExpression",
         "min": 0,
         "max": "1",
         "type": [
@@ -7469,7 +7469,7 @@
       },
       "StructureDefinition.extension:caseFeatureOf": {
         "index": 13,
-        "path": "StructureDefinition.extension",
+        "path": "caseFeatureOf",
         "min": 0,
         "max": "*",
         "type": [
@@ -8311,7 +8311,7 @@
       },
       "Measure.extension:knowledgeCapability": {
         "index": 8,
-        "path": "Measure.extension",
+        "path": "knowledgeCapability",
         "min": 1,
         "max": "*",
         "type": [
@@ -8327,7 +8327,7 @@
       },
       "Measure.extension:knowledgeRepresentationLevel": {
         "index": 9,
-        "path": "Measure.extension",
+        "path": "knowledgeRepresentationLevel",
         "min": 0,
         "max": "*",
         "type": [
@@ -10292,7 +10292,7 @@
       },
       "Observation.code.coding:JVPCode": {
         "index": 18,
-        "path": "Observation.code.coding",
+        "path": "JVPCode",
         "min": 1,
         "max": "1",
         "type": [
@@ -10551,7 +10551,7 @@
       },
       "Observation.value[x]:valueQuantity": {
         "index": 34,
-        "path": "Observation.value[x]",
+        "path": "valueQuantity",
         "min": 0,
         "max": "1",
         "type": [
@@ -11250,7 +11250,7 @@
       },
       "GraphDefinition.extension:knowledgeCapability": {
         "index": 8,
-        "path": "GraphDefinition.extension",
+        "path": "knowledgeCapability",
         "min": 1,
         "max": "*",
         "type": [
@@ -11266,7 +11266,7 @@
       },
       "GraphDefinition.extension:knowledgeRepresentationLevel": {
         "index": 9,
-        "path": "GraphDefinition.extension",
+        "path": "knowledgeRepresentationLevel",
         "min": 0,
         "max": "*",
         "type": [
@@ -11282,7 +11282,7 @@
       },
       "GraphDefinition.extension:identifier": {
         "index": 10,
-        "path": "GraphDefinition.extension",
+        "path": "identifier",
         "min": 0,
         "max": "*",
         "type": [
@@ -11298,7 +11298,7 @@
       },
       "GraphDefinition.extension:title": {
         "index": 11,
-        "path": "GraphDefinition.extension",
+        "path": "title",
         "min": 0,
         "max": "1",
         "type": [
@@ -12610,7 +12610,7 @@
       },
       "Bundle.entry:activityDefinition": {
         "index": 47,
-        "path": "Bundle.entry",
+        "path": "activityDefinition",
         "min": 0,
         "max": "*",
         "type": [
@@ -13086,7 +13086,7 @@
       },
       "Bundle.entry:careTeamDefinition": {
         "index": 79,
-        "path": "Bundle.entry",
+        "path": "careTeamDefinition",
         "min": 0,
         "max": "*",
         "type": [
@@ -13562,7 +13562,7 @@
       },
       "Bundle.entry:codeSystem": {
         "index": 111,
-        "path": "Bundle.entry",
+        "path": "codeSystem",
         "min": 0,
         "max": "*",
         "type": [
@@ -14038,7 +14038,7 @@
       },
       "Bundle.entry:graphDefinition": {
         "index": 143,
-        "path": "Bundle.entry",
+        "path": "graphDefinition",
         "min": 0,
         "max": "*",
         "type": [
@@ -14514,7 +14514,7 @@
       },
       "Bundle.entry:groupDefinition": {
         "index": 175,
-        "path": "Bundle.entry",
+        "path": "groupDefinition",
         "min": 0,
         "max": "*",
         "type": [
@@ -14990,7 +14990,7 @@
       },
       "Bundle.entry:implementationGuide": {
         "index": 207,
-        "path": "Bundle.entry",
+        "path": "implementationGuide",
         "min": 0,
         "max": "*",
         "type": [
@@ -15466,7 +15466,7 @@
       },
       "Bundle.entry:library": {
         "index": 239,
-        "path": "Bundle.entry",
+        "path": "library",
         "min": 0,
         "max": "*",
         "type": [
@@ -15942,7 +15942,7 @@
       },
       "Bundle.entry:locationDefinition": {
         "index": 271,
-        "path": "Bundle.entry",
+        "path": "locationDefinition",
         "min": 0,
         "max": "*",
         "type": [
@@ -16418,7 +16418,7 @@
       },
       "Bundle.entry:measure": {
         "index": 303,
-        "path": "Bundle.entry",
+        "path": "measure",
         "min": 0,
         "max": "*",
         "type": [
@@ -16894,7 +16894,7 @@
       },
       "Bundle.entry:planDefinition": {
         "index": 335,
-        "path": "Bundle.entry",
+        "path": "planDefinition",
         "min": 0,
         "max": "*",
         "type": [
@@ -17370,7 +17370,7 @@
       },
       "Bundle.entry:practitionerRoleDefinition": {
         "index": 367,
-        "path": "Bundle.entry",
+        "path": "practitionerRoleDefinition",
         "min": 0,
         "max": "*",
         "type": [
@@ -17846,7 +17846,7 @@
       },
       "Bundle.entry:questionnaire": {
         "index": 399,
-        "path": "Bundle.entry",
+        "path": "questionnaire",
         "min": 0,
         "max": "*",
         "type": [
@@ -18322,7 +18322,7 @@
       },
       "Bundle.entry:structureDefinition": {
         "index": 431,
-        "path": "Bundle.entry",
+        "path": "structureDefinition",
         "min": 0,
         "max": "*",
         "type": [
@@ -18798,7 +18798,7 @@
       },
       "Bundle.entry:valueSet": {
         "index": 463,
-        "path": "Bundle.entry",
+        "path": "valueSet",
         "min": 0,
         "max": "*",
         "type": [
@@ -19274,7 +19274,7 @@
       },
       "Bundle.entry:testCase": {
         "index": 495,
-        "path": "Bundle.entry",
+        "path": "testCase",
         "min": 0,
         "max": "*",
         "type": [
@@ -19884,7 +19884,7 @@
       },
       "EpisodeOfCare.extension:enrolledIn": {
         "index": 8,
-        "path": "EpisodeOfCare.extension",
+        "path": "enrolledIn",
         "min": 0,
         "max": "*",
         "type": [
@@ -20940,7 +20940,7 @@
       },
       "MedicationAdministration.extension:instantiatesCaseFeature": {
         "index": 8,
-        "path": "MedicationAdministration.extension",
+        "path": "instantiatesCaseFeature",
         "min": 0,
         "max": "1",
         "type": [
@@ -20956,7 +20956,7 @@
       },
       "MedicationAdministration.extension:caseFeatureType": {
         "index": 9,
-        "path": "MedicationAdministration.extension",
+        "path": "caseFeatureType",
         "min": 0,
         "max": "1",
         "type": [
@@ -20972,7 +20972,7 @@
       },
       "MedicationAdministration.extension:caseFeaturePertinence": {
         "index": 10,
-        "path": "MedicationAdministration.extension",
+        "path": "caseFeaturePertinence",
         "min": 0,
         "max": "1",
         "type": [
@@ -20988,7 +20988,7 @@
       },
       "MedicationAdministration.extension:basedOn": {
         "index": 11,
-        "path": "MedicationAdministration.extension",
+        "path": "basedOn",
         "min": 0,
         "max": "1",
         "type": [
@@ -21666,7 +21666,7 @@
       },
       "ImplementationGuide.extension:knowledgeCapability": {
         "index": 8,
-        "path": "ImplementationGuide.extension",
+        "path": "knowledgeCapability",
         "min": 1,
         "max": "*",
         "type": [
@@ -21682,7 +21682,7 @@
       },
       "ImplementationGuide.extension:knowledgeRepresentationLevel": {
         "index": 9,
-        "path": "ImplementationGuide.extension",
+        "path": "knowledgeRepresentationLevel",
         "min": 0,
         "max": "*",
         "type": [
@@ -23203,7 +23203,7 @@
       },
       "Procedure.extension:instantiatesCaseFeature": {
         "index": 8,
-        "path": "Procedure.extension",
+        "path": "instantiatesCaseFeature",
         "min": 0,
         "max": "1",
         "type": [
@@ -23219,7 +23219,7 @@
       },
       "Procedure.extension:caseFeatureType": {
         "index": 9,
-        "path": "Procedure.extension",
+        "path": "caseFeatureType",
         "min": 0,
         "max": "1",
         "type": [
@@ -23235,7 +23235,7 @@
       },
       "Procedure.extension:caseFeaturePertinence": {
         "index": 10,
-        "path": "Procedure.extension",
+        "path": "caseFeaturePertinence",
         "min": 0,
         "max": "1",
         "type": [
@@ -24027,7 +24027,7 @@
       },
       "Immunization.extension:instantiatesCaseFeature": {
         "index": 8,
-        "path": "Immunization.extension",
+        "path": "instantiatesCaseFeature",
         "min": 0,
         "max": "1",
         "type": [
@@ -24043,7 +24043,7 @@
       },
       "Immunization.extension:caseFeatureType": {
         "index": 9,
-        "path": "Immunization.extension",
+        "path": "caseFeatureType",
         "min": 0,
         "max": "1",
         "type": [
@@ -24059,7 +24059,7 @@
       },
       "Immunization.extension:caseFeaturePertinence": {
         "index": 10,
-        "path": "Immunization.extension",
+        "path": "caseFeaturePertinence",
         "min": 0,
         "max": "1",
         "type": [
@@ -24075,7 +24075,7 @@
       },
       "Immunization.extension:basedOn": {
         "index": 11,
-        "path": "Immunization.extension",
+        "path": "basedOn",
         "min": 0,
         "max": "1",
         "type": [
@@ -24091,7 +24091,7 @@
       },
       "Immunization.extension:pertinent": {
         "index": 12,
-        "path": "Immunization.extension",
+        "path": "pertinent",
         "min": 0,
         "max": "*",
         "type": [
@@ -25061,7 +25061,7 @@
       },
       "Task.extension:rationale": {
         "index": 8,
-        "path": "Task.extension",
+        "path": "rationale",
         "min": 0,
         "max": "1",
         "type": [
@@ -25077,7 +25077,7 @@
       },
       "Task.extension:pertinent": {
         "index": 9,
-        "path": "Task.extension",
+        "path": "pertinent",
         "min": 0,
         "max": "*",
         "type": [
@@ -25093,7 +25093,7 @@
       },
       "Task.extension:doNotPerform": {
         "index": 10,
-        "path": "Task.extension",
+        "path": "doNotPerform",
         "min": 0,
         "max": "1",
         "type": [
@@ -25913,7 +25913,7 @@
       },
       "Task.input:medicationRequest": {
         "index": 53,
-        "path": "Task.input",
+        "path": "medicationRequest",
         "min": 1,
         "max": "1",
         "type": [
@@ -26243,7 +26243,7 @@
       },
       "Task.output:medicationDispense": {
         "index": 65,
-        "path": "Task.output",
+        "path": "medicationDispense",
         "min": 0,
         "max": "1",
         "type": [
@@ -26456,7 +26456,7 @@
       },
       "CPGRecordInferenceActivity.extension:knowledgeCapability": {
         "index": 8,
-        "path": "ActivityDefinition.extension",
+        "path": "knowledgeCapability",
         "min": 1,
         "max": "*",
         "type": [
@@ -26472,7 +26472,7 @@
       },
       "CPGRecordInferenceActivity.extension:knowledgeRepresentationLevel": {
         "index": 9,
-        "path": "ActivityDefinition.extension",
+        "path": "knowledgeRepresentationLevel",
         "min": 0,
         "max": "*",
         "type": [
@@ -27467,7 +27467,7 @@
       },
       "MedicationStatement.extension:instantiatesCaseFeature": {
         "index": 8,
-        "path": "MedicationStatement.extension",
+        "path": "instantiatesCaseFeature",
         "min": 0,
         "max": "1",
         "type": [
@@ -27483,7 +27483,7 @@
       },
       "MedicationStatement.extension:caseFeatureType": {
         "index": 9,
-        "path": "MedicationStatement.extension",
+        "path": "caseFeatureType",
         "min": 0,
         "max": "1",
         "type": [
@@ -27499,7 +27499,7 @@
       },
       "MedicationStatement.extension:caseFeaturePertinence": {
         "index": 10,
-        "path": "MedicationStatement.extension",
+        "path": "caseFeaturePertinence",
         "min": 0,
         "max": "1",
         "type": [
@@ -27515,7 +27515,7 @@
       },
       "MedicationStatement.extension:pertinent": {
         "index": 11,
-        "path": "MedicationStatement.extension",
+        "path": "pertinent",
         "min": 0,
         "max": "*",
         "type": [
@@ -27947,7 +27947,7 @@
       },
       "ImmunizationRecommendation.extension:instantiatesCanonical": {
         "index": 8,
-        "path": "ImmunizationRecommendation.extension",
+        "path": "instantiatesCanonical",
         "min": 0,
         "max": "1",
         "type": [
@@ -27963,7 +27963,7 @@
       },
       "ImmunizationRecommendation.extension:rationale": {
         "index": 9,
-        "path": "ImmunizationRecommendation.extension",
+        "path": "rationale",
         "min": 0,
         "max": "1",
         "type": [
@@ -28494,7 +28494,7 @@
       },
       "CPGCollectInformationActivity.extension:knowledgeCapability": {
         "index": 8,
-        "path": "ActivityDefinition.extension",
+        "path": "knowledgeCapability",
         "min": 1,
         "max": "*",
         "type": [
@@ -28510,7 +28510,7 @@
       },
       "CPGCollectInformationActivity.extension:knowledgeRepresentationLevel": {
         "index": 9,
-        "path": "ActivityDefinition.extension",
+        "path": "knowledgeRepresentationLevel",
         "min": 0,
         "max": "*",
         "type": [
@@ -28526,7 +28526,7 @@
       },
       "CPGCollectInformationActivity.extension:collectWith": {
         "index": 10,
-        "path": "ActivityDefinition.extension",
+        "path": "collectWith",
         "min": 0,
         "max": "1",
         "type": [
@@ -29522,7 +29522,7 @@
       },
       "CPGServiceRequestActivity.extension:knowledgeCapability": {
         "index": 8,
-        "path": "ActivityDefinition.extension",
+        "path": "knowledgeCapability",
         "min": 1,
         "max": "*",
         "type": [
@@ -29538,7 +29538,7 @@
       },
       "CPGServiceRequestActivity.extension:knowledgeRepresentationLevel": {
         "index": 9,
-        "path": "ActivityDefinition.extension",
+        "path": "knowledgeRepresentationLevel",
         "min": 0,
         "max": "*",
         "type": [
@@ -31167,7 +31167,7 @@
       },
       "Composition.extension:instantiatesCanonical": {
         "index": 8,
-        "path": "Composition.extension",
+        "path": "instantiatesCanonical",
         "min": 0,
         "max": "1",
         "type": [
@@ -31183,7 +31183,7 @@
       },
       "Composition.extension:summaryFor": {
         "index": 9,
-        "path": "Composition.extension",
+        "path": "summaryFor",
         "min": 0,
         "max": "*",
         "type": [
@@ -32031,7 +32031,7 @@
       },
       "CPGCommunicationActivity.extension:knowledgeCapability": {
         "index": 8,
-        "path": "ActivityDefinition.extension",
+        "path": "knowledgeCapability",
         "min": 1,
         "max": "*",
         "type": [
@@ -32047,7 +32047,7 @@
       },
       "CPGCommunicationActivity.extension:knowledgeRepresentationLevel": {
         "index": 9,
-        "path": "ActivityDefinition.extension",
+        "path": "knowledgeRepresentationLevel",
         "min": 0,
         "max": "*",
         "type": [
@@ -33042,7 +33042,7 @@
       },
       "CarePlan.extension:planFor": {
         "index": 8,
-        "path": "CarePlan.extension",
+        "path": "planFor",
         "min": 0,
         "max": "*",
         "type": [
@@ -34042,7 +34042,7 @@
       },
       "CPGReportFlagActivity.extension:knowledgeCapability": {
         "index": 8,
-        "path": "ActivityDefinition.extension",
+        "path": "knowledgeCapability",
         "min": 1,
         "max": "*",
         "type": [
@@ -34058,7 +34058,7 @@
       },
       "CPGReportFlagActivity.extension:knowledgeRepresentationLevel": {
         "index": 9,
-        "path": "ActivityDefinition.extension",
+        "path": "knowledgeRepresentationLevel",
         "min": 0,
         "max": "*",
         "type": [
@@ -36752,7 +36752,7 @@
       },
       "Communication.extension:instantiatesCaseFeature": {
         "index": 8,
-        "path": "Communication.extension",
+        "path": "instantiatesCaseFeature",
         "min": 0,
         "max": "1",
         "type": [
@@ -36768,7 +36768,7 @@
       },
       "Communication.extension:caseFeatureType": {
         "index": 9,
-        "path": "Communication.extension",
+        "path": "caseFeatureType",
         "min": 0,
         "max": "1",
         "type": [
@@ -36784,7 +36784,7 @@
       },
       "Communication.extension:caseFeaturePertinence": {
         "index": 10,
-        "path": "Communication.extension",
+        "path": "caseFeaturePertinence",
         "min": 0,
         "max": "1",
         "type": [
@@ -37379,7 +37379,7 @@
       },
       "CPGRecordDetectedIssueActivity.extension:knowledgeCapability": {
         "index": 8,
-        "path": "ActivityDefinition.extension",
+        "path": "knowledgeCapability",
         "min": 1,
         "max": "*",
         "type": [
@@ -37395,7 +37395,7 @@
       },
       "CPGRecordDetectedIssueActivity.extension:knowledgeRepresentationLevel": {
         "index": 9,
-        "path": "ActivityDefinition.extension",
+        "path": "knowledgeRepresentationLevel",
         "min": 0,
         "max": "*",
         "type": [
@@ -38390,7 +38390,7 @@
       },
       "CPGAdministerMedicationActivity.extension:knowledgeCapability": {
         "index": 8,
-        "path": "ActivityDefinition.extension",
+        "path": "knowledgeCapability",
         "min": 1,
         "max": "*",
         "type": [
@@ -38406,7 +38406,7 @@
       },
       "CPGAdministerMedicationActivity.extension:knowledgeRepresentationLevel": {
         "index": 9,
-        "path": "ActivityDefinition.extension",
+        "path": "knowledgeRepresentationLevel",
         "min": 0,
         "max": "*",
         "type": [
@@ -39401,7 +39401,7 @@
       },
       "CPGShareableActivityDefinition.extension:knowledgeCapability": {
         "index": 8,
-        "path": "ActivityDefinition.extension",
+        "path": "knowledgeCapability",
         "min": 1,
         "max": "*",
         "type": [
@@ -39417,7 +39417,7 @@
       },
       "CPGShareableActivityDefinition.extension:knowledgeRepresentationLevel": {
         "index": 9,
-        "path": "ActivityDefinition.extension",
+        "path": "knowledgeRepresentationLevel",
         "min": 0,
         "max": "*",
         "type": [
@@ -40415,7 +40415,7 @@
       },
       "Group.extension:expression": {
         "index": 8,
-        "path": "Group.extension",
+        "path": "expression",
         "min": 0,
         "max": "1",
         "type": [
@@ -40926,7 +40926,7 @@
       },
       "Questionnaire.extension:knowledgeCapability": {
         "index": 8,
-        "path": "Questionnaire.extension",
+        "path": "knowledgeCapability",
         "min": 1,
         "max": "*",
         "type": [
@@ -40942,7 +40942,7 @@
       },
       "Questionnaire.extension:knowledgeRepresentationLevel": {
         "index": 9,
-        "path": "Questionnaire.extension",
+        "path": "knowledgeRepresentationLevel",
         "min": 0,
         "max": "*",
         "type": [
@@ -41317,7 +41317,7 @@
       },
       "Questionnaire.item.extension:answerValueSetSource": {
         "index": 35,
-        "path": "Questionnaire.item.extension",
+        "path": "answerValueSetSource",
         "min": 0,
         "max": "1",
         "type": [
@@ -41333,7 +41333,7 @@
       },
       "Questionnaire.item.extension:itemImage": {
         "index": 36,
-        "path": "Questionnaire.item.extension",
+        "path": "itemImage",
         "min": 0,
         "max": "1",
         "type": [
@@ -41716,7 +41716,7 @@
       },
       "Questionnaire.item.answerOption.extension:responseImage": {
         "index": 60,
-        "path": "Questionnaire.item.answerOption.extension",
+        "path": "responseImage",
         "min": 0,
         "max": "1",
         "type": [
@@ -42039,7 +42039,7 @@
       },
       "Condition.extension:instantiatesCaseFeature": {
         "index": 8,
-        "path": "Condition.extension",
+        "path": "instantiatesCaseFeature",
         "min": 0,
         "max": "1",
         "type": [
@@ -42055,7 +42055,7 @@
       },
       "Condition.extension:caseFeatureType": {
         "index": 9,
-        "path": "Condition.extension",
+        "path": "caseFeatureType",
         "min": 0,
         "max": "1",
         "type": [
@@ -42071,7 +42071,7 @@
       },
       "Condition.extension:caseFeaturePertinence": {
         "index": 10,
-        "path": "Condition.extension",
+        "path": "caseFeaturePertinence",
         "min": 0,
         "max": "1",
         "type": [
@@ -42669,7 +42669,7 @@
       },
       "CPGPublishableActivityDefinition.extension:knowledgeCapability": {
         "index": 8,
-        "path": "ActivityDefinition.extension",
+        "path": "knowledgeCapability",
         "min": 1,
         "max": "*",
         "type": [
@@ -42685,7 +42685,7 @@
       },
       "CPGPublishableActivityDefinition.extension:knowledgeRepresentationLevel": {
         "index": 9,
-        "path": "ActivityDefinition.extension",
+        "path": "knowledgeRepresentationLevel",
         "min": 0,
         "max": "*",
         "type": [
@@ -43818,7 +43818,7 @@
       },
       "CPGDispenseMedicationActivity.extension:knowledgeCapability": {
         "index": 8,
-        "path": "ActivityDefinition.extension",
+        "path": "knowledgeCapability",
         "min": 1,
         "max": "*",
         "type": [
@@ -43834,7 +43834,7 @@
       },
       "CPGDispenseMedicationActivity.extension:knowledgeRepresentationLevel": {
         "index": 9,
-        "path": "ActivityDefinition.extension",
+        "path": "knowledgeRepresentationLevel",
         "min": 0,
         "max": "*",
         "type": [
@@ -44829,7 +44829,7 @@
       },
       "CPGComputableActivityDefinition.extension:knowledgeCapability": {
         "index": 8,
-        "path": "ActivityDefinition.extension",
+        "path": "knowledgeCapability",
         "min": 1,
         "max": "*",
         "type": [
@@ -44845,7 +44845,7 @@
       },
       "CPGComputableActivityDefinition.extension:knowledgeRepresentationLevel": {
         "index": 9,
-        "path": "ActivityDefinition.extension",
+        "path": "knowledgeRepresentationLevel",
         "min": 0,
         "max": "*",
         "type": [
@@ -45843,7 +45843,7 @@
       },
       "CPGDocumentMedicationActivity.extension:knowledgeCapability": {
         "index": 8,
-        "path": "ActivityDefinition.extension",
+        "path": "knowledgeCapability",
         "min": 1,
         "max": "*",
         "type": [
@@ -45859,7 +45859,7 @@
       },
       "CPGDocumentMedicationActivity.extension:knowledgeRepresentationLevel": {
         "index": 9,
-        "path": "ActivityDefinition.extension",
+        "path": "knowledgeRepresentationLevel",
         "min": 0,
         "max": "*",
         "type": [
@@ -46854,7 +46854,7 @@
       },
       "CommunicationRequest.extension:instantiatesCanonical": {
         "index": 8,
-        "path": "CommunicationRequest.extension",
+        "path": "instantiatesCanonical",
         "min": 0,
         "max": "1",
         "type": [
@@ -46870,7 +46870,7 @@
       },
       "CommunicationRequest.extension:rationale": {
         "index": 9,
-        "path": "CommunicationRequest.extension",
+        "path": "rationale",
         "min": 0,
         "max": "1",
         "type": [
@@ -47452,7 +47452,7 @@
       },
       "ValueSet.extension:knowledgeCapability": {
         "index": 8,
-        "path": "ValueSet.extension",
+        "path": "knowledgeCapability",
         "min": 1,
         "max": "*",
         "type": [
@@ -47468,7 +47468,7 @@
       },
       "ValueSet.extension:knowledgeRepresentationLevel": {
         "index": 9,
-        "path": "ValueSet.extension",
+        "path": "knowledgeRepresentationLevel",
         "min": 0,
         "max": "*",
         "type": [
@@ -47484,7 +47484,7 @@
       },
       "ValueSet.extension:usageWarning": {
         "index": 10,
-        "path": "ValueSet.extension",
+        "path": "usageWarning",
         "min": 1,
         "max": "1",
         "type": [
@@ -48833,7 +48833,7 @@
       },
       "CPGProposeDiagnosisActivity.extension:knowledgeCapability": {
         "index": 8,
-        "path": "ActivityDefinition.extension",
+        "path": "knowledgeCapability",
         "min": 1,
         "max": "*",
         "type": [
@@ -48849,7 +48849,7 @@
       },
       "CPGProposeDiagnosisActivity.extension:knowledgeRepresentationLevel": {
         "index": 9,
-        "path": "ActivityDefinition.extension",
+        "path": "knowledgeRepresentationLevel",
         "min": 0,
         "max": "*",
         "type": [
@@ -50369,7 +50369,7 @@
       },
       "MedicationDispense.extension:instantiatesCaseFeature": {
         "index": 8,
-        "path": "MedicationDispense.extension",
+        "path": "instantiatesCaseFeature",
         "min": 0,
         "max": "1",
         "type": [
@@ -50385,7 +50385,7 @@
       },
       "MedicationDispense.extension:caseFeatureType": {
         "index": 9,
-        "path": "MedicationDispense.extension",
+        "path": "caseFeatureType",
         "min": 0,
         "max": "1",
         "type": [
@@ -50401,7 +50401,7 @@
       },
       "MedicationDispense.extension:caseFeaturePertinence": {
         "index": 10,
-        "path": "MedicationDispense.extension",
+        "path": "caseFeaturePertinence",
         "min": 0,
         "max": "1",
         "type": [
@@ -51130,7 +51130,7 @@
       },
       "ClinicalImpression.extension:impressionFor": {
         "index": 8,
-        "path": "ClinicalImpression.extension",
+        "path": "impressionFor",
         "min": 0,
         "max": "1",
         "type": [
@@ -51766,7 +51766,7 @@
       },
       "DetectedIssue.extension:instantiatesCaseFeature": {
         "index": 8,
-        "path": "DetectedIssue.extension",
+        "path": "instantiatesCaseFeature",
         "min": 0,
         "max": "1",
         "type": [
@@ -51782,7 +51782,7 @@
       },
       "DetectedIssue.extension:caseFeatureType": {
         "index": 9,
-        "path": "DetectedIssue.extension",
+        "path": "caseFeatureType",
         "min": 0,
         "max": "1",
         "type": [
@@ -51798,7 +51798,7 @@
       },
       "DetectedIssue.extension:caseFeaturePertinence": {
         "index": 10,
-        "path": "DetectedIssue.extension",
+        "path": "caseFeaturePertinence",
         "min": 0,
         "max": "1",
         "type": [
@@ -52303,7 +52303,7 @@
       },
       "CPGEnrollmentActivity.extension:knowledgeCapability": {
         "index": 8,
-        "path": "ActivityDefinition.extension",
+        "path": "knowledgeCapability",
         "min": 1,
         "max": "*",
         "type": [
@@ -52319,7 +52319,7 @@
       },
       "CPGEnrollmentActivity.extension:knowledgeRepresentationLevel": {
         "index": 9,
-        "path": "ActivityDefinition.extension",
+        "path": "knowledgeRepresentationLevel",
         "min": 0,
         "max": "*",
         "type": [
@@ -52335,7 +52335,7 @@
       },
       "CPGEnrollmentActivity.extension:enrollIn": {
         "index": 10,
-        "path": "ActivityDefinition.extension",
+        "path": "enrollIn",
         "min": 0,
         "max": "1",
         "type": [
@@ -52352,7 +52352,7 @@
       },
       "CPGEnrollmentActivity.extension:isUnenrollment": {
         "index": 11,
-        "path": "ActivityDefinition.extension",
+        "path": "isUnenrollment",
         "min": 0,
         "max": "1",
         "type": [
@@ -53348,7 +53348,7 @@
       },
       "CPGImmunizationActivity.extension:knowledgeCapability": {
         "index": 8,
-        "path": "ActivityDefinition.extension",
+        "path": "knowledgeCapability",
         "min": 1,
         "max": "*",
         "type": [
@@ -53364,7 +53364,7 @@
       },
       "CPGImmunizationActivity.extension:knowledgeRepresentationLevel": {
         "index": 9,
-        "path": "ActivityDefinition.extension",
+        "path": "knowledgeRepresentationLevel",
         "min": 0,
         "max": "*",
         "type": [
@@ -55685,7 +55685,7 @@
       },
       "Goal.extension:goalFor": {
         "index": 8,
-        "path": "Goal.extension",
+        "path": "goalFor",
         "min": 0,
         "max": "*",
         "type": [
@@ -57116,7 +57116,7 @@
       },
       "MeasureReport.extension:instantiatesCaseFeature": {
         "index": 8,
-        "path": "MeasureReport.extension",
+        "path": "instantiatesCaseFeature",
         "min": 0,
         "max": "1",
         "type": [
@@ -57132,7 +57132,7 @@
       },
       "MeasureReport.extension:caseFeatureType": {
         "index": 9,
-        "path": "MeasureReport.extension",
+        "path": "caseFeatureType",
         "min": 0,
         "max": "1",
         "type": [
@@ -57148,7 +57148,7 @@
       },
       "MeasureReport.extension:caseFeaturePertinence": {
         "index": 10,
-        "path": "MeasureReport.extension",
+        "path": "caseFeaturePertinence",
         "min": 0,
         "max": "1",
         "type": [
@@ -58019,7 +58019,7 @@
       },
       "CPGMedicationRequestActivity.extension:knowledgeCapability": {
         "index": 8,
-        "path": "ActivityDefinition.extension",
+        "path": "knowledgeCapability",
         "min": 1,
         "max": "*",
         "type": [
@@ -58035,7 +58035,7 @@
       },
       "CPGMedicationRequestActivity.extension:knowledgeRepresentationLevel": {
         "index": 9,
-        "path": "ActivityDefinition.extension",
+        "path": "knowledgeRepresentationLevel",
         "min": 0,
         "max": "*",
         "type": [
@@ -58895,1017 +58895,6 @@
         "short": "The path to the element to be set dynamically"
       },
       "CPGMedicationRequestActivity.dynamicValue.expression": {
-        "index": 66,
-        "path": "ActivityDefinition.dynamicValue.expression",
-        "min": 1,
-        "max": "1",
-        "type": [
-          {
-            "code": "Expression"
-          }
-        ],
-        "isSummary": false,
-        "isModifier": false,
-        "short": "An expression that provides the dynamic value for the customization"
-      }
-    },
-    "ActivityDefinition": {
-      "ActivityDefinition": {
-        "index": 0,
-        "path": "ActivityDefinition",
-        "min": 1,
-        "max": "1",
-        "type": [
-          {
-            "code": "DomainResource"
-          }
-        ],
-        "isSummary": false,
-        "isModifier": false,
-        "short": "The definition of a specific activity to be taken, independent of any particular patient or context"
-      },
-      "ActivityDefinition.id": {
-        "index": 1,
-        "path": "ActivityDefinition.id",
-        "min": 0,
-        "max": "1",
-        "type": [
-          {
-            "extension": [
-              {
-                "url": "http://hl7.org/fhir/StructureDefinition/structuredefinition-fhir-type",
-                "valueUrl": "string"
-              }
-            ],
-            "code": "http://hl7.org/fhirpath/System.String"
-          }
-        ],
-        "isSummary": true,
-        "isModifier": false,
-        "short": "Logical id of this artifact"
-      },
-      "ActivityDefinition.meta": {
-        "index": 2,
-        "path": "ActivityDefinition.meta",
-        "min": 0,
-        "max": "1",
-        "type": [
-          {
-            "code": "Meta"
-          }
-        ],
-        "isSummary": true,
-        "isModifier": false,
-        "short": "Metadata about the resource"
-      },
-      "ActivityDefinition.implicitRules": {
-        "index": 3,
-        "path": "ActivityDefinition.implicitRules",
-        "min": 0,
-        "max": "1",
-        "type": [
-          {
-            "code": "uri"
-          }
-        ],
-        "isSummary": true,
-        "isModifier": true,
-        "short": "A set of rules under which this content was created"
-      },
-      "ActivityDefinition.language": {
-        "index": 4,
-        "path": "ActivityDefinition.language",
-        "min": 0,
-        "max": "1",
-        "type": [
-          {
-            "code": "code"
-          }
-        ],
-        "isSummary": false,
-        "isModifier": false,
-        "short": "Language of the resource content"
-      },
-      "ActivityDefinition.text": {
-        "index": 5,
-        "path": "ActivityDefinition.text",
-        "min": 0,
-        "max": "1",
-        "type": [
-          {
-            "code": "Narrative"
-          }
-        ],
-        "isSummary": false,
-        "isModifier": false,
-        "short": "Text summary of the resource, for human interpretation"
-      },
-      "ActivityDefinition.contained": {
-        "index": 6,
-        "path": "ActivityDefinition.contained",
-        "min": 0,
-        "max": "*",
-        "type": [
-          {
-            "code": "Resource"
-          }
-        ],
-        "isSummary": false,
-        "isModifier": false,
-        "short": "Contained, inline Resources"
-      },
-      "ActivityDefinition.extension": {
-        "index": 7,
-        "path": "ActivityDefinition.extension",
-        "min": 0,
-        "max": "*",
-        "type": [
-          {
-            "code": "Extension"
-          }
-        ],
-        "isSummary": false,
-        "isModifier": false,
-        "short": "Extension"
-      },
-      "ActivityDefinition.extension:knowledgeCapability": {
-        "index": 8,
-        "path": "ActivityDefinition.extension",
-        "min": 1,
-        "max": "*",
-        "type": [
-          {
-            "code": "Extension",
-            "profile": [
-              "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-knowledgeCapability"
-            ]
-          }
-        ],
-        "isModifier": false,
-        "short": "shareable | computable | publishable | executable"
-      },
-      "ActivityDefinition.extension:knowledgeRepresentationLevel": {
-        "index": 9,
-        "path": "ActivityDefinition.extension",
-        "min": 0,
-        "max": "*",
-        "type": [
-          {
-            "code": "Extension",
-            "profile": [
-              "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-knowledgeRepresentationLevel"
-            ]
-          }
-        ],
-        "isModifier": false,
-        "short": "narrative | semi-structured | structured | executable"
-      },
-      "ActivityDefinition.modifierExtension": {
-        "index": 10,
-        "path": "ActivityDefinition.modifierExtension",
-        "min": 0,
-        "max": "*",
-        "type": [
-          {
-            "code": "Extension"
-          }
-        ],
-        "isSummary": false,
-        "isModifier": true,
-        "short": "Extensions that cannot be ignored"
-      },
-      "ActivityDefinition.url": {
-        "index": 11,
-        "path": "ActivityDefinition.url",
-        "min": 1,
-        "max": "1",
-        "type": [
-          {
-            "code": "uri"
-          }
-        ],
-        "isSummary": true,
-        "isModifier": false,
-        "short": "Canonical identifier for this activity definition, represented as a URI (globally unique)"
-      },
-      "ActivityDefinition.identifier": {
-        "index": 12,
-        "path": "ActivityDefinition.identifier",
-        "min": 0,
-        "max": "*",
-        "type": [
-          {
-            "code": "Identifier"
-          }
-        ],
-        "isSummary": true,
-        "isModifier": false,
-        "short": "Additional identifier for the activity definition"
-      },
-      "ActivityDefinition.version": {
-        "index": 13,
-        "path": "ActivityDefinition.version",
-        "min": 1,
-        "max": "1",
-        "type": [
-          {
-            "code": "string"
-          }
-        ],
-        "isSummary": true,
-        "isModifier": false,
-        "short": "Business version of the activity definition"
-      },
-      "ActivityDefinition.name": {
-        "index": 14,
-        "path": "ActivityDefinition.name",
-        "min": 1,
-        "max": "1",
-        "type": [
-          {
-            "code": "string"
-          }
-        ],
-        "isSummary": true,
-        "isModifier": false,
-        "short": "Name for this activity definition (computer friendly)"
-      },
-      "ActivityDefinition.title": {
-        "index": 15,
-        "path": "ActivityDefinition.title",
-        "min": 0,
-        "max": "1",
-        "type": [
-          {
-            "code": "string"
-          }
-        ],
-        "isSummary": true,
-        "isModifier": false,
-        "short": "Name for this activity definition (human friendly)"
-      },
-      "ActivityDefinition.subtitle": {
-        "index": 16,
-        "path": "ActivityDefinition.subtitle",
-        "min": 0,
-        "max": "1",
-        "type": [
-          {
-            "code": "string"
-          }
-        ],
-        "isSummary": false,
-        "isModifier": false,
-        "short": "Subordinate title of the activity definition"
-      },
-      "ActivityDefinition.status": {
-        "index": 17,
-        "path": "ActivityDefinition.status",
-        "min": 1,
-        "max": "1",
-        "type": [
-          {
-            "code": "code"
-          }
-        ],
-        "isSummary": true,
-        "isModifier": true,
-        "short": "draft | active | retired | unknown"
-      },
-      "ActivityDefinition.experimental": {
-        "index": 18,
-        "path": "ActivityDefinition.experimental",
-        "min": 1,
-        "max": "1",
-        "type": [
-          {
-            "code": "boolean"
-          }
-        ],
-        "isSummary": true,
-        "isModifier": false,
-        "short": "For testing purposes, not real usage"
-      },
-      "ActivityDefinition.subject[x]": {
-        "index": 19,
-        "path": "ActivityDefinition.subject[x]",
-        "min": 0,
-        "max": "1",
-        "type": [
-          {
-            "code": "CodeableConcept"
-          },
-          {
-            "code": "Reference",
-            "targetProfile": [
-              "http://hl7.org/fhir/StructureDefinition/Group"
-            ]
-          }
-        ],
-        "isSummary": false,
-        "isModifier": false,
-        "short": "Type of individual the activity definition is intended for"
-      },
-      "ActivityDefinition.date": {
-        "index": 20,
-        "path": "ActivityDefinition.date",
-        "min": 0,
-        "max": "1",
-        "type": [
-          {
-            "code": "dateTime"
-          }
-        ],
-        "isSummary": true,
-        "isModifier": false,
-        "short": "Date last changed"
-      },
-      "ActivityDefinition.publisher": {
-        "index": 21,
-        "path": "ActivityDefinition.publisher",
-        "min": 1,
-        "max": "1",
-        "type": [
-          {
-            "code": "string"
-          }
-        ],
-        "isSummary": true,
-        "isModifier": false,
-        "short": "Name of the publisher (organization or individual)"
-      },
-      "ActivityDefinition.contact": {
-        "index": 22,
-        "path": "ActivityDefinition.contact",
-        "min": 0,
-        "max": "*",
-        "type": [
-          {
-            "code": "ContactDetail"
-          }
-        ],
-        "isSummary": true,
-        "isModifier": false,
-        "short": "Contact details for the publisher"
-      },
-      "ActivityDefinition.description": {
-        "index": 23,
-        "path": "ActivityDefinition.description",
-        "min": 1,
-        "max": "1",
-        "type": [
-          {
-            "code": "markdown"
-          }
-        ],
-        "isSummary": true,
-        "isModifier": false,
-        "short": "Natural language description of the activity definition"
-      },
-      "ActivityDefinition.useContext": {
-        "index": 24,
-        "path": "ActivityDefinition.useContext",
-        "min": 0,
-        "max": "*",
-        "type": [
-          {
-            "code": "UsageContext"
-          }
-        ],
-        "isSummary": true,
-        "isModifier": false,
-        "short": "The context that the content is intended to support"
-      },
-      "ActivityDefinition.jurisdiction": {
-        "index": 25,
-        "path": "ActivityDefinition.jurisdiction",
-        "min": 0,
-        "max": "*",
-        "type": [
-          {
-            "code": "CodeableConcept"
-          }
-        ],
-        "isSummary": true,
-        "isModifier": false,
-        "short": "Intended jurisdiction for activity definition (if applicable)"
-      },
-      "ActivityDefinition.purpose": {
-        "index": 26,
-        "path": "ActivityDefinition.purpose",
-        "min": 0,
-        "max": "1",
-        "type": [
-          {
-            "code": "markdown"
-          }
-        ],
-        "isSummary": false,
-        "isModifier": false,
-        "short": "Why this activity definition is defined"
-      },
-      "ActivityDefinition.usage": {
-        "index": 27,
-        "path": "ActivityDefinition.usage",
-        "min": 0,
-        "max": "1",
-        "type": [
-          {
-            "code": "string"
-          }
-        ],
-        "isSummary": false,
-        "isModifier": false,
-        "short": "Describes the clinical usage of the activity definition"
-      },
-      "ActivityDefinition.copyright": {
-        "index": 28,
-        "path": "ActivityDefinition.copyright",
-        "min": 0,
-        "max": "1",
-        "type": [
-          {
-            "code": "markdown"
-          }
-        ],
-        "isSummary": false,
-        "isModifier": false,
-        "short": "Use and/or publishing restrictions"
-      },
-      "ActivityDefinition.approvalDate": {
-        "index": 29,
-        "path": "ActivityDefinition.approvalDate",
-        "min": 0,
-        "max": "1",
-        "type": [
-          {
-            "code": "date"
-          }
-        ],
-        "isSummary": false,
-        "isModifier": false,
-        "short": "When the activity definition was approved by publisher"
-      },
-      "ActivityDefinition.lastReviewDate": {
-        "index": 30,
-        "path": "ActivityDefinition.lastReviewDate",
-        "min": 0,
-        "max": "1",
-        "type": [
-          {
-            "code": "date"
-          }
-        ],
-        "isSummary": false,
-        "isModifier": false,
-        "short": "When the activity definition was last reviewed"
-      },
-      "ActivityDefinition.effectivePeriod": {
-        "index": 31,
-        "path": "ActivityDefinition.effectivePeriod",
-        "min": 0,
-        "max": "1",
-        "type": [
-          {
-            "code": "Period"
-          }
-        ],
-        "isSummary": true,
-        "isModifier": false,
-        "short": "When the activity definition is expected to be used"
-      },
-      "ActivityDefinition.topic": {
-        "index": 32,
-        "path": "ActivityDefinition.topic",
-        "min": 0,
-        "max": "*",
-        "type": [
-          {
-            "code": "CodeableConcept"
-          }
-        ],
-        "isSummary": false,
-        "isModifier": false,
-        "short": "E.g. Education, Treatment, Assessment, etc."
-      },
-      "ActivityDefinition.author": {
-        "index": 33,
-        "path": "ActivityDefinition.author",
-        "min": 0,
-        "max": "*",
-        "type": [
-          {
-            "code": "ContactDetail"
-          }
-        ],
-        "isSummary": false,
-        "isModifier": false,
-        "short": "Who authored the content"
-      },
-      "ActivityDefinition.editor": {
-        "index": 34,
-        "path": "ActivityDefinition.editor",
-        "min": 0,
-        "max": "*",
-        "type": [
-          {
-            "code": "ContactDetail"
-          }
-        ],
-        "isSummary": false,
-        "isModifier": false,
-        "short": "Who edited the content"
-      },
-      "ActivityDefinition.reviewer": {
-        "index": 35,
-        "path": "ActivityDefinition.reviewer",
-        "min": 0,
-        "max": "*",
-        "type": [
-          {
-            "code": "ContactDetail"
-          }
-        ],
-        "isSummary": false,
-        "isModifier": false,
-        "short": "Who reviewed the content"
-      },
-      "ActivityDefinition.endorser": {
-        "index": 36,
-        "path": "ActivityDefinition.endorser",
-        "min": 0,
-        "max": "*",
-        "type": [
-          {
-            "code": "ContactDetail"
-          }
-        ],
-        "isSummary": false,
-        "isModifier": false,
-        "short": "Who endorsed the content"
-      },
-      "ActivityDefinition.relatedArtifact": {
-        "index": 37,
-        "path": "ActivityDefinition.relatedArtifact",
-        "min": 0,
-        "max": "*",
-        "type": [
-          {
-            "code": "RelatedArtifact"
-          }
-        ],
-        "isSummary": false,
-        "isModifier": false,
-        "short": "Additional documentation, citations, etc."
-      },
-      "ActivityDefinition.library": {
-        "index": 38,
-        "path": "ActivityDefinition.library",
-        "min": 0,
-        "max": "1",
-        "type": [
-          {
-            "code": "canonical",
-            "targetProfile": [
-              "http://hl7.org/fhir/StructureDefinition/Library"
-            ]
-          }
-        ],
-        "isSummary": false,
-        "isModifier": false,
-        "short": "Logic used by the activity definition"
-      },
-      "ActivityDefinition.kind": {
-        "index": 39,
-        "path": "ActivityDefinition.kind",
-        "min": 1,
-        "max": "1",
-        "type": [
-          {
-            "code": "code"
-          }
-        ],
-        "isSummary": true,
-        "isModifier": false,
-        "short": "Kind of resource"
-      },
-      "ActivityDefinition.profile": {
-        "index": 40,
-        "path": "ActivityDefinition.profile",
-        "min": 1,
-        "max": "1",
-        "type": [
-          {
-            "code": "canonical"
-          }
-        ],
-        "isSummary": false,
-        "isModifier": false,
-        "short": "At least a CPG MedicationRequest"
-      },
-      "ActivityDefinition.code": {
-        "index": 41,
-        "path": "ActivityDefinition.code",
-        "min": 0,
-        "max": "1",
-        "type": [
-          {
-            "code": "CodeableConcept"
-          }
-        ],
-        "isSummary": true,
-        "isModifier": false,
-        "short": "Detail type of activity"
-      },
-      "ActivityDefinition.intent": {
-        "index": 42,
-        "path": "ActivityDefinition.intent",
-        "min": 1,
-        "max": "1",
-        "type": [
-          {
-            "code": "code"
-          }
-        ],
-        "isSummary": false,
-        "isModifier": false,
-        "short": "proposal | plan | directive | order | original-order | reflex-order | filler-order | instance-order | option"
-      },
-      "ActivityDefinition.priority": {
-        "index": 43,
-        "path": "ActivityDefinition.priority",
-        "min": 0,
-        "max": "1",
-        "type": [
-          {
-            "code": "code"
-          }
-        ],
-        "isSummary": false,
-        "isModifier": false,
-        "short": "routine | urgent | asap | stat"
-      },
-      "ActivityDefinition.doNotPerform": {
-        "index": 44,
-        "path": "ActivityDefinition.doNotPerform",
-        "min": 1,
-        "max": "1",
-        "type": [
-          {
-            "code": "boolean"
-          }
-        ],
-        "isSummary": true,
-        "isModifier": true,
-        "short": "True if the activity should not be performed"
-      },
-      "ActivityDefinition.timing[x]": {
-        "index": 45,
-        "path": "ActivityDefinition.timing[x]",
-        "min": 0,
-        "max": "1",
-        "type": [
-          {
-            "code": "Timing"
-          },
-          {
-            "code": "dateTime"
-          },
-          {
-            "code": "Age"
-          },
-          {
-            "code": "Period"
-          },
-          {
-            "code": "Range"
-          },
-          {
-            "code": "Duration"
-          }
-        ],
-        "isSummary": false,
-        "isModifier": false,
-        "short": "When activity is to occur"
-      },
-      "ActivityDefinition.location": {
-        "index": 46,
-        "path": "ActivityDefinition.location",
-        "min": 0,
-        "max": "1",
-        "type": [
-          {
-            "code": "Reference",
-            "targetProfile": [
-              "http://hl7.org/fhir/StructureDefinition/Location"
-            ]
-          }
-        ],
-        "isSummary": false,
-        "isModifier": false,
-        "short": "Where it should happen"
-      },
-      "ActivityDefinition.participant": {
-        "index": 47,
-        "path": "ActivityDefinition.participant",
-        "min": 0,
-        "max": "*",
-        "type": [
-          {
-            "code": "BackboneElement"
-          }
-        ],
-        "isSummary": false,
-        "isModifier": false,
-        "short": "Who should participate in the action"
-      },
-      "ActivityDefinition.participant.id": {
-        "index": 48,
-        "path": "ActivityDefinition.participant.id",
-        "min": 0,
-        "max": "1",
-        "type": [
-          {
-            "extension": [
-              {
-                "url": "http://hl7.org/fhir/StructureDefinition/structuredefinition-fhir-type",
-                "valueUrl": "string"
-              }
-            ],
-            "code": "http://hl7.org/fhirpath/System.String"
-          }
-        ],
-        "isSummary": false,
-        "isModifier": false,
-        "short": "Unique id for inter-element referencing"
-      },
-      "ActivityDefinition.participant.extension": {
-        "index": 49,
-        "path": "ActivityDefinition.participant.extension",
-        "min": 0,
-        "max": "*",
-        "type": [
-          {
-            "code": "Extension"
-          }
-        ],
-        "isSummary": false,
-        "isModifier": false,
-        "short": "Additional content defined by implementations"
-      },
-      "ActivityDefinition.participant.modifierExtension": {
-        "index": 50,
-        "path": "ActivityDefinition.participant.modifierExtension",
-        "min": 0,
-        "max": "*",
-        "type": [
-          {
-            "code": "Extension"
-          }
-        ],
-        "isSummary": true,
-        "isModifier": true,
-        "short": "Extensions that cannot be ignored even if unrecognized"
-      },
-      "ActivityDefinition.participant.type": {
-        "index": 51,
-        "path": "ActivityDefinition.participant.type",
-        "min": 1,
-        "max": "1",
-        "type": [
-          {
-            "code": "code"
-          }
-        ],
-        "isSummary": false,
-        "isModifier": false,
-        "short": "patient | practitioner | related-person | device"
-      },
-      "ActivityDefinition.participant.role": {
-        "index": 52,
-        "path": "ActivityDefinition.participant.role",
-        "min": 0,
-        "max": "1",
-        "type": [
-          {
-            "code": "CodeableConcept"
-          }
-        ],
-        "isSummary": false,
-        "isModifier": false,
-        "short": "E.g. Nurse, Surgeon, Parent, etc."
-      },
-      "ActivityDefinition.product[x]": {
-        "index": 53,
-        "path": "ActivityDefinition.product[x]",
-        "min": 0,
-        "max": "1",
-        "type": [
-          {
-            "code": "Reference",
-            "targetProfile": [
-              "http://hl7.org/fhir/StructureDefinition/Medication",
-              "http://hl7.org/fhir/StructureDefinition/Substance"
-            ]
-          },
-          {
-            "code": "CodeableConcept"
-          }
-        ],
-        "isSummary": false,
-        "isModifier": false,
-        "short": "What's administered/supplied"
-      },
-      "ActivityDefinition.quantity": {
-        "index": 54,
-        "path": "ActivityDefinition.quantity",
-        "min": 0,
-        "max": "1",
-        "type": [
-          {
-            "code": "Quantity",
-            "profile": [
-              "http://hl7.org/fhir/StructureDefinition/SimpleQuantity"
-            ]
-          }
-        ],
-        "isSummary": false,
-        "isModifier": false,
-        "short": "How much is administered/consumed/supplied"
-      },
-      "ActivityDefinition.dosage": {
-        "index": 55,
-        "path": "ActivityDefinition.dosage",
-        "min": 0,
-        "max": "*",
-        "type": [
-          {
-            "code": "Dosage"
-          }
-        ],
-        "isSummary": false,
-        "isModifier": false,
-        "short": "Detailed dosage instructions"
-      },
-      "ActivityDefinition.bodySite": {
-        "index": 56,
-        "path": "ActivityDefinition.bodySite",
-        "min": 0,
-        "max": "*",
-        "type": [
-          {
-            "code": "CodeableConcept"
-          }
-        ],
-        "isSummary": false,
-        "isModifier": false,
-        "short": "What part of body to perform on"
-      },
-      "ActivityDefinition.specimenRequirement": {
-        "index": 57,
-        "path": "ActivityDefinition.specimenRequirement",
-        "min": 0,
-        "max": "*",
-        "type": [
-          {
-            "code": "Reference",
-            "targetProfile": [
-              "http://hl7.org/fhir/StructureDefinition/SpecimenDefinition"
-            ]
-          }
-        ],
-        "isSummary": false,
-        "isModifier": false,
-        "short": "What specimens are required to perform this action"
-      },
-      "ActivityDefinition.observationRequirement": {
-        "index": 58,
-        "path": "ActivityDefinition.observationRequirement",
-        "min": 0,
-        "max": "*",
-        "type": [
-          {
-            "code": "Reference",
-            "targetProfile": [
-              "http://hl7.org/fhir/StructureDefinition/ObservationDefinition"
-            ]
-          }
-        ],
-        "isSummary": false,
-        "isModifier": false,
-        "short": "What observations are required to perform this action"
-      },
-      "ActivityDefinition.observationResultRequirement": {
-        "index": 59,
-        "path": "ActivityDefinition.observationResultRequirement",
-        "min": 0,
-        "max": "*",
-        "type": [
-          {
-            "code": "Reference",
-            "targetProfile": [
-              "http://hl7.org/fhir/StructureDefinition/ObservationDefinition"
-            ]
-          }
-        ],
-        "isSummary": false,
-        "isModifier": false,
-        "short": "What observations must be produced by this action"
-      },
-      "ActivityDefinition.transform": {
-        "index": 60,
-        "path": "ActivityDefinition.transform",
-        "min": 0,
-        "max": "1",
-        "type": [
-          {
-            "code": "canonical",
-            "targetProfile": [
-              "http://hl7.org/fhir/StructureDefinition/StructureMap"
-            ]
-          }
-        ],
-        "isSummary": false,
-        "isModifier": false,
-        "short": "Transform to apply the template"
-      },
-      "ActivityDefinition.dynamicValue": {
-        "index": 61,
-        "path": "ActivityDefinition.dynamicValue",
-        "min": 0,
-        "max": "*",
-        "type": [
-          {
-            "code": "BackboneElement"
-          }
-        ],
-        "isSummary": false,
-        "isModifier": false,
-        "short": "Dynamic aspects of the definition"
-      },
-      "ActivityDefinition.dynamicValue.id": {
-        "index": 62,
-        "path": "ActivityDefinition.dynamicValue.id",
-        "min": 0,
-        "max": "1",
-        "type": [
-          {
-            "extension": [
-              {
-                "url": "http://hl7.org/fhir/StructureDefinition/structuredefinition-fhir-type",
-                "valueUrl": "string"
-              }
-            ],
-            "code": "http://hl7.org/fhirpath/System.String"
-          }
-        ],
-        "isSummary": false,
-        "isModifier": false,
-        "short": "Unique id for inter-element referencing"
-      },
-      "ActivityDefinition.dynamicValue.extension": {
-        "index": 63,
-        "path": "ActivityDefinition.dynamicValue.extension",
-        "min": 0,
-        "max": "*",
-        "type": [
-          {
-            "code": "Extension"
-          }
-        ],
-        "isSummary": false,
-        "isModifier": false,
-        "short": "Additional content defined by implementations"
-      },
-      "ActivityDefinition.dynamicValue.modifierExtension": {
-        "index": 64,
-        "path": "ActivityDefinition.dynamicValue.modifierExtension",
-        "min": 0,
-        "max": "*",
-        "type": [
-          {
-            "code": "Extension"
-          }
-        ],
-        "isSummary": true,
-        "isModifier": true,
-        "short": "Extensions that cannot be ignored even if unrecognized"
-      },
-      "ActivityDefinition.dynamicValue.path": {
-        "index": 65,
-        "path": "ActivityDefinition.dynamicValue.path",
-        "min": 1,
-        "max": "1",
-        "type": [
-          {
-            "code": "string"
-          }
-        ],
-        "isSummary": false,
-        "isModifier": false,
-        "short": "The path to the element to be set dynamically"
-      },
-      "ActivityDefinition.dynamicValue.expression": {
         "index": 66,
         "path": "ActivityDefinition.dynamicValue.expression",
         "min": 1,
