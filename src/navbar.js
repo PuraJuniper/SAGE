@@ -1,7 +1,6 @@
 /*
  * decaffeinate suggestions:
  * DS102: Remove unnecessary code created because of implicit returns
- * DS207: Consider shorter variations of null checks
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
 import React from 'react';
@@ -18,8 +17,8 @@ class NavbarFred extends React.Component {
 	handleDrag(e) {
 		let file, files;
 		e.preventDefault();
-		if ((!(files = e.dataTransfer != null ? e.dataTransfer.files : undefined)) ||
-			(!(file = files != null ? files[0] : undefined))) { return; }
+		if ((!(files = e.dataTransfer?.files)) ||
+			(!(file = files?.[0]))) { return; }
 		const reader = new FileReader();
 		reader.onload = function(e) { 
 			try {

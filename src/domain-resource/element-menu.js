@@ -1,9 +1,7 @@
 /*
  * decaffeinate suggestions:
  * DS102: Remove unnecessary code created because of implicit returns
- * DS103: Rewrite code to no longer use __guard__, or convert again using --optional-chaining
  * DS205: Consider reworking code to avoid use of IIFEs
- * DS207: Consider shorter variations of null checks
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
 import React from "react";
@@ -13,7 +11,7 @@ import {Dropdown} from "react-bootstrap";
 class ElementMenu extends React.Component {
 
 	shouldComponentUpdate(nextProps) {
-		return __guard__(nextProps.node != null ? nextProps.node.ui : undefined, x => x.menu) !== __guard__(this.props.node != null ? this.props.node.ui : undefined, x1 => x1.menu);
+		return nextProps.node?.ui?.menu !== this.props.node?.ui?.menu;
 	}
 
 	handleToggle(show) {
@@ -72,7 +70,7 @@ class ElementMenu extends React.Component {
 	}
 
 	renderMenu() {
-		if (__guard__(this.props.node != null ? this.props.node.ui : undefined, x => x.status) !== "menu") {
+		if (this.props.node?.ui?.status !== "menu") {
 			return this.renderPlaceholder(); 
 		}
 
@@ -98,13 +96,13 @@ class ElementMenu extends React.Component {
 			<Dropdown.Item onSelect={this.handleDeleteItem.bind(this)}>Remove</Dropdown.Item> : undefined;
 		let spacer1 = (addObject || remove) ?
 			<Dropdown.Item divider /> : undefined;
-		let spacer2 = (moveUp || moveDown) && ((unusedElements != null ? unusedElements.length : undefined) > 0) ?
+		let spacer2 = (moveUp || moveDown) && (unusedElements?.length > 0) ?
 			<Dropdown.Item divider /> : undefined;
-		let header = ((unusedElements != null ? unusedElements.length : undefined) > 0) && this.props.parent ?
+		let header = (unusedElements?.length > 0) && this.props.parent ?
 			<Dropdown.Item header>Add Item</Dropdown.Item> : undefined;
 
 		//handle empty contained resources
-		if ((this.props.node != null ? this.props.node.fhirType : undefined) === "Resource") {
+		if (this.props.node?.fhirType === "Resource") {
 			header = (unusedElements = (spacer1 = (spacer2 = null)));
 		}
 
@@ -117,7 +115,3 @@ class ElementMenu extends React.Component {
 }
 
 export default ElementMenu;
-
-function __guard__(value, transform) {
-  return (typeof value !== 'undefined' && value !== null) ? transform(value) : undefined;
-}

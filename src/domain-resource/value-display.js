@@ -2,9 +2,7 @@
  * decaffeinate suggestions:
  * DS101: Remove unnecessary use of Array.from
  * DS102: Remove unnecessary code created because of implicit returns
- * DS103: Rewrite code to no longer use __guard__, or convert again using --optional-chaining
  * DS206: Consider reworking classes to avoid initClass
- * DS207: Consider shorter variations of null checks
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
 import React from "react";
@@ -32,7 +30,7 @@ class ValueDisplay extends React.Component {
 	}
 
 	formatDate(value) {
-		const dashCount = __guard__(value.match(/\-/g), x => x.length);
+		const dashCount = value.match(/\-/g)?.length;
 		if (dashCount === 1) {
 			return Moment(value, "YYYY-MM").format("MMM YYYY");
 		} else if (dashCount === 2) {
@@ -43,7 +41,7 @@ class ValueDisplay extends React.Component {
 	}
 
 	formatDateTime(value) {
-		const dashCount = __guard__(value.match(/\-/g), x => x.length);
+		const dashCount = value.match(/\-/g)?.length;
 		const hasTime = value.indexOf(":") > -1;
 		if ((dashCount === 2) && hasTime) {
 			return this.formatInstant(value);
@@ -67,7 +65,7 @@ class ValueDisplay extends React.Component {
 
 	formatCode(value) {
 		let invalid;
-		if (__guard__(this.props.node != null ? this.props.node.binding : undefined, x => x.strength)) {
+		if (this.props.node?.binding?.strength) {
 			if (this.props.node.binding.strength === "required") {
 				invalid = true;
 			}
@@ -172,7 +170,3 @@ ${this.props.node.value}
 ValueDisplay.initClass();
 
 export default ValueDisplay;
-
-function __guard__(value, transform) {
-  return (typeof value !== 'undefined' && value !== null) ? transform(value) : undefined;
-}

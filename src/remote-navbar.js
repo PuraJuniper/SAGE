@@ -1,7 +1,6 @@
 /*
  * decaffeinate suggestions:
  * DS102: Remove unnecessary code created because of implicit returns
- * DS207: Consider shorter variations of null checks
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
 import React from 'react';
@@ -21,7 +20,7 @@ class RemoteNavbar extends React.Component {
 			(window.parent !== window ? window.parent : undefined) || window.opener;
 			
 		window.addEventListener("message", e => {
-			if (((e.data != null ? e.data.action : undefined) === "edit") && (e.data != null ? e.data.resource : undefined)) {
+			if ((e.data?.action === "edit") && e.data?.resource) {
 				State.trigger("load_json_resource", e.data.resource);
 				return this.remoteCallback = e.data.callback;
 			}

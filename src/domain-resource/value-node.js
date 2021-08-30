@@ -1,9 +1,7 @@
 /*
  * decaffeinate suggestions:
  * DS102: Remove unnecessary code created because of implicit returns
- * DS103: Rewrite code to no longer use __guard__, or convert again using --optional-chaining
  * DS206: Consider reworking classes to avoid initClass
- * DS207: Consider shorter variations of null checks
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
 import React from "react";
@@ -22,7 +20,7 @@ class ValueNode extends React.Component {
 
 	componentWillMount() {
 		if ([null, undefined, ""].includes(this.props.node.value) &&
-			(__guard__(this.props.node != null ? this.props.node.ui : undefined, x => x.status) !== "editing")) {
+			(this.props.node?.ui?.status !== "editing")) {
 				return this.props.onEditStart();
 			}
 	}
@@ -100,7 +98,7 @@ class ValueNode extends React.Component {
 	}
 
 	render() {
-		const isEditing = __guard__(this.props.node != null ? this.props.node.ui : undefined, x => x.status) === "editing";
+		const isEditing = this.props.node?.ui?.status === "editing";
 		//don't show hidden elements
 		if (this.props.node.hidden) { return null; }
 		
@@ -118,7 +116,3 @@ class ValueNode extends React.Component {
 ValueNode.initClass();
 
 export default ValueNode;
-
-function __guard__(value, transform) {
-  return (typeof value !== 'undefined' && value !== null) ? transform(value) : undefined;
-}

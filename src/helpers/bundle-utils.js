@@ -85,7 +85,7 @@ export var findNextId = function(entries) {
 	let maxId = 1;
 	for (let entry of Array.from(entries)) {
 		var id;
-		if (id = (entry.resource != null ? entry.resource.id : undefined) || entry.id) {
+		if (id = entry.resource?.id || entry.id) {
 			var matches;
 			if (matches = id.match(/^fred\-(\d+)/i)) {
 				maxId = Math.max(maxId, parseInt(matches[1])+1);

@@ -2,7 +2,6 @@
  * decaffeinate suggestions:
  * DS101: Remove unnecessary use of Array.from
  * DS102: Remove unnecessary code created because of implicit returns
- * DS103: Rewrite code to no longer use __guard__, or convert again using --optional-chaining
  * DS205: Consider reworking code to avoid use of IIFEs
  * DS207: Consider shorter variations of null checks
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
@@ -33,8 +32,8 @@ export var toFhir = function(decorated, validate) {
 				return _walkNode(child, []);
 			} else {
 				let err;
-				if (validate && __guard__(child != null ? child.ui : undefined, x => x.validationErr)) {
-					err = __guard__(child != null ? child.ui : undefined, x1 => x1.validationErr);
+				if (validate && child?.ui?.validationErr) {
+					err = child?.ui?.validationErr;
 				} else if (validate && child.fhirType) {
 					err = PrimitiveValidator(child.fhirType, child.value, true);
 				}
@@ -110,7 +109,7 @@ export var getElementChildren = function(profiles, schemaPath, excludePaths) {
 			(path.indexOf(schemaPath) === -1) ||
 			(path.split(".").length !== (level+1))) { continue; }
 
-		if (schema != null ? schema.nameReference : undefined) {
+		if (schema?.nameReference) {
 			schemaPath = schemaPath.split(".").shift() + "." + schema.nameReference;
 		}
 
@@ -119,7 +118,7 @@ export var getElementChildren = function(profiles, schemaPath, excludePaths) {
 		} else {
 			const name = schema.path.split(".").pop();
 			if (!Array.from(unsupportedElements).includes(name)) {
-				const type = __guard__(__guard__(schema != null ? schema.type : undefined, x1 => x1[0]), x => x.code) || "BackboneElement";
+				const type = schema?.type?.[0]?.code || "BackboneElement";
 				children.push(_buildChild(name, schema, type));
 			}
 		}
@@ -151,9 +150,9 @@ export var buildChildNode = function(profiles, parentNodeType, schemaPath, fhirT
 
 	schemaPath = schemaPath.split(".");
 	let name = schemaPath[schemaPath.length-1];
-	const schema = profiles[schemaPath[0]] != null ? profiles[schemaPath[0]][schemaPath.join(".")] : undefined;
+	const schema = profiles[schemaPath[0]]?.[schemaPath.join(".")];
 
-	if (schema != null ? schema.nameReference : undefined) {
+	if (schema?.nameReference) {
 			schemaPath = [schemaPath[0], schema.nameReference];
 		}
 
@@ -188,7 +187,7 @@ export var buildChildNode = function(profiles, parentNodeType, schemaPath, fhirT
 			nodeCreator: "user",
 			value: fhirType === "boolean" ? true : null,
 			range: [schema.min, schema.max],
-			binding: (schema != null ? schema.binding : undefined),
+			binding: schema?.binding,
 			nodeType: isComplexType(fhirType) && (parentNodeType === "objectArray") ?
 				"arrayObject"
 			: isComplexType(fhirType) ?
@@ -249,18 +248,18 @@ export var decorateFhirData = function(profiles, data) {
 
 		const name = schemaPath[schemaPath.length-1];
 		let displayName = this.buildDisplayName(schemaPath, null);
-		let schema = profiles[schemaPath[0]] != null ? profiles[schemaPath[0]][schemaPath.join(".")] : undefined;
-		let fhirType = __guard__(__guard__(schema != null ? schema.type : undefined, x1 => x1[0]), x => x.code);
+		let schema = profiles[schemaPath[0]]?.[schemaPath.join(".")];
+		let fhirType = schema?.type?.[0]?.code;
 
 		if (isInfrastructureType(fhirType) && (schemaPath.length === 1)) {
 			fhirType = schemaPath[0];
 		}
 
 		//contentReference and nameReference support
-		if (schema != null ? schema.refSchema : undefined) {
+		if (schema?.refSchema) {
 			schemaPath = schema.refSchema.split(".");
-			const refSchema = profiles[schemaPath[0]] != null ? profiles[schemaPath[0]][schemaPath.join(".")] : undefined;
-			fhirType = __guard__(__guard__(refSchema != null ? refSchema.type : undefined, x3 => x3[0]), x2 => x2.code);
+			const refSchema = profiles[schemaPath[0]]?.[schemaPath.join(".")];
+			fhirType = refSchema?.type?.[0]?.code;
 		}
 
 		//is it a multi-type?
@@ -271,7 +270,7 @@ export var decorateFhirData = function(profiles, data) {
 				var testSchema;
 				const namePart = nameParts[i];
 				testSchemaPath += `${namePart}`;
-				if (testSchema = profiles[schemaPath[0]] != null ? profiles[schemaPath[0]][`${testSchemaPath}[x]`] : undefined) {
+				if (testSchema = profiles[schemaPath[0]]?.[`${testSchemaPath}[x]`]) {
 					schema = testSchema;
 					schemaPath = testSchema.path.split(".");
 					fhirType = nameParts.slice(i+1).join("");
@@ -285,16 +284,16 @@ export var decorateFhirData = function(profiles, data) {
 		}
 
 		const decorated = {
-			id: nextId++, index: (schema != null ? schema.index : undefined) || 0,
+			id: nextId++, index: schema?.index || 0,
 			name, nodeType: "value", displayName,
 			schemaPath: schemaPath.join("."), fhirType, level,
-			short: (schema != null ? schema.short : undefined), isRequired: (schema != null ? schema.min : undefined) && (schema.min >=1),
-			binding: (schema != null ? schema.binding : undefined)
+			short: schema?.short, isRequired: schema?.min && (schema.min >=1),
+			binding: schema?.binding
 		};
 		
 
-		if ((schema != null ? schema.min : undefined) !== undefined) {
-			decorated.range = [(schema != null ? schema.min : undefined), (schema != null ? schema.max : undefined)];
+		if (schema?.min !== undefined) {
+			decorated.range = [schema?.min, schema?.max];
 		}
 
 		//hide resourceType item
@@ -326,7 +325,7 @@ export var decorateFhirData = function(profiles, data) {
 			decorated.nodeType = fhirType && isComplexType(fhirType) ?
 				"objectArray"
 			//unknown object arrays
-			: !fhirType && (typeof (dataNode != null ? dataNode[0] : undefined) === "object") ?
+			: !fhirType && (typeof dataNode?.[0] === "object") ?
 				"objectArray"
 			:
 				"valueArray";
@@ -363,12 +362,12 @@ export var decorateFhirData = function(profiles, data) {
 			decorated.value = dataNode;
 
 			//check if value has a cardinality of > 1 and isn't in an array
-			if ((decorated.range != null ? decorated.range[1] : undefined) && (decorated.range[1] !== "1") && !inArray) {
+			if (decorated.range?.[1] && (decorated.range[1] !== "1") && !inArray) {
 				decorated.fhirType = null;
 			}
 
 			//check if value has a cardinality of 1 and is in an array
-			if (dataNode instanceof Array && ((decorated.range != null ? decorated.range[1] : undefined) === "1")) {
+			if (dataNode instanceof Array && (decorated.range?.[1] === "1")) {
 				decorated.fhirType = null;
 			}
 
@@ -385,7 +384,3 @@ export var decorateFhirData = function(profiles, data) {
 	return _walkNode(data);
 };
 
-
-function __guard__(value, transform) {
-  return (typeof value !== 'undefined' && value !== null) ? transform(value) : undefined;
-}

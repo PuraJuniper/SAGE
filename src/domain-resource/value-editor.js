@@ -1,9 +1,7 @@
 /*
  * decaffeinate suggestions:
  * DS102: Remove unnecessary code created because of implicit returns
- * DS103: Rewrite code to no longer use __guard__, or convert again using --optional-chaining
  * DS206: Consider reworking classes to avoid initClass
- * DS207: Consider shorter variations of null checks
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
 import React from "react";
@@ -44,7 +42,7 @@ class ValueEditor extends React.Component {
 		}
 
 		if ((this.props.node.fhirType === "code") &&
-			(__guard__(this.props.node != null ? this.props.node.binding : undefined, x => x.strength) === "required")) {
+			(this.props.node?.binding?.strength === "required")) {
 				//initialize to first value on insert
 				const {
                     reference
@@ -61,7 +59,7 @@ class ValueEditor extends React.Component {
 		let resources;
 		let isInvalid = this.isValid(this.props.node.fhirType, e.target.value);
 		if (!isInvalid && (this.props.node.fhirType === "id") && 
-			(this.props.node.level === 1) && (resources = __guard__(State.get().bundle, x => x.resources))) {
+			(this.props.node.level === 1) && (resources = State.get().bundle?.resources)) {
 				for (let i = 0; i < resources.length; i++) {
 					const resource = resources[i];
 					if ((resource.id === e.target.value) && (i !== State.get().bundle.pos)) {
@@ -102,7 +100,7 @@ class ValueEditor extends React.Component {
 	renderCode(value) {
 		//TODO: handle "preferred" and "extensible"
 		let inputField;
-		if (__guard__(this.props.node != null ? this.props.node.binding : undefined, x => x.strength) === "required") {
+		if (this.props.node?.binding?.strength === "required") {
 			const {
                 reference
             } = this.props.node.binding;
@@ -187,7 +185,7 @@ class ValueEditor extends React.Component {
 	buildCommitButton() {
 		let commitButtonClassName = "btn btn-default btn-sm";
 		if ([null, undefined, ""].includes(this.props.node.value) || 
-			__guard__(__guard__(this.props != null ? this.props.node : undefined, x1 => x1.ui), x => x.validationErr)) {
+			this.props?.node?.ui?.validationErr) {
 				commitButtonClassName += " disabled";
 			}
 
@@ -213,7 +211,7 @@ class ValueEditor extends React.Component {
 		let commitButton, validationErr, validationHint;
 		let groupClassName = "input-group";
 
-		if (validationErr = __guard__(__guard__(this.props != null ? this.props.node : undefined, x1 => x1.ui), x => x.validationErr)) {
+		if (validationErr = this.props?.node?.ui?.validationErr) {
 			groupClassName += " has-error";
 			validationHint = <div className="help-block">{validationErr}</div>;
 		}
@@ -258,7 +256,3 @@ class ValueEditor extends React.Component {
 ValueEditor.initClass();
 
 export default ValueEditor;
-
-function __guard__(value, transform) {
-  return (typeof value !== 'undefined' && value !== null) ? transform(value) : undefined;
-}

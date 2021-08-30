@@ -2,9 +2,7 @@
  * decaffeinate suggestions:
  * DS101: Remove unnecessary use of Array.from
  * DS102: Remove unnecessary code created because of implicit returns
- * DS103: Rewrite code to no longer use __guard__, or convert again using --optional-chaining
  * DS206: Consider reworking classes to avoid initClass
- * DS207: Consider shorter variations of null checks
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
 import React from "react";
@@ -29,7 +27,7 @@ class ResourceElement extends React.Component {
 		//this is hacky - need to find a better place for pre-commit validation
 		for (let editNode of Array.from(node.children || [node])) {
 			var message;
-			if (node.ui != null ? node.ui.validationErr : undefined) { return false; }
+			if (node.ui?.validationErr) { return false; }
 			if (message = PrimitiveValidator(editNode.fhirType, editNode.value, true)) {
 				State.trigger("value_change", editNode, editNode.value, message);
 				return false;
@@ -44,7 +42,7 @@ class ResourceElement extends React.Component {
 	}
 
 	componentDidMount() {
-		if (this.refs.complexElement && ((this.props.node != null ? this.props.node.nodeCreator : undefined) === "user")) {
+		if (this.refs.complexElement && (this.props.node?.nodeCreator === "user")) {
 			const domNode = ReactDOM.findDOMNode(this.refs.complexElement);
 			domNode.scrollIntoView(true);
 			//account for fixed header
@@ -64,7 +62,7 @@ class ResourceElement extends React.Component {
 
 	handleEditCancel(e) {
 		//don't allow cancel if no previous value
-		if ([null, undefined, ""].includes(__guard__(__guard__(this.props.node != null ? this.props.node.ui : undefined, x1 => x1.prevState), x => x.value))) {
+		if ([null, undefined, ""].includes(this.props.node?.ui?.prevState?.value)) {
 			return;
 		}
 		State.trigger("cancel_edit", this.props.node);
@@ -88,7 +86,7 @@ class ResourceElement extends React.Component {
 	}
 
 	handleObjectMenu(e) {
-		if (__guard__(this.props.node != null ? this.props.node.ui : undefined, x => x.status) === "menu") { return; }
+		if (this.props.node?.ui?.status === "menu") { return; }
 		State.trigger("show_object_menu", this.props.node, this.props.parent);
 		if (e) { return e.preventDefault(); }
 	}
@@ -183,7 +181,3 @@ ResourceElement.initClass();
 
 
 export default ResourceElement;
-
-function __guard__(value, transform) {
-  return (typeof value !== 'undefined' && value !== null) ? transform(value) : undefined;
-}

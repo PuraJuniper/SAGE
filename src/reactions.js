@@ -2,7 +2,6 @@
  * decaffeinate suggestions:
  * DS101: Remove unnecessary use of Array.from
  * DS102: Remove unnecessary code created because of implicit returns
- * DS103: Rewrite code to no longer use __guard__, or convert again using --optional-chaining
  * DS205: Consider reworking code to avoid use of IIFEs
  * DS207: Consider shorter variations of null checks
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
@@ -12,7 +11,7 @@ import * as SchemaUtils from './helpers/schema-utils';
 import * as BundleUtils from './helpers/bundle-utils';
 
 const canMoveNode = function(node, parent) {
-	if (!["objectArray", "valueArray"].includes(parent != null ? parent.nodeType : undefined)) {
+	if (!["objectArray", "valueArray"].includes(parent?.nodeType)) {
 		return [false, false];
 	}
 	const index = parent.children.indexOf(node);
@@ -398,7 +397,7 @@ State.on("show_object_menu", function(node, parent) {
 		const usedElements = [];
 		for (let child of Array.from(node.children)) { 
 			if (!child.range || (child.range[1] === "1") || (child.nodeType === "valueArray") || (
-				(child.range[1] !== "*") && (parseInt(child.range[1]) < (__guard__(child != null ? child.children : undefined, x => x.length) || 0))
+				(child.range[1] !== "*") && (parseInt(child.range[1]) < (child?.children?.length || 0))
 			)) {
 				usedElements.push(child.schemaPath);
 			}
@@ -459,7 +458,3 @@ State.on("add_object_element", function(node, fhirElement) {
 
 
 export default State;
-
-function __guard__(value, transform) {
-  return (typeof value !== 'undefined' && value !== null) ? transform(value) : undefined;
-}

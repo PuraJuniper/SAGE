@@ -1,9 +1,7 @@
 /*
  * decaffeinate suggestions:
  * DS102: Remove unnecessary code created because of implicit returns
- * DS103: Rewrite code to no longer use __guard__, or convert again using --optional-chaining
  * DS206: Consider reworking classes to avoid initClass
- * DS207: Consider shorter variations of null checks
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
 import React from "react";
@@ -37,14 +35,14 @@ class ValueArrayNode extends React.Component {
 
 	componentWillMount() {
 		if ((this.props.node.children.length === 0) &&
-			(__guard__(this.props.node != null ? this.props.node.ui : undefined, x => x.status) !== "editing")) {
+			(this.props.node?.ui?.status !== "editing")) {
 				return this.props.onEditStart();
 			}
 	}
 
 	componentDidUpdate() {
 		//give 'em a first item
-		if ((__guard__(this.props.node != null ? this.props.node.ui : undefined, x => x.status) === "editing") && 
+		if ((this.props.node?.ui?.status === "editing") && 
 			(this.props.node.children.length === 0)) {
 				return this.handleItemAdd();
 			}
@@ -113,7 +111,7 @@ class ValueArrayNode extends React.Component {
 
 	render() {
 
-		if (__guard__(this.props.node != null ? this.props.node.ui : undefined, x => x.status) === "editing") {
+		if (this.props.node?.ui?.status === "editing") {
 			return this.renderEditing();
 		} else {
 			return this.renderDisplay();
@@ -126,7 +124,3 @@ ValueArrayNode.initClass();
 
 
 export default ValueArrayNode;
-
-function __guard__(value, transform) {
-  return (typeof value !== 'undefined' && value !== null) ? transform(value) : undefined;
-}
