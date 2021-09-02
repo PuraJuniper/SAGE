@@ -70,6 +70,7 @@ class ValueNode extends React.Component {
 					onEditCommit={this.props.onEditCommit}
 					onNodeDelete={this.props.onNodeDelete}
 					onEditCancel={this.props.onEditCancel}
+					shortName={this.props.node.short}
 				/>
 			</div>
 			{preview}

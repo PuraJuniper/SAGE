@@ -66,9 +66,13 @@ summarizeProfiles = (fhirBundle, profiles) ->
 
 		profiles[root] = {}
 		for e, i in entry?.resource?.snapshot?.element || []
+			if e.sliceName
+				new_path = e.path + ":" + e.sliceName
+			else
+				new_path = e.path
 			profiles[root][e.id] =
 				index: i
-				path: e.sliceName || e.path
+				path: new_path
 				min: e.min
 				max: e.max
 				type: e.type ||  [{"code": "DomainResource"}]

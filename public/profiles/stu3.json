@@ -79541,7 +79541,7 @@
     "Quantity:simplequantity": {
       "Quantity:simplequantity": {
         "index": 0,
-        "path": "SimpleQuantity",
+        "path": "Quantity:SimpleQuantity",
         "min": 0,
         "max": "*",
         "type": [

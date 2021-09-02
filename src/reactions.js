@@ -200,6 +200,18 @@ State.on("load_json_resource", json => {
 	:
 		openResource(json);
 
+
+	const {
+		profiles,
+		resource,
+	} = State.get();
+	const fhirType = resource.fhirType === "BackboneElement" ? resource.schemaPath : resource.fhirType; 
+	const unusedElements = SchemaUtils.getElementChildren(profiles, fhirType, null);
+	for (const element of unusedElements) {
+		if (element.isRequired) {
+			State.emit("add_object_element", resource, element);
+		}
+	}
 	const status = success ? "ready" : "resource_load_error";
 	return State.get().set("ui", {status});
 });
@@ -453,7 +465,7 @@ State.on("add_object_element", function(node, fhirElement) {
 		newNode.ui = {status: "editing"};
 	}
 	const position = getSplicePosition(node.children, newNode.index);
-	return node.children.splice(position, 0, newNode);
+	return State.get().resource.children.splice(position, 0, newNode);
 });
 
 

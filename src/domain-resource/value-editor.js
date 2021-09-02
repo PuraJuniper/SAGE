@@ -124,6 +124,11 @@ class ValueEditor extends React.Component {
 		return this.wrapEditControls(inputField);
 	}
 
+	renderSelection(value) {
+		const inputField = this.buildCustomDropdownInput(value);
+		return this.wrapEditControls(inputField);
+	}
+
 	buildDropdownInput(value) {
 		return <span>
 			<select value={this.props.node.value} 
@@ -135,6 +140,26 @@ class ValueEditor extends React.Component {
 				<option value={false}>No</option>
 			</select>
 		</span>;
+	}
+
+	buildCustomDropdownInput(value) {
+		return <span>
+			<select
+				className="form-control input-sm" 
+					onChange={this.handleChange.bind(this)} 
+					ref="inputField"
+				>
+				<option hidden disabled selected value> </option>
+				{this.buildCustomDropdownOptions()}
+			</select>
+		</span>;
+	}
+
+	buildCustomDropdownOptions() {
+		const optionNames = this.props.node.short.split("|");
+		return optionNames.map((option, idx) => {
+			return <option value={option.trim()}>{option.trim()}</option>
+		});
 	}
 
 	buildCodeInput(value, items) {
@@ -242,10 +267,16 @@ class ValueEditor extends React.Component {
 	render() {
 		const renderers = { 
 			decimal: this.renderDecimal, boolean: this.renderBoolean, xhtml: this.renderLongString, 
-			base64Binary: this.renderLongString, code: this.renderCode
+			base64Binary: this.renderLongString, code: this.renderCode, selection: this.renderSelection
 		};
 
-		const renderer = renderers[this.props.node.fhirType || "string"] || this.renderString;
+		var renderer; 
+		if (this.props.node.short.indexOf("|") > -1) {
+			renderer = renderers['selection'];
+		}
+		else {
+			renderer = renderers[this.props.node.fhirType || "string"] || this.renderString;
+		}
 
 		const {
             value
