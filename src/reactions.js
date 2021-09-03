@@ -209,7 +209,24 @@ State.on("load_json_resource", json => {
 	const unusedElements = SchemaUtils.getElementChildren(profiles, fhirType, null);
 	for (const element of unusedElements) {
 		if (element.isRequired) {
-			State.emit("add_object_element", resource, element);
+			let child, newNode;
+			const {
+				profiles
+			} = State.get();
+
+			if (element.range && (element.range[1] !== "1") &&
+				(child = getChildBySchemaPath(resource, element.schemaPath))) {
+					newNode = SchemaUtils.buildChildNode(profiles, "objectArray", child.schemaPath, child.fhirType);
+					child.children.push(newNode);			
+					return;
+				}
+
+			newNode = SchemaUtils.buildChildNode(profiles, resource.nodeType, element.schemaPath, element.fhirType);
+			if (["value", "valueArray"].includes(newNode.nodeType)) {
+				newNode.ui = {status: "editing"};
+			}
+			const position = getSplicePosition(resource.children, newNode.index);
+			State.get().resource.children.splice(position, 0, newNode);
 		}
 	}
 	const status = success ? "ready" : "resource_load_error";
@@ -465,7 +482,7 @@ State.on("add_object_element", function(node, fhirElement) {
 		newNode.ui = {status: "editing"};
 	}
 	const position = getSplicePosition(node.children, newNode.index);
-	return State.get().resource.children.splice(position, 0, newNode);
+	return node.children.splice(position, 0, newNode);
 });
 
 
