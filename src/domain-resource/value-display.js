@@ -143,7 +143,7 @@ ${this.props.node.value}
 			integer: this.formatInt, unsignedInt: this.formatInt, positiveInt: this.formatInt, decimal: this.formatDecimal,
 			boolean: this.formatBoolean, string: this.formatString, uri: this.formatString, oid: this.formatString, code: this.formatString,
 			id: this.formatString, markdown: this.formatString, xhtml: this.formatXhtml, code: this.formatCode,
-			"http://hl7.org/fhirpath/System.String": this.formatString
+			"http://hl7.org/fhirpath/System.String": this.formatString, canonical: this.formatString,
 		};
 
 		const formatter = formatters[this.props.node.fhirType || "string"];
