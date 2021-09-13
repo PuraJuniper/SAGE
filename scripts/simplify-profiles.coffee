@@ -66,13 +66,10 @@ summarizeProfiles = (fhirBundle, profiles) ->
 
 		profiles[root] = {}
 		for e, i in entry?.resource?.snapshot?.element || []
-			if e.sliceName
-				new_path = e.path + ":" + e.sliceName
-			else
-				new_path = e.path
 			profiles[root][e.id] =
 				index: i
-				path: new_path
+				path: e.path
+				sliceName: e.sliceName || ""
 				min: e.min
 				max: e.max
 				type: e.type ||  [{"code": "DomainResource"}]
@@ -80,8 +77,16 @@ summarizeProfiles = (fhirBundle, profiles) ->
 				isModifier: e.isModifier
 				short: e.short
 				name: e.name
+				rawElement: e
 
 			if url = e?.binding?.valueSetReference?.reference
+				profiles[root][e.id].binding =
+					strength: e.binding.strength
+					reference: url
+
+			if url = e?.binding?.valueSet
+				if url.lastIndexOf('|') != -1
+					url = url.substring(0, url.lastIndexOf('|'))
 				profiles[root][e.id].binding =
 					strength: e.binding.strength
 					reference: url
