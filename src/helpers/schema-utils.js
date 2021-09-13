@@ -147,6 +147,21 @@ export var buildChildNode = function(profiles, parentNodeType, schemaPath, fhirT
 		return reqChildren;
 	};
 
+	const _getDefaultValue = (schema, fhirType) => {
+		// This naming convention for fixed values is from the FHIR spec for "Element Definition"
+		const fixedTypeName = "fixed" + fhirType[0].toUpperCase() + fhirType.substring(1);
+		if (fixedTypeName in schema.rawElement) {
+			return {
+				isFixed: true,
+				defaultValue: schema.rawElement[fixedTypeName],
+			}
+		}
+		let defaultValue = fhirType === "boolean" ? true : null;
+		return {
+			isFixed: false,
+			defaultValue,
+		}
+	}
 
 	schemaPath = schemaPath.split(".");
 	let name = schemaPath[schemaPath.length-1];
@@ -178,6 +193,10 @@ export var buildChildNode = function(profiles, parentNodeType, schemaPath, fhirT
 		};
 
 	} else {
+		const {
+			isFixed,
+			defaultValue
+		} = _getDefaultValue(schema, fhirType);
 		const result = {
 			id: nextId++, name, index: schema.index,
 			schemaPath: schemaPath.join("."), fhirType,
@@ -185,7 +204,8 @@ export var buildChildNode = function(profiles, parentNodeType, schemaPath, fhirT
 			isRequired: schema.min >=1,
 			short: schema.short,
 			nodeCreator: "user",
-			value: fhirType === "boolean" ? true : null,
+			isFixed,
+			value: defaultValue,
 			range: [schema.min, schema.max],
 			binding: schema?.binding,
 			nodeType: isComplexType(fhirType) && (parentNodeType === "objectArray") ?

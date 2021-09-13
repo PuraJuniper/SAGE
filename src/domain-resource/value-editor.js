@@ -48,7 +48,7 @@ class ValueEditor extends React.Component {
                     reference
                 } = this.props.node.binding;
 				const vs = State.get().valuesets[reference];
-				if (vs.type === "complete") {
+				if (vs && vs.type === "complete") {
 					return State.trigger("value_change", this.props.node, this.refs.inputField.value);
 				}
 			}
@@ -105,7 +105,7 @@ class ValueEditor extends React.Component {
                 reference
             } = this.props.node.binding;
 			const vs = State.get().valuesets[reference];
-			if (vs.type === "complete") {
+			if (vs && vs.type === "complete") {
 				inputField =  this.buildCodeInput(value, vs.items);
 			}
 		}
@@ -270,13 +270,8 @@ class ValueEditor extends React.Component {
 			base64Binary: this.renderLongString, code: this.renderCode, selection: this.renderSelection
 		};
 
-		var renderer; 
-		if (this.props.node.short.indexOf("|") > -1) {
-			renderer = renderers['selection'];
-		}
-		else {
-			renderer = renderers[this.props.node.fhirType || "string"] || this.renderString;
-		}
+		var renderer;
+		renderer = renderers[this.props.node.fhirType || "string"] || this.renderString;
 
 		const {
             value

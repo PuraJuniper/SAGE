@@ -209,24 +209,12 @@ State.on("load_json_resource", json => {
 	const unusedElements = SchemaUtils.getElementChildren(profiles, fhirType, null);
 	for (const element of unusedElements) {
 		if (element.isRequired) {
-			let child, newNode;
+			const curResource = State.get().resource;
 			const {
-				profiles
-			} = State.get();
-
-			if (element.range && (element.range[1] !== "1") &&
-				(child = getChildBySchemaPath(resource, element.schemaPath))) {
-					newNode = SchemaUtils.buildChildNode(profiles, "objectArray", child.schemaPath, child.fhirType);
-					child.children.push(newNode);			
-					return;
-				}
-
-			newNode = SchemaUtils.buildChildNode(profiles, resource.nodeType, element.schemaPath, element.fhirType);
-			if (["value", "valueArray"].includes(newNode.nodeType)) {
-				newNode.ui = {status: "editing"};
-			}
-			const position = getSplicePosition(resource.children, newNode.index);
-			State.get().resource.children.splice(position, 0, newNode);
+				position,
+				newNode
+			} = getFhirElementNodeAndPosition(curResource, element);
+			curResource.children.splice(position, 0, newNode);
 		}
 	}
 	const status = success ? "ready" : "resource_load_error";
@@ -464,7 +452,7 @@ State.on("add_array_object", function(node) {
 	return node.children.push(newNode);
 });	
 
-State.on("add_object_element", function(node, fhirElement) {
+const getFhirElementNodeAndPosition = function(node, fhirElement) {
 	let child, newNode;
 	const {
         profiles
@@ -481,7 +469,26 @@ State.on("add_object_element", function(node, fhirElement) {
 	if (["value", "valueArray"].includes(newNode.nodeType)) {
 		newNode.ui = {status: "editing"};
 	}
+
+	// Elements with Fixed values should not be modified
+	if (newNode.isFixed) {
+		newNode.ui.status = "ready";
+	}
+
 	const position = getSplicePosition(node.children, newNode.index);
+
+	return {
+		position,
+		newNode,
+	};
+}
+
+State.on("add_object_element", function(node, fhirElement) {
+	const {
+		position,
+		newNode
+	} = getFhirElementNodeAndPosition(node, fhirElement);
+
 	return node.children.splice(position, 0, newNode);
 });
 
