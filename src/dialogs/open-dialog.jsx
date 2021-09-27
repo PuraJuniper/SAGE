@@ -80,7 +80,7 @@ class OpenDialog extends React.Component {
 
     handleClose(e) {
         this.setState({showSpinner: false});
-        return State.trigger("set_ui", "ready");
+        return State.emit("set_ui", "ready");
     }
 
     handleSelectFile(e) {
@@ -107,9 +107,9 @@ class OpenDialog extends React.Component {
     loadTextResource(data) {
         try {
             const json = JSON.parse(data);
-            return State.trigger("load_json_resource", json);
+            return State.emit("load_json_resource", json);
         } catch (e) {
-            return State.trigger("set_ui", "load_error");
+            return State.emit("set_ui", "load_error");
         }
     }
 
@@ -125,7 +125,7 @@ class OpenDialog extends React.Component {
     //   if (!(this.state.fhirUrl.length > 2)) {
     //     return;
     //   }
-    //   State.trigger("load_url_resource", this.state.fhirUrl);
+    //   State.emit("load_url_resource", this.state.fhirUrl);
     //   return e.preventDefault();
     // }
 
@@ -138,7 +138,7 @@ class OpenDialog extends React.Component {
         $.get(this.state.fhirUrl, function (data, status) {
             $this.loadTextResource(JSON.stringify(data));
         });
-        State.trigger("load_url_resource", this.state.fhirUrl);
+        State.emit("load_url_resource", this.state.fhirUrl);
         return e.preventDefault();
     }
 
@@ -152,7 +152,7 @@ class OpenDialog extends React.Component {
         if (this.state.newResourceBundle) {
             json = {resourceType: "Bundle", entry: [{resource: json}]};
         }
-        return State.trigger("load_json_resource", json);
+        return State.emit("load_json_resource", json);
     }
 
     handleNewTypeChange(e) {

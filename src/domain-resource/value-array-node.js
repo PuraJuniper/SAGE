@@ -20,7 +20,7 @@ class ValueArrayNode extends React.Component {
 	}
 
 	handleItemAdd(e) {
-		State.trigger("add_array_value", this.props.node);
+		State.emit("add_array_value", this.props.node);
 		if (e) { return e.preventDefault(); }
 	}
 
@@ -28,7 +28,7 @@ class ValueArrayNode extends React.Component {
 		if (this.props.node.children.length === 1) {
 			this.props.onNodeDelete();
 		} else {
-			State.trigger("delete_node", child, this.props.node);
+			State.emit("delete_node", child, this.props.node);
 		}
 		return e.preventDefault();
 	}

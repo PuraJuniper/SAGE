@@ -61,7 +61,7 @@ class RootComponent extends React.Component {
 
 		const defaultProfilePath = "profiles/r4.json";
 
-		return State.trigger("load_initial_json",
+		return State.emit("load_initial_json",
 			qs.profiles || defaultProfilePath,
 			qs.resource, this.isRemote);
 	}
@@ -71,7 +71,7 @@ class RootComponent extends React.Component {
 	}
 
 	handleOpen() {
-		return State.trigger("set_ui", "open");
+		return State.emit("set_ui", "open");
 	}
 
 	render() {

@@ -76,7 +76,7 @@ State.on("load_initial_json", function(profilePath, resourcePath, isRemote) {
 		[resourcePath, "load_json_resource", "resource_load_error"]
 	];
 
-	State.trigger("set_ui", "loading");
+	State.emit("set_ui", "loading");
 	let current = null;
 	const loadNext = function() {
 		if ((current = queue.shift()) && current[0]) {
@@ -87,16 +87,16 @@ State.on("load_initial_json", function(profilePath, resourcePath, isRemote) {
 				error: onLoadError
 			});		
 		} else if (!isRemote) {
-			return State.trigger("set_ui", "ready");	
+			return State.emit("set_ui", "ready");	
 		}
 	};
 		
 	var onLoadSuccess = function(json) {
-		State.trigger(current[1], json);
+		State.emit(current[1], json);
 		return loadNext();
 	};
 
-	var onLoadError = (xhr, status) => State.trigger("set_ui", current[2]);
+	var onLoadError = (xhr, status) => State.emit("set_ui", current[2]);
 
 	return loadNext();
 });
@@ -233,7 +233,7 @@ State.on("set_bundle_pos", function(newPos) {
 	}
 
 	if (!(decorated = decorateResource(state.bundle.resources[newPos], state.profiles))) {
-		return State.trigger("set_ui", "resource_load_error");
+		return State.emit("set_ui", "resource_load_error");
 	}
 	
 	return state.pivot()
@@ -257,7 +257,7 @@ State.on("remove_from_bundle", function() {
 	}
 
 	if (!(decorated = decorateResource(state.bundle.resources[newPos], state.profiles))) {
-		return State.trigger("set_ui", "resource_load_error");
+		return State.emit("set_ui", "resource_load_error");
 	}
 	
 	return state.pivot()
@@ -348,7 +348,7 @@ State.on("update_refs", function(changes) {
 		BundleUtils.fixAllRefs(State.get().bundle.resources, changes);
 
 	State.get().bundle.set("resources", resources);
-	return State.trigger("set_ui", "ready");
+	return State.emit("set_ui", "ready");
 });
 
 State.on("end_edit", function(node, parent) {
@@ -436,7 +436,7 @@ State.on("show_object_menu", function(node, parent) {
 
 State.on("show_code_picker", function(node) {
 	State.get().ui.pivot().set("selectedNode", node);
-	return State.trigger("set_ui", "codePicker");
+	return State.emit("set_ui", "codePicker");
 });
 
 // Insert system, code, version, and display elements to the given node.
@@ -444,7 +444,7 @@ State.on("show_code_picker", function(node) {
 State.on("insert_from_code_picker", function(node, system, code, systemOID, version, display) {
 
 	if (node.fhirType != "Coding") {
-		console.log("insert_from_code_picker event triggered with an unexpected FHIR type -- returning");
+		console.log("insert_from_code_picker event emitted with an unexpected FHIR type -- returning");
 		return;
 	}
 

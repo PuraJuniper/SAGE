@@ -32,7 +32,7 @@ class UserSettingsDialog extends React.Component {
 
     handleClose(e) {
         this.setState({showSpinner: false});
-        return State.trigger("set_ui", "ready");
+        return State.emit("set_ui", "ready");
     }
     
     handleSave(e) {
@@ -40,7 +40,7 @@ class UserSettingsDialog extends React.Component {
             VSACEndpoint: this.state.VSACEndpoint,
             UMLSKey: this.state.UMLSKey,
         })
-        return State.trigger("set_ui", "ready");
+        return State.emit("set_ui", "ready");
     }
     
     // Attempts to request a known code

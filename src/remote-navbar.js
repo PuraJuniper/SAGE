@@ -21,7 +21,7 @@ class RemoteNavbar extends React.Component {
 			
 		window.addEventListener("message", e => {
 			if ((e.data?.action === "edit") && e.data?.resource) {
-				State.trigger("load_json_resource", e.data.resource);
+				State.emit("load_json_resource", e.data.resource);
 				return this.remoteCallback = e.data.callback;
 			}
 		}
@@ -51,7 +51,7 @@ class RemoteNavbar extends React.Component {
 			SchemaUtils.toBundle(bundle.resources, bundle.pos, resource); } 		
 	
 		if (errCount > 0) {
-			return State.trigger("set_ui", "validation_error");
+			return State.emit("set_ui", "validation_error");
 		} else {
 			this.launcher.postMessage({
 				action: "fred-save", resource, 
@@ -74,7 +74,7 @@ class RemoteNavbar extends React.Component {
 
 	handleUiChange(status, e) {
 		e.preventDefault();
-		return State.trigger("set_ui", status);
+		return State.emit("set_ui", status);
 	}
 
 	renderButtons() {

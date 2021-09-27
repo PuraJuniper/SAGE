@@ -16,30 +16,30 @@ class ElementMenu extends React.Component {
 
 	handleToggle(show) {
 		if (show) {
-			return State.trigger("show_object_menu", this.props.node, this.props.parent);
+			return State.emit("show_object_menu", this.props.node, this.props.parent);
 		}
 	}
 
 	handleAddItem(unused) {
-		return State.trigger("add_object_element", this.props.node, unused);
+		return State.emit("add_object_element", this.props.node, unused);
 	}
 
 	handleAddObject(e) {
-		State.trigger("add_array_object", this.props.node);
+		State.emit("add_array_object", this.props.node);
 		return e.preventDefault();
 	}
 
 	handleCodePicker(e) {
-		State.trigger("show_code_picker", this.props.node);
+		State.emit("show_code_picker", this.props.node);
 	}
 
 	handleMove(down, e) {
-		State.trigger("move_array_node", this.props.node, this.props.parent, down);
+		State.emit("move_array_node", this.props.node, this.props.parent, down);
 		return e.preventDefault;
 	}
 
 	handleDeleteItem(e) {
-		State.trigger("delete_node", this.props.node, this.props.parent);
+		State.emit("delete_node", this.props.node, this.props.parent);
 		return e.preventDefault();
 	}
 

@@ -22,7 +22,7 @@ class ExportDialog extends React.Component {
     }
 
     handleClose(e) {
-        return State.trigger("set_ui", "ready");
+        return State.emit("set_ui", "ready");
     }
 
     buildJson() {

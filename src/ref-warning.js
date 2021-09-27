@@ -10,12 +10,12 @@ class RefWarning extends React.Component {
 
 	handleUpdate(e) {
 		e.preventDefault();
-		return State.trigger("update_refs", this.props.update);
+		return State.emit("update_refs", this.props.update);
 	}
 
 	handleCancel(e) {
 		e.preventDefault();
-		return State.trigger("set_ui", "ready");	
+		return State.emit("set_ui", "ready");	
 	}
 
 	render() {

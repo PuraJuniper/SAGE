@@ -11,7 +11,7 @@ class NavbarFred extends React.Component {
 
 	handleUiChange(status, e) {
 		e.preventDefault();
-		return State.trigger("set_ui", status);
+		return State.emit("set_ui", status);
 	}
 
 	handleDrag(e) {
@@ -23,14 +23,14 @@ class NavbarFred extends React.Component {
 		reader.onload = function(e) { 
 			try {
 				const json = JSON.parse(e.target.result);
-				return State.trigger("load_json_resource", json);
+				return State.emit("load_json_resource", json);
 			} catch (error) {
 				e = error;
-				return State.trigger("set_ui", "load_error");
+				return State.emit("set_ui", "load_error");
 			}
 		};
 
-		State.trigger("set_ui", "loading");
+		State.emit("set_ui", "loading");
 		return reader.readAsText(file);
 	}
 	

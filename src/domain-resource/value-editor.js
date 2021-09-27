@@ -37,7 +37,7 @@ class ValueEditor extends React.Component {
 			//remove blank lines
 			if (this.props.node.value) {
 				const newValue = this.props.node.value.replace(/^\s*[\r\n]/gm, "");
-				State.trigger("value_change", this.props.node, newValue);
+				State.emit("value_change", this.props.node, newValue);
 			}
 		}
 
@@ -49,7 +49,7 @@ class ValueEditor extends React.Component {
                 } = this.props.node.binding;
 				const vs = State.get().valuesets[reference];
 				if (vs && vs.type === "complete") {
-					return State.trigger("value_change", this.props.node, this.refs.inputField.value);
+					return State.emit("value_change", this.props.node, this.refs.inputField.value);
 				}
 			}
 	}
@@ -68,7 +68,7 @@ class ValueEditor extends React.Component {
 				}
 			}
 
-		return State.trigger("value_change", this.props.node, e.target.value, isInvalid);
+		return State.emit("value_change", this.props.node, e.target.value, isInvalid);
 	}
 
 	handleKeyDown(e) {

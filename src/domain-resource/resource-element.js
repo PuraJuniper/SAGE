@@ -29,7 +29,7 @@ class ResourceElement extends React.Component {
 			var message;
 			if (node.ui?.validationErr) { return false; }
 			if (message = PrimitiveValidator(editNode.fhirType, editNode.value, true)) {
-				State.trigger("value_change", editNode, editNode.value, message);
+				State.emit("value_change", editNode, editNode.value, message);
 				return false;
 			}
 		}
@@ -56,7 +56,7 @@ class ResourceElement extends React.Component {
 	}
 
 	handleEditStart(e) {
-		State.trigger("start_edit", this.props.node);
+		State.emit("start_edit", this.props.node);
 		if (e) { return e.preventDefault(); }
 	}
 
@@ -65,29 +65,29 @@ class ResourceElement extends React.Component {
 		if ([null, undefined, ""].includes(this.props.node?.ui?.prevState?.value)) {
 			return;
 		}
-		State.trigger("cancel_edit", this.props.node);
+		State.emit("cancel_edit", this.props.node);
 		if (e) { return e.preventDefault(); }
 	}
 
 	handleEditCommit(e) {
 		if (!this.isValid(this.props.node)) { return; }
-		State.trigger("end_edit", this.props.node, this.props.parent);
+		State.emit("end_edit", this.props.node, this.props.parent);
 		if (e) { return e.preventDefault(); }
 	}
 
 	handleNodeDelete(e) {
-		State.trigger("delete_node", this.props.node, this.props.parent);
+		State.emit("delete_node", this.props.node, this.props.parent);
 		if (e) { return e.preventDefault(); }
 	}
 
 	handleAddContained(e) {
-		State.trigger("show_open_contained", this.props.node);
+		State.emit("show_open_contained", this.props.node);
 		if (e) { return e.preventDefault(); }
 	}
 
 	handleObjectMenu(e) {
 		if (this.props.node?.ui?.status === "menu") { return; }
-		State.trigger("show_object_menu", this.props.node, this.props.parent);
+		State.emit("show_object_menu", this.props.node, this.props.parent);
 		if (e) { return e.preventDefault(); }
 	}
 
