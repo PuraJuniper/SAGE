@@ -17,7 +17,7 @@ import RefWarning from "./ref-warning";
 import Footer from "./footer";
 
 import DomainResource from "./domain-resource/";
-
+import CpgDialog from "./dialogs/cpg-dialog";
 import OpenDialog from "./dialogs/open-dialog";
 import ExportDialog from "./dialogs/export-dialog";
 import CodePickerDialog from "./dialogs/code-picker-dialog";
@@ -69,6 +69,10 @@ class RootComponent extends React.Component {
 	handleOpen() {
 		return State.emit("set_ui", "open");
 	}
+	
+	handleCpg() {
+		return State.trigger("set_ui", "cpg");
+	}
 
 	render() {
 		let bundleBar;
@@ -87,6 +91,9 @@ class RootComponent extends React.Component {
 			return <div className="row" style={{marginTop: "60px", marginBottom: "60px"}}><div className="col-xs-offset-4 col-xs-4">
 				<button className="btn btn-primary btn-block" onClick={this.handleOpen.bind(this)}>
 					Open Resource
+				</button>
+				<button className="btn btn-primary btn-block" onClick={this.handleCpg.bind(this)}>
+					CPG
 				</button>
 			</div></div>;
 		}
@@ -122,7 +129,14 @@ class RootComponent extends React.Component {
 				{resourceContent}
 				<Footer />
 			</div>
-			<OpenDialog show={state.ui.status === "open"} openMode={state.ui.openMode} />
+			<OpenDialog 
+				show={state.ui.status === "open"}
+				openMode={state.ui.openMode}
+				/>
+			<CpgDialog
+				show={state.ui.status == "cpg"}
+				openMode={state.ui.openMode}			
+				/>
 			<ExportDialog show={state.ui.status === "export"}
 				bundle={state.bundle}
 				resource={state.resource}
@@ -132,6 +146,5 @@ class RootComponent extends React.Component {
 		</div>;
 	}
 }
-
 
 ReactDOM.render(<RootComponent />, document.getElementById("content"));

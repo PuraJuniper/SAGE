@@ -33,8 +33,8 @@ class NavbarFred extends React.Component {
 		State.emit("set_ui", "loading");
 		return reader.readAsText(file);
 	}
-	
-	renderButtons() {
+
+	renderButtons() {	
 		const navItems = [
 			<Nav.Link key="settings" onClick={this.handleUiChange.bind(this, "settings")}>
 				User Settings
@@ -43,7 +43,6 @@ class NavbarFred extends React.Component {
 				Open Resource
 			</Nav.Link>
 		];
-
 		if (this.props.hasResource) { navItems.push(<Nav.Link 
 			key="resource_json" 
 			onClick={this.handleUiChange.bind(this, "export")}>
@@ -52,6 +51,15 @@ class NavbarFred extends React.Component {
 		); }
 
 		return navItems;
+	}
+
+	renderExtraButtons() {
+		const navCpg = [
+			<Nav.Link key="cpg" onClick={this.handleUiChange.bind(this, "cpg")}>
+				CPG
+			</Nav.Link>
+		];
+		return navCpg;
 	}
 
 	render() {
@@ -71,6 +79,7 @@ class NavbarFred extends React.Component {
 			<Navbar.Collapse>
 				<Nav>
 					{this.renderButtons()}
+					{this.renderExtraButtons()}
 				</Nav>
 			</Navbar.Collapse>
 		</Navbar>;
