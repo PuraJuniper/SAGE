@@ -71,7 +71,7 @@ class RootComponent extends React.Component {
 	}
 	
 	handleCpg() {
-		return State.trigger("set_ui", "cpg");
+		return State.emit("set_ui", "cpg");
 	}
 
 	render() {
@@ -134,8 +134,7 @@ class RootComponent extends React.Component {
 				openMode={state.ui.openMode}
 				/>
 			<CpgDialog
-				show={state.ui.status == "cpg"}
-				openMode={state.ui.openMode}			
+				show={state.ui.status == "cpg"}		
 				/>
 			<ExportDialog show={state.ui.status === "export"}
 				bundle={state.bundle}

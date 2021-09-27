@@ -6,6 +6,8 @@ const State = new Freezer({
 	},
 	VSACEndpoint: "https://cts.nlm.nih.gov/fhir/r4",
 	UMLSKey: "",
+	CPGName: "",
+	authorName: "",
 	resource: null,
 	profiles: null
 });

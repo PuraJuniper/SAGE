@@ -6,6 +6,7 @@
  * DS207: Consider shorter variations of null checks
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
+import State from '../state';
 import PrimitiveValidator from './primitive-validator';
 
 //TODO: break up this module
@@ -156,7 +157,33 @@ export var buildChildNode = function(profiles, parentNodeType, schemaPath, fhirT
 				defaultValue: schema.rawElement[fixedTypeName],
 			}
 		}
-		let defaultValue = fhirType === "boolean" ? true : null;
+		let defaultValue = null;
+		switch(fhirType) {
+			case "boolean":
+				defaultValue = fhirType === "boolean" ? true : null;
+				break;
+		}
+		
+		// Attempt to auto-populate URLs, Names, and Publishers, if possible
+		const pathSuffix = schema.path.split('.');
+		switch (pathSuffix[pathSuffix.length-1]) {
+			case "name":
+				if (State.get().CPGName != "") {
+					defaultValue = State.get().CPGName;
+				}
+				break;
+			case "publisher":
+				if (State.get().authorName != "") {
+					defaultValue = State.get().authorName;
+				}
+				break;
+			case "url":
+				if (State.get().authorName != "" && State.get().CPGName != "") {
+					defaultValue = `http://fhir.org/guides/${State.get().authorName}/${pathSuffix[0]}/${pathSuffix[0]}-${State.get().CPGName}`;
+				}
+				break;
+		}
+		
 		return {
 			isFixed: false,
 			defaultValue,
