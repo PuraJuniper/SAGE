@@ -434,6 +434,53 @@ State.on("show_object_menu", function(node, parent) {
 		.ui.menu.set({unusedElements});
 });
 
+State.on("show_code_picker", function(node) {
+	State.get().ui.pivot().set("selectedNode", node);
+	return State.trigger("set_ui", "codePicker");
+});
+
+// Insert system, code, version, and display elements to the given node.
+// `node` is expected to be of type Coding
+State.on("insert_from_code_picker", function(node, system, code, systemOID, version, display) {
+
+	if (node.fhirType != "Coding") {
+		console.log("insert_from_code_picker event triggered with an unexpected FHIR type -- returning");
+		return;
+	}
+
+	const pathToParam = {
+		'Coding.system' : system,
+		'Coding.code': code,
+		'Coding.version': version,
+		'Coding.display': display,
+	};
+
+	// Delete system, code, version, and display children, if they exist
+	const childrenToRemove = [];
+	for (const child of node.children) {
+		if (Object.keys(pathToParam).includes(child.schemaPath)) {
+			childrenToRemove.push(child);
+		}
+	}
+	for (const child of childrenToRemove) {
+		node = node.pivot().children.splice(node.children.indexOf(child), 1);
+	}
+
+	// Create system, code, version, and display nodes with the given values
+	const codingElementChildren = SchemaUtils.getElementChildren(State.get().profiles, 'Coding', null);
+	for (const child of codingElementChildren) {
+		if (!Object.keys(pathToParam).includes(child.schemaPath)) {
+			continue;
+		}
+		const {
+			position,
+			newNode
+		} = getFhirElementNodeAndPosition(node, child)
+		newNode.value = pathToParam[newNode.schemaPath];
+		newNode.ui = {status: "ready"};
+		node = node.pivot().children.splice(position, 0, newNode);
+	}
+});
 
 State.on("add_array_value", function(node) {
 	const {
@@ -471,6 +518,7 @@ const getFhirElementNodeAndPosition = function(node, fhirElement) {
 	}
 
 	// Elements with Fixed values should not be modified
+	// TODO: disallow user edits
 	if (newNode.isFixed) {
 		newNode.ui.status = "ready";
 	}

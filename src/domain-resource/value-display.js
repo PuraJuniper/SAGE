@@ -150,10 +150,6 @@ ${this.props.node.value}
 		let {
             value
         } = this.props.node;
-		console.log(this.props.node.fhirType);
-		console.log(this.formatString);
-		console.log(formatters);
-		console.log(formatter);
 		if (this.props.node.fhirType === null) {
 			value = value.toString();
 		}

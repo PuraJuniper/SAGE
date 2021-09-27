@@ -20,6 +20,8 @@ import DomainResource from "./domain-resource/";
 
 import OpenDialog from "./dialogs/open-dialog";
 import ExportDialog from "./dialogs/export-dialog";
+import CodePickerDialog from "./dialogs/code-picker-dialog";
+import UserSettingsDialog from "./dialogs/user-settings-dialog";
 
 import AppInfo from "../package.json";
 
@@ -115,7 +117,7 @@ class RootComponent extends React.Component {
 			/>
 		:
 			<NavbarFred hasResource={state.resource ? true : undefined} appVersion={this.appVersion} />;
-
+		
 		return <div>
 			{navBar}
 			<div className="container" style={{marginTop: "50px", marginBottom: "50px"}}>
@@ -129,6 +131,8 @@ class RootComponent extends React.Component {
 				bundle={state.bundle}
 				resource={state.resource}
 			/>
+			<CodePickerDialog show={state.ui.status === "codePicker"} node={state.ui.selectedNode} />
+			<UserSettingsDialog show={state.ui.status === "settings"} />
 		</div>;
 	}
 }

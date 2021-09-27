@@ -29,6 +29,10 @@ class ElementMenu extends React.Component {
 		return e.preventDefault();
 	}
 
+	handleCodePicker(e) {
+		State.trigger("show_code_picker", this.props.node);
+	}
+
 	handleMove(down, e) {
 		State.trigger("move_array_node", this.props.node, this.props.parent, down);
 		return e.preventDefault;
@@ -76,6 +80,9 @@ class ElementMenu extends React.Component {
 
 		const addObject = this.props.node.nodeType === "objectArray" ?
 			<Dropdown.Item onSelect={this.handleAddObject.bind(this)}>Add {this.props.node.displayName}</Dropdown.Item> : undefined;
+		// For FHIR type `Coding`, we provide the user with an option to input a valid system and code
+		//  so that the rest of the fields may be autopopulated using VSAC
+		const codePicker = this.props.node.fhirType == "Coding" ? <Dropdown.Item onSelect={this.handleCodePicker.bind(this)}>VSAC Code Picker</Dropdown.Item> : undefined;
 		const moveUp = this.props.node.ui.menu.canMoveUp ?
 			<Dropdown.Item onSelect={this.handleMove.bind(this, false)}>Move Up</Dropdown.Item> : undefined;
 		const moveDown = this.props.node.ui.menu.canMoveDown ?
@@ -94,12 +101,13 @@ class ElementMenu extends React.Component {
 		})();
 		const remove = this.props.parent ?
 			<Dropdown.Item onSelect={this.handleDeleteItem.bind(this)}>Remove</Dropdown.Item> : undefined;
+		// TODO: figure out why adding `="true"` suppresses warnings
 		let spacer1 = (addObject || remove) ?
-			<Dropdown.Item divider /> : undefined;
+			<Dropdown.Item divider="true" /> : undefined;
 		let spacer2 = (moveUp || moveDown) && (unusedElements?.length > 0) ?
-			<Dropdown.Item divider /> : undefined;
+			<Dropdown.Item divider="true" /> : undefined;
 		let header = (unusedElements?.length > 0) && this.props.parent ?
-			<Dropdown.Item header>Add Item</Dropdown.Item> : undefined;
+			<Dropdown.Item header="true">Add Item</Dropdown.Item> : undefined;
 
 		//handle empty contained resources
 		if (this.props.node?.fhirType === "Resource") {
@@ -109,7 +117,7 @@ class ElementMenu extends React.Component {
 		return <Dropdown.Menu>
 			{remove}{addObject}
 			{spacer1}{moveUp}{moveDown}
-			{spacer2}{header}{unusedElements}
+			{spacer2}{header}{codePicker}{unusedElements}
 		</Dropdown.Menu>;
 	}
 }

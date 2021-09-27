@@ -20,7 +20,7 @@ class OpenDialog extends React.Component {
         super(...arguments);
         this.state = {
             showSpinner: false,
-            tab: "fhirText",
+            tab: "fhirNew",
             fhirText: '{"resourceType": "Patient"}',
             fhirUrl: "",
             newResourceType: "Patient",

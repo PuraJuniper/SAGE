@@ -36,6 +36,9 @@ class NavbarFred extends React.Component {
 	
 	renderButtons() {
 		const navItems = [
+			<Nav.Link key="settings" onClick={this.handleUiChange.bind(this, "settings")}>
+				User Settings
+			</Nav.Link>,
 			<Nav.Link key="open" onClick={this.handleUiChange.bind(this, "open")}>
 				Open Resource
 			</Nav.Link>
