@@ -15,11 +15,11 @@ class BundleBar extends React.Component {
 
 	handleNav(pos, e) {
 		e.preventDefault();
-		return State.trigger("set_bundle_pos", pos);
+		return State.emit("set_bundle_pos", pos);
 	}
 
 	handleMenu(e, item) {
-		return State.trigger(item);
+		return State.emit(e);
 	}
 
 	renderEmptyBundle() {
