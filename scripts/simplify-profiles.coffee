@@ -57,7 +57,7 @@ summarizeValuesets = (fhirBundle, valuesets) ->
 
 summarizeProfiles = (fhirBundle, profiles) ->
 	for entry in fhirBundle?.entry || []
-		root = entry?.resource?.snapshot?.element?[0]?.path
+		root = entry?.resource?.snapshot?.element?[0]?.id
 		continue unless root and 
 			root[0] is root[0].toUpperCase()
 
@@ -66,9 +66,10 @@ summarizeProfiles = (fhirBundle, profiles) ->
 
 		profiles[root] = {}
 		for e, i in entry?.resource?.snapshot?.element || []
-			profiles[root][e.path] =
+			profiles[root][e.id] =
 				index: i
 				path: e.path
+				sliceName: e.sliceName || ""
 				min: e.min
 				max: e.max
 				type: e.type ||  [{"code": "DomainResource"}]
@@ -76,23 +77,31 @@ summarizeProfiles = (fhirBundle, profiles) ->
 				isModifier: e.isModifier
 				short: e.short
 				name: e.name
+				rawElement: e
 
 			if url = e?.binding?.valueSetReference?.reference
-				profiles[root][e.path].binding =
+				profiles[root][e.id].binding =
+					strength: e.binding.strength
+					reference: url
+
+			if url = e?.binding?.valueSet
+				if url.lastIndexOf('|') != -1
+					url = url.substring(0, url.lastIndexOf('|'))
+				profiles[root][e.id].binding =
 					strength: e.binding.strength
 					reference: url
 
 			#assumes id appears before reference - is this accurate?
-			if e.id then ids[e.id] = e.path
-			if e.name then names[e.name] = e.path
+			if e.id then ids[e.id] = e.id
+			if e.name then names[e.name] = e.id
 
 			#STU3
 			if e.contentReference
 				id = e.contentReference.split("#")[1]
-				profiles[root][e.path].refSchema = ids[id]
+				profiles[root][e.id].refSchema = ids[id]
 			#DSTU2
 			else if e.nameReference
-				profiles[root][e.path].refSchema = names[e.nameReference]
+				profiles[root][e.id].refSchema = names[e.nameReference]
 
 	return profiles
 

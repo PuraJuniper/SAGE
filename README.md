@@ -1,7 +1,8 @@
-# FRED - FHIR Resource Editor
+# FREDonCPG - FHIR Resource Editor
 
-## What is FRED?
+## What is FREDonCPG?
 FRED is an open source web application that enables users to edit JSON [FHIR resources](https://www.hl7.org/fhir/resourcelist.html) and [FHIR bundles](https://www.hl7.org/fhir/bundle.html). Built as an HTML5 app, FRED runs entirely within your web browser - no data is sent to a server. *Note - the project is currently under active development. Code is rough, there are bugs and features may change or be removed!*
+FREDonCPG expands this to work with CPGs (Clinical Practice Guideline), allowing users to create and edit JSON CPG resources as specified under FHIR. 
 
 ## Try it with...
 
@@ -17,6 +18,12 @@ FRED is an open source web application that enables users to edit JSON [FHIR res
 - [Any FHIR Resource](http://docs.smarthealthit.org/fred/?profiles=.%2Fprofiles%2Fstu3.json)
 
 #### R4 support added (Thank you! @WolfByttner)
+
+## Current features and changes
+- Mandatory fields are automatically loaded in when creating a resource
+- Values that must come from a fixed set are selectable from dropdowns
+- Fields with fixed values have been prefilled
+- CPG resources have been added
 
 ## Planned features
 Please see [roadmap.md](roadmap.md)
@@ -47,7 +54,7 @@ Please see [roadmap.md](roadmap.md)
 2. Clone this repository
     
     ```
-    git clone https://github.com/smart-on-fhir/fred
+    git clone https://github.com/PuraJuniper/fred
     cd fred
     ```
     
