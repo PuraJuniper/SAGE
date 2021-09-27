@@ -66,11 +66,11 @@ class ElementMenu extends React.Component {
 			title = this.props.parent.displayName;
 		}
 
-		return <Dropdown.Toggle variant="outline-dark" className={className} bsSize="small" title={title || "Add Element"}>{title || "Add Element"}</Dropdown.Toggle>;
+		return <Dropdown.Toggle variant="outline-dark" className={className} size="sm" title={title || "Add Element"}>{title || "Add Element"}</Dropdown.Toggle>;
 	}
 
 	renderPlaceholder() {
-		return <Dropdown.Menu><Dropdown.Item>Loading...</Dropdown.Item></Dropdown.Menu>;
+		return <Dropdown.Menu style={{margin: "0px"}}><Dropdown.Item>Loading...</Dropdown.Item></Dropdown.Menu>;
 	}
 
 	renderMenu() {
@@ -114,7 +114,7 @@ class ElementMenu extends React.Component {
 			header = (unusedElements = (spacer1 = (spacer2 = null)));
 		}
 
-		return <Dropdown.Menu>
+		return <Dropdown.Menu style={{margin: "0px"}}>
 			{remove}{addObject}
 			{spacer1}{moveUp}{moveDown}
 			{spacer2}{header}{codePicker}{unusedElements}

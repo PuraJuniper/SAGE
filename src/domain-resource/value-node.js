@@ -18,7 +18,7 @@ class ValueNode extends React.Component {
 		return nextProps.node !== this.props.node;
 	}
 
-	componentWillMount() {
+	componentDidMount() {
 		if ([null, undefined, ""].includes(this.props.node.value) &&
 			(this.props.node?.ui?.status !== "editing")) {
 				return this.props.onEditStart();

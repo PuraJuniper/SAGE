@@ -49,7 +49,7 @@ class BundleBar extends React.Component {
 					<i className="fas fa-chevron-left" />
 				</button>
 
-				<DropdownButton bsSize="small" 
+				<DropdownButton size="sm" 
 					title={title} 
 					id="bundle-dropdown"
 					style={{marginRight: "10px", marginLeft: "10px"}}

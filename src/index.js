@@ -44,7 +44,7 @@ class RootComponent extends React.Component {
 		return data;
 	}
 
-	componentWillMount() {
+	componentDidMount() {
 		const qs = this.getQs();
 
 		if (qs.remote === "1") {
@@ -61,13 +61,9 @@ class RootComponent extends React.Component {
 
 		const defaultProfilePath = "profiles/r4.json";
 
-		return State.emit("load_initial_json",
+		return State.on("update", () => this.forceUpdate()).emit("load_initial_json",
 			qs.profiles || defaultProfilePath,
 			qs.resource, this.isRemote);
-	}
-
-	componentDidMount() {
-		return State.on("update", () => this.forceUpdate());
 	}
 
 	handleOpen() {
@@ -120,7 +116,7 @@ class RootComponent extends React.Component {
 		
 		return <div>
 			{navBar}
-			<div className="container" style={{marginTop: "50px", marginBottom: "50px"}}>
+			<div className="container" style={{marginTop: "100px", marginBottom: "50px"}}>
 				{bundleBar}
 				{error}
 				{resourceContent}

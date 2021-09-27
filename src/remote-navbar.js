@@ -15,7 +15,7 @@ class RemoteNavbar extends React.Component {
 		this.notifiedReady = false;
 	}
 
-	componentWillMount() {
+	componentDidMount() {
 		this.launcher =
 			(window.parent !== window ? window.parent : undefined) || window.opener;
 			
@@ -96,7 +96,7 @@ class RemoteNavbar extends React.Component {
 	}
 
 	render() {
-		return <Navbar fixedTop={true} className="navbar-custom">
+		return <Navbar fixed="top" className="navbar-custom">
 			<Navbar.Header>
 				<div className="pull-left" style={{margin: "10px"}}>
 					<img src="../img/smart-bug.png" />

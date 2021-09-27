@@ -55,7 +55,7 @@ class NavbarFred extends React.Component {
 	}
 
 	render() {
-		return <Navbar fixedTop={true} className="navbar-custom"
+		return <Navbar fixed="top" className="navbar-custom"
 			onDragEnter={this.handleDrag.bind(this)}
 			onDragOver={this.handleDrag.bind(this)}
 			onDrop={this.handleDrag.bind(this)}

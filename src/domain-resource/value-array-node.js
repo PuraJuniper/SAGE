@@ -33,7 +33,7 @@ class ValueArrayNode extends React.Component {
 		return e.preventDefault();
 	}
 
-	componentWillMount() {
+	componentDidMount() {
 		if ((this.props.node.children.length === 0) &&
 			(this.props.node?.ui?.status !== "editing")) {
 				return this.props.onEditStart();
