@@ -11,7 +11,7 @@
  */
 import React from "react";
 import {Container, Row, Col, Modal, Tabs, Tab, Button} from "react-bootstrap";
-
+import { UncontrolledAlert } from "reactstrap";
 import State from "../state";
 
 const FHIRClient = require('../helpers/FHIRClient');
@@ -21,6 +21,7 @@ class UserSettingsDialog extends React.Component {
         super(...arguments);
         this.state = {
             UMLSKey: State.get().UMLSKey,
+            tab: "UserSettings",
             VSACEndpoint: State.get().VSACEndpoint,
             endpointVerified: null, // True if verified, false if failed verification, null if no verification attempted
             verifying: false, // Loading indicator
@@ -71,6 +72,10 @@ class UserSettingsDialog extends React.Component {
         });
     }
 
+    handleTabChange(key) {
+        return this.setState({tab: key});
+    }
+
     renderUserSettings() {
         const inputElements = <div>
             <p style={{marginTop: "20px"}}>
@@ -94,15 +99,15 @@ class UserSettingsDialog extends React.Component {
                 onChange={this.handleUMLSChange.bind(this)}
             />
         </div>;
-
+        
         const verifyStatus = this.state.endpointVerified ?
             <div>
-                Success!
+            <UncontrolledAlert color="success">Success.</UncontrolledAlert>
             </div>
             :
             <div>
-                Failed
-            </div>;
+            <UncontrolledAlert color="danger">Failed.</UncontrolledAlert>
+        </div>;
 
         const verifyButtonElement = <span>
             <button
@@ -116,6 +121,7 @@ class UserSettingsDialog extends React.Component {
         </span>;
 
         const saveButtonElement = <div>
+            <br />
             <button
                 className="btn btn-primary btn-block"
                 onClick={this.handleSave.bind(this)}
@@ -124,9 +130,21 @@ class UserSettingsDialog extends React.Component {
             </button>
         </div>;
 
+        const insertTab = <div>
+                <Tabs
+                activeKey={this.state.tab}
+                onSelect={this.handleTabChange.bind(this)}
+                animation="false"
+            >
+                <Tab eventKey="UserSettings" title="Menu" style={{opacity:1}}>
+                </Tab>
+            </Tabs>
+        </div>;
+
         return (
             <div className="row">
                 <div className="col-md-12">
+                    {insertTab}
                     {inputElements}
                 </div>
                 <div

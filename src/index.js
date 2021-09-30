@@ -6,6 +6,7 @@
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
 import React from "react";
+import { UncontrolledAlert } from 'reactstrap';
 import ReactDOM from "react-dom";
 import State from "./reactions";
 import * as SchemaUtils from "./helpers/schema-utils";
@@ -101,11 +102,17 @@ class RootComponent extends React.Component {
 
 		const error = (() => {
 			if (state.ui.status === "profile_load_error") {
-			return <div className="alert alert-danger">An error occured loading the FHIR profiles.</div>;
+			return (
+				<UncontrolledAlert color="danger">An error occured loading the FHIR profiles.</UncontrolledAlert>
+				);
 		} else if (state.ui.status === "resource_load_error") {
-			return <div className="alert alert-danger">An error occured loading the resource.</div>;
+			return (
+				<UncontrolledAlert color="danger">An error occured loading the resource.</UncontrolledAlert>
+				);
 		} else if (state.ui.status === "validation_error") {
-			return <div className="alert alert-danger">Please fix errors in resource before continuing.</div>;
+			return (
+				<UncontrolledAlert color="danger">Please fix errors in resource before continuing.</UncontrolledAlert>
+				);
 		}
 		})();
 
