@@ -145,11 +145,14 @@ const bundleInsert = function(json, isBundle) {
 	const [resource, errCount] = 
 		SchemaUtils.toFhir(state.resource, true);
 	if (errCount !== 0) { 
-		return state.ui.set("status", "validation_error");
+		//return state.ui.set("status", "validation_error");
 	} else {
-		state.bundle.resources.splice(state.bundle.pos, 1, resource).now();
-		state = State.get();
+		//state.bundle.resources.splice(state.bundle.pos, 1, resource).now();
+		//state = State.get();
 	}
+
+	state.bundle.resources.splice(state.bundle.pos, 1, resource).now();
+	state = State.get();
 
 	resources = (() => {
 		if (isBundle) {
@@ -229,19 +232,39 @@ State.on("set_bundle_pos", function(newPos) {
 	const [resource, errCount] = 
 		SchemaUtils.toFhir(state.resource, true);
 	if (errCount !== 0) { 
-		return state.ui.set("status", "validation_error");
+		//return state.ui.set("status", "validation_error");
 	}
 
 	if (!(decorated = decorateResource(state.bundle.resources[newPos], state.profiles))) {
 		return State.emit("set_ui", "resource_load_error");
 	}
-	
-	return state.pivot()
+	state.pivot()
 		//splice in any changes
 		.set("resource", decorated)
 		.bundle.resources.splice(state.bundle.pos, 1, resource)
 		.bundle.set("pos", newPos)
 		.ui.set({status: "ready"});
+	{
+	const {
+		profiles,
+		resource,
+	} = State.get();
+	const fhirType = resource.fhirType === "BackboneElement" ? resource.schemaPath : resource.fhirType; 
+	const unusedElements = SchemaUtils.getElementChildren(profiles, fhirType, null);
+	for (const element of unusedElements) {
+		var elname = element.name;
+		var newResource = state.bundle.resources[newPos][elname]
+		if (element.isRequired && !newResource) {
+			const curResource = State.get().resource;
+			const {
+				position,
+				newNode
+			} = getFhirElementNodeAndPosition(curResource, element);
+			curResource.children.splice(position, 0, newNode);
+		}
+	}
+	return State.get().set("ui", {status: "ready"});
+	}
 });
 
 

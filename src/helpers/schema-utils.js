@@ -289,6 +289,9 @@ export var decorateFhirData = function(profiles, data) {
 		let resourceType;
 		let i, v;
 		if (level == null) { level = 0; }
+		if (dataNode == null) {
+			return;
+		}
 		if (resourceType = dataNode.resourceType) {
 			schemaPath = [resourceType];
 		}
@@ -386,7 +389,10 @@ export var decorateFhirData = function(profiles, data) {
 					
 					for (let k in dataNode) {
 						v = dataNode[k];
-						result1.push(_walkNode(v, schemaPath.concat(k), level+1));
+						var walkRes = _walkNode(v, schemaPath.concat(k), level+1);
+						if (walkRes != null && walkRes != undefined) {
+						result1.push(walkRes);
+						}
 					}
 				
 					return result1;
