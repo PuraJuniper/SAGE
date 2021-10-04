@@ -210,6 +210,7 @@ State.on("load_json_resource", json => {
 	} = State.get();
 	const fhirType = resource.fhirType === "BackboneElement" ? resource.schemaPath : resource.fhirType; 
 	const unusedElements = SchemaUtils.getElementChildren(profiles, fhirType, null);
+	console.log(State.get().resource);
 	for (const element of unusedElements) {
 		if (element.isRequired) {
 			const curResource = State.get().resource;
@@ -244,6 +245,8 @@ State.on("set_bundle_pos", function(newPos) {
 		.bundle.resources.splice(state.bundle.pos, 1, resource)
 		.bundle.set("pos", newPos)
 		.ui.set({status: "ready"});
+
+	// Re-inserts mandatory fields that were previously left blank
 	{
 	const {
 		profiles,
@@ -253,7 +256,8 @@ State.on("set_bundle_pos", function(newPos) {
 	const unusedElements = SchemaUtils.getElementChildren(profiles, fhirType, null);
 	for (const element of unusedElements) {
 		var elname = element.name;
-		var newResource = state.bundle.resources[newPos][elname]
+		var newResource = state.bundle.resources[newPos][elname];
+		// for mandatory fields that are null/undefined
 		if (element.isRequired && !newResource) {
 			const curResource = State.get().resource;
 			const {
@@ -261,6 +265,30 @@ State.on("set_bundle_pos", function(newPos) {
 				newNode
 			} = getFhirElementNodeAndPosition(curResource, element);
 			curResource.children.splice(position, 0, newNode);
+		// for mandatory fields that are blank arrays (they don't come up as null)
+		} else if (element.isRequired && Array.isArray(newResource)) {
+			// these have to be cleared out of the resource first before they can come back
+			let curResource = State.get().resource;
+			for (let i = 0; i < curResource.children.length; i++) {
+				if (curResource.children[i].name == elname) {
+					curResource.children.splice(i, 1);
+					break;
+				}
+			}
+		}
+	}
+	// re-inserting the blank array fields
+	for (const element of unusedElements) {
+		var elname = element.name;
+		var newResource = state.bundle.resources[newPos][elname];
+		if (element.isRequired && Array.isArray(newResource)) {
+			let curResource = State.get().resource;
+			console.log(curResource);
+			const {
+				position,
+				newNode
+			} = getFhirElementNodeAndPosition(curResource, element);
+			 curResource.children.splice(position, 0, newNode);
 		}
 	}
 	return State.get().set("ui", {status: "ready"});
