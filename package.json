@@ -48,7 +48,7 @@
     "reactstrap": "^8.10.0",
     "sanitize-caja": "^0.1.4",
     "url-loader": "^4.0.0",
-    "uuid": "^7.0.2"
+    "uuid": "^7.0.3"
   },
   "keywords": [
     "fhir",
