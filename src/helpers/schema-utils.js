@@ -179,7 +179,9 @@ export var buildChildNode = function(profiles, parentNodeType, schemaPath, fhirT
 				break;
 			case "url":
 				if (State.get().authorName != "" && State.get().CPGName != "") {
-					defaultValue = `http://fhir.org/guides/${State.get().authorName}/${pathSuffix[0]}/${pathSuffix[0]}-${State.get().CPGName}`;
+					//defaultValue = `http://fhir.org/guides/${State.get().authorName}/${pathSuffix[0]}/${pathSuffix[0]}-${State.get().CPGName}`;
+					//hard coded for now
+					defaultValue = `http://fhir.org/guides/${State.get().authorName}/ActivityDefinition/ActivityDefinition-${State.get().CPGName}`;
 				}
 				break;
 		}
