@@ -73,7 +73,7 @@ class NavbarFred extends React.Component {
 				<img src="../img/smart-bug.png" />
 			</div>
 			<Navbar.Brand>
-				SMART FRED v{this.props.appVersion}
+				SAGE
 			</Navbar.Brand>
 			<Navbar.Toggle />
 			<Navbar.Collapse>
