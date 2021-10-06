@@ -5,3 +5,6 @@ node/
 target/
 bundle.js
 editor.iml
+.settings
+.project
+.classpath

@@ -213,6 +213,10 @@ State.on("load_json_resource", json => {
 	for (const element of unusedElements) {
 		if (element.isRequired) {
 			const curResource = State.get().resource;
+			// Fix for FHIR north: duplicated elements on import
+			if (curResource.children.filter((v, i, a) => {return v.index == element.index}).length > 0) {
+				continue;
+			}
 			const {
 				position,
 				newNode
