@@ -78,7 +78,7 @@ export var countRefs = function(resources, ref) {
 };
 
 
-export var buildFredId = nextId => `FRED-${nextId}`;
+export var buildFredId = uuidv4;
 
 
 export var findNextId = function(entries) {
