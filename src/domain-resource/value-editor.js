@@ -58,8 +58,9 @@ class ValueEditor extends React.Component {
 	handleChange(e) {
 		let resources;
 		let isInvalid = this.isValid(this.props.node.fhirType, e.target.value);
-		if (!isInvalid && (this.props.node.fhirType === "id") && 
-			(this.props.node.level === 1) && (resources = State.get().bundle?.resources)) {
+		if (!isInvalid) {
+			if ((this.props.node.fhirType === "id") && 
+					(this.props.node.level === 1) && (resources = State.get().bundle?.resources)) {
 				for (let i = 0; i < resources.length; i++) {
 					const resource = resources[i];
 					if ((resource.id === e.target.value) && (i !== State.get().bundle.pos)) {
@@ -67,7 +68,7 @@ class ValueEditor extends React.Component {
 					}
 				}
 			}
-
+		}
 		return State.emit("value_change", this.props.node, e.target.value, isInvalid);
 	}
 
@@ -97,6 +98,16 @@ class ValueEditor extends React.Component {
 		return this.wrapEditControls(inputField);
 	}
 
+	renderUri(value) {
+		const inputField = this.buildTextInput((value||"").toString()); 
+		return this.wrapEditControls(inputField);
+	}
+
+	renderCanonical(value) {
+		const inputField = this.buildCanonicalInput(value);
+		return this.wrapEditControls(inputField);
+	}
+
 	renderCode(value) {
 		//TODO: handle "preferred" and "extensible"
 		let inputField;
@@ -120,16 +131,11 @@ class ValueEditor extends React.Component {
 	}
 
 	renderBoolean(value) {
-		const inputField = this.buildDropdownInput(value);
+		const inputField = this.buildBooleanInput(value);
 		return this.wrapEditControls(inputField);
 	}
 
-	renderSelection(value) {
-		const inputField = this.buildCustomDropdownInput(value);
-		return this.wrapEditControls(inputField);
-	}
-
-	buildDropdownInput(value) {
+	buildBooleanInput(value) {
 		return <span>
 			<select value={this.props.node.value} 
 				className="form-control input-sm" 
@@ -142,23 +148,28 @@ class ValueEditor extends React.Component {
 		</span>;
 	}
 
-	buildCustomDropdownInput(value) {
+	buildCanonicalInput(value) {
+		if (!value) { // suppress error for value=null on input element
+			value = "";
+		}
+
 		return <span>
-			<select
-				className="form-control input-sm" 
-					onChange={this.handleChange.bind(this)} 
-					ref="inputField"
+			<input className="form-control input-sm" 
+				value={value}
+				onChange={this.handleChange.bind(this)}
+				onKeyDown={this.handleKeyDown.bind(this)}
+				list="canonical-options"/>
+			<datalist id="canonical-options"
 				>
-				<option hidden disabled selected value> </option>
-				{this.buildCustomDropdownOptions()}
-			</select>
+				{this.buildCanonicalOptions()}
+			</datalist>
 		</span>;
 	}
 
-	buildCustomDropdownOptions() {
-		const optionNames = this.props.node.short.split("|");
+	buildCanonicalOptions() {
+		const optionNames = State.get().canonicalUris;
 		return optionNames.map((option, idx) => {
-			return <option value={option.trim()}>{option.trim()}</option>
+			return <option key={option.trim()} value={option.trim()}>{option.trim()}</option>
 		});
 	}
 
@@ -267,7 +278,8 @@ class ValueEditor extends React.Component {
 	render() {
 		const renderers = { 
 			decimal: this.renderDecimal, boolean: this.renderBoolean, xhtml: this.renderLongString, 
-			base64Binary: this.renderLongString, code: this.renderCode, selection: this.renderSelection
+			base64Binary: this.renderLongString, code: this.renderCode,
+			uri: this.renderUri, canonical: this.renderCanonical
 		};
 
 		var renderer;

@@ -115,21 +115,19 @@ const decorateResource = function(json, profiles) {
 
 const openResource = function(json) {
 	let decorated;
-	const state = State.get();
-
-	if (decorated = decorateResource(json, state.profiles)) {
-		state.set({resource: decorated, bundle: null});
+	
+	if (decorated = decorateResource(json, State.get().profiles)) {
+		State.get().set({resource: decorated, bundle: null});
 		return true;
 	}
 };
 
 const openBundle = function(json) {
 	let decorated;
-	const state = State.get();
 	const resources = BundleUtils.parseBundle(json);
 
-	if (decorated = decorateResource(resources[0], state.profiles)) {
-		state.pivot()
+	if (decorated = decorateResource(resources[0], State.get().profiles)) {
+		State.get().pivot()
 			.set("bundle", {resources, pos: 0})
 			.set({resource: decorated});
 		return true;
@@ -167,7 +165,7 @@ const bundleInsert = function(json, isBundle) {
 	})();
 
 	if (decorated = decorateResource(resources[0], state.profiles)) {
-		state.pivot()
+		State.get().pivot()
 			.set("resource", decorated)
 			.bundle.resources.splice(state.bundle.pos+1, 0, ...resources)
 			.bundle.set("pos", state.bundle.pos+1);
@@ -177,8 +175,7 @@ const bundleInsert = function(json, isBundle) {
 
 const replaceContained = function(json) {
 	let decorated;
-	const state = State.get();
-	if (decorated = decorateResource(json, state.profiles)) {		
+	if (decorated = decorateResource(json, State.get().profiles)) {		
 		const [parent, pos] = getParentById(state.ui.replaceId);
 		parent.children.splice(pos, 1, decorated);
 		return true;
@@ -294,7 +291,7 @@ State.on("set_bundle_pos", function(newPos) {
 	if (!(decorated = decorateResource(state.bundle.resources[newPos], state.profiles))) {
 		return State.emit("set_ui", "resource_load_error");
 	}
-	state.pivot()
+	State.get().pivot()
 		//splice in any changes
 		.set("resource", decorated)
 		.bundle.resources.splice(state.bundle.pos, 1, resource)
@@ -320,7 +317,7 @@ State.on("remove_from_bundle", function() {
 		return State.emit("set_ui", "resource_load_error");
 	}
 	
-	state.pivot()
+	State.get().pivot()
 		.set("resource", decorated)
 		.bundle.resources.splice(state.bundle.pos, 1)
 		.bundle.set("pos", pos);
@@ -376,10 +373,16 @@ State.on("value_change", function(node, value, validationErr, strictValidationEr
 	}
 });
 
-State.on("start_edit", node => node.pivot()
+State.on("start_edit", function (node) {
+	node.pivot()
     .set({ui: {}})
     .ui.set("status", "editing")
-    .ui.set("prevState", node));
+    .ui.set("prevState", node)
+	if (node.fhirType == "uri") {
+		const idx = State.get().canonicalUris.indexOf(node.value);
+		State.get().canonicalUris.splice(idx, 1);
+	}
+});
 
 const getResourceType = function(node) {
 	for (let child of Array.from(node.children)) {
@@ -418,7 +421,9 @@ State.on("end_edit", function(node, parent) {
 		(node.value !== node.ui.prevState.value)) {
 			showReferenceWarning(node, parent);
 		}
-
+	if (node.fhirType == "uri") {
+		State.get().canonicalUris.push(node.value);
+	}
 	return node.ui.reset({status: "ready"});
 });
 
@@ -582,7 +587,7 @@ const getFhirElementNodeAndPosition = function(node, fhirElement) {
 	// Elements with Fixed values should not be modified
 	// TODO: disallow user edits
 	if (newNode.isFixed) {
-		newNode.ui.status = "ready";
+		State.emit("end_edit", newNode);
 	}
 
 	const position = getSplicePosition(node.children, newNode.index);
