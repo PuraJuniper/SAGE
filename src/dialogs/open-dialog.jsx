@@ -60,6 +60,7 @@ class OpenDialog extends React.Component {
                     e.dataTransfer != null ? e.dataTransfer.files : undefined)
             ) {
                 e.target.files = droppedFiles;
+                this.setState({drag: false});
                 return this.handleFileSelected(e);
             }
         }
@@ -84,7 +85,8 @@ class OpenDialog extends React.Component {
     }
 
     handleSelectFile(e) {
-        return this.refs.fileReaderInput.click();
+        //this.refs.fhirFile.click();
+        return this.handleFileSelected(e); 
     }
 
     handleFileSelected(e) {
@@ -185,13 +187,15 @@ class OpenDialog extends React.Component {
                 </Row>
                 <Row>
                     <Col>
-                        <Button
-                            style={{marginTop: "20px"}}
-                            className="btn btn-primary btn-block"
-                            onClick={this.handleSelectFile.bind(this)}
+                        <input
+                            type = "file"
+                            id = "fileUpload"
+                            style={{display: "none"}}
+                            onChange={this.handleSelectFile.bind(this)}
                             ref="fhirFile"
-                        >{`\t\t\t\t\tSelect File`}
-                        </Button>
+                        />
+                        <label htmlFor="fileUpload" className="btn btn-primary btn-block" style={{marginTop: "20px"}}>
+                            {`\t\t\t\t\tSelect File`}</label>
                     </Col>
                 </Row>
             </Container>
