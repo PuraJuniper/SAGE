@@ -285,6 +285,7 @@ export var isResource = function(profiles, data) {
 
 export var decorateFhirData = function(profiles, data) {
 	nextId = 0;
+	const addedUris = [];
 
 	var _walkNode = (dataNode, schemaPath, level, inArray) => {
 		//root node
@@ -434,8 +435,6 @@ export var decorateFhirData = function(profiles, data) {
 		return decorated;
 	};
 
-
-	// console.log JSON.stringify _walkNode(data), null, "  "
 	return _walkNode(data);
 };
 

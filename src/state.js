@@ -8,6 +8,7 @@ const State = new Freezer({
 	UMLSKey: "",
 	CPGName: "",
 	authorName: "",
+	canonicalUris: [], // URIs to reference in canonical elements
 	resource: null,
 	profiles: null
 });

@@ -73,12 +73,18 @@ class ValueDisplay extends React.Component {
                 reference
             } = this.props.node.binding;
 			const vs = State.get().valuesets[reference];
-			for (let [display, code] of Array.from(vs.items)) {
-				if (code === value) {
-					invalid = false;
-					value = display;
-					break;
+			if (vs) {
+				for (let [display, code] of Array.from(vs.items)) {
+					if (code === value) {
+						invalid = false;
+						value = display;
+						break;
+					}
 				}
+			}
+			else {
+				// TODO: mark these elements as potentially invalid
+				invalid = false;
 			}
 		}
 
@@ -146,7 +152,7 @@ ${this.props.node.value}
 			"http://hl7.org/fhirpath/System.String": this.formatString, canonical: this.formatString,
 		};
 
-		const formatter = formatters[this.props.node.fhirType || "string"];
+		const formatter = formatters[this.props.node.fhirType || "string"] || this.formatString;
 		let {
             value
         } = this.props.node;
