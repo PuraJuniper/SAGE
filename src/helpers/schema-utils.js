@@ -416,11 +416,6 @@ export var decorateFhirData = function(profiles, data) {
 			}
 
 			decorated.value = dataNode;
-			// any urls should be reference-able by other elements of canonical type
-			if (fhirType == "uri" && decorated.name == "url") {
-				console.log(decorated.value);
-				addedUris.push(decorated.value);
-			}
 
 			//check if value has a cardinality of > 1 and isn't in an array
 			if (decorated.range?.[1] && (decorated.range[1] !== "1") && !inArray) {
@@ -440,10 +435,6 @@ export var decorateFhirData = function(profiles, data) {
 		return decorated;
 	};
 
-
-	// console.log JSON.stringify _walkNode(data), null, "  "
-	var ret = _walkNode(data);
-	const uris = State.get().canonicalUris.append(addedUris);
-	return ret;
+	return _walkNode(data);
 };
 

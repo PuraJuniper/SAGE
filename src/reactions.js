@@ -186,6 +186,7 @@ const isBundleAndRootId = (node, parent) => (node.fhirType === "id") && State.ge
     (parent.level === 0);
 
 State.on("load_json_resource", json => {
+	State.get().set("canonicalUris", []);
 	const {
         openMode
     } = State.get().ui;

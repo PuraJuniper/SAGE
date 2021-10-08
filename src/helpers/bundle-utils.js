@@ -7,6 +7,7 @@
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
 import { v4 as uuidv4 } from 'uuid';
+import State from '../state'
 
 
 
@@ -99,6 +100,7 @@ export var findNextId = function(entries) {
 export var parseBundle = function(bundle, clearInternalIds) {
 	let entry;
 	const idSubs = [];
+	const resourceURIs = [];
 	let entryPos = this.findNextId(bundle.entry);
 	for (entry of Array.from(bundle.entry)) {
 		if ((entry.fullUrl && /^urn:uuid:/.test(entry.fullUrl)) ||
@@ -112,8 +114,12 @@ export var parseBundle = function(bundle, clearInternalIds) {
 				idSubs.push({from: fromId, to: `${resourceType}/${toId}`});
 				entryPos++;
 			}
+		if (entry.resource.url) {
+			resourceURIs.push(entry.resource.url);
+		}
 	}
-
+	
+	State.get().canonicalUris.append(resourceURIs);
 
 	const resources = [];
 	for (entry of Array.from(bundle.entry)) {
