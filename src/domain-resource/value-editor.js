@@ -158,6 +158,7 @@ class ValueEditor extends React.Component {
 				value={value}
 				onChange={this.handleChange.bind(this)}
 				onKeyDown={this.handleKeyDown.bind(this)}
+				onFocus={this.refreshCanonicalOptions.bind(this)}
 				list="canonical-options"/>
 			<datalist id="canonical-options"
 				>
@@ -171,6 +172,10 @@ class ValueEditor extends React.Component {
 		return optionNames.map((option, idx) => {
 			return <option key={option.trim()} value={option.trim()}>{option.trim()}</option>
 		});
+	}
+
+	refreshCanonicalOptions() {
+		this.forceUpdate();
 	}
 
 	buildCodeInput(value, items) {
