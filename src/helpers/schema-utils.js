@@ -179,9 +179,16 @@ export var buildChildNode = function(profiles, parentNodeType, schemaPath, fhirT
 				break;
 			case "url":
 				if (State.get().authorName != "" && State.get().CPGName != "") {
-					//defaultValue = `http://fhir.org/guides/${State.get().authorName}/${pathSuffix[0]}/${pathSuffix[0]}-${State.get().CPGName}`;
-					//hard coded for now
-					defaultValue = `http://fhir.org/guides/${State.get().authorName}/ActivityDefinition/ActivityDefinition-${State.get().CPGName}`;
+					console.log(pathSuffix);
+					// Ignore extensions
+					if (pathSuffix[0] == "Extension") {
+						break;
+					}
+					defaultValue = `http://fhir.org/guides/${State.get().authorName}/${pathSuffix[0]}/${pathSuffix[0]}-${State.get().CPGName}`;
+					// hard coded for activity definitions (temporarily)
+					if (pathSuffix[0].endsWith("Activity")) {
+						defaultValue = `http://fhir.org/guides/${State.get().authorName}/ActivityDefinition/ActivityDefinition-${State.get().CPGName}`;
+					}
 				}
 				break;
 		}
