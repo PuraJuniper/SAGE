@@ -159,8 +159,8 @@ class ValueEditor extends React.Component {
 				onChange={this.handleChange.bind(this)}
 				onKeyDown={this.handleKeyDown.bind(this)}
 				onFocus={this.refreshCanonicalOptions.bind(this)}
-				list="canonical-options"/>
-			<datalist id="canonical-options"
+				list={`${this.props.node.name}-canonical-options`}/>
+			<datalist id={`${this.props.node.name}-canonical-options`}
 				>
 				{this.buildCanonicalOptions()}
 			</datalist>
@@ -168,9 +168,30 @@ class ValueEditor extends React.Component {
 	}
 
 	buildCanonicalOptions() {
-		const optionNames = State.get().canonicalUris;
-		return optionNames.map((option, idx) => {
-			return <option key={option.trim()} value={option.trim()}>{option.trim()}</option>
+		const canonicalUris = State.get().canonicalUris;
+		var filteredUris = [];
+		switch (this.props.node.name) {
+			case "library":
+				filteredUris = canonicalUris.filter((v) => {
+					if (v.resourceType == 'Library') {
+						return true;
+					}
+				})
+				break;
+			case "definitionCanonical":
+				filteredUris = canonicalUris.filter((v) => {
+					if (['ActivityDefinition', 'PlanDefinition', 'Questionnaire'].includes(v.resourceType)) {
+						return true;
+					}
+				})
+				break;
+			default:
+				filteredUris = canonicalUris;
+		}
+		
+		return filteredUris.map((option, idx) => {
+			const uri = option.uri;
+			return <option key={uri.trim()} value={uri.trim()}>{uri.trim()}</option>
 		});
 	}
 

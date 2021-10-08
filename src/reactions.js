@@ -378,10 +378,15 @@ State.on("start_edit", function (node) {
 	node.pivot()
     .set({ui: {}})
     .ui.set("status", "editing")
-    .ui.set("prevState", node)
+    .ui.set("prevState", node);
+	const canonicalUris = State.get().canonicalUris;
 	if (node.fhirType == "uri") {
-		const idx = State.get().canonicalUris.indexOf(node.value);
-		State.get().canonicalUris.splice(idx, 1);
+		for (let i=0;i<canonicalUris.length;i++) {
+			if (canonicalUris[i].uri == node.value) {
+				State.get().canonicalUris.splice(i, 1);
+				break;
+			}
+		}
 	}
 });
 
@@ -423,7 +428,10 @@ State.on("end_edit", function(node, parent) {
 			showReferenceWarning(node, parent);
 		}
 	if (node.fhirType == "uri") {
-		State.get().canonicalUris.push(node.value);
+		State.get().canonicalUris.push({
+			uri: node.value,
+			resourceType: parent.fhirType
+		});
 	}
 	return node.ui.reset({status: "ready"});
 });

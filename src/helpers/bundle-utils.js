@@ -115,7 +115,10 @@ export var parseBundle = function(bundle, clearInternalIds) {
 				entryPos++;
 			}
 		if (entry.resource.url) {
-			resourceURIs.push(entry.resource.url);
+			resourceURIs.push({
+				uri: entry.resource.url,
+				resourceType: entry.resource.resourceType
+			});
 		}
 	}
 	
