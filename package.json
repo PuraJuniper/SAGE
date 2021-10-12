@@ -1,7 +1,7 @@
 {
-  "name": "smart-fred",
-  "version": "0.6.0",
-  "description": "",
+  "name": "SAGE",
+  "version": "0.7.0",
+  "description": "Based off of FRED (https://github.com/smart-on-fhir/fred), originally authored by Dan Gottlieb",
   "type": "module",
   "scripts": {
     "dev": "webpack-dev-server --devtool eval --progress --colors --inline --content-base ./public --config webpack.config.cjs",
@@ -12,8 +12,8 @@
     "deploy-gh": "git subtree push --prefix public origin gh-pages",
     "reset-gh-pages": "git push origin `git subtree split --prefix output gh-pages`:gh-pages --force"
   },
-  "author": "Dan Gottlieb",
-  "license": "MIT",
+  "author": "Purajuniper",
+  "license": "SEE LICENSE IN `LICENSE`",
   "devDependencies": {
     "@babel/core": "^7.9.0",
     "@babel/preset-env": "^7.9.0",
