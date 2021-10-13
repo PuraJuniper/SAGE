@@ -99,7 +99,7 @@ function getCode(code, system) {
       "systemName": "SNOMEDCT",
       "systemOID": "2.16.840.1.113883.6.96",
       "version": "http://snomed.info/sct/731000124108/version/2021-09",
-      "code": "29857009" + Math.random().toString(),
+      "code": "29857009",
       "display": "Chest pain (finding)"
     });
   });
