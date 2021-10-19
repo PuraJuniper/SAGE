@@ -596,7 +596,7 @@ const getFhirElementNodeAndPosition = function(node, fhirElement) {
 	// Elements with Fixed values should not be modified
 	// TODO: disallow user edits
 	if (newNode.isFixed) {
-		State.emit("end_edit", newNode);
+		newNode.ui = {status: "ready"};
 	}
 
 	const position = getSplicePosition(node.children, newNode.index);
