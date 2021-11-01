@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "webpack-dev-server --devtool eval --progress --colors --inline --content-base ./public --config webpack.config.cjs",
     "build-profiles": "./node_modules/.bin/coffee ./scripts/simplify-profiles.coffee",
-    "build": "webpack --env build --output-path ./public/bundle.js --config webpack.config.cjs",
+    "build": "webpack --env build --output ./public/bundle.js --config webpack.config.cjs",
     "test": "./node_modules/.bin/mocha --require coffeescript/register 'test/**/*.coffee'",
     "test-watch": "./node_modules/.bin/mocha -w",
     "deploy-gh": "git subtree push --prefix public origin gh-pages",
