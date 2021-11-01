@@ -164,7 +164,8 @@ const bundleInsert = function(json, isBundle) {
 		return state.ui.set("status", duplicateError);
 	}
 
-	state.bundle.resources.splice(state.bundle.pos, 1, resource).now();
+	resource.name = resource.title.replace(/\s+/g, '');
+	State.get().bundle.resources.splice(state.bundle.pos, 1, resource).now();
 	state = State.get();
 	state.set({resCount:state.resCount+1});
 
@@ -318,6 +319,8 @@ State.on("set_bundle_pos", function(newPos) {
 	if (!(decorated = decorateResource(state.bundle.resources[newPos], state.profiles))) {
 		return State.emit("set_ui", "resource_load_error");
 	}
+	resource.name = resource.title.replace(/\s+/g, '');
+
 	State.get().pivot()
 		//splice in any changes
 		.set("resource", decorated)

@@ -57,11 +57,16 @@ class BundleBar extends React.Component {
 		return <div className="row" style={{textAlign: "center"}}>
 			<form className="navbar-form">
 
+            <div className="row">
+            <button className="btn btn-default btn-sm" 
+					disabled={pos === 1} 
+					onClick={this.handleNav.bind(this, this.props.bundle.pos-1)}
+				>
+					<i className="fas fa-chevron-left" />
+				</button>
 			<DropdownButton size="sm" 
-                    className="btn"
                     title={title} 
-                    align="end"
-                    style={{marginRight: "-3px"}}
+                    style={{marginRight: "0px"}}
                     onSelect={this.handleMenu.bind(this)}
             >
 				{resources.map((resource, i) => {
@@ -86,6 +91,13 @@ class BundleBar extends React.Component {
 				)}
 
             </DropdownButton>
+
+            <button className="btn btn-default btn-sm" 
+					disabled={pos === count} 
+					onClick={this.handleNav.bind(this, this.props.bundle.pos+1)}
+				>
+					<i className="fas fa-chevron-right" />
+				</button>
 			
 				<button
                     className="btn btn-primary btn-sm"
@@ -108,7 +120,10 @@ class BundleBar extends React.Component {
                 >
                     Remove from Bundle
                 </button>&nbsp;
-                
+                </div>
+
+			
+				
                 {/* <button className="btn btn-default btn-sm" 
                     disabled={pos === 1} 
                     style={{marginRight: "10px"}}
