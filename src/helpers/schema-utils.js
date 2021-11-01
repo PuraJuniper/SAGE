@@ -169,7 +169,7 @@ export var buildChildNode = function(profiles, parentNodeType, schemaPath, fhirT
 		switch (pathSuffix[pathSuffix.length-1]) {
 			case "name":
 				if (State.get().CPGName != "") {
-					defaultValue = State.get().CPGName;
+					defaultValue = `${State.get().CPGName}${State.get().resCount}`;
 				}
 				break;
 			case "publisher":
@@ -179,15 +179,14 @@ export var buildChildNode = function(profiles, parentNodeType, schemaPath, fhirT
 				break;
 			case "url":
 				if (State.get().authorName != "" && State.get().CPGName != "") {
-					console.log(pathSuffix);
 					// Ignore extensions
 					if (pathSuffix[0] == "Extension") {
 						break;
 					}
-					defaultValue = `http://fhir.org/guides/${State.get().authorName}/${pathSuffix[0]}/${pathSuffix[0]}-${State.get().CPGName}`;
+					defaultValue = `http://fhir.org/guides/${State.get().authorName}/${pathSuffix[0]}/${pathSuffix[0]}-${State.get().CPGName}${State.get().resCount}`;
 					// hard coded for activity definitions (temporarily)
 					if (pathSuffix[0].endsWith("Activity")) {
-						defaultValue = `http://fhir.org/guides/${State.get().authorName}/ActivityDefinition/ActivityDefinition-${State.get().CPGName}`;
+						defaultValue = `http://fhir.org/guides/${State.get().authorName}/ActivityDefinition/ActivityDefinition-${State.get().CPGName}${State.get().resCount}`;
 					}
 				}
 				break;
@@ -444,4 +443,3 @@ export var decorateFhirData = function(profiles, data) {
 
 	return _walkNode(data);
 };
-

@@ -67,6 +67,14 @@ class RootComponent extends React.Component {
 			qs.resource, this.isRemote);
 	}
 
+	getSnapshotBeforeUpdate() {
+		return window.pageYOffset;
+	}
+
+	componentDidUpdate(prevProps, prevState, snapshot) {
+		window.scrollTo(0, snapshot);
+	} 
+
 	handleOpen() {
 		return State.emit("set_ui", "open");
 	}
@@ -112,6 +120,22 @@ class RootComponent extends React.Component {
 		} else if (state.ui.status === "validation_error") {
 			return (
 				<UncontrolledAlert color="danger">Please fix errors in resource before continuing.</UncontrolledAlert>
+				);
+		} else if (state.ui.status === "id_duplicate_error") {
+			return (
+				<UncontrolledAlert color="danger">This resource has a duplicate ID.</UncontrolledAlert>
+				);
+		} else if (state.ui.status === "title_duplicate_error") {
+			return (
+				<UncontrolledAlert color="danger">This resource has a duplicate title.</UncontrolledAlert>
+				);
+		} else if (state.ui.status === "url_duplicate_error") {
+			return (
+				<UncontrolledAlert color="danger">This resource has a duplicate url.</UncontrolledAlert>
+				);
+		} else if (state.ui.status === "missing_title_error") {
+			return (
+				<UncontrolledAlert color="danger">This resource needs a title.</UncontrolledAlert>
 				);
 		}
 		})();

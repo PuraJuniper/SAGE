@@ -70,6 +70,18 @@ const getParentById = function(id) {
 	return _walkNode(State.get().resource);
 };
 
+export const enforceDuplicates = function(id, title, url) {
+	const bundle = State.get().bundle;
+	const resources = bundle.resources;
+	const pos = bundle.pos;
+	for (let i = 0; i < resources?.length; i++) {
+		if (i == pos) continue;
+		if (resources[i].id == id) return "id_duplicate_error";
+		if (resources[i].title == title) return "title_duplicate_error";
+		if (resources[i].url && resources[i].url == url) return "url_duplicate_error";
+	}
+};
+
 State.on("load_initial_json", function(profilePath, resourcePath, isRemote) {
 	const queue = [
 		[profilePath, "set_profiles", "profile_load_error"],
@@ -124,6 +136,7 @@ const openResource = function(json) {
 
 const openBundle = function(json) {
 	let decorated;
+	State.get().set({resCount:1})
 	const resources = BundleUtils.parseBundle(json);
 
 	if (decorated = decorateResource(resources[0], State.get().profiles)) {
@@ -142,15 +155,18 @@ const bundleInsert = function(json, isBundle) {
 	//stop if errors
 	const [resource, errCount] = 
 		SchemaUtils.toFhir(state.resource, true);
-	if (errCount !== 0) { 
-		//return state.ui.set("status", "validation_error");
-	} else {
-		//state.bundle.resources.splice(state.bundle.pos, 1, resource).now();
-		//state = State.get();
+
+	if (!resource.title) { 
+		return state.ui.set("status", "missing_title_error");
+	} 
+	let duplicateError = enforceDuplicates(resource.id, resource.title, resource.url);
+	if (duplicateError) {
+		return state.ui.set("status", duplicateError);
 	}
 
 	state.bundle.resources.splice(state.bundle.pos, 1, resource).now();
 	state = State.get();
+	state.set({resCount:state.resCount+1});
 
 	resources = (() => {
 		if (isBundle) {
@@ -159,7 +175,7 @@ const bundleInsert = function(json, isBundle) {
 		return [json];
 	} else {
 		const nextId = BundleUtils.findNextId(state.bundle.resources);
-		json.id = BundleUtils.buildFredId(nextId);
+		json.id = "dfdfdfdfd"//BundleUtils.buildFredId(nextId);
 		return [json];
 	}
 	})();
@@ -185,12 +201,14 @@ const replaceContained = function(json) {
 const isBundleAndRootId = (node, parent) => (node.fhirType === "id") && State.get().bundle &&
     (parent.level === 0);
 
-State.on("load_json_resource", json => {
+State.on("load_json_resource", (json, isCPG = true) => {
 	State.get().set("canonicalUris", []);
 	const {
         openMode
     } = State.get().ui;
 	const isBundle = checkBundle(json);
+
+	if (!isCPG) State.get().set("CPGName", "");
 
 	const success = openMode === "insert" ?
 		bundleInsert(json, isBundle)
@@ -222,7 +240,8 @@ State.on("load_json_resource", json => {
 			curResource.children.splice(position, 0, newNode);
 		}
 	}
-	const status = success ? "ready" : "resource_load_error";
+	let status = State.get().ui.status;
+	if (!status.endsWith("error")) status = success ? "ready" : "resource_load_error";
 	return State.get().set("ui", {status});
 });
 
@@ -282,11 +301,18 @@ State.on("set_bundle_pos", function(newPos) {
 	let decorated;
 	const state = State.get();
 	
+	if (newPos == state.bundle.pos) return;
+
 	//stop if errors
 	const [resource, errCount] = 
 		SchemaUtils.toFhir(state.resource, true);
-	if (errCount !== 0) { 
-		//return state.ui.set("status", "validation_error");
+	
+	if (!resource.title) { 
+		return state.ui.set("status", "missing_title_error");
+	}
+	let duplicateError = enforceDuplicates(resource.id, resource.title, resource.url);
+	if (duplicateError) {
+		return state.ui.set("status", duplicateError);
 	}
 
 	if (!(decorated = decorateResource(state.bundle.resources[newPos], state.profiles))) {
@@ -345,9 +371,17 @@ State.on("show_open_contained", node => State.get().ui.pivot()
     .set("openMode", "contained")
     .set("replaceId", node.id));
 
-State.on("show_open_insert", () => State.get().ui.pivot()
+State.on("show_open_insert", () => {
+	if (State.get().CPGName) {
+		State.get().ui.set("openMode", "insert");
+		let json = {resourceType: "PlanDefinition"};
+		json = {resourceType: "Bundle", entry: [{resource: json}]};
+        return State.emit("load_json_resource", json);
+	}
+	State.get().ui.pivot()
     .set("status", "open")
-    .set("openMode", "insert"));
+    .set("openMode", "insert");
+	})
 
 State.on("set_ui", function(status, params) {
 	if (params == null) { params = {}; }

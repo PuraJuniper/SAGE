@@ -20,8 +20,8 @@ class CpgDialog extends React.Component {
         this.state = {
             showSpinner: false,
             tab: "CPGNew",
-            CPGName: "",
-            authorName: "",
+            CPGName: "cpgname",
+            authorName: "authname",
             fhirText: '{"resourceType": "Patient"}',
             fhirUrl: "",
             newResourceType: "Patient",
@@ -152,7 +152,7 @@ class CpgDialog extends React.Component {
         }
 
         return window.setTimeout(() => {
-            return this.refs[this.state.tab].focus();
+            return this.refs[this.state.tab]?.focus();
         }, 100);
     }
 
@@ -178,12 +178,15 @@ class CpgDialog extends React.Component {
     }
     
     handleOpenResource(status, e) {
+        if (!this.state.CPGName || !this.state.authorName) return;
 		e.preventDefault();
         State.get().set({
             CPGName: this.state.CPGName,
             authorName: this.state.authorName,
         })
-		return State.trigger("set_ui", status);
+        let json = {resourceType: "PlanDefinition"};
+        json = {resourceType: "Bundle", entry: [{resource: json}]};
+        return State.emit("load_json_resource", json);
 	}
 
     renderFileInput() {

@@ -21,10 +21,10 @@ class OpenDialog extends React.Component {
         this.state = {
             showSpinner: false,
             tab: "fhirNew",
-            fhirText: '{"resourceType": "Patient"}',
+            fhirText: '{"resourceType": "PlanDefinition"}',
             fhirUrl: "",
-            newResourceType: "Patient",
-            newResourceBundle: false
+            newResourceType: "PlanDefinition",
+            newResourceBundle: true
         };
     }
 
@@ -154,7 +154,7 @@ class OpenDialog extends React.Component {
         if (this.state.newResourceBundle) {
             json = {resourceType: "Bundle", entry: [{resource: json}]};
         }
-        return State.emit("load_json_resource", json);
+        return State.emit("load_json_resource", json, false);
     }
 
     handleNewTypeChange(e) {
