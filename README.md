@@ -5,7 +5,7 @@
 SAGE is an extension of FRED, built with a focus on CPGs (Clinical Practice Guideline), allowing users to create and edit JSON CPG resources as specified under FHIR. 
 
 ### FRED
-FRED is an open source web application that enables users to edit JSON [FHIR resources](https://www.hl7.org/fhir/resourcelist.html) and [FHIR bundles](https://www.hl7.org/fhir/bundle.html). Built as an HTML5 app, FRED runs entirely within your web browser - no data is sent to a server. *Note - the project is currently under active development. Code is rough, there are bugs and features may change or be removed!*  
+[FRED](https://github.com/smart-on-fhir/fred) is an open source web application that enables users to edit JSON [FHIR resources](https://www.hl7.org/fhir/resourcelist.html) and [FHIR bundles](https://www.hl7.org/fhir/bundle.html). Built as an HTML5 app, FRED runs entirely within your web browser - no data is sent to a server. *Note - the project is currently under active development. Code is rough, there are bugs and features may change or be removed!*  
 
 
 ## Current features and changes
@@ -74,6 +74,6 @@ FRED is an open source web application that enables users to edit JSON [FHIR res
 To reduce load time, SAGE uses a simplified copy of the (>15mb!) JSON FHIR resource profiles. To convert the FHIR resource profiles into this format, ensure the desired profile bundles and valueset bundles are in the fhir_profiles subdirectory and run ```npm run build-profiles```
 
 ## About
-SAGE is based on FRED, which is a project of [SMART Health IT](http://smarthealthit.org), a joint effort of the not-for-profit institutions, Boston Children’s Hospital Computational Health Informatics Program and the Harvard Medical School Department for Biomedical Informatics.
+SAGE is based on [FRED](https://github.com/smart-on-fhir/fred), which is a project of [SMART Health IT](http://smarthealthit.org), a joint effort of the not-for-profit institutions, Boston Children’s Hospital Computational Health Informatics Program and the Harvard Medical School Department for Biomedical Informatics.
 
 To stay updated on the project follow [@gotdan](https://twitter.com/intent/user?screen_name=gotdan) and [@smarthealthit](https://twitter.com/intent/user?screen_name=smarthealthit) on twitter!
