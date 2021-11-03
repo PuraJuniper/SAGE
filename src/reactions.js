@@ -136,6 +136,8 @@ const openResource = function(json) {
 
 const openBundle = function(json) {
 	let decorated;
+	// resCount keeps track of the total number of resources added ever,
+	// instead of current size, for title autopopulation purposes
 	State.get().set({resCount:1})
 	const resources = BundleUtils.parseBundle(json);
 
@@ -176,7 +178,7 @@ const bundleInsert = function(json, isBundle) {
 		return [json];
 	} else {
 		const nextId = BundleUtils.findNextId(state.bundle.resources);
-		json.id = "dfdfdfdfd"//BundleUtils.buildFredId(nextId);
+		json.id = BundleUtils.buildFredId(nextId);
 		return [json];
 	}
 	})();
@@ -209,6 +211,7 @@ State.on("load_json_resource", (json, isCPG = true) => {
     } = State.get().ui;
 	const isBundle = checkBundle(json);
 
+	// CPGName needs to be deleted
 	if (!isCPG) State.get().set("CPGName", "");
 
 	const success = openMode === "insert" ?
@@ -242,6 +245,7 @@ State.on("load_json_resource", (json, isCPG = true) => {
 		}
 	}
 	let status = State.get().ui.status;
+	// sometimes the error status gets overwritten so this preserves the error
 	if (!status.endsWith("error")) status = success ? "ready" : "resource_load_error";
 	return State.get().set("ui", {status});
 });
@@ -376,6 +380,7 @@ State.on("show_open_contained", node => State.get().ui.pivot()
 
 State.on("show_open_insert", () => {
 	if (State.get().CPGName) {
+		// ie if the bundle is a CPG
 		State.get().ui.set("openMode", "insert");
 		let json = {resourceType: "PlanDefinition"};
 		json = {resourceType: "Bundle", entry: [{resource: json}]};

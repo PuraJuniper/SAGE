@@ -71,6 +71,7 @@ class BundleBar extends React.Component {
             >
 				{resources.map((resource, i) => {
 					const className = (() => {
+                        // FontAwesome icons
 						if (resource.resourceType === "PlanDefinition") {
 						return "far fa-folder-open";
 					} else if (resource.resourceType.endsWith("Activity")) {
@@ -121,39 +122,6 @@ class BundleBar extends React.Component {
                     Remove from Bundle
                 </button>&nbsp;
                 </div>
-
-			
-				
-                {/* <button className="btn btn-default btn-sm" 
-                    disabled={pos === 1} 
-                    style={{marginRight: "10px"}}
-                    onClick={this.handleNav.bind(this, 0)}
-                >
-                    <i className="fas fa-step-backward" />
-                </button>
-
-                <button className="btn btn-default btn-sm" 
-                    disabled={pos === 1} 
-                    onClick={this.handleNav.bind(this, this.props.bundle.pos-1)}
-                >
-                    <i className="fas fa-chevron-left" />
-                </button> */}
-
-                {/* <button className="btn btn-default btn-sm" 
-                    disabled={pos === count} 
-                    onClick={this.handleNav.bind(this, this.props.bundle.pos+1)}
-                >
-                    <i className="fas fa-chevron-right" />
-                </button>
-
-                <button className="btn btn-default btn-sm" 
-                    disabled={pos === count} 
-                    onClick={this.handleNav.bind(this, count-1)}
-                    style={{marginLeft: "10px"}}
-                >
-                    <i className="fas fa-step-forward" />
-                </button> */}
-
             </form>
         </div>;
     }

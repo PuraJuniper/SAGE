@@ -15,22 +15,6 @@ import {Container, Row, Col, Modal, Tabs, Tab, Button} from "react-bootstrap";
 
 import State from "../state";
 
-const FHIRClient = require('../helpers/FHIRClient');
-
-const systemDisplayToUrl = {
-    'SNOMEDCT (http://snomed.info/sct)': 'http://snomed.info/sct',
-    'ICD9CM (http://hl7.org/fhir/sid/icd-9-cm)': 'http://hl7.org/fhir/sid/icd-9-cm',
-    'ICD10 (http://hl7.org/fhir/sid/icd-10)': 'http://hl7.org/fhir/sid/icd-10',
-    'ICD10CM (http://hl7.org/fhir/sid/icd-10-cm)': 'http://hl7.org/fhir/sid/icd-10-cm',
-    'NCI (http://ncimeta.nci.nih.gov)': 'http://ncimeta.nci.nih.gov',
-    'LOINC (http://loinc.org)': 'http://loinc.org',
-    'RXNORM (http://www.nlm.nih.gov/research/umls/rxnorm)': 'http://www.nlm.nih.gov/research/umls/rxnorm',
-    'UCUM (http://unitsofmeasure.org)': 'http://unitsofmeasure.org',
-    'CPT (http://www.ama-assn.org/go/cpt)': 'http://www.ama-assn.org/go/cpt',
-    'CVX (http://hl7.org/fhir/sid/cvx)': 'http://hl7.org/fhir/sid/cvx'
-  };
-
-
 class ValueSetDialog extends React.Component {
     constructor(props) {
       super(...arguments);

@@ -113,15 +113,6 @@ export var parseBundle = function(bundle, clearInternalIds) {
 				const fromId = entry.resource.id || entry.fullUrl;
 				entry.resource.id = (toId = this.buildFredId(entryPos));
 				entry.resource.title = state.CPGName ? `${state.CPGName}${state.resCount}` : `Bundle${state.resCount}`;
-				let coding = [
-					{
-					   "system": "http://snomed.info/sct",
-					   "version": "http://snomed.info/sct/731000124108/version/2021-09",
-					   "code": "29857009",
-					   "display": "Chest pain (finding)"
-					}
-				 ]
-				entry.resource.code = {coding};
 				idSubs.push({from: fromId, to: `${resourceType}/${toId}`});
 				entryPos++;
 			}
