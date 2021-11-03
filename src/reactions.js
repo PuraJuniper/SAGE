@@ -552,6 +552,11 @@ State.on("show_code_picker", function(node) {
 	return State.emit("set_ui", "codePicker");
 });
 
+State.on("show_value_set", function(node) {
+	State.get().ui.pivot().set("selectedNode", node);
+	return State.emit("set_ui", "valueSet");
+});
+
 // Insert system, code, version, and display elements to the given node.
 // `node` is expected to be of type Coding
 State.on("insert_from_code_picker", function(node, system, code, systemOID, version, display) {

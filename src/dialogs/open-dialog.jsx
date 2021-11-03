@@ -21,9 +21,9 @@ class OpenDialog extends React.Component {
         this.state = {
             showSpinner: false,
             tab: "fhirNew",
-            fhirText: '{"resourceType": "PlanDefinition"}',
+            fhirText: '{"resourceType": "CPGImmunizationActivity"}',
             fhirUrl: "",
-            newResourceType: "PlanDefinition",
+            newResourceType: "CPGImmunizationActivity",
             newResourceBundle: true
         };
     }

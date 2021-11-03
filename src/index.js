@@ -22,6 +22,7 @@ import CpgDialog from "./dialogs/cpg-dialog";
 import OpenDialog from "./dialogs/open-dialog";
 import ExportDialog from "./dialogs/export-dialog";
 import CodePickerDialog from "./dialogs/code-picker-dialog";
+import ValueSetDialog from "./dialogs/valueset-dialog"
 import UserSettingsDialog from "./dialogs/user-settings-dialog";
 
 import AppInfo from "../package.json";
@@ -172,6 +173,8 @@ class RootComponent extends React.Component {
 				resource={state.resource}
 			/>
 			<CodePickerDialog show={state.ui.status === "codePicker"} node={state.ui.selectedNode} />
+			<ValueSetDialog show={state.ui.status === "valueSet"} node={state.ui.selectedNode} 
+			resourceType={state.resource?.fhirType} valueset={state.valuesets}/>
 			<UserSettingsDialog show={state.ui.status === "settings"} />
 		</div>;
 	}

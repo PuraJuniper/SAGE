@@ -45,6 +45,7 @@
     "react": "^16.14.0",
     "react-bootstrap": "^1.0.0",
     "react-dom": "^16.14.0",
+    "react-select": "^5.2.0",
     "reactstrap": "^8.10.0",
     "sanitize-caja": "^0.1.4",
     "url-loader": "^4.0.0",

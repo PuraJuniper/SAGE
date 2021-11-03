@@ -33,6 +33,10 @@ class ElementMenu extends React.Component {
 		State.emit("show_code_picker", this.props.node);
 	}
 
+	handleValueSet(e) {
+		State.emit("show_value_set", this.props.node);
+	}
+
 	handleMove(down, e) {
 		State.emit("move_array_node", this.props.node, this.props.parent, down);
 		return e.preventDefault;
@@ -83,6 +87,7 @@ class ElementMenu extends React.Component {
 		// For FHIR type `Coding`, we provide the user with an option to input a valid system and code
 		//  so that the rest of the fields may be autopopulated using VSAC
 		const codePicker = this.props.node.fhirType == "Coding" ? <Dropdown.Item onSelect={this.handleCodePicker.bind(this)}>VSAC Code Picker</Dropdown.Item> : undefined;
+		const valueSetPicker = this.props.node.fhirType == "Coding" ? <Dropdown.Item onSelect={this.handleValueSet.bind(this)}>From ValueSet</Dropdown.Item> : undefined;
 		const moveUp = this.props.node.ui.menu.canMoveUp ?
 			<Dropdown.Item onSelect={this.handleMove.bind(this, false)}>Move Up</Dropdown.Item> : undefined;
 		const moveDown = this.props.node.ui.menu.canMoveDown ?
@@ -117,7 +122,7 @@ class ElementMenu extends React.Component {
 		return <Dropdown.Menu style={{margin: "0px"}}>
 			{remove}{addObject}
 			{spacer1}{moveUp}{moveDown}
-			{spacer2}{header}{codePicker}{unusedElements}
+			{spacer2}{header}{valueSetPicker}{codePicker}{unusedElements}
 		</Dropdown.Menu>;
 	}
 }
