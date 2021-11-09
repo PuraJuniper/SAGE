@@ -22,6 +22,7 @@ const unsupportedElements = [];
 
 export var toFhir = function(decorated, validate) {
 	let errCount = 0;
+	let errFields = [];
 	// console.log JSON.stringify decorated, null, "  "
 	var _walkNode = function(node, parent) {
 		if (parent == null) { parent = {}; }
@@ -39,7 +40,10 @@ export var toFhir = function(decorated, validate) {
 					err = PrimitiveValidator(child.fhirType, child.value, true);
 				}
 				
-				if (err) { errCount++; }
+				if (err) { 
+					errFields.push(child.schemaPath.substring(child.schemaPath.indexOf(".") + 1));
+					errCount++; 
+				}
 				return child.value;
 			}
 			})();
@@ -56,7 +60,7 @@ export var toFhir = function(decorated, validate) {
 
 	const fhir = _walkNode(decorated);
 	if (validate) {
-		return [fhir, errCount];
+		return [fhir, errCount, errFields];
 	} else {
 		return fhir;
 	}

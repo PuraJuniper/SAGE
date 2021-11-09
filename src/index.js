@@ -96,7 +96,7 @@ class RootComponent extends React.Component {
 			if (state.ui.status === "loading") {
 			return <div className="spinner"><img src="../img/ajax-loader.gif" /></div>;
 		} else if (state.resource) {
-			return <DomainResource node={state.resource} />;
+			return <DomainResource node={state.resource} errFields={state.errFields}/>;
 		} else if (!state.bundle && (state.ui.status.indexOf("error") === -1)) {
 			return <div className="row" style={{marginTop: "60px", marginBottom: "60px"}}><div className="col-xs-offset-4 col-xs-4">
 				<button className="btn btn-primary btn-block" onClick={this.handleOpen.bind(this)}>

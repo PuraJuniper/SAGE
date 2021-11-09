@@ -12,7 +12,7 @@ import ElementMenu from "./element-menu";
 class DomainResource extends React.Component {
 
 	shouldComponentUpdate(nextProps) {
-		return nextProps.node !== this.props.node;
+		return nextProps.node !== this.props.node || nextProps.errFields !== this.props.errFields;
 	}
 
 	render() {
@@ -28,7 +28,7 @@ class DomainResource extends React.Component {
 				
 			children.push(<ResourceElement 
 				key={child.id} node={child} 
-				parent={node} 
+				parent={node} errFields={this.props.errFields}
 			/>
 			);
 		}

@@ -21,7 +21,7 @@ class ValueEditor extends React.Component {
 	}
 
 	shouldComponentUpdate(nextProps) {
-		return nextProps.node !== this.props.node;
+		return nextProps.node !== this.props.node || nextProps.errFields !== this.props.errFields;
 	}
 
 	componentDidMount() {
@@ -200,6 +200,13 @@ class ValueEditor extends React.Component {
 	}
 
 	buildCodeInput(value, items) {
+		let nodeSchemaPath = this.props.node.schemaPath.substring(this.props.node.schemaPath.indexOf(".") + 1);
+		let errFields = this.props.errFields;
+		let style = {};
+		if (errFields && errFields.includes(nodeSchemaPath)) {
+			style = {backgroundColor:"#ff9393"};
+		}
+
 		const options = [];
 		for (let i = 0; i < items.length; i++) {
 			const item = items[i];
@@ -211,8 +218,12 @@ class ValueEditor extends React.Component {
 		return <span>
 			<select value={this.props.node.value || ""} 
 				className="form-control input-sm" 
-					onChange={this.handleChange.bind(this)} 
+				onChange={(e) => {
+					e.target.style.backgroundColor = "white";
+					this.handleChange.bind(this)(e);
+				}}
 					ref="inputField"
+					style={style}
 				>
 				{options}
 			</select>
@@ -235,12 +246,22 @@ class ValueEditor extends React.Component {
 	}
 
 	buildTextInput(value) {
+		let nodeSchemaPath = this.props.node.schemaPath.substring(this.props.node.schemaPath.indexOf(".") + 1);
+		let errFields = this.props.errFields;
+		let style = {};
+		if (errFields && errFields.includes(nodeSchemaPath)) {
+			style = {backgroundColor:"#ff9393"};
+		}
 		return <input 
 			ref="inputField"
 			className="form-control input-sm"
 			value={value}
-			onChange={this.handleChange.bind(this)}
+			onChange={(e) => {
+				e.target.style.backgroundColor = "white";
+				this.handleChange.bind(this)(e);
+			}}
 			onKeyDown={this.handleKeyDown.bind(this)}
+			style={style}
 		/>;
 	}
 

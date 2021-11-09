@@ -186,6 +186,7 @@ const bundleInsert = function(json, isBundle) {
 	if (decorated = decorateResource(resources[0], state.profiles)) {
 		State.get().pivot()
 			.set("resource", decorated)
+			.set("errFields", [])
 			.bundle.resources.splice(state.bundle.pos+1, 0, ...resources)
 			.bundle.set("pos", state.bundle.pos+1);
 		return true;
@@ -325,6 +326,8 @@ State.on("set_bundle_pos", function(newPos) {
 	}
 	resource.name = resource.title.replace(/\s+/g, '');
 
+
+	State.get().set({errFields:[]});
 	State.get().pivot()
 		//splice in any changes
 		.set("resource", decorated)
@@ -394,6 +397,11 @@ State.on("show_open_insert", () => {
 State.on("set_ui", function(status, params) {
 	if (params == null) { params = {}; }
 	return State.get().ui.set({status, params});
+});
+
+State.on("highlight_errors", function(errFields) {
+	State.get().set({errFields});
+	State.emit("set_ui", "ready");
 });
 
 State.on("value_update", (node, value) => node.ui.reset({status: "ready"}));
@@ -661,6 +669,82 @@ State.on("add_object_element", function(node, fhirElement) {
 	} = getFhirElementNodeAndPosition(node, fhirElement);
 
 	return node.children.splice(position, 0, newNode);
+});
+
+State.on("update", function(state, prevState) {
+	var deepDiffMapper = function () {
+		return {
+		  VALUE_CREATED: 'created',
+		  VALUE_UPDATED: 'updated',
+		  VALUE_DELETED: 'deleted',
+		  VALUE_UNCHANGED: 'unchanged',
+		  map: function(obj1, obj2) {
+			if (this.isFunction(obj1) || this.isFunction(obj2)) {
+			  throw 'Invalid argument. Function given, object expected.';
+			}
+			if (this.isValue(obj1) || this.isValue(obj2)) {
+			  return {
+				type: this.compareValues(obj1, obj2),
+				data: obj1 === undefined ? obj2 : obj1
+			  };
+			}
+	  
+			var diff = {};
+			for (var key in obj1) {
+			  if (this.isFunction(obj1[key])) {
+				continue;
+			  }
+	  
+			  var value2 = undefined;
+			  if (obj2[key] !== undefined) {
+				value2 = obj2[key];
+			  }
+	  
+			  diff[key] = this.map(obj1[key], value2);
+			}
+			for (var key in obj2) {
+			  if (this.isFunction(obj2[key]) || diff[key] !== undefined) {
+				continue;
+			  }
+	  
+			  diff[key] = this.map(undefined, obj2[key]);
+			}
+	  
+			return diff;
+	  
+		  },
+		  compareValues: function (value1, value2) {
+			if (value1 === value2) {
+			  return this.VALUE_UNCHANGED;
+			}
+			if (this.isDate(value1) && this.isDate(value2) && value1.getTime() === value2.getTime()) {
+			  return this.VALUE_UNCHANGED;
+			}
+			if (value1 === undefined) {
+			  return this.VALUE_CREATED;
+			}
+			if (value2 === undefined) {
+			  return this.VALUE_DELETED;
+			}
+			return this.VALUE_UPDATED;
+		  },
+		  isFunction: function (x) {
+			return Object.prototype.toString.call(x) === '[object Function]';
+		  },
+		  isArray: function (x) {
+			return Object.prototype.toString.call(x) === '[object Array]';
+		  },
+		  isDate: function (x) {
+			return Object.prototype.toString.call(x) === '[object Date]';
+		  },
+		  isObject: function (x) {
+			return Object.prototype.toString.call(x) === '[object Object]';
+		  },
+		  isValue: function (x) {
+			return !this.isObject(x) && !this.isArray(x);
+		  }
+		}
+	  }();
 });
 
 

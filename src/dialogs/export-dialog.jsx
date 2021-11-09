@@ -21,12 +21,13 @@ class ExportDialog extends React.Component {
         return nextProps.show !== this.props.show;
     }
 
-    handleClose(e) {
+    handleClose(errFields, e) {
+        if (errFields.length > 0) return State.emit("highlight_errors", errFields);
         return State.emit("set_ui", "ready");
     }
 
     buildJson() {
-        let [resource, errCount] = Array.from(
+        let [resource, errCount, errFields] = Array.from(
             SchemaUtils.toFhir(this.props.resource, true)
         );
         if (this.props.bundle) {
@@ -37,7 +38,7 @@ class ExportDialog extends React.Component {
             );
         }
         const jsonString = JSON.stringify(resource, null, 3);
-        return {jsonString, errCount, resourceType: resource.resourceType};
+        return {jsonString, errCount, errFields, resourceType: resource.resourceType};
     }
 
     handleDownload(e) {
@@ -96,12 +97,12 @@ class ExportDialog extends React.Component {
             return null;
         }
 
-        const {jsonString, errCount} = this.buildJson();
-
+        const {jsonString, errCount, errFields} = this.buildJson();
         const errNotice =
             errCount > 0 ? (
                 <div className="alert alert-danger">
-                    Note that the current resource has unresolved data entry errors
+                    Note that the current resource has unresolved data entry errors:
+                    {errFields.map(function(f, idx) {return (<li key={idx}>{f}</li>)})}
                 </div>
             ) : (
                 undefined
@@ -110,7 +111,7 @@ class ExportDialog extends React.Component {
         return (
             <Modal
                 show={true}
-                onHide={this.handleClose.bind(this)}
+                onHide={() => { this.handleClose(errFields)}}
                 onKeyDown={this.handleKeyDown.bind(this)}
                 onKeyUp={this.handleKeyUp.bind(this)}
             >
