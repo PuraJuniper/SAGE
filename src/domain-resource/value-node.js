@@ -25,6 +25,13 @@ class ValueNode extends React.Component {
 			}
 	}
 
+	componentDidUpdate() {
+		if ([null, undefined, ""].includes(this.props.node.value) &&
+			(this.props.node?.ui?.status !== "editing")) {
+				return this.props.onEditStart();
+		}
+	}
+
 	renderUnknown() {
 		const content = this.props.node.value ?
 			<ValueDisplay node={this.props.node} parent={this.props.parent} />
