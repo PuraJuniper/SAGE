@@ -457,6 +457,7 @@ State.on("show_open_insert", () => {
 	});
 
 State.on("show_open_questionnaire", () => {
+	State.emit("set_bundle_pos", State.get().bundle.pos);
 	if (State.get().CPGName) {
 		State.get().ui.set("openMode", "insert");
 		let json = {resourceType: "Questionnaire"};
@@ -469,6 +470,7 @@ State.on("show_open_questionnaire", () => {
 	});
        
 State.on("show_open_activity", () => {
+	State.emit("set_bundle_pos", State.get().bundle.pos);
        if (State.get().CPGName) {
                State.get().ui.set("openMode", "insert");
                let json = {resourceType: "ActivityDefinition"};

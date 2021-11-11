@@ -163,13 +163,13 @@ class ValueEditor extends React.Component {
 	}
 
 	handleCanonicalChange() {
-		if (event.target.value == "Activity") {
+		if (event.target.value == `http://fhir.org/guides/${State.get().authorName}/ActivityDefinition/ActivityDefinition-${State.get().CPGName}${State.get().resCount+1}`) {
 			return State.emit("show_open_activity")
 		}
-		else if (event.target.value == "Plan") {
+		else if (event.target.value == `http://fhir.org/guides/${State.get().authorName}/PlanDefinition/PlanDefinition-${State.get().CPGName}${State.get().resCount+1}`) {
 			return State.emit("show_open_insert")
 		}
-		else if (event.target.value == "Question") {
+		else if (event.target.value == `http://fhir.org/guides/${State.get().authorName}/Questionnaire/Questionnaire-${State.get().CPGName}${State.get().resCount+1}`) {
 			return State.emit("show_open_questionnaire")
 		}
 		else if (event.target.value == "Select") {
@@ -182,6 +182,9 @@ class ValueEditor extends React.Component {
 		let val = this.props.node.value ?? "Blank";
 		let errFields = this.props.errFields;
 		let style = {};
+		let activityurl = `http://fhir.org/guides/${State.get().authorName}/ActivityDefinition/ActivityDefinition-${State.get().CPGName}${State.get().resCount+1}`;
+		let planurl = `http://fhir.org/guides/${State.get().authorName}/PlanDefinition/PlanDefinition-${State.get().CPGName}${State.get().resCount+1}`;
+		let questionurl = `http://fhir.org/guides/${State.get().authorName}/Questionnaire/Questionnaire-${State.get().CPGName}${State.get().resCount+1}`;
 		if (errFields && errFields.includes(nodeSchemaPath)) {
 			style = {backgroundColor:"#ff9393"};
 		}
@@ -189,19 +192,23 @@ class ValueEditor extends React.Component {
 			<select value={val} 
 					className="form-control input-sm" 
 					onChange = {(e) => {
+						console.log(e.target.value)
 						e.target.style.backgroundColor = "white"
 						if (e.target.value == val && errFields && errFields.includes(nodeSchemaPath)) {
 							e.target.style.backgroundColor = "#ff9393";
 						}
+						if (e.target.value != "Select") {
+							this.handleChange.bind(this)(e);
+						}				
 						this.handleCanonicalChange.bind(this)(e);
 					}}
 					ref="inputField"
 					style={style}
 				>
 				<option value={val} disabled>{this.props.node.value ?? "Select:"}</option>
-				<option value='Activity'>ActivityDefinition</option>
-				<option value='Plan'>PlanDefiniton</option>
-				<option value='Question'>Questionnaire</option>
+				<option value= {activityurl}>ActivityDefinition</option>
+				<option value={planurl}>PlanDefiniton</option>
+				<option value={questionurl}>Questionnaire</option>
 				<option value='Select'>Select from other resources in CPG</option>
 			</select>
 		</span>;
