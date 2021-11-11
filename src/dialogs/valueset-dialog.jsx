@@ -25,6 +25,7 @@ class ValueSetDialog extends React.Component {
     }
 
     static getDerivedStateFromProps(nextProps, prevState) {
+    console.log(nextProps);
       switch (nextProps.resourceType) {
         case "CPGImmunizationActivity":
           return {

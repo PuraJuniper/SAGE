@@ -295,65 +295,6 @@ State.on("load_json_resource", (json, isCPG = true) => {
 	return State.get().set("ui", {status});
 });
 
-// Re-inserts mandatory fields that were previously left blank
-function reinsertFields (newPos: number) {
-	return;
-		var arrayStartsNull = function(list: any[]) {
-			return Array.isArray(list) && !Object.values(list[0]).every(o => o != null);
-		}
-		let state = State.get();
-		const {
-			profiles,
-			resource,
-		} = state;
-		// const fhirType = resource.fhirType === "BackboneElement" ? resource.schemaPath : resource.fhirType; 
-		const unusedElements = SchemaUtils.getElementChildren(profiles, resource, []);
-		console.log(unusedElements);
-		for (const element of unusedElements) {
-			const elname = element.name;
-			const resourceField = state.bundle.resources[newPos][elname];
-			// for mandatory fields that are null/undefined
-			if (element.isRequired && resourceField === undefined) {
-				const curResource = State.get().resource;
-				const {
-					position,
-					newNode
-				} = getFhirElementNodeAndPosition(curResource, element);
-				if (newNode) {
-					curResource.children.splice(position, 0, newNode);
-				}
-			// for mandatory fields that are blank arrays (they don't come up as null)
-			} else if (element.isRequired && arrayStartsNull(resourceField)) {
-				// these have to be cleared out of the resource first before they can come back
-				// otherwise there is an error
-				console.log('reinsertfields', resourceField, element);
-				let curResource = State.get().resource;
-				for (let i = 0; i < curResource.children.length; i++) {
-					if (curResource.children[i].name == elname) {
-						curResource.children.splice(i, 1);
-						break;
-					}
-				}
-			}
-		}
-		// re-inserting the blank array fields
-		for (const element of unusedElements) {
-			const elname = element.name;
-			const resourceField = state.bundle.resources[newPos][elname];
-			if (element.isRequired && arrayStartsNull(resourceField)) {
-				let curResource = State.get().resource;
-				const {
-					position,
-					newNode
-				} = getFhirElementNodeAndPosition(curResource, element);
-				if (newNode) {
-					curResource.children.splice(position, 0, newNode);
-				}
-			}
-		}
-		return State.get().set("ui", {status: "ready"});
-	}
-
 State.on("set_bundle_pos", function(newPos) {
 	let decorated;
 	const state = State.get();
@@ -391,7 +332,7 @@ State.on("set_bundle_pos", function(newPos) {
 
 	console.log(State.get());
 
-	return reinsertFields(newPos);
+	return State.get().set("ui", {status: "ready"});
 });
 
 State.on('save_changes_to_bundle_json', function() {
@@ -419,7 +360,7 @@ State.on("remove_from_bundle", function() {
 		.bundle.resources.splice(state.bundle.pos, 1)
 		.bundle.set("pos", pos);
 
-	return reinsertFields(pos);
+	return State.get().set("ui", {status: "ready"});
 });
 
 State.on("clone_resource", function() {

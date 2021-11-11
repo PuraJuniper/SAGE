@@ -61,13 +61,16 @@ class ChangeProfileDialog extends React.Component<ChangeProfileProps, ChangeProf
             return;
         }
 		return Object.entries(this.props.profiles).filter((v) => {return v[1]['__meta']['type'] == this.props.nodeToChange.nodePath}).map((option, idx) => {
-            return <option value={option[0]}>{option[0]}</option>
+            return <option value={option[0]}>{option[1]['__meta']['id']}</option>
 		});
 	}
 
     renderCurrentProfile() {
-        return <div>
-            <h1>{this.props.previousProfile}</h1>
+        return <div style={{marginBottom:"20px"}}>
+            <p>
+                Current Profile:
+            </p>
+            <h5>{this.props.previousProfile}</h5>
         </div>
     }
     
@@ -79,7 +82,7 @@ class ChangeProfileDialog extends React.Component<ChangeProfileProps, ChangeProf
             <select
                 ref="system"
                 className="form-control input-sm" 
-                style={{margin: "10px"}}
+                style={{marginBottom: "10px"}}
                 onChange={this.handleSystemChange.bind(this)} 
                 value={this.state.newProfile}
             >
