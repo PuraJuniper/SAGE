@@ -394,6 +394,7 @@ export var buildChildNode = function(profiles: SimplifiedProfiles, parentNode: S
 
 
 export var buildDisplayName = function(name: string, fhirType: string, sliceName?: string) {
+	console.log('builddisplayname: ', name, fhirType, sliceName);
 	const _fixCamelCase = function(text: string, lowerCase?: boolean) {
 		//function has an issue with consecutive capital letters (eg. ID)
 		//and not convinced splitting camelcase words has value
@@ -476,6 +477,7 @@ export var decorateFhirData = function(profiles: SimplifiedProfiles, resourcePro
 			level = 0;
 		}
 
+		const name = schemaPath.split('.').pop() as string; // we know pop() will return a string here
 		let trueSchemaPath = schemaPath;
 		let schema = profiles[profileUri]?.[trueSchemaPath];
 		let typeIdx = 0; // Assuming 0
@@ -522,7 +524,6 @@ export var decorateFhirData = function(profiles: SimplifiedProfiles, resourcePro
 		const childSchemaPath = newProfile ? fhirType : trueSchemaPath;
 		const childProfile = newProfile || profileUri;
 		// TODO: Figure out which type of the array this node corresponds to
-		const name = trueSchemaPath.split('.').pop() as string; // we know pop() will return a string here
 		let displayName = buildDisplayName(name, fhirType, schema.sliceName);
 		// if (isInfrastructureType(fhirType) && (schemaPath.length === 1)) {
 		// 	fhirType = schemaPath[0];
