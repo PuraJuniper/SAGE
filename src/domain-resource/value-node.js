@@ -7,6 +7,7 @@
 import React from "react";
 import ValueDisplay from "./value-display";
 import ValueEditor from "./value-editor";
+import State from "../state";
 
 class ValueNode extends React.Component {
 	static initClass() {
@@ -30,6 +31,16 @@ class ValueNode extends React.Component {
 			(this.props.node?.ui?.status !== "editing")) {
 				return this.props.onEditStart();
 		}
+	}
+
+	handleItemAdd(e) {
+		State.emit("add_array_value", this.props.node);
+		if (e) { return e.preventDefault(); }
+	}
+
+	handleUiChange(status, e) {
+		e.preventDefault();
+		return State.emit("set_ui", status);
 	}
 
 	renderUnknown() {
@@ -59,6 +70,7 @@ class ValueNode extends React.Component {
 
 		return this.renderEditing(preview);
 	}
+
 
 	renderEditing(preview) {
 		const required = this.props.node.isRequired ? "*" : undefined;
@@ -117,6 +129,8 @@ class ValueNode extends React.Component {
 			return this.renderUnknown();
 		} else if (isEditing && (this.props.node.fhirType === "xhtml")) {
 			return this.renderXhtmlEditing();
+		//} else if (isEditing && (this.props.node.name === "definitionCanonical")) {
+		//	return this.renderCanonical();
 		} else if (isEditing) {
 			return this.renderEditing();
 		} else {

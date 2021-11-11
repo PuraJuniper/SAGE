@@ -159,7 +159,8 @@ const decorateResource = function(json: Resource, profiles: any) : SageNodeIniti
 
 const openResource = function(json: Resource) {
 	const decorated = decorateResource(json, State.get().profiles);
-	
+	State.get().set({errFields: []});
+
 	if (decorated) {
 		State.get().set({resource: decorated, bundle: undefined});
 		return true;
@@ -170,7 +171,9 @@ const openBundle = function(json: Bundle) {
 	let decorated;
 	// resCount keeps track of the total number of resources added ever,
 	// instead of current size, for title autopopulation purposes
-	State.get().set({resCount:1})
+	State.get().pivot()
+		.set({resCount:1})
+		.set({errFields: []});
 	const resources = BundleUtils.parseBundle(json);
 	if (decorated = decorateResource(resources[0], State.get().profiles)) {
 		State.get().pivot()
@@ -426,14 +429,37 @@ State.on("show_open_insert", () => {
 	if (State.get().CPGName) {
 		// ie if the bundle is a CPG
 		State.get().ui.set("openMode", "insert");
-		let json = {resourceType: "PlanDefinition"};
-		json = {resourceType: "Bundle", entry: [{resource: json}]};
+		const json = {resourceType: "Bundle", entry: [{resource: {resourceType: "PlanDefinition"}}]};
         return State.emit("load_json_resource", json);
 	}
 	State.get().ui.pivot()
     .set("status", "open")
     .set("openMode", "insert");
-	})
+	});
+
+State.on("show_open_questionnaire", () => {
+	if (State.get().CPGName) {
+		State.get().ui.set("openMode", "insert");
+		let json = {resourceType: "Questionnaire"};
+		json = {resourceType: "Bundle", entry: [{resource: json}]};
+		return State.emit("load_json_resource", json);
+	}
+	State.get().ui.pivot()
+	.set("status", "open")
+	.set("openMode", "insert");
+	});
+       
+State.on("show_open_activity", () => {
+       if (State.get().CPGName) {
+               State.get().ui.set("openMode", "insert");
+               let json = {resourceType: "ActivityDefinition"};
+               json = {resourceType: "Bundle", entry: [{resource: json}]};
+               return State.emit("load_json_resource", json);
+       }
+       State.get().ui.pivot()
+               .set("status", "open")
+               .set("openMode", "insert");
+       });
 
 State.on("set_ui", function(status: SageUiStatus) {//, params: ReturnType<typeof State.get>['ui']['status']) { // Do we need this params argument?
 	// if (params == null) { params = {}; }
@@ -656,6 +682,35 @@ State.on("insert_from_code_picker", function(node: FreezerNode<SageNodeInitializ
 				newNode.value = pathToParam[newNode.schemaPath];
 				newNode.ui = {status: "ready"};
 				node.pivot().children.splice(position, 0, newNode);
+			}
+		}
+	}
+});
+
++State.on("show_canonical_dialog", function(node) {
+	State.get().ui.pivot().set("selectedNode", node);
+	return State.emit("set_ui", "select");
+})
+
+State.on("set_selected_canonical", function(node: FreezerNode<SageNodeInitialized>, pos: number) {
+	let state = State.get();
+	let url = state.bundle.resources[pos].url;
+	for (let i = 0; i < node.children.length; i++) {
+		if (node.children[i].name == "definitionCanonical") {
+				node = node.children.splice(i,1);
+		}
+	}
+	const actionChildren = SchemaUtils.getElementChildren(State.get().profiles, 'PlanDefinition.action', null);
+	for (const child of actionChildren) {
+		if (child.name == "definitionCanonical") {
+			const {
+					position,
+					newNode
+			} = getFhirElementNodeAndPosition(node, child)
+			if (newNode) {
+				newNode.value = url;
+				newNode.ui = {status: "ready"};
+				node = node.children.splice(position, 1, newNode);
 			}
 		}
 	}

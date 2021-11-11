@@ -73,7 +73,7 @@ class ValueArrayNode extends React.Component {
 			</div>
 			<div className="col-sm-9 fhir-data-content">
 				<div className="fhir-short-desc">{this.props.node.short}{required}</div>
-				{children}
+					{children} 
 				<div className="btn-toolbar" role="group" style={{marginTop: "6px"}}>					
 					<button type="button" className="btn btn-default btn-sm" onClick={this.handleItemAdd.bind(this)}>
 						<span className="fas fa-plus"></span>

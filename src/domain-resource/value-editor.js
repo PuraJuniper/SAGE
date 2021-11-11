@@ -54,6 +54,20 @@ class ValueEditor extends React.Component {
 			}
 	}
 
+	componentDidUpdate() {
+		if ((this.props.node.fhirType === "code") &&
+			(this.props.node?.binding?.strength === "required")) {
+				//initialize to first value on insert
+				const {
+                    reference
+                } = this.props.node.binding;
+				const vs = State.get().valuesets[reference];
+				if (vs && vs.type === "complete") {
+					return State.emit("value_change", this.props.node, this.refs.inputField.value);
+				}
+			}
+	}
+
 
 	handleChange(e) {
 		let resources;
@@ -148,7 +162,53 @@ class ValueEditor extends React.Component {
 		</span>;
 	}
 
-	buildCanonicalInput(value) {
+	handleCanonicalChange() {
+		if (event.target.value == "Activity") {
+			return State.emit("show_open_activity")
+		}
+		else if (event.target.value == "Plan") {
+			return State.emit("show_open_insert")
+		}
+		else if (event.target.value == "Question") {
+			return State.emit("show_open_questionnaire")
+		}
+		else if (event.target.value == "Select") {
+			return State.emit("show_canonical_dialog", this.props.parent);
+		}
+	}
+
+	buildCanonicalInput(preview) {
+		let nodeSchemaPath = this.props.node.schemaPath.substring(this.props.node.schemaPath.indexOf(".") + 1);
+		let val = this.props.node.value ?? "Blank";
+		let errFields = this.props.errFields;
+		let style = {};
+		if (errFields && errFields.includes(nodeSchemaPath)) {
+			style = {backgroundColor:"#ff9393"};
+		}
+		return <span>
+			<select value={val} 
+					className="form-control input-sm" 
+					onChange = {(e) => {
+						e.target.style.backgroundColor = "white"
+						if (e.target.value == val && errFields && errFields.includes(nodeSchemaPath)) {
+							e.target.style.backgroundColor = "#ff9393";
+						}
+						this.handleCanonicalChange.bind(this)(e);
+					}}
+					ref="inputField"
+					style={style}
+				>
+				<option value={val} disabled>{this.props.node.value ?? "Select:"}</option>
+				<option value='Activity'>ActivityDefinition</option>
+				<option value='Plan'>PlanDefiniton</option>
+				<option value='Question'>Questionnaire</option>
+				<option value='Select'>Select from other resources in CPG</option>
+			</select>
+		</span>;
+		} 
+
+	/*
+	buildCanonicallInput(value) {
 		if (!value) { // suppress error for value=null on input element
 			value = "";
 		}
@@ -198,15 +258,9 @@ class ValueEditor extends React.Component {
 	refreshCanonicalOptions() {
 		this.forceUpdate();
 	}
+	*/
 
 	buildCodeInput(value, items) {
-		let nodeSchemaPath = this.props.node.schemaPath.substring(this.props.node.schemaPath.indexOf(".") + 1);
-		let errFields = this.props.errFields;
-		let style = {};
-		if (errFields && errFields.includes(nodeSchemaPath)) {
-			style = {backgroundColor:"#ff9393"};
-		}
-
 		const options = [];
 		for (let i = 0; i < items.length; i++) {
 			const item = items[i];
@@ -219,11 +273,9 @@ class ValueEditor extends React.Component {
 			<select value={this.props.node.value || ""} 
 				className="form-control input-sm" 
 				onChange={(e) => {
-					e.target.style.backgroundColor = "white";
 					this.handleChange.bind(this)(e);
 				}}
-					ref="inputField"
-					style={style}
+				ref="inputField"
 				>
 				{options}
 			</select>
@@ -257,7 +309,10 @@ class ValueEditor extends React.Component {
 			className="form-control input-sm"
 			value={value}
 			onChange={(e) => {
-				e.target.style.backgroundColor = "white";
+				e.target.style.backgroundColor = "white"
+				if (e.target.value == "" && errFields && errFields.includes(nodeSchemaPath)) {
+					e.target.style.backgroundColor = "#ff9393";
+				}
 				this.handleChange.bind(this)(e);
 			}}
 			onKeyDown={this.handleKeyDown.bind(this)}

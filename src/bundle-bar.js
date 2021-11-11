@@ -48,6 +48,11 @@ class BundleBar extends React.Component {
         }
     }
 
+    handleUiChange(status, e) {
+		e.preventDefault();
+		return State.emit("set_ui", status);
+	}
+
 	renderBar() {
 		const pos = this.props.bundle.pos+1;
 		const count = this.props.bundle.resources.length;
@@ -136,9 +141,3 @@ class BundleBar extends React.Component {
 }
 
 export default BundleBar;
-
-function __guard__(value, transform) {
-    return typeof value !== "undefined" && value !== null
-        ? transform(value)
-        : undefined;
-}

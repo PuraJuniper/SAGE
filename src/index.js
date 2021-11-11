@@ -27,6 +27,7 @@ import ValueSetDialog from "./dialogs/valueset-dialog"
 import UserSettingsDialog from "./dialogs/user-settings-dialog";
 
 import AppInfo from "../package.json";
+import SelectResourceDialog from "./dialogs/select-resource-dialog";
 
 class RootComponent extends React.Component {
 	
@@ -85,6 +86,10 @@ class RootComponent extends React.Component {
 		return State.emit("set_ui", "cpg");
 	}
 
+	handleSelect() {
+		return State.emit("set_ui", "select");
+	}
+
 	render() {
 		let bundleBar;
 		const state = State.get();
@@ -92,7 +97,7 @@ class RootComponent extends React.Component {
 		if (state.bundle) {
 			bundleBar = <BundleBar bundle={state.bundle} />;
 		}
-		
+
 		const resourceContent = (() => {
 			if (state.ui.status === "loading") {
 			return <div className="spinner"><img src="../img/ajax-loader.gif" /></div>;
@@ -178,6 +183,9 @@ class RootComponent extends React.Component {
 			<ValueSetDialog show={state.ui.status === "valueSet"} node={state.ui.selectedNode} 
 			resourceType={state.resource?.fhirType} valueset={state.valuesets}/>
 			<UserSettingsDialog show={state.ui.status === "settings"} />
+			<SelectResourceDialog show={state.ui.status === "select"} node={state.ui.selectedNode} 
+			bundle = {state.bundle}
+			resource = {state.resource} /> 
 		</div>;
 	}
 }
