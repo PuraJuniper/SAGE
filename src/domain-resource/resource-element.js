@@ -16,6 +16,7 @@ import ValueDisplay from "./value-display";
 import ValueNode from "./value-node";
 import ValueArrayNode from "./value-array-node";
 import ElementMenu from "./element-menu";
+import { hiddenElements } from '../config';
 
 class ResourceElement extends React.Component {
 	static initClass() {
@@ -92,13 +93,25 @@ class ResourceElement extends React.Component {
 	}
 
 	renderChildren() {
+		const showHidden = State.get().showHiddenElements;
 		const children = [];
 		for (let child of Array.from(this.props.node.children)) {
-			children.push(<ResourceElement 
-				key={child.id} node={child} 
-				parent={this.props.node}
-			/>
-			);
+			if (showHidden) {
+				children.push(<ResourceElement 
+					key={child.id} node={child} 
+					parent={this.props.node}
+				/>
+				);
+			}
+			else {
+				if (!hiddenElements.includes(child.name)) {
+					children.push(<ResourceElement 
+						key={child.id} node={child} 
+						parent={this.props.node}
+					/>
+					);
+				}
+			}
 		}		
 		return children;
 	}

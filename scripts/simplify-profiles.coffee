@@ -57,14 +57,23 @@ summarizeValuesets = (fhirBundle, valuesets) ->
 
 summarizeProfiles = (fhirBundle, profiles) ->
 	for entry in fhirBundle?.entry || []
-		root = entry?.resource?.snapshot?.element?[0]?.id
-		continue unless root and 
-			root[0] is root[0].toUpperCase()
+		root = entry?.resource?.url
+		continue if !root
+		# continue unless root and 
+		# 	root[0] is root[0].toUpperCase()
 
 		ids = {}
 		names = {}
 
 		profiles[root] = {}
+		profiles[root]["__meta"] = # sorry
+			id: entry.resource.id
+			url: entry.resource.url
+			name: entry.resource.name
+			title: entry.resource.title
+			type: entry.resource.type
+			baseDefinition: entry.resource.baseDefinition
+			
 		for e, i in entry?.resource?.snapshot?.element || []
 			profiles[root][e.id] =
 				index: i

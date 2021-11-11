@@ -13,6 +13,7 @@
 import React from "react";
 import {Container, Row, Col, Modal, Tabs, Tab, Button} from "react-bootstrap";
 import State from "../state";
+import * as SchemaUtils from "../helpers/schema-utils";
 
 class CpgDialog extends React.Component {
     constructor(props) {
@@ -151,14 +152,14 @@ class CpgDialog extends React.Component {
             return;
         }
 
-        return window.setTimeout(() => {
-            return this.refs[this.state.tab].focus();
-        }, 100);
+        // return window.setTimeout(() => {
+        //     return this.refs[this.state.tab].focus();
+        // }, 100);
     }
 
     handleClose(e) {
         this.setState({showSpinner: false});
-        return State.trigger("set_ui", "ready");
+        return State.emit("set_ui", "ready");
     }
 
     handleCPGNameChange(e) {
@@ -183,7 +184,13 @@ class CpgDialog extends React.Component {
             CPGName: this.state.CPGName,
             authorName: this.state.authorName,
         })
-		return State.trigger("set_ui", status);
+        var resourceJson = {resourceType: "PlanDefinition"};
+        var json = {resourceType: "Bundle", entry: [{resource: resourceJson}]};
+        const resourceProfile = SchemaUtils.getProfileOfResource(State.get().profiles, resourceJson);
+		json.entry[0].resource.meta = {
+			profile: [resourceProfile]
+		};
+        return State.emit("load_json_resource", json);
 	}
 
     renderFileInput() {

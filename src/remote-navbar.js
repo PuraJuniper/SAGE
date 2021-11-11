@@ -44,11 +44,11 @@ class RemoteNavbar extends React.Component {
 	handleSaveRequest(e) {
 		e.preventDefault();
 		let [resource, errCount] = SchemaUtils.toFhir(State.get().resource, true);
-		const {
-            bundle
-        } = State.get();
-		if (bundle) { resource = 
-			SchemaUtils.toBundle(bundle.resources, bundle.pos, resource); } 		
+		// const {
+        //     bundle
+        // } = State.get();
+		// if (bundle) { resource = 
+		// 	SchemaUtils.toBundle(bundle.resources, bundle.pos, resource); } 		
 	
 		if (errCount > 0) {
 			return State.emit("set_ui", "validation_error");

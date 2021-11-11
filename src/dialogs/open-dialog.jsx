@@ -14,6 +14,7 @@ import React from "react";
 import {Container, Row, Col, Modal, Tabs, Tab, Button} from "react-bootstrap";
 
 import State from "../state";
+import * as SchemaUtils from "../helpers/schema-utils";
 
 class OpenDialog extends React.Component {
     constructor(props) {
@@ -21,9 +22,9 @@ class OpenDialog extends React.Component {
         this.state = {
             showSpinner: false,
             tab: "fhirNew",
-            fhirText: '{"resourceType": "Patient"}',
+            fhirText: "",
             fhirUrl: "",
-            newResourceType: "Patient",
+            newResourceType: "PlanDefinition",
             newResourceBundle: false
         };
     }
@@ -151,6 +152,10 @@ class OpenDialog extends React.Component {
     handleLoadNew(e) {
         e.preventDefault();
         let json = {resourceType: this.state.newResourceType};
+        const resourceProfile = SchemaUtils.getProfileOfResource(State.get().profiles, json);
+		json.meta = {
+			profile: [resourceProfile]
+		};
         if (this.state.newResourceBundle) {
             json = {resourceType: "Bundle", entry: [{resource: json}]};
         }
@@ -272,9 +277,10 @@ class OpenDialog extends React.Component {
         const object = State.get().profiles;
         for (let k in object) {
             const v = object[k];
+            const resName = v['__meta'].type
             if (
                 __guard__(
-                    __guard__(v[k] != null ? v[k].type : undefined, x1 => x1[0]),
+                    __guard__(v[resName] != null ? v[resName].type : undefined, x1 => x1[0]),
                     x => x.code
                 ) === "DomainResource"
             ) {
@@ -282,7 +288,8 @@ class OpenDialog extends React.Component {
             }
         }
         const resourceOptions = [];
-        for (let name of Array.from(resourceNames.sort())) {
+        // for (let name of Array.from(resourceNames.sort())) {
+        for (let name of ['PlanDefinition', 'ActivityDefinition', 'Questionnaire', 'Library', 'ValueSet']) {
             resourceOptions.push(
                 <option value={name} key={name}>
                     {name}

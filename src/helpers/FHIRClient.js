@@ -1,5 +1,5 @@
-const axios = require('axios');
-const _ = require('lodash');
+import axios from 'axios';
+import _ from 'lodash';
 // const config = require('../config');
 import State from "../state";
 

@@ -37,7 +37,6 @@ getPlugins = function() {
 
 module.exports = {
 	entry: './src/index.js',
-	plugins: getPlugins(),
 	output: {
 		filename: (process.env.WEBPACK_ENV === 'build' ? './public/bundle.js' : 'bundle.js')
 	},
@@ -48,7 +47,7 @@ module.exports = {
 				test: /\.jsx$/,
 				loader: 'babel-loader',
         		exclude: /node_modules/,
-        		query: {
+        		options: {
           			presets: ['@babel/react', '@babel/env']
         		}
 			},
@@ -56,9 +55,12 @@ module.exports = {
 				test: /\.js$/,
 				loader: 'babel-loader',
         		exclude: /node_modules/,
-        		query: {
+        		options: {
           			presets: ['@babel/react', '@babel/env']
-        		}
+        		},
+				resolve: {
+					fullySpecified: false, // disable the behaviour
+				},
 			},
 			{
 				test: /\.cjsx$/,
@@ -77,11 +79,23 @@ module.exports = {
 						presets: ["@babel/preset-react"]
 					}
 				}
-			}
+			},
+			{
+				test: /\.tsx?$/,
+				use: [
+				  {
+					loader: 'ts-loader',
+					options: {
+					  transpileOnly: true
+					}
+				  } 
+				],
+				exclude: /node_modules/,
+			},
 		]
 	},
 	resolve: {
-		extensions: [".jsx", ".cjsx", ".coffee", ".js"],
+		extensions: [".tsx", ".ts", ".jsx", ".cjsx", ".coffee", ".js"],
 		modules: ["js", "node_modules"]
 	}
 };

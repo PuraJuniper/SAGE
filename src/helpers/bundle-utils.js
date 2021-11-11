@@ -114,6 +114,7 @@ export var parseBundle = function(bundle, clearInternalIds) {
 				idSubs.push({from: fromId, to: `${resourceType}/${toId}`});
 				entryPos++;
 			}
+		// if a resource has a url, keep track of the url and type so that we may reference it in other resources
 		if (entry.resource.url) {
 			resourceURIs.push({
 				uri: entry.resource.url,
@@ -123,7 +124,6 @@ export var parseBundle = function(bundle, clearInternalIds) {
 	}
 	
 	State.get().canonicalUris.append(resourceURIs);
-
 	const resources = [];
 	for (entry of Array.from(bundle.entry)) {
 		this.fixRefs(entry.resource, idSubs);

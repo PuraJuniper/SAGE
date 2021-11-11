@@ -110,8 +110,10 @@ class ValueArrayNode extends React.Component {
 	}
 
 	render() {
+		const isFixed = this.props.node?.isFixed || this.props.node?.nodePath == 'Meta.profile';
+		const isEditing = this.props.node?.ui?.status === "editing" && !isFixed;
 
-		if (this.props.node?.ui?.status === "editing") {
+		if (isEditing) {
 			return this.renderEditing();
 		} else {
 			return this.renderDisplay();

@@ -79,10 +79,11 @@ class ValueNode extends React.Component {
 
 	renderDisplay() {
 		const required = this.props.node.isRequired ? "*" : undefined;
+		const fixed = this.props.node.isFixed ? "!" : undefined;
 
 		return <div className="fhir-data-element row" onClick={this.props.onEditStart} >
 			<div className="col-sm-3 fhir-data-title" title={this.props.node.short}>
-				{this.props.node.displayName}{required}:
+				{this.props.node.displayName}{required}{fixed}:
 			</div>
 			<div className="col-sm-9 fhir-data-content">
 				<ValueDisplay 
@@ -99,7 +100,8 @@ class ValueNode extends React.Component {
 	}
 
 	render() {
-		const isEditing = this.props.node?.ui?.status === "editing";
+		const isFixed = this.props.node?.isFixed || this.props.node?.nodePath == 'Meta.profile';
+		const isEditing = this.props.node?.ui?.status === "editing" && !isFixed;
 		//don't show hidden elements
 		if (this.props.node.hidden) { return null; }
 		
