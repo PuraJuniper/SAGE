@@ -66,11 +66,11 @@ class ChangeProfileDialog extends React.Component<ChangeProfileProps, ChangeProf
 	}
 
     renderCurrentProfile() {
-        return <div style={{marginBottom:"20px"}}>
-            <p>
+        return <div>
+            <h5>
                 Current Profile:
-            </p>
-            <h5>{this.props.previousProfile}</h5>
+            </h5>
+            {this.props.previousProfile}
         </div>
     }
     
