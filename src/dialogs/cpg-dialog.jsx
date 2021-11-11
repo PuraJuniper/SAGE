@@ -21,8 +21,8 @@ class CpgDialog extends React.Component {
         this.state = {
             showSpinner: false,
             tab: "CPGNew",
-            CPGName: "",
-            authorName: "",
+            CPGName: "cpgname",
+            authorName: "authname",
             fhirText: '{"resourceType": "Patient"}',
             fhirUrl: "",
             newResourceType: "Patient",
@@ -179,6 +179,7 @@ class CpgDialog extends React.Component {
     }
     
     handleOpenResource(status, e) {
+        if (!this.state.CPGName || !this.state.authorName) return;
 		e.preventDefault();
         State.get().set({
             CPGName: this.state.CPGName,

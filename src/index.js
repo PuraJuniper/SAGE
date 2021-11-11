@@ -23,6 +23,7 @@ import OpenDialog from "./dialogs/open-dialog";
 import ExportDialog from "./dialogs/export-dialog";
 import CodePickerDialog from "./dialogs/code-picker-dialog";
 import ChangeProfileDialog from "./dialogs/change-profile-dialog";
+import ValueSetDialog from "./dialogs/valueset-dialog"
 import UserSettingsDialog from "./dialogs/user-settings-dialog";
 
 import AppInfo from "../package.json";
@@ -68,6 +69,14 @@ class RootComponent extends React.Component {
 			qs.resource, this.isRemote);
 	}
 
+	getSnapshotBeforeUpdate() {
+		return window.pageYOffset;
+	}
+
+	componentDidUpdate(prevProps, prevState, snapshot) {
+		window.scrollTo(0, snapshot);
+	} 
+
 	handleOpen() {
 		return State.emit("set_ui", "open");
 	}
@@ -88,7 +97,7 @@ class RootComponent extends React.Component {
 			if (state.ui.status === "loading") {
 			return <div className="spinner"><img src="../img/ajax-loader.gif" /></div>;
 		} else if (state.resource) {
-			return <DomainResource node={state.resource} />;
+			return <DomainResource node={state.resource} errFields={state.errFields}/>;
 		} else if (!state.bundle && (state.ui.status.indexOf("error") === -1)) {
 			return <div className="row" style={{marginTop: "60px", marginBottom: "60px"}}><div className="col-xs-offset-4 col-xs-4">
 				<button className="btn btn-primary btn-block" onClick={this.handleOpen.bind(this)}>
@@ -113,6 +122,22 @@ class RootComponent extends React.Component {
 		} else if (state.ui.status === "validation_error") {
 			return (
 				<UncontrolledAlert color="danger">Please fix errors in resource before continuing.</UncontrolledAlert>
+				);
+		} else if (state.ui.status === "id_duplicate_error") {
+			return (
+				<UncontrolledAlert color="danger">This resource has a duplicate ID.</UncontrolledAlert>
+				);
+		} else if (state.ui.status === "title_duplicate_error") {
+			return (
+				<UncontrolledAlert color="danger">This resource has a duplicate title.</UncontrolledAlert>
+				);
+		} else if (state.ui.status === "url_duplicate_error") {
+			return (
+				<UncontrolledAlert color="danger">This resource has a duplicate url.</UncontrolledAlert>
+				);
+		} else if (state.ui.status === "missing_title_error") {
+			return (
+				<UncontrolledAlert color="danger">This resource needs a title.</UncontrolledAlert>
 				);
 		}
 		})();
@@ -150,6 +175,8 @@ class RootComponent extends React.Component {
 			/>
 			<CodePickerDialog show={state.ui.status === "codePicker"} node={state.ui.selectedNode} />
 			<ChangeProfileDialog show={state.ui.status === "change_profile"} nodeToChange={state.resource} profiles={state.profiles} previousProfile={state.resource?.profile}/>
+			<ValueSetDialog show={state.ui.status === "valueSet"} node={state.ui.selectedNode} 
+			resourceType={state.resource?.fhirType} valueset={state.valuesets}/>
 			<UserSettingsDialog show={state.ui.status === "settings"} />
 		</div>;
 	}

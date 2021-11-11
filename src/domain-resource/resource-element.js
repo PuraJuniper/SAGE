@@ -39,7 +39,7 @@ class ResourceElement extends React.Component {
 	}
 
 	shouldComponentUpdate(nextProps) {
-		return nextProps.node !== this.props.node;
+		return nextProps.node !== this.props.node || nextProps.errFields !== this.props.errFields;
 	}
 
 	componentDidMount() {
@@ -100,6 +100,7 @@ class ResourceElement extends React.Component {
 				children.push(<ResourceElement 
 					key={child.id} node={child} 
 					parent={this.props.node}
+					errFields={this.props.errFields}
 				/>
 				);
 			}
@@ -108,6 +109,7 @@ class ResourceElement extends React.Component {
 					children.push(<ResourceElement 
 						key={child.id} node={child} 
 						parent={this.props.node}
+						errFields={this.props.errFields}
 					/>
 					);
 				}
@@ -127,6 +129,7 @@ class ResourceElement extends React.Component {
 					onEditCommit={this.handleEditCommit.bind(this)}
 					onEditCancel={this.handleEditCancel.bind(this)}
 					onNodeDelete={this.handleNodeDelete.bind(this)}
+					errFields={this.props.errFields}
 				/>;
 
 
@@ -164,6 +167,7 @@ class ResourceElement extends React.Component {
 
 
 		} else if (this.props.node.nodeType === "arrayObject") {
+			//console.log(this.props.node);
 
 				return <div className="fhir-array-complex-wrap" ref="complexElement">
 					<ElementMenu node={this.props.node} 

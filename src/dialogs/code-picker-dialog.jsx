@@ -86,7 +86,7 @@ class CodePickerDialog extends React.Component {
     
     renderCodePicker() {
         const inputElements = <div>
-            <p style={{marginTop: "20px"}}>
+            <p>
                 Code:
             </p>
             <textarea
@@ -99,7 +99,7 @@ class CodePickerDialog extends React.Component {
             <select
                 ref="system"
                 className="form-control input-sm" 
-                style={{margin: "10px"}}
+                style={{marginBottom: "10px"}}
                 onChange={this.handleSystemChange.bind(this)} 
                 value={this.state.system}
             >
@@ -124,10 +124,12 @@ class CodePickerDialog extends React.Component {
                 <div>Version: {VSACResult.version}</div>
                 <div>Display: {VSACResult.display}</div>
                 <button
+                    className="btn btn-primary"
                     onClick={this.handleInsert.bind(this, VSACResult.system, 
                         VSACResult.code, VSACResult.systemOID,
                         VSACResult.version, VSACResult.display)}
                     disabled={!this.state.valid}
+                    style={{marginTop:"7px"}}
                 >
                     Pick this Code
                 </button>
@@ -142,12 +144,12 @@ class CodePickerDialog extends React.Component {
                     {inputElements}
                 </div>
                 <div
-                    className="col-md-4 col-md-offset-4"
+                    className="col-md-12"
                     style={{marginBottom: "10px"}}
                 >
                     {verifyButtonElement}
                 </div>
-                <div>
+                <div className="col-md-12">
                     {VSACResponseElement}
                 </div>
             </div>

@@ -15,7 +15,7 @@ class ValueNode extends React.Component {
 	}
 
 	shouldComponentUpdate(nextProps) {
-		return nextProps.node !== this.props.node;
+		return nextProps.node !== this.props.node || nextProps.errFields !== this.props.errFields;
 	}
 
 	componentDidMount() {
@@ -23,6 +23,13 @@ class ValueNode extends React.Component {
 			(this.props.node?.ui?.status !== "editing")) {
 				return this.props.onEditStart();
 			}
+	}
+
+	componentDidUpdate() {
+		if ([null, undefined, ""].includes(this.props.node.value) &&
+			(this.props.node?.ui?.status !== "editing")) {
+				return this.props.onEditStart();
+		}
 	}
 
 	renderUnknown() {
@@ -63,7 +70,7 @@ class ValueNode extends React.Component {
 			<div className="col-sm-9 fhir-data-content">
 				<div className="fhir-short-desc">{this.props.node.short}</div>
 				<ValueEditor
-					hasFocus={true}
+					hasFocus={false}
 					node={this.props.node}
 					parent={this.props.parent}
 					required={this.props.node.isRequired}
@@ -71,6 +78,7 @@ class ValueNode extends React.Component {
 					onNodeDelete={this.props.onNodeDelete}
 					onEditCancel={this.props.onEditCancel}
 					shortName={this.props.node.short}
+					errFields={this.props.errFields}
 				/>
 			</div>
 			{preview}

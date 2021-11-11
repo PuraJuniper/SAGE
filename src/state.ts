@@ -22,11 +22,14 @@ export interface StateVars {
 		pos: number
 		resources: Resource[],
 	},
+	resCount?: number,
+	errFields?: string[],
 	profiles: SimplifiedProfiles,
 	valuesets: SimplifiedValuesets,
 }
 
-export type SageUiStatus = 'ready' | 'contained' | 'open' | 'validation_error' | 'resource_load_error' | 'ref_warning' | 'codePicker' | 'change_profile';
+export type SageUiStatus = 'ready' | 'contained' | 'open' | 'validation_error' | 'resource_load_error' | 'ref_warning' | 'codePicker' 
+	| 'change_profile' | 'missing_title_error' | 'id_duplicate_error' | 'title_duplicate_error' | 'url_duplicate_error';
 
 const defaultState: StateVars = {
 	ui: { 

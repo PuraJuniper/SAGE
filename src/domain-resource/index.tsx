@@ -14,6 +14,7 @@ import { SageNodeInitialized } from "../helpers/schema-utils";
 
 type DomainResourceProps = {
 	node: SageNodeInitialized,
+	errFields: string[],
 };
 
 type DomainResourceState = {
@@ -22,7 +23,7 @@ type DomainResourceState = {
 class DomainResource extends React.Component<DomainResourceProps, DomainResourceState> {
 
 	shouldComponentUpdate(nextProps: DomainResourceProps) {
-		return nextProps.node !== this.props.node;
+		return nextProps.node !== this.props.node || nextProps.errFields !== this.props.errFields;
 	}
 
 	toggleShowHidden() {
@@ -54,7 +55,7 @@ class DomainResource extends React.Component<DomainResourceProps, DomainResource
 			if (showHidden) {
 				children.push(<ResourceElement 
 					key={child.id} node={child} 
-					parent={node} 
+					parent={node} errFields={this.props.errFields}
 				/>
 				);
 			}
@@ -62,7 +63,7 @@ class DomainResource extends React.Component<DomainResourceProps, DomainResource
 				if (!hiddenElements.includes(child.nodePath)) {
 					children.push(<ResourceElement 
 						key={child.id} node={child} 
-						parent={node} 
+						parent={node} errFields={this.props.errFields}
 					/>
 					);
 				}

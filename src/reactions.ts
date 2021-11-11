@@ -81,6 +81,18 @@ const getParentById = function(id: number) {
 	return _walkNode(State.get().resource) || {parentNode: undefined, childIdx: -1};
 };
 
+export const enforceDuplicates = function(id: string, title: string, url: string) {
+	const bundle = State.get().bundle;
+	const resources = bundle.resources;
+	const pos = bundle.pos;
+	for (let i = 0; i < resources?.length; i++) {
+		if (i == pos) continue;
+		if (resources[i].id == id) return "id_duplicate_error";
+		if (resources[i].title == title) return "title_duplicate_error";
+		if (resources[i].url && resources[i].url == url) return "url_duplicate_error";
+	}
+};
+
 State.on("load_initial_json", function(profilePath, resourcePath, isRemote) {
 	const queue = [
 		[profilePath, "set_profiles", "profile_load_error"],
@@ -156,6 +168,9 @@ const openResource = function(json: Resource) {
 
 const openBundle = function(json: Bundle) {
 	let decorated;
+	// resCount keeps track of the total number of resources added ever,
+	// instead of current size, for title autopopulation purposes
+	State.get().set({resCount:1})
 	const resources = BundleUtils.parseBundle(json);
 	if (decorated = decorateResource(resources[0], State.get().profiles)) {
 		State.get().pivot()
@@ -173,15 +188,19 @@ const bundleInsert = function(json: Resource | Bundle, isBundle?: boolean) {
 	//stop if errors
 	const [resource, errCount] = 
 		SchemaUtils.toFhir(state.resource, true);
-	if (errCount !== 0) { 
-		//return state.ui.set("status", "validation_error");
-	} else {
-		//state.bundle.resources.splice(state.bundle.pos, 1, resource).now();
-		//state = State.get();
+
+	if (!resource.title) { 
+		return state.ui.set("status", "missing_title_error");
+	} 
+	const duplicateError = enforceDuplicates(resource.id, resource.title, resource.url);
+	if (duplicateError) {
+		return state.ui.set("status", duplicateError);
 	}
 
-	state.bundle.resources.splice(state.bundle.pos, 1, resource).now();
+	resource.name = resource.title.replace(/\s+/g, '');
+	State.get().bundle.resources.splice(state.bundle.pos, 1, resource).now();
 	state = State.get();
+	state.set({resCount:state.resCount+1});
 
 	resources = (() => {
 		if (isBundle) {
@@ -198,6 +217,7 @@ const bundleInsert = function(json: Resource | Bundle, isBundle?: boolean) {
 	if (decorated = decorateResource(resources[0], state.profiles)) {
 		State.get().pivot()
 			.set("resource", decorated)
+			.set("errFields", [])
 			.bundle.resources.splice(state.bundle.pos+1, 0, ...resources)
 			.bundle.set("pos", state.bundle.pos+1);
 		return true;
@@ -218,12 +238,15 @@ const replaceContained = function(json: Resource) {
 const isBundleAndRootId = (node: SageNodeInitialized, parent: SageNodeInitialized) => (node.fhirType === "id") && State.get().bundle &&
     (parent.level === 0);
 
-State.on("load_json_resource", json => {
+State.on("load_json_resource", (json, isCPG = true) => {
 	State.get().set("canonicalUris", []);
 	const {
         openMode
     } = State.get().ui;
 	const isBundle = checkBundle(json) as boolean;
+
+	// CPGName needs to be deleted
+	if (!isCPG) State.get().set("CPGName", "");
 
 	const success = openMode === "insert" ?
 		bundleInsert(json, isBundle)
@@ -258,7 +281,9 @@ State.on("load_json_resource", json => {
 			}
 		}
 	}
-	const status = success ? "ready" : "resource_load_error";
+	let status = State.get().ui.status;
+	// sometimes the error status gets overwritten so this preserves the error
+	if (!status.endsWith("error")) status = success ? "ready" : "resource_load_error";
 	return State.get().set("ui", {status});
 });
 
@@ -322,12 +347,18 @@ State.on("set_bundle_pos", function(newPos) {
 	let decorated;
 	const state = State.get();
 	
+	if (newPos == state.bundle.pos) return;
+
 	//stop if errors
 	const [resource, errCount] = 
 		SchemaUtils.toFhir(state.resource, true);
-	if (errCount !== 0) { 
-		console.log("ERRORS IN RESOURCE", State.get());
-		// return state.ui.set("status", "validation_error");
+	
+	if (!resource.title) { 
+		return state.ui.set("status", "missing_title_error");
+	}
+	const duplicateError = enforceDuplicates(resource.id, resource.title, resource.url);
+	if (duplicateError) {
+		return state.ui.set("status", duplicateError);
 	}
 	
 	State.get().bundle.resources.splice(state.bundle.pos, 1, resource);
@@ -335,6 +366,10 @@ State.on("set_bundle_pos", function(newPos) {
 	if (!(decorated = decorateResource(State.get().bundle.resources[newPos], State.get().profiles))) {
 		return State.emit("set_ui", "resource_load_error");
 	}
+	resource.name = resource.title.replace(/\s+/g, '');
+
+
+	State.get().set({errFields:[]});
 	State.get().pivot()
 		//splice in any changes
 		.set("resource", decorated)
@@ -387,13 +422,27 @@ State.on("show_open_contained", node => State.get().ui.pivot()
     .set("openMode", "contained")
     .set("replaceId", node.id));
 
-State.on("show_open_insert", () => State.get().ui.pivot()
+State.on("show_open_insert", () => {
+	if (State.get().CPGName) {
+		// ie if the bundle is a CPG
+		State.get().ui.set("openMode", "insert");
+		let json = {resourceType: "PlanDefinition"};
+		json = {resourceType: "Bundle", entry: [{resource: json}]};
+        return State.emit("load_json_resource", json);
+	}
+	State.get().ui.pivot()
     .set("status", "open")
-    .set("openMode", "insert"));
+    .set("openMode", "insert");
+	})
 
 State.on("set_ui", function(status: SageUiStatus) {//, params: ReturnType<typeof State.get>['ui']['status']) { // Do we need this params argument?
 	// if (params == null) { params = {}; }
 	return State.get().ui.set({status});
+});
+
+State.on("highlight_errors", function(errFields) {
+	State.get().set({errFields});
+	State.emit("set_ui", "ready");
 });
 
 State.on("value_update", (node, value) => node.ui.reset({status: "ready"}));
@@ -563,6 +612,11 @@ State.on("show_code_picker", function(node) {
 	return State.emit("set_ui", "codePicker");
 });
 
+State.on("show_value_set", function(node) {
+	State.get().ui.pivot().set("selectedNode", node);
+	return State.emit("set_ui", "valueSet");
+});
+
 // Insert system, code, version, and display elements to the given node.
 // `node` is expected to be of type Coding
 State.on("insert_from_code_picker", function(node: FreezerNode<SageNodeInitialized>, system: string, code: string, systemOID: string, version: string, display: string) {
@@ -681,6 +735,5 @@ State.on("change_profile", function(nodeToChange: FreezerNode<SageNodeInitialize
 	}
 	State.emit("set_bundle_pos", State.get().bundle.pos);
 });
-
 
 export default State;

@@ -101,6 +101,7 @@ export var parseBundle = function(bundle, clearInternalIds) {
 	let entry;
 	const idSubs = [];
 	const resourceURIs = [];
+	const state = State.get();
 	let entryPos = this.findNextId(bundle.entry);
 	for (entry of Array.from(bundle.entry)) {
 		if ((entry.fullUrl && /^urn:uuid:/.test(entry.fullUrl)) ||
@@ -111,6 +112,7 @@ export var parseBundle = function(bundle, clearInternalIds) {
                 } = entry.resource;
 				const fromId = entry.resource.id || entry.fullUrl;
 				entry.resource.id = (toId = this.buildFredId(entryPos));
+				entry.resource.title = state.CPGName ? `${state.CPGName}${state.resCount}` : `Bundle${state.resCount}`;
 				idSubs.push({from: fromId, to: `${resourceType}/${toId}`});
 				entryPos++;
 			}
@@ -182,7 +184,6 @@ export var generateBundle = function(resources, splicePos=null, spliceData) {
 		entry: entries
 	};
 };
-
 
 
 

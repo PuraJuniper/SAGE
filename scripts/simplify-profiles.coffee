@@ -28,6 +28,8 @@ summarizeDirectory = (inputDirName, inputDirPath, outputDirPath) ->
 summarizeValuesets = (fhirBundle, valuesets) ->
 	dstu2 = (entry) ->
 		url = entry?.resource?.url
+		if (valuesets[url]?.items)
+			return;
 		#are they all complete?
 		valuesets[url] = {type: "complete", items: []}
 		for c, i in entry?.resource?.codeSystem?.concept || []
@@ -35,7 +37,10 @@ summarizeValuesets = (fhirBundle, valuesets) ->
 
 
 	stu3 = (entry) -> 
-		url = entry?.resource?.valueSet		
+		url = entry.resource.valueSet|| entry.resource.url
+		if (valuesets[url]?.items)
+			return;
+
 		valuesets[url] = {type: entry.resource.content, items: []}
 
 		_addValue = (concept) ->
@@ -46,12 +51,30 @@ summarizeValuesets = (fhirBundle, valuesets) ->
 					valuesets[url].items.push [c.display, c.code]
 				
 		_addValue(entry?.resource?.concept)
+	
+	r4 = (entry) ->
+		url = entry.resource.valueSet|| entry.resource.url
+		if (valuesets[url]?.items)
+			return;
+		valuesets[url] = {type: entry.resource.content, items: [], system: entry.resource?.compose?.include?[0].system, version: entry?.resource?.compose?.include?[0].version}
+
+		_addValue = (concept) ->
+			for c in concept || []
+				if c.concept
+					_addValue(c.concept)
+				else
+					valuesets[url].items.push [c.display, c.code]
 		
+		_addValue(entry?.resource?.compose?.include?[0].concept)
+		
+
 	for entry in fhirBundle?.entry || []
 		if entry?.resource?.valueSet and entry?.resource?.concept?.length > 0
 			stu3(entry)
 		else if entry?.resource?.url and entry?.resource?.codeSystem?.concept?.length > 0
 			dstu2(entry)
+		else if entry.resource.url
+			r4(entry)
 
 	return valuesets
 
@@ -87,6 +110,9 @@ summarizeProfiles = (fhirBundle, profiles) ->
 				short: e.short
 				name: e.name
 				rawElement: e
+
+			# if e.id && (e.id.endsWith("PlanDefinition.title") || e.id.endsWith("ActivityDefinition.title"))
+			# 	profiles[root][e.id]["min"] = 1
 
 			if url = e?.binding?.valueSetReference?.reference
 				profiles[root][e.id].binding =

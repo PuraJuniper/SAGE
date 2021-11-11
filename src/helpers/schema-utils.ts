@@ -106,6 +106,7 @@ const unsupportedElements: string[] = [];
 
 export var toFhir = function(decorated: SageNodeInitialized, validate: boolean) {
 	let errCount = 0;
+	let errFields: string[] = [];
 	var _walkNode = function(node: SageNodeInitialized, parent?: any) {
 		if (parent == null) { parent = {}; }
 		for (var child of Array.from(node.children)) {
@@ -122,7 +123,10 @@ export var toFhir = function(decorated: SageNodeInitialized, validate: boolean) 
 					err = PrimitiveValidator(child.fhirType, child.value, true);
 				}
 				
-				if (err) { errCount++; }
+				if (err) {
+					errFields.push(child.schemaPath.substring(child.schemaPath.indexOf(".") + 1));
+					errCount++; 
+				}
 				return child.value;
 			}
 			})();
@@ -141,7 +145,7 @@ export var toFhir = function(decorated: SageNodeInitialized, validate: boolean) 
 	// Special element for JSON representations of FHIR Resources (https://www.hl7.org/fhir/json.html)
 	fhir.resourceType = decorated.nodePath;
 	if (validate) {
-		return [fhir, errCount];
+		return [fhir, errCount, errFields];
 	} else {
 		return fhir;
 	}
@@ -255,7 +259,7 @@ const getDefaultValue = (schema: SchemaDef, fhirType: string): {
 	switch (pathSuffix[pathSuffix.length-1]) {
 		case "name":
 			if (State.get().CPGName != "") {
-				defaultValue = State.get().CPGName;
+				defaultValue = `${State.get().CPGName}${State.get().resCount}`;
 			}
 			break;
 		case "publisher":
@@ -269,10 +273,10 @@ const getDefaultValue = (schema: SchemaDef, fhirType: string): {
 				if (pathSuffix[0] == "Extension") {
 					break;
 				}
-				defaultValue = `http://fhir.org/guides/${State.get().authorName}/${pathSuffix[0]}/${pathSuffix[0]}-${State.get().CPGName}`;
+				defaultValue = `http://fhir.org/guides/${State.get().authorName}/${pathSuffix[0]}/${pathSuffix[0]}-${State.get().CPGName}${State.get().resCount}`;
 				// hard coded for activity definitions (temporarily)
 				if (pathSuffix[0].endsWith("Activity")) {
-					defaultValue = `http://fhir.org/guides/${State.get().authorName}/ActivityDefinition/ActivityDefinition-${State.get().CPGName}`;
+					defaultValue = `http://fhir.org/guides/${State.get().authorName}/ActivityDefinition/ActivityDefinition-${State.get().CPGName}${State.get().resCount}`;
 				}
 			}
 			break;
