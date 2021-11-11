@@ -394,6 +394,10 @@ State.on("set_bundle_pos", function(newPos) {
 	return reinsertFields(newPos);
 });
 
+State.on('save_changes_to_bundle_json', function() {
+	State.emit("set_bundle_pos", State.get().bundle.pos);
+});
+
 
 State.on("remove_from_bundle", function() {
 	let decorated;
@@ -440,7 +444,7 @@ State.on("show_open_contained", node => State.get().ui.pivot()
 
 State.on("show_open_insert", () => {
 	// console.log('aa');
-	State.emit("set_bundle_pos", State.get().bundle.pos);
+	State.emit("save_changes_to_bundle_json");
 	if (State.get().CPGName) {
 		// ie if the bundle is a CPG
 		State.get().ui.set("openMode", "insert");
@@ -708,14 +712,14 @@ State.on("insert_from_code_picker", function(node: FreezerNode<SageNodeInitializ
 })
 
 State.on("set_selected_canonical", function(node: FreezerNode<SageNodeInitialized>, pos: number) {
-	console.log('set_selected_canonical', node, pos);
 	let state = State.get();
 	let url = state.bundle.resources[pos].url;
+	console.log('set_selected_canonical', node, pos, state, url);
 	for (let i = 0; i < node.children.length; i++) {
-		if (node.children[i].name == "definitionCanonical") {
+		if (node.children[i].name ==  'definitionCanonical') {
 			const dCChild = node.children[i];
 			console.log('dcchild', dCChild);
-			node = node.children.splice(i,1);
+			const pivotedNode = node.pivot().children.splice(i,1);
 			console.log('dcchild', dCChild);
 			const {
 					position,
@@ -724,7 +728,7 @@ State.on("set_selected_canonical", function(node: FreezerNode<SageNodeInitialize
 			if (newNode) {
 				newNode.value = url;
 				newNode.ui = {status: "ready"};
-				node = node.children.splice(position, 1, newNode);
+				pivotedNode.children.splice(position, 1, newNode);
 			}
 			// const PDActionDef = State.get().profiles[node.nodePath];
 			// const actionChildren = SchemaUtils.getElementChildren(State.get().profiles, PDActionDef, null);
@@ -820,7 +824,7 @@ State.on("change_profile", function(nodeToChange: FreezerNode<SageNodeInitialize
 			}
 		}
 	}
-	State.emit("set_bundle_pos", State.get().bundle.pos);
+	State.emit("save_changes_to_bundle_json");
 });
 
 export default State;

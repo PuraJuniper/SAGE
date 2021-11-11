@@ -26,6 +26,7 @@ class SelectResourceDialog extends React.Component {
 
     handleClick(pos, e) {
 		e.preventDefault();
+        State.emit("set_ui", "ready");
 		return State.emit("set_selected_canonical", this.props.node, pos);
 	}
 
