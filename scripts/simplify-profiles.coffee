@@ -111,8 +111,8 @@ summarizeProfiles = (fhirBundle, profiles) ->
 				name: e.name
 				rawElement: e
 
-			# if e.id && (e.id.endsWith("PlanDefinition.title") || e.id.endsWith("ActivityDefinition.title"))
-			# 	profiles[root][e.id]["min"] = 1
+			if e.id && (e.id.endsWith("PlanDefinition.title") || e.id.endsWith("ActivityDefinition.title"))
+				profiles[root][e.id]["min"] = 1
 
 			if url = e?.binding?.valueSetReference?.reference
 				profiles[root][e.id].binding =
