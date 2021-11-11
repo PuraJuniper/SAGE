@@ -187,11 +187,13 @@ const bundleInsert = function(json: Resource | Bundle, isBundle?: boolean) {
 	let decorated;
 	let resources;
 	let state = State.get();
+	console.log('bundleinsert start:', json);
+	console.log('bundleinsert start:', state);
 
 	//stop if errors
 	const [resource, errCount] = 
 		SchemaUtils.toFhir(state.resource, true);
-
+	console.log('bundleinsert:', resource, errCount);
 	if (!resource.title) { 
 		return state.ui.set("status", "missing_title_error");
 	} 
@@ -201,8 +203,9 @@ const bundleInsert = function(json: Resource | Bundle, isBundle?: boolean) {
 	}
 
 	resource.name = resource.title.replace(/\s+/g, '');
-	State.get().bundle.resources.splice(state.bundle.pos, 1, resource).now();
+	// State.get().bundle.resources.splice(state.bundle.pos, 1, resource).now();
 	state = State.get();
+	console.log(state);
 	state.set({resCount:state.resCount+1});
 
 	resources = (() => {
@@ -242,12 +245,14 @@ const isBundleAndRootId = (node: SageNodeInitialized, parent: SageNodeInitialize
     (parent.level === 0);
 
 State.on("load_json_resource", (json, isCPG = true) => {
+	console.log('load_json_resource', json);
 	State.get().set("canonicalUris", []);
 	const {
-        openMode
+		openMode
     } = State.get().ui;
 	const isBundle = checkBundle(json) as boolean;
-
+	console.log('load_json_resource', json);
+	
 	// CPGName needs to be deleted
 	if (!isCPG) State.get().set("CPGName", "");
 
@@ -292,6 +297,7 @@ State.on("load_json_resource", (json, isCPG = true) => {
 
 // Re-inserts mandatory fields that were previously left blank
 function reinsertFields (newPos: number) {
+	return;
 		var arrayStartsNull = function(list: any[]) {
 			return Array.isArray(list) && !Object.values(list[0]).every(o => o != null);
 		}
@@ -302,6 +308,7 @@ function reinsertFields (newPos: number) {
 		} = state;
 		// const fhirType = resource.fhirType === "BackboneElement" ? resource.schemaPath : resource.fhirType; 
 		const unusedElements = SchemaUtils.getElementChildren(profiles, resource, []);
+		console.log(unusedElements);
 		for (const element of unusedElements) {
 			const elname = element.name;
 			const resourceField = state.bundle.resources[newPos][elname];
@@ -319,6 +326,7 @@ function reinsertFields (newPos: number) {
 			} else if (element.isRequired && arrayStartsNull(resourceField)) {
 				// these have to be cleared out of the resource first before they can come back
 				// otherwise there is an error
+				console.log('reinsertfields', resourceField, element);
 				let curResource = State.get().resource;
 				for (let i = 0; i < curResource.children.length; i++) {
 					if (curResource.children[i].name == elname) {
@@ -349,19 +357,19 @@ function reinsertFields (newPos: number) {
 State.on("set_bundle_pos", function(newPos) {
 	let decorated;
 	const state = State.get();
-	
-	if (newPos == state.bundle.pos) return;
+	console.log(state);
+	console.log('set_bundle_pos', state.resource);
 
 	//stop if errors
 	const [resource, errCount] = 
 		SchemaUtils.toFhir(state.resource, true);
 	
 	if (!resource.title) { 
-		return state.ui.set("status", "missing_title_error");
+		// return state.ui.set("status", "missing_title_error");
 	}
 	const duplicateError = enforceDuplicates(resource.id, resource.title, resource.url);
 	if (duplicateError) {
-		return state.ui.set("status", duplicateError);
+		// return state.ui.set("status", duplicateError);
 	}
 	
 	State.get().bundle.resources.splice(state.bundle.pos, 1, resource);
@@ -369,15 +377,19 @@ State.on("set_bundle_pos", function(newPos) {
 	if (!(decorated = decorateResource(State.get().bundle.resources[newPos], State.get().profiles))) {
 		return State.emit("set_ui", "resource_load_error");
 	}
+	console.log('decorated:', decorated, State.get().bundle.resources[newPos], resource);
 	resource.name = resource.title.replace(/\s+/g, '');
 
 
+	console.log(state);
 	State.get().set({errFields:[]});
 	State.get().pivot()
 		//splice in any changes
 		.set("resource", decorated)
 		.bundle.set("pos", newPos)
 		.ui.set({status: "ready"});
+
+	console.log(State.get());
 
 	return reinsertFields(newPos);
 });
@@ -412,6 +424,7 @@ State.on("clone_resource", function() {
 	//stop if errors
 	const [resource, errCount] = 
 		SchemaUtils.toFhir(state.resource, true);
+	// console.log('clone_resource', resource, errCount);
 	if (errCount !== 0) { 
 		return state.ui.set("status", "validation_error");
 	}
@@ -426,6 +439,8 @@ State.on("show_open_contained", node => State.get().ui.pivot()
     .set("replaceId", node.id));
 
 State.on("show_open_insert", () => {
+	// console.log('aa');
+	State.emit("set_bundle_pos", State.get().bundle.pos);
 	if (State.get().CPGName) {
 		// ie if the bundle is a CPG
 		State.get().ui.set("openMode", "insert");
@@ -693,27 +708,44 @@ State.on("insert_from_code_picker", function(node: FreezerNode<SageNodeInitializ
 })
 
 State.on("set_selected_canonical", function(node: FreezerNode<SageNodeInitialized>, pos: number) {
+	console.log('set_selected_canonical', node, pos);
 	let state = State.get();
 	let url = state.bundle.resources[pos].url;
 	for (let i = 0; i < node.children.length; i++) {
 		if (node.children[i].name == "definitionCanonical") {
-				node = node.children.splice(i,1);
-		}
-	}
-	const actionChildren = SchemaUtils.getElementChildren(State.get().profiles, 'PlanDefinition.action', null);
-	for (const child of actionChildren) {
-		if (child.name == "definitionCanonical") {
+			const dCChild = node.children[i];
+			console.log('dcchild', dCChild);
+			node = node.children.splice(i,1);
+			console.log('dcchild', dCChild);
 			const {
 					position,
 					newNode
-			} = getFhirElementNodeAndPosition(node, child)
+			} = getFhirElementNodeAndPosition(node, dCChild)
 			if (newNode) {
 				newNode.value = url;
 				newNode.ui = {status: "ready"};
 				node = node.children.splice(position, 1, newNode);
 			}
+			// const PDActionDef = State.get().profiles[node.nodePath];
+			// const actionChildren = SchemaUtils.getElementChildren(State.get().profiles, PDActionDef, null);
 		}
+
 	}
+	// const PDActionDef = 
+	// const actionChildren = SchemaUtils.getElementChildren(State.get().profiles, 'PlanDefinition.action', null);
+	// for (const child of actionChildren) {
+	// 	if (child.name == "definitionCanonical") {
+	// 		const {
+	// 				position,
+	// 				newNode
+	// 		} = getFhirElementNodeAndPosition(node, child)
+	// 		if (newNode) {
+	// 			newNode.value = url;
+	// 			newNode.ui = {status: "ready"};
+	// 			node = node.children.splice(position, 1, newNode);
+	// 		}
+	// 	}
+	// }
 });
 
 State.on("add_array_value", function(node: SageNodeInitialized) {

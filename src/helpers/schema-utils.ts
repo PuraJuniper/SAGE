@@ -144,6 +144,7 @@ export var toFhir = function(decorated: SageNodeInitialized, validate: boolean) 
 	const fhir = _walkNode(decorated);
 	// Special element for JSON representations of FHIR Resources (https://www.hl7.org/fhir/json.html)
 	fhir.resourceType = decorated.nodePath;
+	// console.log('tofhir end:', fhir);
 	if (validate) {
 		return [fhir, errCount, errFields];
 	} else {
@@ -461,12 +462,14 @@ var getProfileOfSchemaDef = function(profiles: SimplifiedProfiles, schemaNode: S
 export var decorateFhirData = function(profiles: SimplifiedProfiles, resourceProfile: string, resource: Resource) : SageNodeInitialized {
 	nextId = 0;
 	const addedUris = [];
+	// console.log('start decorateFhirData:', resourceProfile, resource);
 
 	var _walkNode = (valueOfNode: any, profileUri: string, schemaPath: string, level: number | null, inArray?: boolean) : SageNodeInitialized | undefined => {
 		// TODO: dataNode could be a Resource in a `contained` element
 		// if ('resourceType' in dataNode) {
 		// 	const resourceType = dataNode.resourceType;
 		// }
+		// console.log("start _walkNode:", valueOfNode, profileUri, schemaPath, level, inArray);
 		let i, v;
 		if (level == null) {
 			//root node
@@ -612,12 +615,10 @@ export var decorateFhirData = function(profiles: SimplifiedProfiles, resourcePro
 					
 					for (let k in valueOfNode) {
 						v = (valueOfNode as any)[k];
-						if (v) {
-							const childPath = `${childSchemaPath}.${k}`;
-							var walkRes = _walkNode(v, childProfile, childPath, level+1);
-							if (walkRes != null && walkRes != undefined) {
-								result1.push(walkRes);
-							}
+						const childPath = `${childSchemaPath}.${k}`;
+						var walkRes = _walkNode(v, childProfile, childPath, level+1);
+						if (walkRes != null && walkRes != undefined) {
+							result1.push(walkRes);
 						}
 					}
 				
