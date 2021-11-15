@@ -26,8 +26,8 @@ class ValueSetDialog extends React.Component {
 
     static getDerivedStateFromProps(nextProps, prevState) {
     console.log(nextProps);
-      switch (nextProps.resourceType) {
-        case "CPGImmunizationActivity":
+      switch (nextProps.profile) {
+        case "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-immunizationactivity":
           return {
             valueset: nextProps.valueset["http://hl7.org/fhir/uv/ips/ValueSet/vaccines-gps-uv-ips"],
           };

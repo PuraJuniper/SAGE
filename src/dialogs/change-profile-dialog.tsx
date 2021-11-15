@@ -92,7 +92,7 @@ class ChangeProfileDialog extends React.Component<ChangeProfileProps, ChangeProf
 
         const verifyButtonElement = <div>
             <button
-                className="btn btn-primary btn-block"
+                className="btn btn-primary col-md-12"
                 onClick={this.handleSubmit.bind(this)}
             >
                 Change Profile
@@ -105,7 +105,7 @@ class ChangeProfileDialog extends React.Component<ChangeProfileProps, ChangeProf
                     {inputElements}
                 </div>
                 <div
-                    className="col-md-4 col-md-offset-4"
+                    className="col-md-12"
                     style={{marginBottom: "10px"}}
                 >
                     {verifyButtonElement}
