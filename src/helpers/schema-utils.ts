@@ -394,7 +394,7 @@ export var buildChildNode = function(profiles: SimplifiedProfiles, parentNode: S
 
 
 export var buildDisplayName = function(name: string, fhirType: string, sliceName?: string) {
-	console.log('builddisplayname: ', name, fhirType, sliceName);
+	// console.log('builddisplayname: ', name, fhirType, sliceName);
 	const _fixCamelCase = function(text: string, lowerCase?: boolean) {
 		//function has an issue with consecutive capital letters (eg. ID)
 		//and not convinced splitting camelcase words has value
