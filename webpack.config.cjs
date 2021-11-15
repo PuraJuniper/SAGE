@@ -36,6 +36,14 @@ getPlugins = function() {
 };
 
 module.exports = {
+	devServer: {
+		static: {
+			directory: path.join(__dirname, 'public'),
+		},
+		client: {
+			progress: true,
+		},
+	},
 	entry: './src/index.js',
 	output: {
 		filename: (process.env.WEBPACK_ENV === 'build' ? './public/bundle.js' : 'bundle.js')
