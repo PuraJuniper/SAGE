@@ -260,7 +260,7 @@ const getDefaultValue = (schema: SchemaDef, fhirType: string): {
 	switch (pathSuffix[pathSuffix.length-1]) {
 		case "name":
 			if (State.get().CPGName != "") {
-				defaultValue = `${State.get().CPGName}${State.get().resCount}`;
+				defaultValue = `${pathSuffix[0]}-${State.get().CPGName}${State.get().resCount}`;
 			}
 			break;
 		case "publisher":
