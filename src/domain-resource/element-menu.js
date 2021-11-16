@@ -76,7 +76,7 @@ class ElementMenu extends React.Component {
 	}
 
 	renderPlaceholder() {
-		return <Dropdown.Menu style={{margin: "0px"}}><Dropdown.Item>Loading...</Dropdown.Item></Dropdown.Menu>;
+		return <Dropdown.Menu style={{margin: "10px"}}><Dropdown.Item>Loading...</Dropdown.Item></Dropdown.Menu>;
 	}
 
 	renderMenu() {
@@ -152,7 +152,7 @@ class ElementMenu extends React.Component {
 			{unusedElements["main"]}
 			{advanced}
 		</Dropdown.Menu>
-		<Dropdown.Menu style={{margin: "1000px", visibility:this.state?.showAdvanced ? "visible" : "hidden"}}
+		<Dropdown.Menu style={{marginLeft: "206px", visibility:this.state?.showAdvanced ? "visible" : "hidden"}}
 			className="advanced-dropdown"
 			onMouseEnter={(e) => {
 				this.setState({showAdvanced: true});
