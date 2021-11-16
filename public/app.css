@@ -293,7 +293,4 @@ span.fhir-element-value {
 
 #advanced-dropdown {
   margin: 0 0 0 206px !important;
-  position: absolute !important;
-  inset: 0px auto auto 0px !important;
-  transform: translate3d(0px, 29px, 0px) !important;
 }
