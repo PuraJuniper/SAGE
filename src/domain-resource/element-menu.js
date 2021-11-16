@@ -152,7 +152,7 @@ class ElementMenu extends React.Component {
 			{unusedElements["main"]}
 			{advanced}
 		</Dropdown.Menu>
-		<Dropdown.Menu style={{visibility:this.state?.showAdvanced ? "visible" : "hidden"}}
+		<Dropdown.Menu style={{margin: "1000px", visibility:this.state?.showAdvanced ? "visible" : "hidden"}}
 			className="advanced-dropdown"
 			onMouseEnter={(e) => {
 				this.setState({showAdvanced: true});
