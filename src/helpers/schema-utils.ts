@@ -281,6 +281,8 @@ const getDefaultValue = (schema: SchemaDef, fhirType: string): {
 				}
 			}
 			break;
+		case "version":
+			defaultValue = "1.0"
 	}
 	
 	return {

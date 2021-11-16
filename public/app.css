@@ -290,3 +290,7 @@ span.fhir-element-value {
 #element-menu {
   display: inline-block;
 }
+
+.advanced-dropdown {
+  margin-left: 206px;
+}
