@@ -11,12 +11,14 @@ import {Dropdown} from "react-bootstrap";
 class ElementMenu extends React.Component {
 
 	shouldComponentUpdate(nextProps) {
-		return nextProps.node?.ui?.menu !== this.props.node?.ui?.menu;
+		return true; //nextProps.node?.ui?.menu !== this.props.node?.ui?.menu;
 	}
 
 	handleToggle(show) {
 		if (show) {
 			return State.emit("show_object_menu", this.props.node, this.props.parent);
+		} else {
+			this.setState({showAdvanced:false});
 		}
 	}
 
@@ -81,7 +83,6 @@ class ElementMenu extends React.Component {
 		if (this.props.node?.ui?.status !== "menu") {
 			return this.renderPlaceholder(); 
 		}
-
 		const addObject = this.props.node.nodeType === "objectArray" ?
 			<Dropdown.Item onSelect={this.handleAddObject.bind(this)}>Add {this.props.node.displayName}</Dropdown.Item> : undefined;
 		// For FHIR type `Coding`, we provide the user with an option to input a valid system and code
@@ -94,15 +95,26 @@ class ElementMenu extends React.Component {
 			<Dropdown.Item onSelect={this.handleMove.bind(this, true)}>Move Down</Dropdown.Item> : undefined;
 		let unusedElements = (() => {
 			const result = [];
+			const hidden = [];
 			const iterable = this.props.node.ui.menu.unusedElements || [];
 			for (let i = 0; i < iterable.length; i++) {
 				const unused = iterable[i];
 				const required = unused.isRequired ? "*" : "";
-				result.push(<Dropdown.Item key={i} onSelect={this.handleAddItem.bind(this, unused)}>
+				const name = this.props.node.name;
+				if (name != "action" && name != "condition" && name != "expression" || 
+					name == "action" && ["DefinitionCanonical", "Condition"].includes(unused.displayName) ||
+					name == "condition" && ["Kind", "Expression"].includes(unused.displayName) || 
+					name == "expression" && ["Language", "Expression"].includes(unused.displayName)) {
+					result.push(<Dropdown.Item key={i} onSelect={this.handleAddItem.bind(this, unused)}>
+						{unused.displayName + (required || "")}
+					</Dropdown.Item>);
+				} else {
+					hidden.push(<Dropdown.Item key={i} onSelect={this.handleAddItem.bind(this, unused)}>
 					{unused.displayName + (required || "")}
 				</Dropdown.Item>);
 			}
-			return result;
+			}
+			return {main:result, advanced:hidden};
 		})();
 		const remove = this.props.parent ?
 			<Dropdown.Item onSelect={this.handleDeleteItem.bind(this)}>Remove</Dropdown.Item> : undefined;
@@ -113,17 +125,44 @@ class ElementMenu extends React.Component {
 			<Dropdown.Item divider="true" /> : undefined;
 		let header = (unusedElements?.length > 0) && this.props.parent ?
 			<Dropdown.Item header="true">Add Item</Dropdown.Item> : undefined;
+		let advanced = this.props.node.name == "action"  || this.props.node.name == "condition" || 
+		this.props.node.name == "expression" ? <Dropdown.Item
+			onMouseEnter={(e) => {
+				this.setState({showAdvanced: true});
+			}}
+			onMouseLeave={(e) => {
+				this.setState({showAdvanced: false});
+			}}>
+		Advanced Attributes <i className="fas fa-caret-right"></i>
+		</Dropdown.Item> : undefined;
 
 		//handle empty contained resources
 		if (this.props.node?.fhirType === "Resource") {
 			header = (unusedElements = (spacer1 = (spacer2 = null)));
 		}
 
-		return <Dropdown.Menu style={{margin: "0px"}}>
-			{remove}{addObject}
-			{spacer1}{moveUp}{moveDown}
-			{spacer2}{header}{valueSetPicker}{codePicker}{unusedElements}
-		</Dropdown.Menu>;
+		return <div>
+		<Dropdown.Menu>
+			{remove}
+			{addObject}
+			{moveUp}
+			{moveDown}
+			{spacer2}
+			{valueSetPicker}
+			{codePicker}
+			{unusedElements["main"]}
+			{advanced}
+		</Dropdown.Menu>
+		<Dropdown.Menu style={{marginLeft: "206px", visibility:this.state?.showAdvanced ? "visible" : "hidden"}}
+			onMouseEnter={(e) => {
+				this.setState({showAdvanced: true});
+			}}
+			onMouseLeave={(e) => {
+				this.setState({showAdvanced: false});
+			}}>
+			{unusedElements["advanced"]}
+			</Dropdown.Menu>
+		</div>
 	}
 }
 

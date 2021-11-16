@@ -185,21 +185,17 @@ class ValueEditor extends React.Component {
 		let activityurl = `http://fhir.org/guides/${State.get().authorName}/ActivityDefinition/ActivityDefinition-${State.get().CPGName}${State.get().resCount+1}`;
 		let planurl = `http://fhir.org/guides/${State.get().authorName}/PlanDefinition/PlanDefinition-${State.get().CPGName}${State.get().resCount+1}`;
 		let questionurl = `http://fhir.org/guides/${State.get().authorName}/Questionnaire/Questionnaire-${State.get().CPGName}${State.get().resCount+1}`;
-		if (errFields && errFields.includes(nodeSchemaPath)) {
+		if (errFields && errFields.includes(nodeSchemaPath) && val == "Blank") {
 			style = {backgroundColor:"#ff9393"};
 		}
+		console.log(val);
 		return <span>
 			<select value={val} 
 					className="form-control input-sm" 
 					onChange = {(e) => {
 						console.log(e.target.value)
 						e.target.style.backgroundColor = "white"
-						if (e.target.value == val && errFields && errFields.includes(nodeSchemaPath)) {
-							e.target.style.backgroundColor = "#ff9393";
-						}
-						if (e.target.value != "Select") {
-							this.handleChange.bind(this)(e);
-						}				
+						if (e.target.value != "Select") this.handleChange.bind(this)(e);			
 						this.handleCanonicalChange.bind(this)(e);
 					}}
 					ref="inputField"
@@ -213,59 +209,6 @@ class ValueEditor extends React.Component {
 			</select>
 		</span>;
 		} 
-
-	/*
-	buildCanonicallInput(value) {
-		if (!value) { // suppress error for value=null on input element
-			value = "";
-		}
-
-		return <span>
-			<input className="form-control input-sm" 
-				value={value}
-				onChange={this.handleChange.bind(this)}
-				onKeyDown={this.handleKeyDown.bind(this)}
-				onFocus={this.refreshCanonicalOptions.bind(this)}
-				list={`${this.props.node.name}-canonical-options`}/>
-			<datalist id={`${this.props.node.name}-canonical-options`}
-				>
-				{this.buildCanonicalOptions()}
-			</datalist>
-		</span>;
-	}
-
-	buildCanonicalOptions() {
-		const canonicalUris = State.get().canonicalUris;
-		var filteredUris = [];
-		switch (this.props.node.name) {
-			case "library":
-				filteredUris = canonicalUris.filter((v) => {
-					if (v.resourceType == 'Library') {
-						return true;
-					}
-				})
-				break;
-			case "definitionCanonical":
-				filteredUris = canonicalUris.filter((v) => {
-					if (['ActivityDefinition', 'PlanDefinition', 'Questionnaire'].includes(v.resourceType)) {
-						return true;
-					}
-				})
-				break;
-			default:
-				filteredUris = canonicalUris;
-		}
-		
-		return filteredUris.map((option, idx) => {
-			const uri = option.uri;
-			return <option key={uri.trim()} value={uri.trim()}>{uri.trim()}</option>
-		});
-	}
-
-	refreshCanonicalOptions() {
-		this.forceUpdate();
-	}
-	*/
 
 	buildCodeInput(value, items) {
 		const options = [];
@@ -308,7 +251,7 @@ class ValueEditor extends React.Component {
 		let nodeSchemaPath = this.props.node.schemaPath.substring(this.props.node.schemaPath.indexOf(".") + 1);
 		let errFields = this.props.errFields;
 		let style = {};
-		if (errFields && errFields.includes(nodeSchemaPath)) {
+		if (errFields && errFields.includes(nodeSchemaPath) && value == "") {
 			style = {backgroundColor:"#ff9393"};
 		}
 		return <input 
@@ -316,10 +259,7 @@ class ValueEditor extends React.Component {
 			className="form-control input-sm"
 			value={value}
 			onChange={(e) => {
-				e.target.style.backgroundColor = "white"
-				if (e.target.value == "" && errFields && errFields.includes(nodeSchemaPath)) {
-					e.target.style.backgroundColor = "#ff9393";
-				}
+				e.target.style.backgroundColor = "white";
 				this.handleChange.bind(this)(e);
 			}}
 			onKeyDown={this.handleKeyDown.bind(this)}

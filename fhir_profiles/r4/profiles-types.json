@@ -19126,7 +19126,7 @@
           "path" : "Expression.expression",
           "short" : "Expression in specified language",
           "definition" : "An expression in the specified language that returns a value.",
-          "min" : 0,
+          "min" : 1,
           "max" : "1",
           "base" : {
             "path" : "Expression.expression",

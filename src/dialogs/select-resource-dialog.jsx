@@ -50,12 +50,15 @@ class SelectResourceDialog extends React.Component {
 
 				{resources.map((resource, i) => {
 					const className = (() => {
+                        // FontAwesome icons
 						if (resource.resourceType === "PlanDefinition") {
 						return "far fa-folder-open";
-					} else if (resource.resourceType.endsWith("Activity")) {
+					} else if (resource.resourceType === "ActivityDefinition") {
 						return "far fa-file-alt";
 					} else if (resource.resourceType === "Library") {
 						return "fas fa-book-medical";
+					} else if (resource.resourceType == "Questionnaire") {
+						return "fas fa-question";
 					}
 					})();
 
