@@ -188,7 +188,6 @@ class ValueEditor extends React.Component {
 		if (errFields && errFields.includes(nodeSchemaPath) && val == "Blank") {
 			style = {backgroundColor:"#ff9393"};
 		}
-		console.log(val);
 		return <span>
 			<select value={val} 
 					className="form-control input-sm" 

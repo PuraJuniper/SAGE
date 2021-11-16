@@ -55,7 +55,7 @@ class ElementMenu extends React.Component {
 
 
 	render() {
-		return <Dropdown id="element-menu" onToggle={this.handleToggle.bind(this)}>
+		return <Dropdown onToggle={this.handleToggle.bind(this)}>
 			{this.renderToggle()}
 			{this.renderMenu()}
 		</Dropdown>;
@@ -125,8 +125,7 @@ class ElementMenu extends React.Component {
 			<Dropdown.Item divider="true" /> : undefined;
 		let header = (unusedElements?.length > 0) && this.props.parent ?
 			<Dropdown.Item header="true">Add Item</Dropdown.Item> : undefined;
-		let advanced = this.props.node.name == "action"  || this.props.node.name == "condition" || 
-		this.props.node.name == "expression" ? <Dropdown.Item
+		let advanced = unusedElements["advanced"].length > 0 ? <Dropdown.Item
 			onMouseEnter={(e) => {
 				this.setState({showAdvanced: true});
 			}}
@@ -153,7 +152,8 @@ class ElementMenu extends React.Component {
 			{unusedElements["main"]}
 			{advanced}
 		</Dropdown.Menu>
-		<Dropdown.Menu style={{marginLeft: "206px", visibility:this.state?.showAdvanced ? "visible" : "hidden"}}
+		<Dropdown.Menu id="advanced-dropdown"
+			style={{visibility:this.state?.showAdvanced ? "visible" : "hidden"}}
 			onMouseEnter={(e) => {
 				this.setState({showAdvanced: true});
 			}}
