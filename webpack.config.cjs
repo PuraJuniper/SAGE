@@ -44,41 +44,15 @@ module.exports = {
 	module: {
 		rules: [
 			{
-				test: /\.jsx$/,
-				loader: 'babel-loader',
-        		exclude: /node_modules/,
-        		options: {
-          			presets: ['@babel/react', '@babel/env']
-        		}
-			},
-			{
-				test: /\.js$/,
+				test: /\.jsx?$/,
 				loader: 'babel-loader',
         		exclude: /node_modules/,
         		options: {
           			presets: ['@babel/react', '@babel/env']
         		},
 				resolve: {
-					fullySpecified: false, // disable the behaviour
+					fullySpecified: false, // true-to-spec ES Modules should compile without error with default 'true'
 				},
-			},
-			{
-				test: /\.cjsx$/,
-				loader: "coffee-loader",
-				options: {
-					transpile: {
-						presets: ["@babel/preset-react"]
-					}
-				}
-			},
-			{
-				test: /\.coffee$/,
-				loader: "coffee-loader",
-				options: {
-					transpile: {
-						presets: ["@babel/preset-react"]
-					}
-				}
 			},
 			{
 				test: /\.tsx?$/,
@@ -95,7 +69,7 @@ module.exports = {
 		]
 	},
 	resolve: {
-		extensions: [".tsx", ".ts", ".jsx", ".cjsx", ".coffee", ".js"],
-		modules: ["js", "node_modules"]
+		extensions: [".tsx", ".ts", ".jsx", '...'], // '...' tells it to use the default extensions array
+		modules: ["node_modules"]
 	}
 };

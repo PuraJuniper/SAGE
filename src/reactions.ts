@@ -146,14 +146,12 @@ const decorateResource = function(json: Resource, profiles: any) : SageNodeIniti
 		console.log("decorateResource called on non-resource: ", json);
 		return;
 	}
-	const resourceProfile = SchemaUtils.getProfileOfResource(profiles, json);
-	if (resourceProfile) {
-		console.log('decorateresource found profile for:', json);
-		return SchemaUtils.decorateFhirData(profiles, resourceProfile, json);
+	const decoratedNode = SchemaUtils.decorateFhirData(profiles, json);
+	if (decoratedNode) {
+		return decoratedNode;
 	}
 	else {
-		console.log("No default profile set for given resource -- skipping: ", json);
-		return;
+		console.log("Could not load json:", json);
 	}
 };
 
