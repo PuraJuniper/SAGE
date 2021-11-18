@@ -519,6 +519,12 @@ export var decorateFhirData = function(profiles: SimplifiedProfiles, resourcePro
 				console.log(`Error reading element of type ${schemaPath} with value ${valueOfNode}`);
 				return;
 			}
+
+			// Check if this element is a reference to another definition (replaces the definition)
+		if (schema.refSchema) {
+			trueSchemaPath = schema.refSchema;
+			schema = profiles[profileUri]?.[trueSchemaPath];
+		}
 		}
 
 		// Check if a new profile should be used for this element

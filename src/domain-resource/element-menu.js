@@ -55,7 +55,7 @@ class ElementMenu extends React.Component {
 
 
 	render() {
-		return <Dropdown onToggle={this.handleToggle.bind(this)}>
+		return <Dropdown id="element-menu" onToggle={this.handleToggle.bind(this)}>
 			{this.renderToggle()}
 			{this.renderMenu()}
 		</Dropdown>;
@@ -80,6 +80,7 @@ class ElementMenu extends React.Component {
 	}
 
 	renderMenu() {
+		console.log(this.props.node);
 		if (this.props.node?.ui?.status !== "menu") {
 			return this.renderPlaceholder(); 
 		}
@@ -87,8 +88,8 @@ class ElementMenu extends React.Component {
 			<Dropdown.Item onSelect={this.handleAddObject.bind(this)}>Add {this.props.node.displayName}</Dropdown.Item> : undefined;
 		// For FHIR type `Coding`, we provide the user with an option to input a valid system and code
 		//  so that the rest of the fields may be autopopulated using VSAC
-		const codePicker = this.props.node.fhirType == "Coding" ? <Dropdown.Item onSelect={this.handleCodePicker.bind(this)}>VSAC Code Picker</Dropdown.Item> : undefined;
-		const valueSetPicker = this.props.node.fhirType == "Coding" ? <Dropdown.Item onSelect={this.handleValueSet.bind(this)}>From ValueSet</Dropdown.Item> : undefined;
+		const codePicker = this.props.node.displayName == "Coding" ? <Dropdown.Item onSelect={this.handleCodePicker.bind(this)}>VSAC Code Picker</Dropdown.Item> : undefined;
+		const valueSetPicker = this.props.node.displayName == "Coding" ? <Dropdown.Item onSelect={this.handleValueSet.bind(this)}>From ValueSet</Dropdown.Item> : undefined;
 		const moveUp = this.props.node.ui.menu.canMoveUp ?
 			<Dropdown.Item onSelect={this.handleMove.bind(this, false)}>Move Up</Dropdown.Item> : undefined;
 		const moveDown = this.props.node.ui.menu.canMoveDown ?
@@ -96,11 +97,11 @@ class ElementMenu extends React.Component {
 		let unusedElements = (() => {
 			const result = [];
 			const hidden = [];
+			const name = this.props.node.name;
 			const iterable = this.props.node.ui.menu.unusedElements || [];
 			for (let i = 0; i < iterable.length; i++) {
 				const unused = iterable[i];
 				const required = unused.isRequired ? "*" : "";
-				const name = this.props.node.name;
 				if (name != "action" && name != "condition" && name != "expression" || 
 					name == "action" && ["DefinitionCanonical", "Condition"].includes(unused.displayName) ||
 					name == "condition" && ["Kind", "Expression"].includes(unused.displayName) || 

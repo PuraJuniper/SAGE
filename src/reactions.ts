@@ -609,7 +609,7 @@ State.on("show_value_set", function(node) {
 // `node` is expected to be of type Coding
 State.on("insert_from_code_picker", function(node: FreezerNode<SageNodeInitialized>, system: string, code: string, systemOID: string, version: string, display: string) {
 
-	if (node.fhirType != "Coding") {
+	if (node.displayName != "Coding") {
 		console.log("insert_from_code_picker event emitted with an unexpected FHIR type -- returning");
 		return;
 	}
@@ -632,6 +632,7 @@ State.on("insert_from_code_picker", function(node: FreezerNode<SageNodeInitializ
 		node.pivot().children.splice(node.children.indexOf(child), 1);
 	}
 
+	let codeNodes = [];
 	// Create system, code, version, and display nodes with the given values
 	const codingElementChildren = SchemaUtils.getElementChildren(State.get().profiles, node, []);
 	for (const child of codingElementChildren) {
@@ -642,11 +643,12 @@ State.on("insert_from_code_picker", function(node: FreezerNode<SageNodeInitializ
 			} = getFhirElementNodeAndPosition(node, child)
 			if (newNode){
 				newNode.value = pathToParam[newNode.schemaPath];
+				codeNodes.push(newNode);
 				newNode.ui = {status: "ready"};
-				node.pivot().children.splice(position, 0, newNode);
 			}
 		}
 	}
+	node.children.splice(0, node.children.length, ...codeNodes);
 });
 
 +State.on("show_canonical_dialog", function(node) {
@@ -657,13 +659,13 @@ State.on("insert_from_code_picker", function(node: FreezerNode<SageNodeInitializ
 State.on("set_selected_canonical", function(node: FreezerNode<SageNodeInitialized>, pos: number) {
 	let state = State.get();
 	let url = state.bundle.resources[pos].url;
-	console.log('set_selected_canonical', node, pos, state, url);
+	//console.log('set_selected_canonical', node, pos, state, url);
 	for (let i = 0; i < node.children.length; i++) {
 		if (node.children[i].name ==  'definitionCanonical') {
 			const dCChild = node.children[i];
-			console.log('dcchild', dCChild);
+			//console.log('dcchild', dCChild);
 			const pivotedNode = node.pivot().children.splice(i,1);
-			console.log('dcchild', dCChild);
+			//console.log('dcchild', dCChild);
 			const {
 					position,
 					newNode

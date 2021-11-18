@@ -70,11 +70,8 @@ class NavbarFred extends React.Component {
 			onDragLeave={this.handleDrag.bind(this)}
 		>
 			<div className="pull-left" style={{margin: "10px"}}>
-				<img src="../img/smart-bug.png" />
+				<img src="../img/SAGELogo-colour.png" style={{width:"100px", height:"50px"}}/>
 			</div>
-			<Navbar.Brand>
-				SAGE
-			</Navbar.Brand>
 			<Navbar.Toggle />
 			<Navbar.Collapse>
 				<Nav>

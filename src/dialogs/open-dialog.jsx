@@ -24,7 +24,7 @@ class OpenDialog extends React.Component {
             tab: "fhirNew",
             fhirText: "",
             fhirUrl: "",
-            newResourceType: "PlanDefinition",
+            newResourceType: "ActivityDefinition",
             newResourceBundle: true
         };
     }
