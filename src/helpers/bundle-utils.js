@@ -114,7 +114,6 @@ export var parseBundle = function(bundle, clearInternalIds) {
 				entry.resource.id = (toId = this.buildFredId(entryPos));
 				entry.resource.title = state.CPGName ? `${state.CPGName}${state.resCount}` : `Bundle${state.resCount}`;
 				idSubs.push({from: fromId, to: `${resourceType}/${toId}`});
-				entry.resource.code = {'coding': [{}]}
 				entryPos++;
 			}
 		// if a resource has a url, keep track of the url and type so that we may reference it in other resources
