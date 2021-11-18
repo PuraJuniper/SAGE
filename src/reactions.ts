@@ -12,6 +12,7 @@ import * as SchemaUtils from './helpers/schema-utils';
 import * as BundleUtils from './helpers/bundle-utils';
 import { SageNode, SageNodeInitialized, SimplifiedProfiles } from './helpers/schema-utils';
 import { FreezerNode } from 'freezer-js';
+import { NonceProvider } from 'react-select';
 
 const canMoveNode = function(node: SageNodeInitialized, parent: SageNodeInitialized) {
 	if (!["objectArray", "valueArray"].includes(parent?.nodeType)) {
@@ -612,53 +613,6 @@ State.on("insert_from_code_picker", function(node: FreezerNode<SageNodeInitializ
 		'Coding.display': display,
 	};
 
-	let count = 0;
-	const codingElementChildren = SchemaUtils.getElementChildren(State.get().profiles, node, []);
-	for (const child of codingElementChildren) {
-		if (child.schemaPath in pathToParam) {
-			const pivotedNode = node.pivot().children.splice(count, 1);
-			const {
-				position,
-				newNode
-			} = getFhirElementNodeAndPosition(node, child)
-			console.log(newNode);
-			if (newNode){
-				newNode.value = pathToParam[newNode.schemaPath];
-				pivotedNode.children.splice(count, 0, newNode);
-			}
-			count++;
-		}
-	}
-	return;
-	console.log(node.children);
-	for (let i = 0; i < node.children.length; i++) {
-		if (node.children[i].name ==  'definitionCanonical') {
-			const dCChild = node.children[i];
-			const pivotedNode = node.pivot().children.splice(i,1);
-			const {
-					position,
-					newNode
-			} = getFhirElementNodeAndPosition(node, dCChild)
-			if (newNode) {
-				newNode.value = 1;
-				newNode.ui = {status: "ready"};
-				pivotedNode.children.splice(position, 1, newNode);
-			}
-		}
-
-	}
-
-	// Delete system, code, version, and display children, if they exist
-	const childrenToRemove = [];
-	for (const child of node.children) {
-		if (Object.keys(pathToParam).includes(child.schemaPath)) {
-			childrenToRemove.push(child);
-		}
-	}
-	for (const child of childrenToRemove) {
-		node.pivot().children.splice(node.children.indexOf(child), 1);
-	}
-
 	let codeNodes = [];
 	// Create system, code, version, and display nodes with the given values
 	const codingElementChildren = SchemaUtils.getElementChildren(State.get().profiles, node, []);
@@ -675,12 +629,7 @@ State.on("insert_from_code_picker", function(node: FreezerNode<SageNodeInitializ
 			}
 		}
 	}
-	let copy = _.cloneDeep(node);
-	copy.children = codeNodes;
-	node = copy;
-	console.log(node);
-	//copy.append(codeNodes);
-	//copy.splice(0, copy.length, ...codeNodes);
+	node.children.splice(0, node.children.length, ...codeNodes);
 });
 
 +State.on("show_canonical_dialog", function(node) {

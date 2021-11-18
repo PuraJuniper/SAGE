@@ -27,7 +27,7 @@ import ValueSetDialog from "./dialogs/valueset-dialog"
 import UserSettingsDialog from "./dialogs/user-settings-dialog";
 
 import AppInfo from "../package.json";
-import SelectResourceDialog from "./dialogs/select-resource-dialog";
+import SelectResourceDialog from "./dialogs/select-resource-canonical-dialog";
 
 class RootComponent extends React.Component {
 	

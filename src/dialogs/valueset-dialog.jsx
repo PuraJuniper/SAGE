@@ -69,7 +69,7 @@ class ValueSetDialog extends React.Component {
     renderCodePicker() {
         const inputElements = <div>
             <p>
-                Choose from Valuset:
+                The following are the available preloaded valuesets:
             </p>
             <Select 
                 options={this.buildOptions()}
