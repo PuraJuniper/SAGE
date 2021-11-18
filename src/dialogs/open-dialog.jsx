@@ -38,7 +38,7 @@ class OpenDialog extends React.Component {
         }
 
         return window.setTimeout(() => {
-            return this.refs[this.state.tab].focus();
+            return this.refs[this.state.tab]?.focus();
         }, 100);
     }
 

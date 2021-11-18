@@ -88,7 +88,7 @@ export const enforceDuplicates = function(id: string, title: string, url: string
 	for (let i = 0; i < resources?.length; i++) {
 		if (i == pos) continue;
 		if (resources[i].id == id) return "id_duplicate_error";
-		if (resources[i].title == title) return "title_duplicate_error";
+		if (resources[i].title && resources[i].title == title) return "title_duplicate_error";
 		if (resources[i].url && resources[i].url == url) return "url_duplicate_error";
 	}
 };
@@ -146,14 +146,12 @@ const decorateResource = function(json: Resource, profiles: any) : SageNodeIniti
 		console.log("decorateResource called on non-resource: ", json);
 		return;
 	}
-	const resourceProfile = SchemaUtils.getProfileOfResource(profiles, json);
-	if (resourceProfile) {
-		console.log('decorateresource found profile for:', json);
-		return SchemaUtils.decorateFhirData(profiles, resourceProfile, json);
+	const decoratedNode = SchemaUtils.decorateFhirData(profiles, json);
+	if (decoratedNode) {
+		return decoratedNode;
 	}
 	else {
-		console.log("No default profile set for given resource -- skipping: ", json);
-		return;
+		console.log("Could not load json:", json);
 	}
 };
 
@@ -195,14 +193,14 @@ const bundleInsert = function(json: Resource | Bundle, isBundle?: boolean) {
 		SchemaUtils.toFhir(state.resource, true);
 	console.log('bundleinsert:', resource, errCount);
 	if (!resource.title) { 
-		return state.ui.set("status", "missing_title_error");
+		//return state.ui.set("status", "missing_title_error");
 	} 
 	const duplicateError = enforceDuplicates(resource.id, resource.title, resource.url);
 	if (duplicateError) {
 		return state.ui.set("status", duplicateError);
 	}
 
-	resource.name = resource.title.replace(/\s+/g, '');
+	resource.name = resource.title?.replace(/\s+/g, '');
 	// State.get().bundle.resources.splice(state.bundle.pos, 1, resource).now();
 	state = State.get();
 	console.log(state);
@@ -310,27 +308,24 @@ State.on("set_bundle_pos", function(newPos) {
 	}
 	const duplicateError = enforceDuplicates(resource.id, resource.title, resource.url);
 	if (duplicateError) {
-		// return state.ui.set("status", duplicateError);
+		return state.ui.set("status", duplicateError);
 	}
-	
+
 	State.get().bundle.resources.splice(state.bundle.pos, 1, resource);
 
 	if (!(decorated = decorateResource(State.get().bundle.resources[newPos], State.get().profiles))) {
 		return State.emit("set_ui", "resource_load_error");
 	}
 	console.log('decorated:', decorated, State.get().bundle.resources[newPos], resource);
-	resource.name = resource.title.replace(/\s+/g, '');
+	resource.name = resource.title?.replace(/\s+/g, '');
 
 
-	console.log(state);
 	State.get().set({errFields:[]});
 	State.get().pivot()
 		//splice in any changes
 		.set("resource", decorated)
 		.bundle.set("pos", newPos)
 		.ui.set({status: "ready"});
-
-	console.log(State.get());
 
 	return State.get().set("ui", {status: "ready"});
 });
@@ -384,7 +379,6 @@ State.on("show_open_contained", node => State.get().ui.pivot()
     .set("replaceId", node.id));
 
 State.on("show_open_insert", () => {
-	// console.log('aa');
 	State.emit("save_changes_to_bundle_json");
 	if (State.get().CPGName) {
 		// ie if the bundle is a CPG
@@ -428,16 +422,13 @@ State.on("set_ui", function(status: SageUiStatus) {//, params: ReturnType<typeof
 	return State.get().ui.set({status});
 });
 
-State.on("highlight_errors", function(errFields) {
-	State.get().set({errFields});
-	State.emit("set_ui", "ready");
-});
 
 State.on("value_update", (node, value) => node.ui.reset({status: "ready"}));
 
 State.on("value_change", function(node, value, validationErr, strictValidationErr) {
 	//in case there are pre-save errors
-	State.get().ui.set({status: "ready"});
+	//this causes conflict when the status is changed to "open" so has been left out
+	//State.get().ui.set({status: "ready"});
 
 	if (node.ui) {
 		return node.pivot()
@@ -621,6 +612,42 @@ State.on("insert_from_code_picker", function(node: FreezerNode<SageNodeInitializ
 		'Coding.display': display,
 	};
 
+	let count = 0;
+	const codingElementChildren = SchemaUtils.getElementChildren(State.get().profiles, node, []);
+	for (const child of codingElementChildren) {
+		if (child.schemaPath in pathToParam) {
+			const pivotedNode = node.pivot().children.splice(count, 1);
+			const {
+				position,
+				newNode
+			} = getFhirElementNodeAndPosition(node, child)
+			console.log(newNode);
+			if (newNode){
+				newNode.value = pathToParam[newNode.schemaPath];
+				pivotedNode.children.splice(count, 0, newNode);
+			}
+			count++;
+		}
+	}
+	return;
+	console.log(node.children);
+	for (let i = 0; i < node.children.length; i++) {
+		if (node.children[i].name ==  'definitionCanonical') {
+			const dCChild = node.children[i];
+			const pivotedNode = node.pivot().children.splice(i,1);
+			const {
+					position,
+					newNode
+			} = getFhirElementNodeAndPosition(node, dCChild)
+			if (newNode) {
+				newNode.value = 1;
+				newNode.ui = {status: "ready"};
+				pivotedNode.children.splice(position, 1, newNode);
+			}
+		}
+
+	}
+
 	// Delete system, code, version, and display children, if they exist
 	const childrenToRemove = [];
 	for (const child of node.children) {
@@ -648,7 +675,12 @@ State.on("insert_from_code_picker", function(node: FreezerNode<SageNodeInitializ
 			}
 		}
 	}
-	node.children.splice(0, node.children.length, ...codeNodes);
+	let copy = _.cloneDeep(node);
+	copy.children = codeNodes;
+	node = copy;
+	console.log(node);
+	//copy.append(codeNodes);
+	//copy.splice(0, copy.length, ...codeNodes);
 });
 
 +State.on("show_canonical_dialog", function(node) {

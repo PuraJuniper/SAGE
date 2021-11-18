@@ -172,7 +172,7 @@ export var getElementChildren = function(profiles: SimplifiedProfiles, node: Sag
 			sliceName: childSchema.sliceName,
 			profile: childProfile,
 			name,
-			displayName: buildDisplayName(name, typeDef.code, childSchema.sliceName),
+			displayName: buildDisplayName(name, childSchema.sliceName),
 			index: childSchema.index,
 			isRequired: childSchema.min >=1,
 			fhirType: typeDef.code,
@@ -233,6 +233,24 @@ export var getElementChildren = function(profiles: SimplifiedProfiles, node: Sag
 
 	return children = children.sort((a, b) => a.index - b.index);
 };
+
+// getElementChildren excluding any elements that are at maximum cardinality
+export const getAvailableElementChildren = function(profiles: SimplifiedProfiles, node: SageNodeInitialized) {
+	const usedElements = [];
+	console.log(node);
+	console.log(node.children[0]);
+	for (let child of Array.from(node.children)) { 
+		if (!child.range || (child.range[1] === "1") 
+		 	// These two nodeTypes have an "Add Item" option in their menus, so they're ignored here
+			|| child.nodeType == "objectArray" || (child.nodeType === "valueArray")
+			|| ((child.range[1] !== "*") && (parseInt(child.range[1]) < (child?.children?.length || 0))
+		)) {
+			usedElements.push(child.nodePath);
+		}
+	}
+	console.log(usedElements);
+	return getElementChildren(profiles, node, usedElements);
+}
 
 const getDefaultValue = (schema: SchemaDef, fhirType: string): {
 	isFixed: boolean,
@@ -335,7 +353,7 @@ export var buildChildNode = function(profiles: SimplifiedProfiles, parentNode: S
 			schemaPath: childNode.schemaPath, 
 			sliceName: childNode.sliceName,
 			fhirType: childNode.fhirType,
-			displayName: buildDisplayName(name, fhirType, childNode.sliceName),
+			displayName: buildDisplayName(name, childNode.sliceName),
 			nodeType: isComplexType(fhirType) ? "objectArray" : "valueArray",
 			short: schema.short,
 			nodeCreator: "user",
@@ -368,7 +386,7 @@ export var buildChildNode = function(profiles: SimplifiedProfiles, parentNode: S
 			schemaPath: childNode.schemaPath, 
 			sliceName: childNode.sliceName,
 			fhirType: childNode.fhirType,
-			displayName: buildDisplayName(name, fhirType, childNode.sliceName),
+			displayName: buildDisplayName(name, childNode.sliceName),
 			isRequired: schema.min >=1,
 			short: schema.short,
 			nodeCreator: "user",
@@ -395,8 +413,7 @@ export var buildChildNode = function(profiles: SimplifiedProfiles, parentNode: S
 };
 
 
-export var buildDisplayName = function(name: string, fhirType: string, sliceName?: string) {
-	// console.log('builddisplayname: ', name, fhirType, sliceName);
+export var buildDisplayName = function(name: string, sliceName?: string) {
 	const _fixCamelCase = function(text: string, lowerCase?: boolean) {
 		//function has an issue with consecutive capital letters (eg. ID)
 		//and not convinced splitting camelcase words has value
@@ -408,18 +425,14 @@ export var buildDisplayName = function(name: string, fhirType: string, sliceName
 	};
 
 	let displayName: string = name.split('.').pop() as string
-	displayName = sliceName ? `${_fixCamelCase(displayName.replace(/\[x\]/,""))}:${sliceName}` : _fixCamelCase(displayName);
-	if (name.indexOf("[x]") > -1) {
-		displayName += " (" + _fixCamelCase(fhirType, true) + ")";
-	}
+	displayName = sliceName ? `${_fixCamelCase(displayName)}:${sliceName}` : _fixCamelCase(displayName);
 	return displayName;
 };
 
 // checks if we have a default profile for this resource (without a profile, how do we know what fields exist?)
 // and returns it if it exists in `profiles`
-// TODO: check if another profile is given in Resource.meta
 export var getProfileOfResource = function(profiles: SimplifiedProfiles, resource: Resource) : string | undefined {
-	if (resource.meta?.profile && resource.meta.profile.length > 0) {
+	if (resource.meta?.profile && resource.meta.profile.length > 0 && profiles[resource.meta.profile[0]]) {
 		return resource.meta.profile[0];
 	}
 	const defaultProfile = defaultProfileUriOfResourceType[resource.resourceType]
@@ -433,10 +446,8 @@ export var getProfileOfResource = function(profiles: SimplifiedProfiles, resourc
 };
 
 // checks if the given object is a Resource
-export var isResource = function(data: any) {
-	if (data.resourceType) {
-		return true;
-	}
+export var isResource = function(data: any): data is Resource {
+	return (data as Resource).resourceType !== undefined;
 }
 
 // checks if the SchemaNode uses a profile and returns its URI if so. 
@@ -462,7 +473,21 @@ var getProfileOfSchemaDef = function(profiles: SimplifiedProfiles, schemaNode: S
 	}
 }
 
-export var decorateFhirData = function(profiles: SimplifiedProfiles, resourceProfile: string, resource: Resource) : SageNodeInitialized {
+export const getChildOfNode = function (node: SageNodeInitialized, childName: string) : SageNodeInitialized | undefined {
+	for (const child of node.children) {
+		if (child.name == childName) {
+			return child
+		}
+	}
+	return;
+};
+
+export var decorateFhirData = function(profiles: SimplifiedProfiles, resource: Resource) : SageNodeInitialized | undefined {
+	const resourceProfile = getProfileOfResource(profiles, resource);
+	if (!resourceProfile) {
+		console.log(`No suitable profile exists in SAGE for ${resource.resourceType} -- skipping`);
+		return;
+	}
 	nextId = 0;
 	const addedUris = [];
 	// console.log('start decorateFhirData:', resourceProfile, resource);
@@ -515,16 +540,16 @@ export var decorateFhirData = function(profiles: SimplifiedProfiles, resourcePro
 					// displayName = buildDisplayName(schemaPath, fhirType);
 				}
 			}
-			if (!schema) {
-				console.log(`Error reading element of type ${schemaPath} with value ${valueOfNode}`);
-				return;
-			}
+		}
+		if (!schema) {
+			console.log(`Error reading element of type ${schemaPath} with value ${valueOfNode}`);
+			return;
+		}
 
-			// Check if this element is a reference to another definition (replaces the definition)
+		// Check if this element is a reference to another definition (replaces the definition)
 		if (schema.refSchema) {
 			trueSchemaPath = schema.refSchema;
 			schema = profiles[profileUri]?.[trueSchemaPath];
-		}
 		}
 
 		// Check if a new profile should be used for this element
@@ -532,7 +557,7 @@ export var decorateFhirData = function(profiles: SimplifiedProfiles, resourcePro
 		const childSchemaPath = newProfile ? fhirType : trueSchemaPath;
 		const childProfile = newProfile || profileUri;
 		// TODO: Figure out which type of the array this node corresponds to
-		let displayName = buildDisplayName(name, fhirType, schema.sliceName);
+		let displayName = buildDisplayName(name, schema.sliceName);
 		// if (isInfrastructureType(fhirType) && (schemaPath.length === 1)) {
 		// 	fhirType = schemaPath[0];
 		// }
@@ -680,7 +705,7 @@ export var decorateFhirData = function(profiles: SimplifiedProfiles, resourcePro
 		index: rootProfileSchema[rootPath].index,
 		name: "root node",
 		nodeType: "object",
-		displayName: buildDisplayName(rootPath, "top level test", rootProfileSchema[rootPath].sliceName), // Possibly change to .title?
+		displayName: buildDisplayName(rootPath, rootProfileSchema[rootPath].sliceName), // Possibly change to .title?
 		nodePath: rootPath,
 		schemaPath: rootPath,
 		sliceName: rootProfileSchema[rootPath].sliceName,

@@ -45,6 +45,7 @@ declare module 'freezer-js' {
 
     type FreezerObject<T> = FreezerCommon<T> & {
         // remove(a: string): FreezerObject<Omit<T,a>>,
+        // TODO: only allow remove for optional properties in T
         remove(a: string): FreezerObject<T>,
         remove(a: string[]): FreezerObject<T>,
     } & {
@@ -91,7 +92,8 @@ declare module 'freezer-js' {
         constructor(a: T, b?: FreezerOptions);
         
         get() : FreezerNode<T>;
-        set(state: Partial<T>) : FreezerNode<T>;
+        set(state: T) : FreezerNode<T>;
+        set(state: FreezerNode<T>) : FreezerNode<T>;
         
         getEventHub() : FreezerListener;
 
