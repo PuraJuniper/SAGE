@@ -23,7 +23,7 @@ const canMoveNode = function(node: SageNodeInitialized, parent: SageNodeInitiali
 };
 
 const findParent = function(targetNode: SageNodeInitialized) {
-	var _walkNode = function(node: SageNodeInitialized) : {parentNode: SageNodeInitialized, childIdx: number} | undefined  {
+	const _walkNode = function(node: SageNodeInitialized) : {parentNode: SageNodeInitialized, childIdx: number} | undefined  {
 		if (!node.children) { return; }
 		for (let i = 0; i < node.children.length; i++) {
 			const child = node.children[i];
@@ -33,7 +33,7 @@ const findParent = function(targetNode: SageNodeInitialized) {
 					childIdx: i
 				};
 			} else if (child.children) {
-				var result;
+				let result;
 				if (result = _walkNode(child)) {
 					return result; 
 				}
@@ -62,7 +62,7 @@ const getChildForSageNode = function(node: SageNodeInitialized, searchNode: Sage
 };
 
 const getParentById = function(id: number) {
-	var _walkNode = function(node: SageNodeInitialized): {parentNode: SageNodeInitialized, childIdx: number} | undefined {
+	const _walkNode = function(node: SageNodeInitialized): {parentNode: SageNodeInitialized, childIdx: number} | undefined {
 		if (!node.children) { return; }
 		for (let i = 0; i < node.children.length; i++) {
 			const child = node.children[i];
@@ -72,7 +72,7 @@ const getParentById = function(id: number) {
 					childIdx: i
 				};
 			} else if (child.children) {
-				var result;
+				let result;
 				if (result = _walkNode(child)) {
 					return result; 
 				}
@@ -116,14 +116,14 @@ State.on("load_initial_json", function(profilePath, resourcePath, isRemote) {
 		}
 	};
 		
-	var onLoadSuccess = function(json: any) {
+	const onLoadSuccess = function(json: any) {
 		if (current) {
 			State.emit(current[1], json);
 		}
 		return loadNext();
 	};
 
-	var onLoadError = (xhr: any, status: any) => current && State.emit("set_ui", current[2]);
+	const onLoadError = (xhr: any, status: any) => current && State.emit("set_ui", current[2]);
 
 	return loadNext();
 });
@@ -418,6 +418,11 @@ State.on("show_open_activity", () => {
                .set("openMode", "insert");
        });
 
+State.on("highlight_errors", function(errFields) {
+	State.get().set({errFields});
+	State.emit("set_ui", "ready");
+});
+
 State.on("set_ui", function(status: SageUiStatus) {//, params: ReturnType<typeof State.get>['ui']['status']) { // Do we need this params argument?
 	// if (params == null) { params = {}; }
 	return State.get().ui.set({status});
@@ -462,7 +467,7 @@ State.on("start_edit", function (node) {
 });
 
 const getResourceType = function(node: SageNodeInitialized) {
-	for (let child of Array.from(node.children)) {
+	for (const child of Array.from(node.children)) {
 		if (child.name === "resourceType") {
 			return child.value;
 		}
@@ -566,7 +571,7 @@ State.on("show_object_menu", function(node: FreezerNode<SageNodeInitialized>, pa
             profiles
         } = State.get();
 		const usedElements = [];
-		for (let child of Array.from(node.children)) { 
+		for (const child of Array.from(node.children)) { 
 			if (!child.range || (child.range[1] === "1") || (child.nodeType === "valueArray") || (
 				(child.range[1] !== "*") && (parseInt(child.range[1]) < (child?.children?.length || 0))
 			)) {
@@ -613,7 +618,7 @@ State.on("insert_from_code_picker", function(node: FreezerNode<SageNodeInitializ
 		'Coding.display': display,
 	};
 
-	let codeNodes = [];
+	const codeNodes = [];
 	// Create system, code, version, and display nodes with the given values
 	const codingElementChildren = SchemaUtils.getElementChildren(State.get().profiles, node, []);
 	for (const child of codingElementChildren) {
@@ -638,8 +643,8 @@ State.on("insert_from_code_picker", function(node: FreezerNode<SageNodeInitializ
 })
 
 State.on("set_selected_canonical", function(node: FreezerNode<SageNodeInitialized>, pos: number) {
-	let state = State.get();
-	let url = state.bundle.resources[pos].url;
+	const state = State.get();
+	const url = state.bundle.resources[pos].url;
 	//console.log('set_selected_canonical', node, pos, state, url);
 	for (let i = 0; i < node.children.length; i++) {
 		if (node.children[i].name ==  'definitionCanonical') {
