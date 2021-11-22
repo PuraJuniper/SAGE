@@ -7,7 +7,7 @@
     "dev": "webpack serve --devtool eval --progress --color --inline --content-base ./public --config webpack.config.cjs",
     "build-profiles": "./node_modules/.bin/coffee ./scripts/simplify-profiles.coffee",
     "build": "webpack --env build --output-path ./public --config webpack.config.cjs",
-    "test": "jest",
+    "test": "jest --maxWorkers=1",
     "test-watch": "./node_modules/.bin/mocha -w",
     "deploy-gh": "git subtree push --prefix public origin gh-pages",
     "reset-gh-pages": "git push origin `git subtree split --prefix output gh-pages`:gh-pages --force"

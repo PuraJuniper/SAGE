@@ -10,7 +10,6 @@ import _samplePD from '../../test/sample-plandef.json';
 import _samplePDWithProfile from '../../test/sample-plandef.json';
 import _r4Profiles from '../../public/profiles/r4.json';
 import _cpgProfiles from '../../public/profiles/cpg.json';
-import { isAssertionExpression } from 'typescript';
 
 const mockedConfig = mocked(config, true);
 mockedConfig.defaultProfileUriOfResourceType = {
@@ -120,4 +119,37 @@ it('should not overwrite the supplied profile when a JSON is loaded by decorateF
     expect(decoratedNode).toBeDefined();
 
     expect(SchemaUtils.toFhir(decoratedNode!, false)).toEqual(expect.objectContaining<Resource>(samplePDWithProfile));
+});
+
+test('if original element index is preserved when the definition of the element is a reference to another definition', () => {
+    const decoratedNode = SchemaUtils.decorateFhirData(r4AndCpg, samplePD);
+    expect(decoratedNode).toBeDefined();
+    
+    // check import
+    const actionNode = SchemaUtils.getChildOfNode(decoratedNode!, 'action');
+    const subActionNode = SchemaUtils.getChildOfNode(actionNode!.children[0], 'action');
+    expect(subActionNode?.index).toBe(r4AndCpg[actionNode!.profile!]['PlanDefinition.action.action'].index);
+
+    // check re-import
+    const fhirJson = SchemaUtils.toFhir(decoratedNode!, false);
+    const decoratedNode2 = SchemaUtils.decorateFhirData(r4AndCpg, fhirJson);
+    const actionNode2 = SchemaUtils.getChildOfNode(decoratedNode2!, 'action');
+    const subActionNode2 = SchemaUtils.getChildOfNode(actionNode2!, 'action'); // objectArray
+    expect(subActionNode2?.index).toBe(r4AndCpg[actionNode2!.profile!]['PlanDefinition.action.action'].index);
+});
+
+// WIP
+it('should return all possible element children of an element whose definition is a reference to another definition', () => {
+    const decoratedNode = SchemaUtils.decorateFhirData(r4AndCpg, samplePD);
+    expect(decoratedNode).toBeDefined();
+    
+    // check import
+    const actionNode = SchemaUtils.getChildOfNode(decoratedNode!, 'action');
+    const subActionNode = SchemaUtils.getChildOfNode(actionNode!.children[0], 'action');
+    
+    const availableChildren = SchemaUtils.getElementChildren(r4AndCpg, subActionNode!.children[0]!, []);
+    const subActionUninitNode = availableChildren.find((v, i) => v.nodePath == 'PlanDefinition.action.action');
+    const newSubActionNode = SchemaUtils.buildChildNode(r4AndCpg, actionNode!, subActionUninitNode!, subActionUninitNode!.fhirType);
+    const availableSubActionChildren = SchemaUtils.getElementChildren(r4AndCpg, newSubActionNode!, []);
+
 });

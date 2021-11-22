@@ -35,8 +35,11 @@ function getValueSet(oid) {
     url: `${State.get().VSACEndpoint}/ValueSet/${oid}/$expand`,
     headers: {
       Accept: 'application/json',
-      Authorization: `Basic ${new Buffer(`${username}:${password}`).toString('base64')}`
-    }
+    },
+    auth: {
+      username,
+      password,
+    },
   };
 
   return rpn(options).then(res => {
@@ -67,8 +70,11 @@ function searchForValueSets(search) {
     crossOrigin: true,
     headers: {
       Accept: 'application/json',
-      Authorization: `Basic ${new Buffer(`${username}:${password}`).toString('base64')}`
-    }
+    },
+    auth: {
+      username,
+      password,
+    },
   };
 
   return axios(options).then(res => {
@@ -93,16 +99,16 @@ function searchForValueSets(search) {
 }
 
 function getCode(code, system) {
-  return new Promise((resolve, reject) => {
-    resolve({
-      "system": "http://snomed.info/sct",
-      "systemName": "SNOMEDCT",
-      "systemOID": "2.16.840.1.113883.6.96",
-      "version": "http://snomed.info/sct/731000124108/version/2021-09",
-      "code": "29857009",
-      "display": "Chest pain (finding)"
-    });
-  });
+  // return new Promise((resolve, reject) => {
+  //   resolve({
+  //     "system": "http://snomed.info/sct",
+  //     "systemName": "SNOMEDCT",
+  //     "systemOID": "2.16.840.1.113883.6.96",
+  //     "version": "http://snomed.info/sct/731000124108/version/2021-09",
+  //     "code": "29857009",
+  //     "display": "Chest pain (finding)"
+  //   });
+  // });
   const username = USERNAME;
   const password = State.get().UMLSKey;
   const options = {
@@ -111,8 +117,11 @@ function getCode(code, system) {
     crossOrigin: true,
     headers: {
       Accept: 'application/json',
-      Authorization: `Basic ${new Buffer(`${username}:${password}`).toString('base64')}`
-    }
+    },
+    auth: {
+      username,
+      password,
+    },
   };
   return axios(options).then(res => {
     let codeObject = _.zipObject(_.map(res.data.parameter, 'name'), _.map(res.data.parameter, 'valueString'));
@@ -142,8 +151,11 @@ function getOneCode(VSACEndpoint, UMLSKey) {
     crossOrigin: true,
     headers: {
       Accept: 'application/json',
-      Authorization: `Basic ${new Buffer(`${username}:${password}`).toString('base64')}`
-    }
+    },
+    auth: {
+      username,
+      password,
+    },
   };
   return axios(options).then(res => {
     let codeObject = _.zipObject(_.map(res.data.parameter, 'name'), _.map(res.data.parameter, 'valueString'));
@@ -171,8 +183,11 @@ function getOneValueSet() {
     crossOrigin: true,
     headers: {
       Accept: 'application/json',
-      Authorization: `Basic ${new Buffer(`${username}:${password}`).toString('base64')}`
-    }
+    },
+    auth: {
+      username,
+      password,
+    },
   };
   return axios(options).then(res => {
     return res.data;
