@@ -192,9 +192,10 @@ class ValueEditor extends React.Component {
 			<select value={val} 
 					className="form-control input-sm" 
 					onChange = {(e) => {
-						console.log(e.target.value)
-						e.target.style.backgroundColor = "white"
-						if (e.target.value != "Select") this.handleChange.bind(this)(e);			
+						if (e.target.value != "Select") {
+							this.handleChange.bind(this)(e);
+							e.target.style.backgroundColor = "white";
+						}		
 						this.handleCanonicalChange.bind(this)(e);
 					}}
 					ref="inputField"
