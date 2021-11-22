@@ -104,7 +104,9 @@ const isInfrastructureType = (fhirType: string): boolean => ["DomainResource", "
 // Element names that will be skipped (will not appear in the "Add Element" dropdown)
 const unsupportedElements: string[] = [];
 
-export var toFhir = function(decorated: SageNodeInitialized, validate: boolean) {
+export function toFhir<B extends boolean>(decorated: SageNodeInitialized, validate: B): B extends true ? [Resource, number, string[]] : Resource
+export function toFhir(decorated: SageNodeInitialized, validate: boolean): [Resource, number, string[]] | Resource {
+	// console.log('toFhir', decorated, validate);
 	let errCount = 0;
 	let errFields: string[] = [];
 	var _walkNode = function(node: SageNodeInitialized, parent?: any) {
@@ -145,6 +147,7 @@ export var toFhir = function(decorated: SageNodeInitialized, validate: boolean) 
 	// Special element for JSON representations of FHIR Resources (https://www.hl7.org/fhir/json.html)
 	fhir.resourceType = decorated.nodePath;
 	// console.log('tofhir end:', fhir);
+	// console.log('end toFhir', fhir);
 	if (validate) {
 		return [fhir, errCount, errFields];
 	} else {
@@ -160,6 +163,7 @@ export var toFhir = function(decorated: SageNodeInitialized, validate: boolean) 
 // Build array of possible children from the schema for `node`
 //  optionally excluding some paths (useful for building the dropdown of available elements to add)
 export var getElementChildren = function(profiles: SimplifiedProfiles, node: SageNode, nodePathsToExclude: string[]) : SageNode[] {
+	// console.log('getelementchildren', node, nodePathsToExclude);
 	if (nodePathsToExclude == null) { nodePathsToExclude = []; }
 	const _buildChild = (name: string, childSchema: SchemaDef, typeDef: ElementDefinitionType) : SageNode => {
 		// if a new profile should be set for this child, we also reset the schema path accordingly
@@ -237,8 +241,8 @@ export var getElementChildren = function(profiles: SimplifiedProfiles, node: Sag
 // getElementChildren excluding any elements that are at maximum cardinality
 export const getAvailableElementChildren = function(profiles: SimplifiedProfiles, node: SageNodeInitialized) {
 	const usedElements = [];
-	console.log(node);
-	console.log(node.children[0]);
+	// console.log(node);
+	// console.log(node.children[0]);
 	for (let child of Array.from(node.children)) { 
 		if (!child.range || (child.range[1] === "1") 
 		 	// These two nodeTypes have an "Add Item" option in their menus, so they're ignored here
@@ -248,7 +252,7 @@ export const getAvailableElementChildren = function(profiles: SimplifiedProfiles
 			usedElements.push(child.nodePath);
 		}
 	}
-	console.log(usedElements);
+	// console.log(usedElements);
 	return getElementChildren(profiles, node, usedElements);
 }
 
@@ -468,6 +472,9 @@ var getProfileOfSchemaDef = function(profiles: SimplifiedProfiles, schemaNode: S
 			}	
 		return `http://hl7.org/fhir/StructureDefinition/${typeDef.code}`;
 	}
+	else if (typeDef.code == 'http://hl7.org/fhirpath/System.String') { // just a primitive
+		return;
+	}
 	else {
 		console.log(`No default profile found for code: ${typeDef.code}`);
 	}
@@ -483,6 +490,11 @@ export const getChildOfNode = function (node: SageNodeInitialized, childName: st
 };
 
 export var decorateFhirData = function(profiles: SimplifiedProfiles, resource: Resource) : SageNodeInitialized | undefined {
+	// if ('toJS' in resource) {
+	// 	console.log('freezernode');
+	// 	resource = (resource as FreezerNode<Resource>).toJS()
+	// }
+	// console.log('decorateFhirData', profiles, resource);
 	const resourceProfile = getProfileOfResource(profiles, resource);
 	if (!resourceProfile) {
 		console.log(`No suitable profile exists in SAGE for ${resource.resourceType} -- skipping`);
@@ -534,7 +546,7 @@ export var decorateFhirData = function(profiles: SimplifiedProfiles, resource: R
 						return;
 					}
 					// //allow for complex type multi-types
-					// if (!profiles[fhirType]) {
+					// if (!profiles[fhirType]) { 
 					// 	fhirType = fhirType[0].toLowerCase() + fhirType.slice(1);
 					// }
 					// displayName = buildDisplayName(schemaPath, fhirType);
@@ -549,7 +561,7 @@ export var decorateFhirData = function(profiles: SimplifiedProfiles, resource: R
 		// Check if this element is a reference to another definition (replaces the definition)
 		if (schema.refSchema) {
 			trueSchemaPath = schema.refSchema;
-			schema = profiles[profileUri]?.[trueSchemaPath];
+			// schema = profiles[profileUri]?.[trueSchemaPath];
 		}
 
 		// Check if a new profile should be used for this element
@@ -750,6 +762,7 @@ export var decorateFhirData = function(profiles: SimplifiedProfiles, resource: R
 		return result1;
 	})());
 	decorated.children = decorated.children.sort((a, b) => a.index - b.index);
+	// console.log('end decoratefhirdata: ', decorated);
 	return decorated;
 };
 
