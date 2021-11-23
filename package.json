@@ -51,6 +51,7 @@
     "file-loader": "^6.0.0",
     "file-saver": "^2.0.5",
     "freezer-js": "^0.14.1",
+    "fs": "^0.0.1-security",
     "lodash": "^4.17.21",
     "moment": "^2.24.0",
     "osh-async-parallel": "0.0.0",

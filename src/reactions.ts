@@ -416,7 +416,7 @@ State.on("show_open_activity", () => {
        State.get().ui.pivot()
                .set("status", "open")
                .set("openMode", "insert");
-       });
+});
 
 State.on("highlight_errors", function(errFields) {
 	State.get().set({errFields});
