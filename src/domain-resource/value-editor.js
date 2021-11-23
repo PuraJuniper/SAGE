@@ -212,12 +212,29 @@ class ValueEditor extends React.Component {
 
 	buildCodeInput(value, items) {
 		const options = [];
+		const fields = [];
 		for (let i = 0; i < items.length; i++) {
 			const item = items[i];
 			options.push(<option key={item[1]} value={item[1]}>
 				{item[0]} ({item[1]})
 			</option>
 			);
+		}
+		for (let i = 1; i < items.length; i++) {
+			const item = items[i];
+			fields.push(<option key={item[2]} value={item[2]}>
+				{item[0]} ({item[1]})
+			</option>
+			);
+		}
+		const option = items[0];
+			fields.push(<option key={option[1]} value={option[1]}>
+				{option[0]} ({option[1]})
+		</option>);
+
+		let lists = options;
+		if (this.props.node.name === "valueCode") {
+			lists = fields;
 		}
 		return <span>
 			<select value={this.props.node.value || ""} 
@@ -227,7 +244,7 @@ class ValueEditor extends React.Component {
 				}}
 				ref="inputField"
 				>
-				{options}
+				{lists}
 			</select>
 		</span>;		
 	}
@@ -278,7 +295,7 @@ class ValueEditor extends React.Component {
 			className={commitButtonClassName} 
 			onClick={this.props.onEditCommit}
 		>
-			<span className="fas fa-check"></span>
+			{/* <span className="fas fa-check"></span> */}
 		</button>;
 	}
 
