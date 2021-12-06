@@ -7,7 +7,7 @@
         "esModuleInterop": true,
         "moduleResolution": "Node",
         "strict": true,
-        "jsx": "react",
+        "jsx": "react-jsx",
         "resolveJsonModule": true
     },
     "include": ["./src/**/*"]

@@ -380,7 +380,7 @@ State.on("show_open_contained", node => State.get().ui.pivot()
     .set("replaceId", node.id));
 
 State.on("show_open_insert", () => {
-	State.emit("save_changes_to_bundle_json");
+	//State.emit("save_changes_to_bundle_json");
 	if (State.get().CPGName) {
 		// ie if the bundle is a CPG
 		State.get().ui.set("openMode", "insert");

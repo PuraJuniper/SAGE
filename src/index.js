@@ -16,6 +16,7 @@ import RemoteNavbar from "./remote-navbar";
 import BundleBar from "./bundle-bar";
 import RefWarning from "./ref-warning";
 import Footer from "./footer";
+import SelectView from "./simplified/selectView"
 
 import DomainResource from "./domain-resource/";
 import CpgDialog from "./dialogs/cpg-dialog";
@@ -94,7 +95,7 @@ class RootComponent extends React.Component {
 		let bundleBar;
 		const state = State.get();
 
-		if (state.bundle) {
+		if (state.bundle && state.mode !== "basic") {
 			bundleBar = <BundleBar bundle={state.bundle} />;
 		}
 
@@ -102,14 +103,43 @@ class RootComponent extends React.Component {
 			if (state.ui.status === "loading") {
 			return <div className="spinner"><img src="../img/ajax-loader.gif" /></div>;
 		} else if (state.resource) {
-			return <DomainResource node={state.resource} errFields={state.errFields}/>;
+			return (
+				<div>
+					<DomainResource node={state.resource} errFields={state.errFields}/>
+					{state.mode === "basic" && 
+					<div>
+					<button
+						onClick={() => State.emit("save_changes_to_bundle_json")}
+					>
+						Save
+					</button>
+					<button
+						onClick={() => {
+							State.get().set("resource", null)
+							State.get().set("ui", {status:"cards"})
+						}}
+					>
+						Cancel
+					</button>
+					</div>}
+				</div>
+			);
+		} else if (state.ui.status === "cards") {
+			return <SelectView />
 		} else if (!state.bundle && (state.ui.status.indexOf("error") === -1)) {
 			return <div className="row" style={{marginTop: "60px", marginBottom: "60px"}}><div className="col-xs-offset-4 col-xs-4">
 				<button className="btn btn-primary btn-block" onClick={this.handleOpen.bind(this)}>
-					Open Resource
+					Create Resource
+				</button>
+				<button className="btn btn-primary btn-block" onClick={() => {
+					State.get().set("CPGName", "CPGName")
+					State.get().set("mode", "basic")
+					State.get().set("ui", {status:"cards"});
+					}}>
+					Create Basic CPG
 				</button>
 				<button className="btn btn-primary btn-block" onClick={this.handleCpg.bind(this)}>
-					CPG
+					Create Advanced CPG
 				</button>
 			</div></div>;
 		}

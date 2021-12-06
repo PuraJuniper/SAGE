@@ -44,6 +44,10 @@
     "webpack-file-changer": "^2.0.1"
   },
   "dependencies": {
+    "@fortawesome/fontawesome-pro": "^5.15.4",
+    "@fortawesome/fontawesome-svg-core": "^1.2.36",
+    "@fortawesome/pro-solid-svg-icons": "^5.15.4",
+    "@fortawesome/react-fontawesome": "^0.1.16",
     "axios": "^0.21.4",
     "babel-loader": "^8.1.0",
     "bootstrap": "^4.5.3",
@@ -59,6 +63,7 @@
     "react-bootstrap": "^1.0.0",
     "react-dom": "^16.14.0",
     "react-select": "^5.2.0",
+    "react-transition-group": "^4.4.2",
     "reactstrap": "^8.10.0",
     "sanitize-caja": "^0.1.4",
     "ts-loader": "^9.2.6",

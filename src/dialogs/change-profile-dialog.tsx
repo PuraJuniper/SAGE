@@ -61,6 +61,7 @@ class ChangeProfileDialog extends React.Component<ChangeProfileProps, ChangeProf
             return;
         }
 		return Object.entries(this.props.profiles).filter((v) => {return v[1]['__meta']['type'] == this.props.nodeToChange.nodePath}).map((option, idx) => {
+            console.log(option[0]);
             return <option value={option[0]}>{option[1]['__meta']['id']}</option>
 		});
 	}
