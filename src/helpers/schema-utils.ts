@@ -286,25 +286,73 @@ const getDefaultValue = (schema: SchemaDef, fhirType: string): {
 			}
 			break;
 		case "publisher":
-			if (State.get().authorName != "") {
-				defaultValue = State.get().authorName;
+			if (State.get().Publisher!= "") {
+				defaultValue = State.get().Publisher;
 			}
 			break;
 		case "url":
-			if (State.get().authorName != "" && State.get().CPGName != "") {
+			if (State.get().Publisher != "" && State.get().CPGName != "") {
 				// Ignore extensions
 				if (pathSuffix[0] == "Extension") {
 					break;
 				}
-				defaultValue = `http://fhir.org/guides/${State.get().authorName}/${pathSuffix[0]}/${pathSuffix[0]}-${State.get().CPGName}${State.get().resCount}`;
+				defaultValue = `http://fhir.org/guides/${State.get().Publisher}/${pathSuffix[0]}/${pathSuffix[0]}-${State.get().CPGName}${State.get().resCount}`;
 				// hard coded for activity definitions (temporarily)
 				if (pathSuffix[0].endsWith("Activity")) {
-					defaultValue = `http://fhir.org/guides/${State.get().authorName}/ActivityDefinition/ActivityDefinition-${State.get().CPGName}${State.get().resCount}`;
+					defaultValue = `http://fhir.org/guides/${State.get().Publisher}/ActivityDefinition/ActivityDefinition-${State.get().CPGName}${State.get().resCount}`;
 				}
 			}
 			break;
 		case "version":
-			defaultValue = "1.0"
+			if (State.get().version != "") {
+				defaultValue = State.get().version;
+			}
+			break;
+		case "date":
+			if (State.get().date != "") {
+				defaultValue = State.get().date;
+			}
+			break;
+		case "status":
+			if (State.get().status != "") {
+				defaultValue = State.get().status;
+			}
+			break;
+		case "experimental":
+			if (State.get().experimental != "") {
+				defaultValue = State.get().experimental;
+			}
+			break;
+		case "copyright":
+			if (State.get().copyright != "") {
+				defaultValue = State.get().copyright;
+			}
+			break;
+		case "approvalDate":
+			if (State.get().approvalDate != "") {
+				defaultValue = State.get().approvalDate;
+			}
+			break;
+		case "lastReviewDate":
+			if (State.get().lastReviewDate != "") {
+				defaultValue = State.get().lastReviewDate;
+			}
+			break;
+		case "author":
+			if (State.get().author != "") {
+				defaultValue = State.get().author;
+			}
+			break;
+		case "editor":
+			if (State.get().author != "") {
+				defaultValue = State.get().editor;
+			}
+			break;
+		case "reviewer":
+			if (State.get().author != "") {
+				defaultValue = State.get().reviewer;
+			}
+			break;
 	}
 	
 	return {

@@ -21,8 +21,18 @@ class CpgDialog extends React.Component {
         this.state = {
             showSpinner: false,
             tab: "CPGNew",
+            version:"",
+            date:"",
+            status:"",
+            experimental:"",
+            copyright:"",
+            approvalDate:"",
+            lastReviewDate:"",
+            author:"",
+            editor:"",
+            reviewer:"",
             CPGName: "cpgname",
-            authorName: "authname",
+            Publisher: "authname",
             fhirText: '{"resourceType": "Patient"}',
             fhirUrl: "",
             newResourceType: "Patient",
@@ -162,15 +172,75 @@ class CpgDialog extends React.Component {
         return State.emit("set_ui", "ready");
     }
 
+    handleVersionChange(e) {
+        this.setState({
+            version: e.target.value,
+        });
+    }
+
+    handleDateChange(e) {
+        this.setState({
+            date: e.target.value,
+        });
+    }
+
     handleCPGNameChange(e) {
         this.setState({
             CPGName: e.target.value,
         });
     }
 
+    handleStatusChange(e) {
+        this.setState({
+            status: e.target.value,
+        });
+    }
+
+    handleExperimentalChange(e) {
+        this.setState({
+            experimental: e.target.value,
+        });
+    }
+
+    handleCopyrightChange(e) {
+        this.setState({
+            copyright: e.target.value,
+        });
+    }
+
+    handleapprovaldateChange(e) {
+        this.setState({
+            approvalDate: e.target.value,
+        });
+    }
+
+    handlelastreviewdateChange(e) {
+        this.setState({
+            lastReviewDate: e.target.value,
+        });
+    }
+
     handleAuthorNameChange(e) {
         this.setState({
-            authorName: e.target.value,
+            Publisher: e.target.value,
+        });
+    }
+
+    handleAuthorChange(e) {
+        this.setState({
+            author: e.target.value,
+        });
+    }
+
+    handleEditorChange(e) {
+        this.setState({
+            editor: e.target.value,
+        });
+    }
+
+    handleReviewerChange(e) {
+        this.setState({
+            reviewer: e.target.value,
         });
     }
 
@@ -179,11 +249,21 @@ class CpgDialog extends React.Component {
     }
     
     handleOpenResource(status, e) {
-        if (!this.state.CPGName || !this.state.authorName) return;
+        if (!this.state.CPGName || !this.state.Publisher) return;
 		e.preventDefault();
         State.get().set({
+            version: this.state.version,
+            date: this.state.date,
+            status: this.state.status,
+            experimental: this.state.experimental,
+            copyright: this.state.copyright,
+            approvalDate: this.state.approvalDate,
+            lastReviewDate: this.state.lastReviewDate,
             CPGName: this.state.CPGName,
-            authorName: this.state.authorName,
+            Publisher: this.state.Publisher,
+            author: this.state.author,
+            editor: this.state.editor,
+            reviewer: this.state.reviewer,
         })
         var resourceJson = {resourceType: "PlanDefinition"};
         var json = {resourceType: "Bundle", entry: [{resource: resourceJson}]};
@@ -296,22 +376,122 @@ class CpgDialog extends React.Component {
         return (
             <Container>
                 <Row className="row">
-                    <Col md="12">                                                
-                        <p style={{marginTop: "20px"}}>Enter CPG Name:</p>
+                    <Col md="3">   
+                        <p style={{marginTop: "20px"}}>Version:</p>
+                        <input
+                            className="form-control"
+                            style={{marginTop: "10px", marginBottom: "10px"}}
+                            value={this.state.version}
+                            onChange={this.handleVersionChange.bind(this)}
+                        />   
+                    </Col>    
+                    <Col md="3">
+                        <p style={{marginTop: "20px"}}>Date:</p>
+                        <input
+                            className="form-control"
+                            style={{marginTop: "10px", marginBottom: "10px"}}
+                            value={this.state.date}
+                            onChange={this.handleDateChange.bind(this)}
+                        />  
+                    </Col>
+                    <Col md="3">
+                    <p style={{marginTop: "20px"}}>Status:</p>
+                        <input
+                            className="form-control"
+                            style={{marginTop: "10px", marginBottom: "10px"}}
+                            value={this.state.status}
+                            onChange={this.handleStatusChange.bind(this)}
+                        />  
+                    </Col> 
+                    <Col md="3">
+                        <p style={{marginTop: "20px"}}>Experimental:</p>
+                        <input
+                            className="form-control"
+                            style={{marginTop: "10px", marginBottom: "10px"}}
+                            value={this.state.experimental}
+                            onChange={this.handleExperimentalChange.bind(this)}
+                        />  
+                    </Col>
+                </Row>
+                <Row className="row">
+                    <Col md="3">
+                    <p style={{marginTop: "20px"}}>Publisher:</p>
+                        <input
+                            className="form-control"
+                            style={{marginTop: "10px", marginBottom: "10px"}}
+                            value={this.state.Publisher}
+                            onChange={this.handleAuthorNameChange.bind(this)}
+                        />
+                    </Col>
+                    <Col md="3">
+                        <p style={{marginTop: "20px"}}>Copyright:</p>
+                        <input
+                            className="form-control"
+                            style={{marginTop: "10px", marginBottom: "10px"}}
+                            value={this.state.copyright}
+                            onChange={this.handleCopyrightChange.bind(this)}
+                        />  
+                    </Col>   
+                    <Col md="3">
+                        <p style={{marginTop: "20px"}}>Approval Date:</p>
+                        <input
+                            className="form-control"
+                            style={{marginTop: "10px", marginBottom: "10px"}}
+                            value={this.state.approvalDate}
+                            onChange={this.handleapprovaldateChange.bind(this)}
+                        />  
+                    </Col> 
+                    <Col md="3">
+                        <p style={{marginTop: "20px"}}>Last Review Date:</p>
+                        <input
+                            className="form-control"
+                            style={{marginTop: "10px", marginBottom: "10px"}}
+                            value={this.state.lastReviewDate}
+                            onChange={this.handlelastreviewdateChange.bind(this)}
+                        />  
+                    </Col> 
+                </Row>
+                <Row className="row">
+                <Col md="12">                                     
+                        <p style={{marginTop: "20px"}}>CPG Name:</p>
                         <input
                             className="form-control"
                             style={{marginTop: "10px", marginBottom: "10px"}}
                             value={this.state.CPGName}
                             onChange={this.handleCPGNameChange.bind(this)}
                         />
-                        <p style={{marginTop: "20px"}}>Enter Author Name:</p>
+                    </Col>
+                </Row>
+                <Row className="row">
+                <Col md="4">                                     
+                        <p style={{marginTop: "20px"}}>Author:</p>
                         <input
                             className="form-control"
                             style={{marginTop: "10px", marginBottom: "10px"}}
-                            value={this.state.authorName}
-                            onChange={this.handleAuthorNameChange.bind(this)}
+                            value={this.state.author}
+                            onChange={this.handleAuthorChange.bind(this)}
                         />
                     </Col>
+                    <Col md="4">                                     
+                        <p style={{marginTop: "20px"}}>Editor:</p>
+                        <input
+                            className="form-control"
+                            style={{marginTop: "10px", marginBottom: "10px"}}
+                            value={this.state.editor}
+                            onChange={this.handleEditorChange.bind(this)}
+                        />
+                    </Col>
+                    <Col md="4">                                     
+                        <p style={{marginTop: "20px"}}>Reviewer:</p>
+                        <input
+                            className="form-control"
+                            style={{marginTop: "10px", marginBottom: "10px"}}
+                            value={this.state.reviewer}
+                            onChange={this.handleReviewerChange.bind(this)}
+                        />
+                    </Col>
+                </Row>
+                <Row className="row">
                     <Col
                         md="auto"
                         className="col-xs-4 col-xs-offset-4"

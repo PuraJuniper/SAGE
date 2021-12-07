@@ -42,7 +42,7 @@ export const BaseCard = (props:any) => {
                     setTimeout(() => {
                     State.get().set({
                         CPGName: "name",
-                        authorName: "auth",
+                        Publisher: "auth",
                     })
                     let resourceJson = {resourceType: "ActivityDefinition"};
                     let json = {resourceType: "Bundle", entry: [{resource: resourceJson}]};
