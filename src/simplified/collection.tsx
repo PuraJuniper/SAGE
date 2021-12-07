@@ -9,7 +9,7 @@ import {faDownload, faCaretLeft} from  '@fortawesome/pro-solid-svg-icons';
 const Collection = (props:any) => {
 
 
-    const resources = State.get().bundle.resources;
+    const resources = State.get().bundle?.resources ?? [];
 
     return (
         <div style={{marginTop:"50px"}}>

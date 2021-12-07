@@ -4,7 +4,8 @@ import { CSSTransition } from 'react-transition-group';
 import { Container, Button } from 'react-bootstrap';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import {faBracketsCurly, faBookMedical, faCode, faTurtle, faCaretLeft} from  '@fortawesome/pro-solid-svg-icons';
+import {faBracketsCurly, faBookMedical, faCode, faTurtle, faCaretRight} from  '@fortawesome/pro-solid-svg-icons';
+import State from "../state";
 
 const SelectView = (props:any) => {
     const resources = [
@@ -30,7 +31,7 @@ const SelectView = (props:any) => {
         "http://hl7.org/fhir/uv/cpg/ActivityDefinition/cpg-administermedication-activitydefinition",
         "http://hl7.org/fhir/uv/cpg/ActivityDefinition/cpg-collectinformation-activitydefinition",
         "http://hl7.org/fhir/uv/cpg/ActivityDefinition/cpg-communicationrequest-activitydefinition",
-        "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-computableactivity",,
+        "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-computableactivity",
         "http://hl7.org/fhir/uv/cpg/ActivityDefinition/cpg-dispensemedication-activitydefinition",
         "http://hl7.org/fhir/uv/cpg/ActivityDefinition/cpg-documentmedication-activitydefinition",
         "http://hl7.org/fhir/uv/cpg/ActivityDefinition/cpg-enrollment-activitydefinition",
@@ -72,6 +73,11 @@ const SelectView = (props:any) => {
         <div style={{marginTop:"50px", paddingRight:"12px"}}>
             <div className="row">
             <h3 className="col-lg-10 col-md-9" style={{color:"#2a6b92"}}><b>Available Resources</b></h3>
+            <button className="navigate col-lg-2 col-md-3" 
+                onClick={() => State.get().set("ui", {status:"collection"})}>
+                Saved Resources&nbsp;<FontAwesomeIcon icon={faCaretRight} />
+                            
+            </button>
             </div>
             <div className="row box">
                 {

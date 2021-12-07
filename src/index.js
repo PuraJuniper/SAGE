@@ -116,18 +116,20 @@ class RootComponent extends React.Component {
 					{state.mode === "basic" && 
 					<div>
 					<button className="navigate-reverse col-lg-2 col-md-3" 
+							disabled={state.bundle.pos==0}
 							onClick={() => {
+								State.emit("remove_from_bundle");
 								State.get().set("ui", {status:"cards"})
 							}}>
 							<FontAwesomeIcon icon={faCaretLeft} />
-							&nbsp;Resource Selection
+							&nbsp;Delete Resource
 					</button>
 					<button className="navigate col-lg-2 col-md-3" 
 							onClick={() => {
 								State.emit("save_changes_to_bundle_json");
 								State.get().set("ui", {status:"collection"})
 							}}>
-								Saved Resources&nbsp;
+								Save Resource&nbsp;
 								<FontAwesomeIcon icon={faCaretRight} />
 					</button>
 					</div>}

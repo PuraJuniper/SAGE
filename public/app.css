@@ -375,7 +375,7 @@ a {
   color:white;
 }
 
-.navigate-reverse:hover {
+.navigate-reverse:enabled:hover {
   background-position:right;
   color:white;
 }
@@ -410,7 +410,7 @@ a {
 }
 
 .navigate:hover svg {
-  transform: translateX(15px);
+  transform: translateX(8px);
   transition: transform 0.3s;
 }
 
@@ -418,8 +418,8 @@ a {
   transition: transform 0.3s;
 }
 
-.navigate-reverse:hover svg {
-  transform: translateX(-15px);
+.navigate-reverse:enabled:hover svg {
+  transform: translateX(-8px);
   transition: transform 0.3s;
 }
 
