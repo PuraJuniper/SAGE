@@ -10,6 +10,8 @@ import { UncontrolledAlert } from 'reactstrap';
 import ReactDOM from "react-dom";
 import State from "./reactions";
 import * as SchemaUtils from "./helpers/schema-utils";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import {faCaretRight, faCaretLeft} from  '@fortawesome/pro-solid-svg-icons';
 
 import NavbarFred from "./navbar";
 import RemoteNavbar from "./remote-navbar";
@@ -17,6 +19,7 @@ import BundleBar from "./bundle-bar";
 import RefWarning from "./ref-warning";
 import Footer from "./footer";
 import SelectView from "./simplified/selectView"
+import Collection from "./simplified/collection"
 
 import DomainResource from "./domain-resource/";
 import CpgDialog from "./dialogs/cpg-dialog";
@@ -102,30 +105,34 @@ class RootComponent extends React.Component {
 		const resourceContent = (() => {
 			if (state.ui.status === "loading") {
 			return <div className="spinner"><img src="../img/ajax-loader.gif" /></div>;
+		} else if (state.ui.status === "cards") {
+			return <SelectView />
+		} else if (state.ui.status === "collection") {
+			return <Collection />
 		} else if (state.resource) {
 			return (
 				<div>
 					<DomainResource node={state.resource} errFields={state.errFields}/>
 					{state.mode === "basic" && 
 					<div>
-					<button
-						onClick={() => State.emit("save_changes_to_bundle_json")}
-					>
-						Save
+					<button className="navigate-reverse col-lg-2 col-md-3" 
+							onClick={() => {
+								State.get().set("ui", {status:"cards"})
+							}}>
+							<FontAwesomeIcon icon={faCaretLeft} />
+							&nbsp;Resource Selection
 					</button>
-					<button
-						onClick={() => {
-							State.get().set("resource", null)
-							State.get().set("ui", {status:"cards"})
-						}}
-					>
-						Cancel
+					<button className="navigate col-lg-2 col-md-3" 
+							onClick={() => {
+								State.emit("save_changes_to_bundle_json");
+								State.get().set("ui", {status:"collection"})
+							}}>
+								Saved Resources&nbsp;
+								<FontAwesomeIcon icon={faCaretRight} />
 					</button>
 					</div>}
 				</div>
 			);
-		} else if (state.ui.status === "cards") {
-			return <SelectView />
 		} else if (!state.bundle && (state.ui.status.indexOf("error") === -1)) {
 			return <div className="row" style={{marginTop: "60px", marginBottom: "60px"}}><div className="col-xs-offset-4 col-xs-4">
 				<button className="btn btn-primary btn-block" onClick={this.handleOpen.bind(this)}>
