@@ -24,6 +24,7 @@ export const BaseCard = (props:any) => {
     }
     index = props.title.indexOf("Activity");
     let title = index >= 0 ? props.title.slice(0, index) : props.title;
+    if (title.startsWith("CPG")) title = title.slice(3);
     if (title.length > 22) {
         title = title.slice(0,19) + "...";
     }
