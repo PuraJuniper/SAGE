@@ -282,29 +282,73 @@ const getDefaultValue = (schema: SchemaDef, fhirType: string): {
 	switch (pathSuffix[pathSuffix.length-1]) {
 		case "name":
 			if (State.get().CPGName != "") {
-				defaultValue = `${pathSuffix[0]}-${State.get().CPGName}${State.get().resCount}`;
+				//filter editor and reviewer
+				if (pathSuffix[0] == "ContactDetail") {				
+					defaultValue = State.get().author;
+				}
+				// if (pathSuffix[0] == "ContactDetail") {			
+				// 	defaultValue = State.get().editor;
+				// }
+				// if (pathSuffix[0] == "ContactDetail") {					
+				// 	defaultValue = State.get().reviewer;
+				// }
+				else {
+					defaultValue = `${pathSuffix[0]}-${State.get().CPGName}${State.get().resCount}`;
+				}
 			}
 			break;
 		case "publisher":
-			if (State.get().authorName != "") {
-				defaultValue = State.get().authorName;
+			if (State.get().authname!= "") {
+				defaultValue = State.get().authname;
 			}
 			break;
 		case "url":
-			if (State.get().authorName != "" && State.get().CPGName != "") {
+			if (State.get().authname!= "" && State.get().CPGName != "") {
 				// Ignore extensions
 				if (pathSuffix[0] == "Extension") {
 					break;
 				}
-				defaultValue = `http://fhir.org/guides/${State.get().authorName}/${pathSuffix[0]}/${pathSuffix[0]}-${State.get().CPGName}${State.get().resCount}`;
-				// hard coded for activity definitions (temporarily)
+				defaultValue = `http://fhir.org/guides/${State.get().authname}/${pathSuffix[0]}/${pathSuffix[0]}-${State.get().CPGName}${State.get().resCount}`;
 				if (pathSuffix[0].endsWith("Activity")) {
-					defaultValue = `http://fhir.org/guides/${State.get().authorName}/ActivityDefinition/ActivityDefinition-${State.get().CPGName}${State.get().resCount}`;
+					defaultValue = `http://fhir.org/guides/${State.get().authname}/ActivityDefinition/ActivityDefinition-${State.get().CPGName}${State.get().resCount}`;
 				}
 			}
 			break;
 		case "version":
-			defaultValue = "1.0"
+			if (State.get().version != "") {
+				defaultValue = State.get().version;
+			}
+			break;
+		case "date":
+			if (State.get().date != "") {
+				defaultValue = State.get().date;
+			}
+			break;
+		case "status":
+			if (State.get().status != "") {
+				defaultValue = State.get().status;
+			}
+			break;
+		case "experimental":
+			if (State.get().experimental != "") {
+				defaultValue = State.get().experimental;
+			}
+			break;
+		case "copyright":
+			if (State.get().copyright != "") {
+				defaultValue = State.get().copyright;
+			}
+			break;
+		case "approvalDate":
+			if (State.get().approvalDate != "") {
+				defaultValue = State.get().approvalDate;
+			}
+			break;
+		case "lastReviewDate":
+			if (State.get().lastReviewDate != "") {
+				defaultValue = State.get().lastReviewDate;
+			}
+			break;
 	}
 	
 	return {
