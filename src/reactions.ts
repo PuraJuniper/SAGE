@@ -336,12 +336,13 @@ State.on('save_changes_to_bundle_json', function() {
 });
 
 
-State.on("remove_from_bundle", function() {
+State.on("remove_from_bundle", function(deleteAt:number = -1) {
 	let decorated;
 	const state = State.get();
 	let {
         pos
     } = state.bundle;
+	if (deleteAt >= 0) pos = deleteAt;
 	let newPos = pos+1;
 	if (newPos === state.bundle.resources.length) {
 		pos = (newPos = state.bundle.pos-1);
@@ -353,8 +354,10 @@ State.on("remove_from_bundle", function() {
 	
 	State.get().pivot()
 		.set("resource", decorated)
-		.bundle.resources.splice(state.bundle.pos, 1)
+		.bundle.resources.splice(deleteAt >= 0 ? deleteAt : state.bundle.pos, 1)
 		.bundle.set("pos", pos);
+	console.log(deleteAt);
+	console.log(pos);
 
 	return State.get().set("ui", {status: "ready"});
 });

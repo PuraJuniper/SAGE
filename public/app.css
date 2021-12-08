@@ -490,18 +490,20 @@ a {
 }
 button.delete {
   position:absolute;
-  top:-20px;
-  left:233px;
+  top:22px;
+  left:213px;
   width:30px;
   height:30px;
-  border-radius:20px;
-  border-color:#296a90;
-  background-color:white;
-  font-size:16px;
+  border-radius:30px;
+  border: 0px;
+  background-color:#25a5f5;
+  font-size:17px;
+
 }
 
 button.delete:hover {
   color:red;
+  background-color: #296a90;
 }
 
 /* SLIDE IN/OUT TRANSITIONS */

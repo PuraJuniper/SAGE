@@ -12,8 +12,6 @@ export const Folder = (props: any) => {
             setShow(true);
         }, props.wait);
       }, []);
-
-    console.log(State.get().bundle.resources);
     
 
     return (
@@ -34,13 +32,19 @@ export const Folder = (props: any) => {
         <div className="folder-type" style={{position:"absolute", top:"-18px", left:"20px", maxWidth:"90%"}}>
             <BaseCard header={props.type} title="" link={props.link}/>
         </div>
-        {props.index >= 0 && <button className="delete" onClick={(e) => e.stopPropagation()}>x</button>}
         <div style={{position:"absolute", top:"16px", left:"0px", width:"100%"}}>
             <BaseCard header="PlanDefinition" title="PlanDef Title" 
             content={
                 props.actTitle
                 }/>
         </div>
+        {State.get().bundle.resources.length > 1 && 
+        <button className="delete" 
+        onClick={(e) => {
+            e.stopPropagation();
+            State.emit("remove_from_bundle", props.index);
+            State.get().set("ui", {status:"collection"})
+        }}>&times;</button>}
     </div>
     </CSSTransition>
     )

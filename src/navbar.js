@@ -52,7 +52,10 @@ class NavbarFred extends React.Component {
 
 	renderExtraButtons() {
 		const navCpg = [
-			<Nav.Link key="cpg" onClick={this.handleUiChange.bind(this, "cpg")}>
+			<Nav.Link key="cpg" onClick={(e) => {
+				State.get().set("mode", "advanced");
+				this.handleUiChange.bind(this, "cpg")(e);
+				}}>
 				CPG
 			</Nav.Link>,
 			<Nav.Link key="settings" onClick={this.handleUiChange.bind(this, "settings")}>
