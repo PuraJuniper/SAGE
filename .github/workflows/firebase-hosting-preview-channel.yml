@@ -5,11 +5,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - run: echo "::set-output name=git_sha_short::$(git rev-parse --short HEAD)"
       - run: npm install
       - run: npm run build
       - uses: w9jds/firebase-action@v2.0.0
         with:
-          args: hosting:channel:deploy preview-${{ steps.vars.outputs.sha_short }} --expires 14d
+          args: hosting:channel:deploy preview-$GITHUB_SHA --expires 14d
         env:
           GCP_SA_KEY: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_FRED_CA431 }}'
