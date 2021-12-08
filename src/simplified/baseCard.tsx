@@ -15,7 +15,7 @@ export const BaseCard = (props:any) => {
         }, props.wait);
       }, []);
 
-
+    // This part is just formatting so they appear properly on the card
     let index = props.header.indexOf("Activity");
     let header = index >= 0 && props.header.length > "ActivityDefinition".length 
         ? props.header.slice(0, index) : props.header;
@@ -44,8 +44,7 @@ export const BaseCard = (props:any) => {
                     setShow(false);
                     setTimeout(() => {
                         State.get().set({
-                            CPGName: "name",
-                            authname: "auth",
+                            CPGName: "name"
                         })
                         if (State.get().bundle) {
 	                        State.emit("save_changes_to_bundle_json");

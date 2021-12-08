@@ -376,7 +376,7 @@ class CpgDialog extends React.Component {
         return (
             <Container>
                 <Row className="row">
-                    <Col md="3">   
+                    <Col md="6">   
                         <p style={{marginTop: "20px"}}>Version:</p>
                         <input
                             className="form-control"
@@ -385,7 +385,7 @@ class CpgDialog extends React.Component {
                             onChange={this.handleVersionChange.bind(this)}
                         />   
                     </Col>    
-                    <Col md="3">
+                    <Col md="6">
                         <p style={{marginTop: "20px"}}>Date:</p>
                         <input
                             className="form-control"
@@ -394,7 +394,7 @@ class CpgDialog extends React.Component {
                             onChange={this.handleDateChange.bind(this)}
                         />  
                     </Col>
-                    <Col md="3">
+                    <Col md="6">
                     <p style={{marginTop: "20px"}}>Status:</p>
                         <input
                             className="form-control"
@@ -403,7 +403,7 @@ class CpgDialog extends React.Component {
                             onChange={this.handleStatusChange.bind(this)}
                         />  
                     </Col> 
-                    <Col md="3">
+                    <Col md="6">
                         <p style={{marginTop: "20px"}}>Experimental:</p>
                         <input
                             className="form-control"
@@ -414,7 +414,7 @@ class CpgDialog extends React.Component {
                     </Col>
                 </Row>
                 <Row className="row">
-                    <Col md="3">
+                    <Col md="6">
                     <p style={{marginTop: "20px"}}>Publisher:</p>
                         <input
                             className="form-control"
@@ -423,7 +423,7 @@ class CpgDialog extends React.Component {
                             onChange={this.handleAuthorNameChange.bind(this)}
                         />
                     </Col>
-                    <Col md="3">
+                    <Col md="6">
                         <p style={{marginTop: "20px"}}>Copyright:</p>
                         <input
                             className="form-control"
@@ -432,7 +432,7 @@ class CpgDialog extends React.Component {
                             onChange={this.handleCopyrightChange.bind(this)}
                         />  
                     </Col>   
-                    <Col md="3">
+                    <Col md="6">
                         <p style={{marginTop: "20px"}}>Approval Date:</p>
                         <input
                             className="form-control"
@@ -441,7 +441,7 @@ class CpgDialog extends React.Component {
                             onChange={this.handleapprovaldateChange.bind(this)}
                         />  
                     </Col> 
-                    <Col md="3">
+                    <Col md="6">
                         <p style={{marginTop: "20px"}}>Last Review Date:</p>
                         <input
                             className="form-control"

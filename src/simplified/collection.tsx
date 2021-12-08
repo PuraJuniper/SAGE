@@ -27,7 +27,7 @@ const Collection = (props:any) => {
                         return <div className="col-lg-3 col-md-4 col-sm-6" key={i}>
                             <Folder 
                             actTitle={resource.title}
-                            type={resource.meta.profile[0].split("-")[1]}
+                            type={resource.meta.profile[0].split("-")[1] ?? resource.resourceType}
                             wait={i*25} 
                             index={i}
                             />
