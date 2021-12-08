@@ -1,7 +1,7 @@
 name: Deploy commit to new Firebase Hosting preview channel
 'on': push
 jobs:
-  build_and_preview:
+  build_and_deploy_to_preview:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -9,6 +9,7 @@ jobs:
       - run: npm run build
       - uses: w9jds/firebase-action@v2.0.0
         with:
-          args: hosting:channel:deploy preview-$GITHUB_SHA --expires 14d 
+          args: hosting:channel:deploy preview-$git_sha_short --expires 14d
         env:
+          git_sha_short: '$(git rev-parse --short "$GITHUB_SHA")'
           GCP_SA_KEY: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_FRED_CA431 }}'
