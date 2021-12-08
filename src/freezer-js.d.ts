@@ -43,11 +43,16 @@ declare module 'freezer-js' {
         unshift(): FreezerArray<T>,
     } & FreezerNode<T>[];
 
+    // From https://stackoverflow.com/a/53899815
+    type OptionalPropertyOf<T> = Exclude<{
+        [K in keyof T]: T extends Record<K, T[K]>
+          ? never
+          : K
+      }[keyof T], undefined>
+      
     type FreezerObject<T> = FreezerCommon<T> & {
-        // remove(a: string): FreezerObject<Omit<T,a>>,
-        // TODO: only allow remove for optional properties in T
-        remove(a: string): FreezerObject<T>,
-        remove(a: string[]): FreezerObject<T>,
+        remove(a: OptionalPropertyOf<T>): FreezerObject<T>,
+        remove(a: OptionalPropertyOf<T>[]): FreezerObject<T>,
     } & {
         [K in keyof T]-?: FreezerNode<T[K]>
     };
