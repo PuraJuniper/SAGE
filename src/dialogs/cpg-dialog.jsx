@@ -32,7 +32,7 @@ class CpgDialog extends React.Component {
             editor:"",
             reviewer:"",
             CPGName: "cpgname",
-            Publisher: "authname",
+            authname: "authname",
             fhirText: '{"resourceType": "Patient"}',
             fhirUrl: "",
             newResourceType: "Patient",
@@ -222,7 +222,7 @@ class CpgDialog extends React.Component {
 
     handleAuthorNameChange(e) {
         this.setState({
-            Publisher: e.target.value,
+            authname: e.target.value,
         });
     }
 
@@ -249,7 +249,7 @@ class CpgDialog extends React.Component {
     }
     
     handleOpenResource(status, e) {
-        if (!this.state.CPGName || !this.state.Publisher) return;
+        if (!this.state.CPGName || !this.state.authname) return;
 		e.preventDefault();
         State.get().set({
             version: this.state.version,
@@ -260,7 +260,7 @@ class CpgDialog extends React.Component {
             approvalDate: this.state.approvalDate,
             lastReviewDate: this.state.lastReviewDate,
             CPGName: this.state.CPGName,
-            Publisher: this.state.Publisher,
+            authname: this.state.authname,
             author: this.state.author,
             editor: this.state.editor,
             reviewer: this.state.reviewer,
@@ -419,7 +419,7 @@ class CpgDialog extends React.Component {
                         <input
                             className="form-control"
                             style={{marginTop: "10px", marginBottom: "10px"}}
-                            value={this.state.Publisher}
+                            value={this.state.authname}
                             onChange={this.handleAuthorNameChange.bind(this)}
                         />
                     </Col>

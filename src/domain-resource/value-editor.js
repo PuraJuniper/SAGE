@@ -150,6 +150,20 @@ class ValueEditor extends React.Component {
 	}
 
 	buildBooleanInput(value) {
+		const bool = State.get().experimental;
+		if (this.props.node.name === "experimental") {
+			return <span>
+			<select value={bool} 
+				className="form-control input-sm" 
+					onChange={this.handleChange.bind(this)} 
+					ref="inputField"
+				>
+				<option value={true}>Yes</option>
+				<option value={false}>No</option>
+			</select>
+		</span>;	
+			
+		}
 		return <span>
 			<select value={this.props.node.value} 
 				className="form-control input-sm" 

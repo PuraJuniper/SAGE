@@ -24,7 +24,7 @@ export interface StateVars {
 	editor: string,
 	reviewer: string,
 	CPGName: string,
-	Publisher: string,
+	authname: string,
 	canonicalUris: {uri: string, resourceType: string}[],
 	showHiddenElements: boolean,
 	resource?: SageNodeInitialized,
@@ -58,7 +58,7 @@ const defaultStateVars: StateVars = {
 	editor: "",
 	reviewer: "",
 	CPGName: "",
-	Publisher: "",
+	authname: "",
 	canonicalUris: [], // URIs to reference in canonical elements
 	showHiddenElements: false,
 	profiles: {},

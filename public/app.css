@@ -335,7 +335,7 @@ a {
 
 .folder:hover .folder-type {
   color: white;
-  transform: translate(0px, -12px);
+  transform: translate(0px, -9px);
   transition: transform .3s;
 }
 
@@ -350,11 +350,11 @@ a {
 /* BUTTONS */
 
 .navigate {
-  background: linear-gradient(to left, #fccdba 50%, #2a6b92 50%) right;
+  background: linear-gradient(to left, white 50%, #2a6b92 50%) right;
 }
 
 .navigate-reverse {
-  background: linear-gradient(to right, #fccdba 50%, #2a6b92 50%) left;
+  background: linear-gradient(to right, white 50%, #2a6b92 50%) left;
 }
 
 .navigate, .navigate-reverse {
@@ -375,7 +375,7 @@ a {
   color:white;
 }
 
-.navigate-reverse:hover {
+.navigate-reverse:enabled:hover {
   background-position:right;
   color:white;
 }
@@ -405,12 +405,21 @@ a {
   transition-duration:300ms;
 }
 
+.navigate svg {
+  transition: transform 0.3s;
+}
+
+.navigate:hover svg {
+  transform: translateX(8px);
+  transition: transform 0.3s;
+}
+
 .navigate-reverse svg {
   transition: transform 0.3s;
 }
 
-.navigate-reverse:hover svg {
-  transform: translateX(-15px);
+.navigate-reverse:enabled:hover svg {
+  transform: translateX(-8px);
   transition: transform 0.3s;
 }
 

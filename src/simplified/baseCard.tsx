@@ -19,8 +19,8 @@ export const BaseCard = (props:any) => {
     let index = props.header.indexOf("Activity");
     let header = index >= 0 && props.header.length > "ActivityDefinition".length 
         ? props.header.slice(0, index) : props.header;
-    if (header.length > 26) {
-        header = header.slice(0,22) + "...";
+    if (header.length > 24) {
+        header = header.slice(0,21) + "...";
     }
     index = props.title.indexOf("Activity");
     let title = index >= 0 ? props.title.slice(0, index) : props.title;
@@ -28,6 +28,8 @@ export const BaseCard = (props:any) => {
         title = title.slice(0,19) + "...";
     }
     const content = props.content;
+    let headerPadding = {};
+    if (title == "") headerPadding = {padding:"7px"};
     
     return (
         <CSSTransition
@@ -40,22 +42,26 @@ export const BaseCard = (props:any) => {
                     if (e.target.tagName !== "svg" && e.target.tagName !== "path" && props.clickable) {
                     setShow(false);
                     setTimeout(() => {
-                    State.get().set({
-                        CPGName: "name",
-                        Publisher: "auth",
-                    })
-                    let resourceJson = {resourceType: "ActivityDefinition"};
-                    let json = {resourceType: "Bundle", entry: [{resource: resourceJson}]};
-                    const resourceProfile = SchemaUtils.getProfileOfResource(State.get().profiles, resourceJson);
-                    (json.entry[0].resource as any).meta = {
-                        profile: [props.profile]
-                    };
-                    return State.emit("load_json_resource", json);
-                    }, 300)
+                        State.get().set({
+                            CPGName: "name",
+                            authname: "auth",
+                        })
+                        if (State.get().bundle) {
+	                        State.emit("save_changes_to_bundle_json");
+                            State.get().ui.set("openMode", "insert");
+                        }
+                        let resourceJson = {resourceType: "ActivityDefinition"};
+                        let json = {resourceType: "Bundle", entry: [{resource: resourceJson}]};
+                        const resourceProfile = SchemaUtils.getProfileOfResource(State.get().profiles, resourceJson);
+                        (json.entry[0].resource as any).meta = {
+                            profile: [props.profile]
+                        };
+                        return State.emit("load_json_resource", json);
+                    }, 350)
                     }
                 }}
                 >
-                <Card.Header as="h6">
+                <Card.Header as="h6" style={headerPadding}>
                     {header}
                 </Card.Header>
                 <Card.Body>
