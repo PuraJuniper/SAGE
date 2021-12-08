@@ -104,7 +104,9 @@ const isInfrastructureType = (fhirType: string): boolean => ["DomainResource", "
 // Element names that will be skipped (will not appear in the "Add Element" dropdown)
 const unsupportedElements: string[] = [];
 
-export var toFhir = function(decorated: SageNodeInitialized, validate: boolean) {
+export function toFhir<B extends boolean>(decorated: SageNodeInitialized, validate: B): B extends true ? [Resource, number, string[]] : Resource
+export function toFhir(decorated: SageNodeInitialized, validate: boolean): [Resource, number, string[]] | Resource {
+	// console.log('toFhir', decorated, validate);
 	let errCount = 0;
 	let errFields: string[] = [];
 	var _walkNode = function(node: SageNodeInitialized, parent?: any) {
@@ -145,6 +147,7 @@ export var toFhir = function(decorated: SageNodeInitialized, validate: boolean) 
 	// Special element for JSON representations of FHIR Resources (https://www.hl7.org/fhir/json.html)
 	fhir.resourceType = decorated.nodePath;
 	// console.log('tofhir end:', fhir);
+	// console.log('end toFhir', fhir);
 	if (validate) {
 		return [fhir, errCount, errFields];
 	} else {
@@ -160,6 +163,7 @@ export var toFhir = function(decorated: SageNodeInitialized, validate: boolean) 
 // Build array of possible children from the schema for `node`
 //  optionally excluding some paths (useful for building the dropdown of available elements to add)
 export var getElementChildren = function(profiles: SimplifiedProfiles, node: SageNode, nodePathsToExclude: string[]) : SageNode[] {
+	// console.log('getelementchildren', node, nodePathsToExclude);
 	if (nodePathsToExclude == null) { nodePathsToExclude = []; }
 	const _buildChild = (name: string, childSchema: SchemaDef, typeDef: ElementDefinitionType) : SageNode => {
 		// if a new profile should be set for this child, we also reset the schema path accordingly
@@ -172,7 +176,7 @@ export var getElementChildren = function(profiles: SimplifiedProfiles, node: Sag
 			sliceName: childSchema.sliceName,
 			profile: childProfile,
 			name,
-			displayName: buildDisplayName(name, typeDef.code, childSchema.sliceName),
+			displayName: buildDisplayName(name, childSchema.sliceName),
 			index: childSchema.index,
 			isRequired: childSchema.min >=1,
 			fhirType: typeDef.code,
@@ -234,6 +238,24 @@ export var getElementChildren = function(profiles: SimplifiedProfiles, node: Sag
 	return children = children.sort((a, b) => a.index - b.index);
 };
 
+// getElementChildren excluding any elements that are at maximum cardinality
+export const getAvailableElementChildren = function(profiles: SimplifiedProfiles, node: SageNodeInitialized) {
+	const usedElements = [];
+	// console.log(node);
+	// console.log(node.children[0]);
+	for (let child of Array.from(node.children)) { 
+		if (!child.range || (child.range[1] === "1") 
+		 	// These two nodeTypes have an "Add Item" option in their menus, so they're ignored here
+			|| child.nodeType == "objectArray" || (child.nodeType === "valueArray")
+			|| ((child.range[1] !== "*") && (parseInt(child.range[1]) < (child?.children?.length || 0))
+		)) {
+			usedElements.push(child.nodePath);
+		}
+	}
+	// console.log(usedElements);
+	return getElementChildren(profiles, node, usedElements);
+}
+
 const getDefaultValue = (schema: SchemaDef, fhirType: string): {
 	isFixed: boolean,
 	defaultValue: string | boolean | null,
@@ -260,7 +282,7 @@ const getDefaultValue = (schema: SchemaDef, fhirType: string): {
 	switch (pathSuffix[pathSuffix.length-1]) {
 		case "name":
 			if (State.get().CPGName != "") {
-				defaultValue = `${State.get().CPGName}${State.get().resCount}`;
+				defaultValue = `${pathSuffix[0]}-${State.get().CPGName}${State.get().resCount}`;
 			}
 			break;
 		case "publisher":
@@ -281,6 +303,8 @@ const getDefaultValue = (schema: SchemaDef, fhirType: string): {
 				}
 			}
 			break;
+		case "version":
+			defaultValue = "1.0"
 	}
 	
 	return {
@@ -333,7 +357,7 @@ export var buildChildNode = function(profiles: SimplifiedProfiles, parentNode: S
 			schemaPath: childNode.schemaPath, 
 			sliceName: childNode.sliceName,
 			fhirType: childNode.fhirType,
-			displayName: buildDisplayName(name, fhirType, childNode.sliceName),
+			displayName: buildDisplayName(name, childNode.sliceName),
 			nodeType: isComplexType(fhirType) ? "objectArray" : "valueArray",
 			short: schema.short,
 			nodeCreator: "user",
@@ -366,7 +390,7 @@ export var buildChildNode = function(profiles: SimplifiedProfiles, parentNode: S
 			schemaPath: childNode.schemaPath, 
 			sliceName: childNode.sliceName,
 			fhirType: childNode.fhirType,
-			displayName: buildDisplayName(name, fhirType, childNode.sliceName),
+			displayName: buildDisplayName(name, childNode.sliceName),
 			isRequired: schema.min >=1,
 			short: schema.short,
 			nodeCreator: "user",
@@ -393,8 +417,7 @@ export var buildChildNode = function(profiles: SimplifiedProfiles, parentNode: S
 };
 
 
-export var buildDisplayName = function(name: string, fhirType: string, sliceName?: string) {
-	// console.log('builddisplayname: ', name, fhirType, sliceName);
+export var buildDisplayName = function(name: string, sliceName?: string) {
 	const _fixCamelCase = function(text: string, lowerCase?: boolean) {
 		//function has an issue with consecutive capital letters (eg. ID)
 		//and not convinced splitting camelcase words has value
@@ -406,18 +429,14 @@ export var buildDisplayName = function(name: string, fhirType: string, sliceName
 	};
 
 	let displayName: string = name.split('.').pop() as string
-	displayName = sliceName ? `${_fixCamelCase(displayName.replace(/\[x\]/,""))}:${sliceName}` : _fixCamelCase(displayName);
-	if (name.indexOf("[x]") > -1) {
-		displayName += " (" + _fixCamelCase(fhirType, true) + ")";
-	}
+	displayName = sliceName ? `${_fixCamelCase(displayName)}:${sliceName}` : _fixCamelCase(displayName);
 	return displayName;
 };
 
 // checks if we have a default profile for this resource (without a profile, how do we know what fields exist?)
 // and returns it if it exists in `profiles`
-// TODO: check if another profile is given in Resource.meta
 export var getProfileOfResource = function(profiles: SimplifiedProfiles, resource: Resource) : string | undefined {
-	if (resource.meta?.profile && resource.meta.profile.length > 0) {
+	if (resource.meta?.profile && resource.meta.profile.length > 0 && profiles[resource.meta.profile[0]]) {
 		return resource.meta.profile[0];
 	}
 	const defaultProfile = defaultProfileUriOfResourceType[resource.resourceType]
@@ -431,10 +450,8 @@ export var getProfileOfResource = function(profiles: SimplifiedProfiles, resourc
 };
 
 // checks if the given object is a Resource
-export var isResource = function(data: any) {
-	if (data.resourceType) {
-		return true;
-	}
+export var isResource = function(data: any): data is Resource {
+	return (data as Resource).resourceType !== undefined;
 }
 
 // checks if the SchemaNode uses a profile and returns its URI if so. 
@@ -455,12 +472,34 @@ var getProfileOfSchemaDef = function(profiles: SimplifiedProfiles, schemaNode: S
 			}	
 		return `http://hl7.org/fhir/StructureDefinition/${typeDef.code}`;
 	}
+	else if (typeDef.code == 'http://hl7.org/fhirpath/System.String') { // just a primitive
+		return;
+	}
 	else {
 		console.log(`No default profile found for code: ${typeDef.code}`);
 	}
 }
 
-export var decorateFhirData = function(profiles: SimplifiedProfiles, resourceProfile: string, resource: Resource) : SageNodeInitialized {
+export const getChildOfNode = function (node: SageNodeInitialized, childName: string) : SageNodeInitialized | undefined {
+	for (const child of node.children) {
+		if (child.name == childName) {
+			return child
+		}
+	}
+	return;
+};
+
+export var decorateFhirData = function(profiles: SimplifiedProfiles, resource: Resource) : SageNodeInitialized | undefined {
+	// if ('toJS' in resource) {
+	// 	console.log('freezernode');
+	// 	resource = (resource as FreezerNode<Resource>).toJS()
+	// }
+	// console.log('decorateFhirData', profiles, resource);
+	const resourceProfile = getProfileOfResource(profiles, resource);
+	if (!resourceProfile) {
+		console.log(`No suitable profile exists in SAGE for ${resource.resourceType} -- skipping`);
+		return;
+	}
 	nextId = 0;
 	const addedUris = [];
 	// console.log('start decorateFhirData:', resourceProfile, resource);
@@ -507,16 +546,22 @@ export var decorateFhirData = function(profiles: SimplifiedProfiles, resourcePro
 						return;
 					}
 					// //allow for complex type multi-types
-					// if (!profiles[fhirType]) {
+					// if (!profiles[fhirType]) { 
 					// 	fhirType = fhirType[0].toLowerCase() + fhirType.slice(1);
 					// }
 					// displayName = buildDisplayName(schemaPath, fhirType);
 				}
 			}
-			if (!schema) {
-				console.log(`Error reading element of type ${schemaPath} with value ${valueOfNode}`);
-				return;
-			}
+		}
+		if (!schema) {
+			console.log(`Error reading element of type ${schemaPath} with value ${valueOfNode}`);
+			return;
+		}
+
+		// Check if this element is a reference to another definition (replaces the definition)
+		if (schema.refSchema) {
+			trueSchemaPath = schema.refSchema;
+			// schema = profiles[profileUri]?.[trueSchemaPath];
 		}
 
 		// Check if a new profile should be used for this element
@@ -524,7 +569,7 @@ export var decorateFhirData = function(profiles: SimplifiedProfiles, resourcePro
 		const childSchemaPath = newProfile ? fhirType : trueSchemaPath;
 		const childProfile = newProfile || profileUri;
 		// TODO: Figure out which type of the array this node corresponds to
-		let displayName = buildDisplayName(name, fhirType, schema.sliceName);
+		let displayName = buildDisplayName(name, schema.sliceName);
 		// if (isInfrastructureType(fhirType) && (schemaPath.length === 1)) {
 		// 	fhirType = schemaPath[0];
 		// }
@@ -672,7 +717,7 @@ export var decorateFhirData = function(profiles: SimplifiedProfiles, resourcePro
 		index: rootProfileSchema[rootPath].index,
 		name: "root node",
 		nodeType: "object",
-		displayName: buildDisplayName(rootPath, "top level test", rootProfileSchema[rootPath].sliceName), // Possibly change to .title?
+		displayName: buildDisplayName(rootPath, rootProfileSchema[rootPath].sliceName), // Possibly change to .title?
 		nodePath: rootPath,
 		schemaPath: rootPath,
 		sliceName: rootProfileSchema[rootPath].sliceName,
@@ -717,6 +762,7 @@ export var decorateFhirData = function(profiles: SimplifiedProfiles, resourcePro
 		return result1;
 	})());
 	decorated.children = decorated.children.sort((a, b) => a.index - b.index);
+	// console.log('end decoratefhirdata: ', decorated);
 	return decorated;
 };
 

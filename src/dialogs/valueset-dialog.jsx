@@ -25,12 +25,15 @@ class ValueSetDialog extends React.Component {
     }
 
     static getDerivedStateFromProps(nextProps, prevState) {
-    console.log(nextProps);
-      switch (nextProps.resourceType) {
-        case "CPGImmunizationActivity":
-          return {
-            valueset: nextProps.valueset["http://hl7.org/fhir/uv/ips/ValueSet/vaccines-gps-uv-ips"],
-          };
+      switch (nextProps.profile) {
+        case "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-immunizationactivity":
+            return {
+                valueset: nextProps.valueset["http://hl7.org/fhir/uv/ips/ValueSet/vaccines-gps-uv-ips"],
+            };
+        case "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-medicationrequestactivity":
+            return {
+                valueset: nextProps.valueset["http://hl7.org/fhir/uv/ips/ValueSet/whoatc-uv-ips"],
+            };
       }
       prevState.valueset = null;
       return prevState;
@@ -66,7 +69,7 @@ class ValueSetDialog extends React.Component {
     renderCodePicker() {
         const inputElements = <div>
             <p>
-                Choose from Valuset:
+                The following are the available preloaded valuesets:
             </p>
             <Select 
                 options={this.buildOptions()}

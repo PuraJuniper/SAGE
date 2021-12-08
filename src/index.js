@@ -27,7 +27,7 @@ import ValueSetDialog from "./dialogs/valueset-dialog"
 import UserSettingsDialog from "./dialogs/user-settings-dialog";
 
 import AppInfo from "../package.json";
-import SelectResourceDialog from "./dialogs/select-resource-dialog";
+import SelectResourceDialog from "./dialogs/select-resource-canonical-dialog";
 
 class RootComponent extends React.Component {
 	
@@ -181,7 +181,7 @@ class RootComponent extends React.Component {
 			<CodePickerDialog show={state.ui.status === "codePicker"} node={state.ui.selectedNode} />
 			<ChangeProfileDialog show={state.ui.status === "change_profile"} nodeToChange={state.resource} profiles={state.profiles} previousProfile={state.resource?.profile}/>
 			<ValueSetDialog show={state.ui.status === "valueSet"} node={state.ui.selectedNode} 
-			resourceType={state.resource} valueset={state.valuesets}/>
+			profile={state.resource?.profile} valueset={state.valuesets}/>
 			<UserSettingsDialog show={state.ui.status === "settings"} />
 			<SelectResourceDialog show={state.ui.status === "select"} node={state.ui.selectedNode} 
 			bundle = {state.bundle}

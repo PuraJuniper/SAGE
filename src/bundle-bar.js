@@ -83,6 +83,8 @@ class BundleBar extends React.Component {
 						return "far fa-file-alt";
 					} else if (resource.resourceType === "Library") {
 						return "fas fa-book-medical";
+					} else if (resource.resourceType == "Questionnaire") {
+						return "fas fa-question";
 					}
 					})();
 

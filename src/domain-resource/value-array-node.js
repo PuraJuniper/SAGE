@@ -78,9 +78,9 @@ class ValueArrayNode extends React.Component {
 					<button type="button" className="btn btn-default btn-sm" onClick={this.handleItemAdd.bind(this)}>
 						<span className="fas fa-plus"></span>
 					</button>
-					<button type="button" className="btn btn-default btn-sm" onClick={this.props.onEditCommit}>
+					{/* <button type="button" className="btn btn-default btn-sm" onClick={this.props.onEditCommit}>
 						<span className="fas fa-check"></span>
-					</button>
+					</button> */}
 				</div>
 			</div>
 		</div>;

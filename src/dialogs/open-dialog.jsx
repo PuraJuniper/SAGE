@@ -24,7 +24,7 @@ class OpenDialog extends React.Component {
             tab: "fhirNew",
             fhirText: "",
             fhirUrl: "",
-            newResourceType: "PlanDefinition",
+            newResourceType: "ActivityDefinition",
             newResourceBundle: true
         };
     }
@@ -38,7 +38,7 @@ class OpenDialog extends React.Component {
         }
 
         return window.setTimeout(() => {
-            return this.refs[this.state.tab].focus();
+            return this.refs[this.state.tab]?.focus();
         }, 100);
     }
 

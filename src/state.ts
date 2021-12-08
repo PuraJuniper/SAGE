@@ -31,7 +31,7 @@ export interface StateVars {
 export type SageUiStatus = 'ready' | 'contained' | 'open' | 'validation_error' | 'resource_load_error' | 'ref_warning' | 'codePicker' 
 	| 'change_profile' | 'missing_title_error' | 'id_duplicate_error' | 'title_duplicate_error' | 'url_duplicate_error';
 
-const defaultState: StateVars = {
+const defaultStateVars: StateVars = {
 	ui: { 
 		status: "ready",
 	},
@@ -45,6 +45,6 @@ const defaultState: StateVars = {
 	valuesets: {},
 }
 
-const State = new Freezer(defaultState);
+const State = new Freezer(defaultStateVars);
 
 export default State;
