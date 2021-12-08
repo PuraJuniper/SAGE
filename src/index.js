@@ -121,7 +121,7 @@ class RootComponent extends React.Component {
 								State.get().set("ui", {status:"cards"})
 							}}>
 							<FontAwesomeIcon icon={faCaretLeft} />
-							&nbsp;Delete Resource
+							&nbsp;Discard Resource
 					</button>
 					<button className="navigate col-lg-2 col-md-3" 
 							onClick={() => {

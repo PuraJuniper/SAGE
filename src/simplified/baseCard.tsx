@@ -55,7 +55,7 @@ export const BaseCard = (props:any) => {
                         let resourceJson = {resourceType: resType};
                         let json = {resourceType: "Bundle", entry: [{resource: resourceJson}]};
                         const resourceProfile = SchemaUtils.getProfileOfResource(State.get().profiles, resourceJson);
-                        if (resType === "ActvityDefinition") {
+                        if (resType === "ActivityDefinition") {
                             (json.entry[0].resource as any).meta = {
                                 profile: [props.profile]
                             };
