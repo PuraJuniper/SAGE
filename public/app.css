@@ -488,6 +488,23 @@ a {
   transform: scale(0.9);
   transition: opacity 300ms, transform 300ms;
 }
+button.delete {
+  position:absolute;
+  top:22px;
+  left:213px;
+  width:30px;
+  height:30px;
+  border-radius:30px;
+  border: 0px;
+  background-color:#25a5f5;
+  font-size:17px;
+
+}
+
+button.delete:hover {
+  color:red;
+  background-color: #296a90;
+}
 
 /* SLIDE IN/OUT TRANSITIONS */
 .view-from-right-enter {

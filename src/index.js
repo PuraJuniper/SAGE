@@ -112,11 +112,10 @@ class RootComponent extends React.Component {
 		} else if (state.resource) {
 			return (
 				<div>
-					<DomainResource node={state.resource} errFields={state.errFields}/>
 					{state.mode === "basic" && 
 					<div>
 					<button className="navigate-reverse col-lg-2 col-md-3" 
-							disabled={state.bundle.pos==0}
+							disabled={state.bundle.resources.length <= 1}
 							onClick={() => {
 								State.emit("remove_from_bundle");
 								State.get().set("ui", {status:"cards"})
@@ -132,7 +131,9 @@ class RootComponent extends React.Component {
 								Save Resource&nbsp;
 								<FontAwesomeIcon icon={faCaretRight} />
 					</button>
-					</div>}
+					</div>
+					}
+					<DomainResource node={state.resource} errFields={state.errFields}/>
 				</div>
 			);
 		} else if (!state.bundle && (state.ui.status.indexOf("error") === -1)) {
@@ -147,7 +148,11 @@ class RootComponent extends React.Component {
 					}}>
 					Create Basic CPG
 				</button>
-				<button className="btn btn-primary btn-block" onClick={this.handleCpg.bind(this)}>
+				<button className="btn btn-primary btn-block" onClick={(e) => {
+					State.get().set("mode", "advanced");
+					this.handleCpg.bind(this)(e);
+				}
+					}>
 					Create Advanced CPG
 				</button>
 			</div></div>;

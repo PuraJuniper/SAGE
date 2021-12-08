@@ -8,7 +8,6 @@ import {faDownload, faCaretLeft} from  '@fortawesome/pro-solid-svg-icons';
 
 const Collection = (props:any) => {
 
-
     const resources = State.get().bundle?.resources ?? [];
 
     return (
@@ -18,7 +17,7 @@ const Collection = (props:any) => {
             <button className="navigate-reverse col-lg-2 col-md-3" 
                     onClick={() => State.get().set("ui", {status:"cards"})}>
             <FontAwesomeIcon icon={faCaretLeft} />
-                            &nbsp;Select Resource
+                            &nbsp;New Resource
             </button>
             </div>
             <div className="row box">
