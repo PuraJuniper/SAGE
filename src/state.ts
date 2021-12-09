@@ -1,5 +1,5 @@
 import Freezer from 'freezer-js';
-import { SageNodeInitialized, SimplifiedProfiles, SimplifiedValuesets, SupportedFhirResourceTypes } from './helpers/schema-utils';
+import { SageNodeInitialized, SimplifiedProfiles, SimplifiedValuesets, SageSupportedFhirResource } from './helpers/schema-utils';
 
 export interface StateVars {
 	ui: {
@@ -29,7 +29,7 @@ export interface StateVars {
 	resource?: SageNodeInitialized,
 	bundle?: {
 		pos: number
-		resources: SupportedFhirResourceTypes[],
+		resources: SageSupportedFhirResource[],
 	},
 	resCount?: number,
 	errFields?: string[],

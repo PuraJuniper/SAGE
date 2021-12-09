@@ -47,7 +47,7 @@ export type SageNodeInitialized = SageNode & {
 	value?: any,
 }
 
-export type SupportedFhirResourceTypes = PlanDefinition | ActivityDefinition | Questionnaire | Library | ValueSet
+export type SageSupportedFhirResource = PlanDefinition | ActivityDefinition | Questionnaire | Library | ValueSet
 
 type ProfileDefs = {
 	'__meta': {
@@ -106,8 +106,8 @@ const isInfrastructureType = (fhirType: string): boolean => ["DomainResource", "
 // Element names that will be skipped (will not appear in the "Add Element" dropdown)
 const unsupportedElements: string[] = [];
 
-export function toFhir<B extends boolean>(decorated: SageNodeInitialized, validate: B): B extends true ? [SupportedFhirResourceTypes, number, string[]] : SupportedFhirResourceTypes
-export function toFhir(decorated: SageNodeInitialized, validate: boolean): [SupportedFhirResourceTypes, number, string[]] | SupportedFhirResourceTypes {
+export function toFhir<B extends boolean>(decorated: SageNodeInitialized, validate: B): B extends true ? [SageSupportedFhirResource, number, string[]] : SageSupportedFhirResource
+export function toFhir(decorated: SageNodeInitialized, validate: boolean): [SageSupportedFhirResource, number, string[]] | SageSupportedFhirResource {
 	// console.log('toFhir', decorated, validate);
 	let errCount = 0;
 	let errFields: string[] = [];
@@ -496,8 +496,8 @@ export var getProfileOfResource = function(profiles: SimplifiedProfiles, resourc
 };
 
 // checks if the given object is a Resource
-export var isSupportedResource = function(data: any): data is SupportedFhirResourceTypes {
-	return (data as SupportedFhirResourceTypes).resourceType !== undefined;
+export var isSupportedResource = function(data: any): data is SageSupportedFhirResource {
+	return (data as SageSupportedFhirResource).resourceType !== undefined;
 }
 
 // checks if the SchemaNode uses a profile and returns its URI if so. 
@@ -535,7 +535,7 @@ export const getChildOfNode = function (node: SageNodeInitialized, childName: st
 	return;
 };
 
-export var decorateFhirData = function(profiles: SimplifiedProfiles, resource: SupportedFhirResourceTypes) : SageNodeInitialized | undefined {
+export var decorateFhirData = function(profiles: SimplifiedProfiles, resource: SageSupportedFhirResource) : SageNodeInitialized | undefined {
 	// if ('toJS' in resource) {
 	// 	console.log('freezernode');
 	// 	resource = (resource as FreezerNode<Resource>).toJS()
