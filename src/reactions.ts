@@ -57,7 +57,7 @@ const getChildForSageNode = function(node: SageNodeInitialized, searchNode: Sage
 	const searchSchemaPath = searchNode.sliceName ? `${searchNode.schemaPath}:${searchNode.sliceName}` : searchNode.schemaPath;
 	for (const child of node.children) {
 		const schemaWithSlice = child.sliceName ? `${child.schemaPath}:${child.sliceName}` : child.schemaPath;
-		if (schemaWithSlice === searchSchemaPath) { return child; }
+		if (schemaWithSlice === searchSchemaPath && searchNode.name == child.name) { return child; }
 	}
 };
 

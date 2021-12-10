@@ -97,6 +97,7 @@ class RootComponent extends React.Component {
 	render() {
 		let bundleBar;
 		const state = State.get();
+		console.log(state.bundle?.resources);
 
 		if (state.bundle && state.mode !== "basic") {
 			bundleBar = <BundleBar bundle={state.bundle} />;
@@ -134,6 +135,9 @@ class RootComponent extends React.Component {
 					</div>
 					}
 					<DomainResource node={state.resource} errFields={state.errFields}/>
+					{state.bundle?.resources?.length > 1 && 
+						<DomainResource node={decorateResource(state.bundle?.resources?.[0], state.profiles)} errFields={state.errFields}/>
+					}
 				</div>
 			);
 		} else if (!state.bundle && (state.ui.status.indexOf("error") === -1)) {

@@ -16,7 +16,7 @@ export const BaseCard = (props:any) => {
       }, []);
 
     // This part is just formatting so they appear properly on the card
-    let index = props.header.indexOf("Activity");
+    let index = props.header.indexOf("activity");
     let header = index >= 0 && props.header.length > "ActivityDefinition".length 
         ? props.header.slice(0, index) : props.header;
     if (header.length > 24) {
@@ -53,7 +53,6 @@ export const BaseCard = (props:any) => {
                         let resType = header === "ActivityDefinition" ? "ActivityDefinition" : "Questionnaire";
                         let resourceJson = {resourceType: resType};
                         let json = {resourceType: "Bundle", entry: [{resource: resourceJson}]};
-                        const resourceProfile = SchemaUtils.getProfileOfResource(State.get().profiles, resourceJson);
                         if (resType === "ActivityDefinition") {
                             (json.entry[0].resource as any).meta = {
                                 profile: [props.profile]
