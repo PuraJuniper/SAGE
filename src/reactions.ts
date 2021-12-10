@@ -82,15 +82,15 @@ const getParentById = function(id: number) {
 	return _walkNode(State.get().resource) || {parentNode: undefined, childIdx: -1};
 };
 
-export const enforceDuplicates = function(id: string, title: string, url: string) {
+export const enforceDuplicates = function(id?: string, title?: string, url?: string) {
 	const bundle = State.get().bundle;
 	const resources = bundle.resources;
 	const pos = bundle.pos;
 	for (let i = 0; i < resources?.length; i++) {
 		if (i == pos) continue;
-		if (resources[i].id == id) return "id_duplicate_error";
-		if (resources[i].title && resources[i].title == title) return "title_duplicate_error";
-		if (resources[i].url && resources[i].url == url) return "url_duplicate_error";
+		if (id && resources[i].id == id) return "id_duplicate_error";
+		if (title && resources[i].title && resources[i].title == title) return "title_duplicate_error";
+		if (url && resources[i].url && resources[i].url == url) return "url_duplicate_error";
 	}
 };
 
@@ -143,7 +143,7 @@ const checkBundle = (json: Resource | Bundle) => (json.resourceType === "Bundle"
 
 const decorateResource = function(json: Resource, profiles: any) : SageNodeInitialized | undefined {
 	// TODO: this shouldn't be necessary if args are properly typed
-	if (!SchemaUtils.isResource(json)) {
+	if (!SchemaUtils.isSupportedResource(json)) {
 		console.log("decorateResource called on non-resource: ", json);
 		return;
 	}
@@ -373,7 +373,7 @@ State.on("clone_resource", function() {
 		return state.ui.set("status", "validation_error");
 	}
 
-	resource.id = null;
+	resource.id = undefined;
 	return bundleInsert(resource);
 });
 
@@ -399,8 +399,8 @@ State.on("show_open_questionnaire", () => {
 	State.emit("set_bundle_pos", State.get().bundle.pos);
 	if (State.get().CPGName) {
 		State.get().ui.set("openMode", "insert");
-		let json = {resourceType: "Questionnaire"};
-		json = {resourceType: "Bundle", entry: [{resource: json}]};
+		let questionnaireJson = {resourceType: "Questionnaire"};
+		const json = {resourceType: "Bundle", entry: [{resource: questionnaireJson}]};
 		return State.emit("load_json_resource", json);
 	}
 	State.get().ui.pivot()
@@ -412,8 +412,8 @@ State.on("show_open_activity", () => {
 	State.emit("set_bundle_pos", State.get().bundle.pos);
        if (State.get().CPGName) {
                State.get().ui.set("openMode", "insert");
-               let json = {resourceType: "ActivityDefinition"};
-               json = {resourceType: "Bundle", entry: [{resource: json}]};
+               let activityDefJson = {resourceType: "ActivityDefinition"};
+               const json = {resourceType: "Bundle", entry: [{resource: activityDefJson}]};
                return State.emit("load_json_resource", json);
        }
        State.get().ui.pivot()
@@ -614,7 +614,7 @@ State.on("insert_from_code_picker", function(node: FreezerNode<SageNodeInitializ
 		return;
 	}
 
-	const pathToParam = {
+	const pathToParam: {[key: string]: string} = {
 		'Coding.system' : system,
 		'Coding.code': code,
 		'Coding.version': version,
