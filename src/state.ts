@@ -8,8 +8,9 @@ export interface StateVars {
 		replaceId?: number,
 		count?: number,
 		update?: {from: string, to: string}[],
-		selectedNode?: SageNodeInitialized,
+		selectedNode?: SageNodeInitialized
 	},
+	mode: "basic" | "advanced",
 	VSACEndpoint: string,
 	UMLSKey: string,
 	version: string,
@@ -26,10 +27,9 @@ export interface StateVars {
 	authname: string,
 	canonicalUris: {uri: string, resourceType: string}[],
 	showHiddenElements: boolean,
-	resource?: SageNodeInitialized,
 	bundle?: {
 		pos: number
-		resources: SageSupportedFhirResource[],
+		resources: SageNodeInitialized[],
 	},
 	resCount?: number,
 	errFields?: string[],
@@ -38,12 +38,14 @@ export interface StateVars {
 }
 
 export type SageUiStatus = 'ready' | 'contained' | 'open' | 'validation_error' | 'resource_load_error' | 'ref_warning' | 'codePicker' 
-	| 'change_profile' | 'missing_title_error' | 'id_duplicate_error' | 'title_duplicate_error' | 'url_duplicate_error' | 'cards' | 'collection';
+	| 'change_profile' | 'missing_title_error' | 'id_duplicate_error' | 'title_duplicate_error' | 'url_duplicate_error' | 'cards' | 'collection'
+	| 'loading' | 'profile_load_error' | 'export' | 'cpg' | 'valueSet' | 'settings' | 'select';
 
 const defaultStateVars: StateVars = {
 	ui: { 
 		status: "ready",
 	},
+	mode: "advanced",
 	VSACEndpoint: "https://cts.nlm.nih.gov/fhir/r4",
 	UMLSKey: "",
 	version: "",

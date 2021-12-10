@@ -28,16 +28,20 @@ class ExportDialog extends React.Component {
 
     buildJson() {
         let [resource, errCount, errFields] = Array.from(
-            SchemaUtils.toFhir(this.props.resource, true)
+            SchemaUtils.toFhir(this.props.bundle.resources[this.props.bundle.pos], true)
         );
+
+        const resourcesJson = [];
+        for (const resource of this.props.bundle.resources) {
+            resourcesJson.push(SchemaUtils.toFhir(resource, false));
+        }
+        var bundleJson;
         if (this.props.bundle) {
-            resource = BundleUtils.generateBundle(
-                this.props.bundle.resources,
-                this.props.bundle.pos,
-                resource
+            bundleJson = BundleUtils.generateBundle(
+                resourcesJson
             );
         }
-        const jsonString = JSON.stringify(resource, null, 3);
+        const jsonString = JSON.stringify(bundleJson, null, 3);
         return {jsonString, errCount, errFields, resourceType: resource.resourceType};
     }
 

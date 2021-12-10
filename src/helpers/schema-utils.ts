@@ -18,7 +18,7 @@ export type SageNode = {
 	index: number,
 	name: string,
 	// Internal types used by SAGE
-	nodeType: 'value' | 'object' | 'objectArray' | 'arrayObject' | 'valueArray',
+	nodeType: 'value' | 'object' | 'objectArray' | 'arrayObject' | 'valueArray' | 'resource',
 	displayName: string,
 	// Path containing the definition in `profile` i.e. "PlanDefinition.action.description" or (for a top-level definition) "Extension"
 	schemaPath: string,
@@ -157,6 +157,9 @@ export function toFhir(decorated: SageNodeInitialized, validate: boolean): [Sage
 	}
 };
 
+export const getNextId = () => {
+	return nextId++;
+}
 
 // export var toBundle = (resources, pos, resource) => resource;
 
@@ -535,6 +538,17 @@ export const getChildOfNode = function (node: SageNodeInitialized, childName: st
 	return;
 };
 
+export const getArrayFromObjectArrayNode = function (node: SageNodeInitialized) : any[] {
+	if (node.nodeType != "objectArray") {
+		return [];
+	}
+	const retArr: any[] = [];
+	for (const child of node.children) {
+		retArr.push(child.value);
+	}
+	return retArr;
+}
+
 export var decorateFhirData = function(profiles: SimplifiedProfiles, resource: SageSupportedFhirResource) : SageNodeInitialized | undefined {
 	// if ('toJS' in resource) {
 	// 	console.log('freezernode');
@@ -762,7 +776,7 @@ export var decorateFhirData = function(profiles: SimplifiedProfiles, resource: S
 		id: nextId++,
 		index: rootProfileSchema[rootPath].index,
 		name: "root node",
-		nodeType: "object",
+		nodeType: "resource",
 		displayName: buildDisplayName(rootPath, rootProfileSchema[rootPath].sliceName), // Possibly change to .title?
 		nodePath: rootPath,
 		schemaPath: rootPath,

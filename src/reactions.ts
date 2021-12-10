@@ -40,7 +40,7 @@ const findParent = function(targetNode: SageNodeInitialized) {
 			}
 		}
 	};
-	return _walkNode(State.get().resource) || {parentNode: undefined, childIdx: -1};
+	return _walkNode(State.get().bundle.resources[State.get().bundle.pos]) || {parentNode: undefined, childIdx: -1};
 };
 
 const getSplicePosition = function(children: SageNodeInitialized[], index: number) {
@@ -79,7 +79,7 @@ const getParentById = function(id: number) {
 			}
 		}
 	};
-	return _walkNode(State.get().resource) || {parentNode: undefined, childIdx: -1};
+	return _walkNode(State.get().bundle.resources[State.get().bundle.pos]) || {parentNode: undefined, childIdx: -1};
 };
 
 export const enforceDuplicates = function(id?: string, title?: string, url?: string) {
@@ -88,9 +88,11 @@ export const enforceDuplicates = function(id?: string, title?: string, url?: str
 	const pos = bundle.pos;
 	for (let i = 0; i < resources?.length; i++) {
 		if (i == pos) continue;
-		if (id && resources[i].id == id) return "id_duplicate_error";
-		if (title && resources[i].title && resources[i].title == title) return "title_duplicate_error";
-		if (url && resources[i].url && resources[i].url == url) return "url_duplicate_error";
+		const resource = resources[i];
+		const resourceJson = SchemaUtils.toFhir(resource, false);
+		if (id && resourceJson.id == id) return "id_duplicate_error";
+		if (title && resourceJson.title == title) return "title_duplicate_error";
+		if (url && resourceJson.url == url) return "url_duplicate_error";
 	}
 };
 
@@ -161,7 +163,7 @@ const openResource = function(json: Resource) {
 	State.get().set({errFields: []});
 
 	if (decorated) {
-		State.get().set({resource: decorated, bundle: undefined});
+		State.get().set({bundle: {pos: 0, resources: [decorated]}});
 		return true;
 	}
 };
@@ -174,24 +176,31 @@ const openBundle = function(json: Bundle) {
 		.set({resCount:1})
 		.set({errFields: []});
 	const resources = BundleUtils.parseBundle(json);
-	if (decorated = decorateResource(resources[0], State.get().profiles)) {
+	const resourceNodes: SageNodeInitialized[] = []
+	for (const resource of resources) {
+		console.log('opening resource:', resource);
+		const decorated = decorateResource(resource, State.get().profiles);
+		if (decorated) {
+			resourceNodes.push(decorated);
+		}
+	}
+	if (resourceNodes.length > 0) {
 		State.get().pivot()
-			.set("bundle", {resources, pos: 0})
-			.set({resource: decorated});
+			.set("bundle", {resources: resourceNodes, pos: 0});
 		return true;
 	}
+	return false;
 };
 
 const bundleInsert = function(json: Resource | Bundle, isBundle?: boolean) {
 	let decorated;
-	let resources;
 	let state = State.get();
 	console.log('bundleinsert start:', json);
 	console.log('bundleinsert start:', state);
 
 	//stop if errors
 	const [resource, errCount] = 
-		SchemaUtils.toFhir(state.resource, true);
+		SchemaUtils.toFhir(State.get().bundle.resources[State.get().bundle.pos], true);
 	console.log('bundleinsert:', resource, errCount);
 	if (!resource.title) { 
 		//return state.ui.set("status", "missing_title_error");
@@ -207,23 +216,30 @@ const bundleInsert = function(json: Resource | Bundle, isBundle?: boolean) {
 	console.log(state);
 	state.set({resCount:state.resCount+1});
 
-	resources = (() => {
+	var resources: SchemaUtils.SageSupportedFhirResource[] = (() => {
 		if (isBundle) {
-		return resources = BundleUtils.parseBundle(json);
+		return resources = BundleUtils.parseBundle(json as Bundle);
 	} else if (json.id) {
-		return [json];
+		return [json as SchemaUtils.SageSupportedFhirResource];
 	} else {
-		const nextId = BundleUtils.findNextId(state.bundle.resources);
-		json.id = BundleUtils.buildFredId(nextId);
-		return [json];
+		json.id = BundleUtils.buildFredId();
+		return [json as SchemaUtils.SageSupportedFhirResource];
 	}
 	})();
 
+	const nodesToInsert: SageNodeInitialized[] = []
+	for (const resource of resources) {
+		console.log('opening resource:', resource);
+		const decorated = decorateResource(resource, State.get().profiles);
+		if (decorated) {
+			nodesToInsert.push(decorated);
+		}
+	}
+
 	if (decorated = decorateResource(resources[0], state.profiles)) {
 		State.get().pivot()
-			.set("resource", decorated)
 			.set("errFields", [])
-			.bundle.resources.splice(state.bundle.pos+1, 0, ...resources)
+			.bundle.resources.splice(state.bundle.pos+1, 0, ...nodesToInsert)
 			.bundle.set("pos", state.bundle.pos+1);
 		return true;
 	}
@@ -266,15 +282,15 @@ State.on("load_json_resource", (json, isCPG = true) => {
 
 
 	const {
-		profiles,
-		resource,
+		profiles
 	} = State.get();
+	const resource = State.get().bundle.resources[State.get().bundle.pos];
 
 	const usedElementPaths = resource.children?.map((v) => v.nodePath) || [];
 	const unusedElements = SchemaUtils.getElementChildren(profiles, resource, usedElementPaths);
 	for (const element of unusedElements) {
 		if (element.isRequired) {
-			const curResource = State.get().resource;
+			const curResource = State.get().bundle.resources[State.get().bundle.pos];
 			// // Fix for FHIR north: duplicated elements on import
 			// if (curResource.children.filter((v, i, a) => {return v.index == element.index}).length > 0) {
 			// 	continue;
@@ -298,11 +314,11 @@ State.on("set_bundle_pos", function(newPos) {
 	let decorated;
 	const state = State.get();
 	console.log(state);
-	console.log('set_bundle_pos', state.resource);
+	// console.log('set_bundle_pos', state.resource);
 
 	//stop if errors
 	const [resource, errCount] = 
-		SchemaUtils.toFhir(state.resource, true);
+		SchemaUtils.toFhir(State.get().bundle.resources[State.get().bundle.pos], true);
 	
 	if (!resource.title) { 
 		// return state.ui.set("status", "missing_title_error");
@@ -312,19 +328,19 @@ State.on("set_bundle_pos", function(newPos) {
 		return state.ui.set("status", duplicateError);
 	}
 
-	State.get().bundle.resources.splice(state.bundle.pos, 1, resource);
+	// State.get().bundle.resources.splice(state.bundle.pos, 1, resource);
 
-	if (!(decorated = decorateResource(State.get().bundle.resources[newPos], State.get().profiles))) {
-		return State.emit("set_ui", "resource_load_error");
-	}
-	console.log('decorated:', decorated, State.get().bundle.resources[newPos], resource);
-	resource.name = resource.title?.replace(/\s+/g, '');
+	// if (!(decorated = decorateResource(State.get().bundle.resources[newPos], State.get().profiles))) {
+	// 	return State.emit("set_ui", "resource_load_error");
+	// }
+	// console.log('decorated:', decorated, State.get().bundle.resources[newPos], resource);
+	// resource.name = resource.title?.replace(/\s+/g, '');
 
 
 	State.get().set({errFields:[]});
 	State.get().pivot()
 		//splice in any changes
-		.set("resource", decorated)
+		// .set("resource", decorated)
 		.bundle.set("pos", newPos)
 		.ui.set({status: "ready"});
 
@@ -348,12 +364,12 @@ State.on("remove_from_bundle", function(deleteAt:number = -1) {
 		pos = (newPos = state.bundle.pos-1);
 	}
 
-	if (!(decorated = decorateResource(state.bundle.resources[newPos], state.profiles))) {
-		return State.emit("set_ui", "resource_load_error");
-	}
+	// if (!(decorated = decorateResource(state.bundle.resources[newPos], state.profiles))) {
+	// 	return State.emit("set_ui", "resource_load_error");
+	// }
 	
 	State.get().pivot()
-		.set("resource", decorated)
+		// .set("resource", decorated)
 		.bundle.resources.splice(deleteAt >= 0 ? deleteAt : state.bundle.pos, 1)
 		.bundle.set("pos", pos);
 	console.log(deleteAt);
@@ -367,7 +383,7 @@ State.on("clone_resource", function() {
 
 	//stop if errors
 	const [resource, errCount] = 
-		SchemaUtils.toFhir(state.resource, true);
+		SchemaUtils.toFhir(State.get().bundle.resources[State.get().bundle.pos], true);
 	// console.log('clone_resource', resource, errCount);
 	if (errCount !== 0) { 
 		return state.ui.set("status", "validation_error");
@@ -477,27 +493,28 @@ const getResourceType = function(node: SageNodeInitialized) {
 	}
 };
 
-const showReferenceWarning = function(node: SageNodeInitialized, parent: SageNodeInitialized, fredId?: number) {
+const showReferenceWarning = function(node: SageNodeInitialized, parent: SageNodeInitialized, fredId?: string) {
 	const prevId = node.ui.prevState.value;
 	const currentId = fredId || node.value;
 	const resourceType = getResourceType(parent);
 	const prevRef = `${resourceType}/${prevId}`;
 	const newRef = `${resourceType}/${currentId}`;
-	const changeCount = 
-		BundleUtils.countRefs(State.get().bundle.resources, prevRef);
-	if (changeCount > 0) {
-		return State.get().ui.pivot()
-			.set({status: "ref_warning"}) 
-			.set({count: changeCount}) 
-			.set({update: [{from: prevRef, to: newRef }]});
-	}
+	console.log("showReferenceWarning", prevRef, newRef);
+	// const changeCount = 
+	// 	BundleUtils.countRefs(State.get().bundle.resources, prevRef);
+	// if (changeCount > 0) {
+	// 	return State.get().ui.pivot()
+	// 		.set({status: "ref_warning"}) 
+	// 		.set({count: changeCount}) 
+	// 		.set({update: [{from: prevRef, to: newRef }]});
+	// }
 };
 
 State.on("update_refs", function(changes) {
-	const resources = 
-		BundleUtils.fixAllRefs(State.get().bundle.resources, changes);
+	// const resources = 
+	// 	BundleUtils.fixAllRefs(State.get().bundle.resources, changes);
 
-	State.get().bundle.set("resources", resources);
+	// State.get().bundle.set("resources", resources);
 	return State.emit("set_ui", "ready");
 });
 
@@ -543,8 +560,7 @@ State.on("delete_node", function(node, parent) {
 
 	//don't allow deletion of root level id in bundled resource
 	if (isBundleAndRootId(node, parent)) {
-		const nextId = BundleUtils.findNextId(State.get().bundle.resources);
-		const fredId = BundleUtils.buildFredId(nextId);
+		const fredId = BundleUtils.buildFredId();
 		node.pivot()
 			.set({value: fredId})
 			.ui.set({status: "ready"});
@@ -647,7 +663,8 @@ State.on("insert_from_code_picker", function(node: FreezerNode<SageNodeInitializ
 
 State.on("set_selected_canonical", function(node: FreezerNode<SageNodeInitialized>, pos: number) {
 	const state = State.get();
-	const url = state.bundle.resources[pos].url;
+	const referencedResourceJson = SchemaUtils.toFhir(state.bundle.resources[pos], false);
+	const url = referencedResourceJson.url;
 	//console.log('set_selected_canonical', node, pos, state, url);
 	for (let i = 0; i < node.children.length; i++) {
 		if (node.children[i].name ==  'definitionCanonical') {

@@ -9,6 +9,7 @@ import ReactDOM from "react-dom";
 
 import State from "../state";
 import PrimitiveValidator from "../helpers/primitive-validator";
+import * as SchemaUtils from "../helpers/schema-utils";
 
 class ValueEditor extends React.Component {
 	static initClass() {
@@ -77,7 +78,8 @@ class ValueEditor extends React.Component {
 					(this.props.node.level === 1) && (resources = State.get().bundle?.resources)) {
 				for (let i = 0; i < resources.length; i++) {
 					const resource = resources[i];
-					if ((resource.id === e.target.value) && (i !== State.get().bundle.pos)) {
+					const idNode = SchemaUtils.getChildOfNode(resource, "id");
+					if (idNode && (idNode.value === e.target.value) && (i !== State.get().bundle.pos)) {
 						isInvalid = "This id is already used in the bundle.";
 					}
 				}

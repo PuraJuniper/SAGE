@@ -1,6 +1,7 @@
 import {useState, useEffect} from "react";
 import {Folder} from"./folder";
 import State from "../state";
+import * as SchemaUtils from "../helpers/schema-utils"
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {faDownload, faCaretLeft} from  '@fortawesome/pro-solid-svg-icons';
@@ -24,10 +25,14 @@ const Collection = (props:any) => {
                 {
                 resources.map(
                         (resource, i) => {
+                            const titleNode = SchemaUtils.getChildOfNode(resource, "title");
+                            const metaNode = SchemaUtils.getChildOfNode(resource, "meta");
+                            const metaProfileNode = metaNode ? SchemaUtils.getChildOfNode(metaNode, "profile") : undefined;
+                            const profilesArr = metaProfileNode ? SchemaUtils.getArrayFromObjectArrayNode(metaProfileNode) : [];
                         return <div className="col-lg-3 col-md-4 col-sm-6" key={i}>
                             <Folder 
-                            actTitle={resource.title}
-                            type={resource.meta.profile[0].split("-")[1]}
+                            actTitle={titleNode ? titleNode.value : ""}
+                            type={profilesArr ? profilesArr[0].split("-")[1] : ""}
                             wait={i*25} 
                             index={i}
                             />

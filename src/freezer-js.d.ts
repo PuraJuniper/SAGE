@@ -31,7 +31,7 @@ declare module 'freezer-js' {
     }
 
     type FreezerArray<T> = FreezerCommon<T> & {
-        append(): FreezerArray<T>,
+        append(a: T[]): FreezerArray<T>,
         pop(): T | undefined,
         prepend(): FreezerArray<T>,
         push(a: T): FreezerArray<T>,

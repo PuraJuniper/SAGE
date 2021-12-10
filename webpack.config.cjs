@@ -7,7 +7,7 @@ module.exports = {
 			progress: true,
 		},
 	},
-	entry: './src/index.js',
+	entry: './src/index.tsx',
 	output: {
 		filename: (process.env.WEBPACK_ENV === 'build' ? './public/bundle.js' : 'bundle.js')
 	},

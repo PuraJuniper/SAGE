@@ -33,17 +33,21 @@ import UserSettingsDialog from "./dialogs/user-settings-dialog";
 import AppInfo from "../package.json";
 import SelectResourceDialog from "./dialogs/select-resource-canonical-dialog";
 
-class RootComponent extends React.Component {
-	
-	constructor() {
-		super();
+interface RootProps {};
+class RootComponent extends React.Component<RootProps> {
+	appVersion: string;
+	isRemote: boolean;
+
+	constructor(props: RootProps) {
+		super(props);
 		const versionSegments = AppInfo.version.split(".");
 		//only take the major and minor
 		this.appVersion = versionSegments.slice(0,versionSegments.length-1).join(".");
+		this.isRemote = false;
 	}
 
 	getQs() {
-		const data = {};
+		const data: any = {};
 		const params = window.document.location.search?.substr(1).split("&");
 		for (let param of Array.from(params)) {
 			const [k,v] = param.split("=");
@@ -61,7 +65,7 @@ class RootComponent extends React.Component {
 
 		if (qs.warn !== "0") {
 			window.onbeforeunload = () => {
-				if (State.get().resource) {
+				if (State.get().bundle) {
 					return "If you leave this page you will lose any unsaved changes.";
 				}
 			};
@@ -69,7 +73,7 @@ class RootComponent extends React.Component {
 
 		const defaultProfilePath = "profiles/cpg.json";
 
-		return State.on("update", () => this.forceUpdate()).emit("load_initial_json",
+		return (State.on("update", () => this.forceUpdate()) as any).emit("load_initial_json",
 			qs.profiles || defaultProfilePath,
 			qs.resource, this.isRemote);
 	}
@@ -78,7 +82,7 @@ class RootComponent extends React.Component {
 		return window.pageYOffset;
 	}
 
-	componentDidUpdate(prevProps, prevState, snapshot) {
+	componentDidUpdate(prevProps: RootProps, prevState: RootProps, snapshot: any) {
 		window.scrollTo(0, snapshot);
 	} 
 
@@ -109,7 +113,7 @@ class RootComponent extends React.Component {
 			return <SelectView />
 		} else if (state.ui.status === "collection") {
 			return <Collection />
-		} else if (state.resource) {
+		} else if (state.bundle) {
 			return (
 				<div>
 					{state.mode === "basic" && 
@@ -133,7 +137,7 @@ class RootComponent extends React.Component {
 					</button>
 					</div>
 					}
-					<DomainResource node={state.resource} errFields={state.errFields}/>
+					<DomainResource node={state.bundle.resources[state.bundle.pos]} errFields={state.errFields}/>
 				</div>
 			);
 		} else if (!state.bundle && (state.ui.status.indexOf("error") === -1)) {
@@ -150,7 +154,7 @@ class RootComponent extends React.Component {
 				</button>
 				<button className="btn btn-primary btn-block" onClick={(e) => {
 					State.get().set("mode", "advanced");
-					this.handleCpg.bind(this)(e);
+					this.handleCpg();
 				}
 					}>
 					Create Advanced CPG
@@ -196,12 +200,12 @@ class RootComponent extends React.Component {
 
 		const navBar = this.isRemote ?
 			<RemoteNavbar
-				hasResource={state.resource ? true : undefined}
+				hasResource={state.bundle ? true : undefined}
 				appVersion={this.appVersion} 
 				hasProfiles={state.profiles !== null}
 			/>
 		:
-			<NavbarFred hasResource={state.resource ? true : undefined} appVersion={this.appVersion} />;
+			<NavbarFred hasResource={state.bundle ? true : undefined} appVersion={this.appVersion} />;
 		
 		return <div>
 			{navBar}
@@ -218,18 +222,20 @@ class RootComponent extends React.Component {
 			<CpgDialog
 				show={state.ui.status == "cpg"}		
 				/>
-			<ExportDialog show={state.ui.status === "export"}
-				bundle={state.bundle}
-				resource={state.resource}
-			/>
-			<CodePickerDialog show={state.ui.status === "codePicker"} node={state.ui.selectedNode} />
-			<ChangeProfileDialog show={state.ui.status === "change_profile"} nodeToChange={state.resource} profiles={state.profiles} previousProfile={state.resource?.profile}/>
-			<ValueSetDialog show={state.ui.status === "valueSet"} node={state.ui.selectedNode} 
-			profile={state.resource?.profile} valueset={state.valuesets}/>
+			{state.bundle ? 
+			<>
+				<ExportDialog show={state.ui.status === "export"} bundle={state.bundle} />
+				<ChangeProfileDialog show={state.ui.status === "change_profile"} nodeToChange={state.bundle.resources[state.bundle.pos]}
+					profiles={state.profiles}/>
+				<ValueSetDialog show={state.ui.status === "valueSet"} node={state.ui.selectedNode} 
+					profile={state.bundle.resources[state.bundle.pos].profile} valueset={state.valuesets} />
+				<SelectResourceDialog show={state.ui.status === "select"} node={state.ui.selectedNode} 
+					bundle = {state.bundle} /> 
+				<CodePickerDialog show={state.ui.status === "codePicker"} node={state.ui.selectedNode} />
+			</>
+			: ""
+			}
 			<UserSettingsDialog show={state.ui.status === "settings"} />
-			<SelectResourceDialog show={state.ui.status === "select"} node={state.ui.selectedNode} 
-			bundle = {state.bundle}
-			resource = {state.resource} /> 
 		</div>;
 	}
 }
