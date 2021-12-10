@@ -265,6 +265,14 @@ class CpgDialog extends React.Component {
             editor: this.state.editor,
             reviewer: this.state.reviewer,
         })
+        if (this.props.basic) {
+            State.get().set("mode", "basic");
+            var resourceJson = {resourceType: "PlanDefinition"};
+            var json = {resourceType: "Bundle"};
+            State.emit("load_json_resource", json);
+            return State.get().set("ui", {status:"cards"});
+        }
+        State.get().set("mode", "advanced");
         var resourceJson = {resourceType: "PlanDefinition"};
         var json = {resourceType: "Bundle", entry: [{resource: resourceJson}]};
         const resourceProfile = SchemaUtils.getProfileOfResource(State.get().profiles, resourceJson);
@@ -296,7 +304,10 @@ class CpgDialog extends React.Component {
                             type = "file"
                             id = "fileUpload"
                             style={{display: "none"}}
-                            onChange={this.handleSelectFile.bind(this)}
+                            onChange={(e) => {
+                                State.get().set("mode", "advanced");
+                                this.handleSelectFile.bind(this)(e);
+                            }}
                             ref="fhirFile"
                         />
                         <label htmlFor="fileUpload" className="btn btn-primary btn-block" style={{marginTop: "20px"}}>
@@ -329,7 +340,10 @@ class CpgDialog extends React.Component {
                 >
                     <button
                         className="btn btn-primary btn-block"
-                        onClick={this.handleLoadText.bind(this)}
+                        onClick={(e) => {
+                            State.get().set("mode", "advanced");
+                            this.handleLoadText.bind(this)(e)
+                        }}
                         disabled={this.state.fhirText.length < 3}
                     >{`\
 \t\t\t\t\tLoad JSON\
@@ -361,7 +375,10 @@ class CpgDialog extends React.Component {
                     >
                         <button
                             className="btn btn-primary btn-block"
-                            onClick={this.handleLoadUrl.bind(this)}
+                            onClick={(e) => {
+                                State.get().set("mode", "advanced");
+                                this.handleLoadUrl.bind(this)(e)
+                            }}
                             disabled={this.state.fhirUrl.length < 3}
                         >{`\
 \t\t\t\t\tRead JSON\

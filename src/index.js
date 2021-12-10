@@ -97,7 +97,6 @@ class RootComponent extends React.Component {
 	render() {
 		let bundleBar;
 		const state = State.get();
-		console.log(state.bundle?.resources);
 
 		if (state.bundle && state.mode !== "basic") {
 			bundleBar = <BundleBar bundle={state.bundle} />;
@@ -116,7 +115,7 @@ class RootComponent extends React.Component {
 					{state.mode === "basic" && 
 					<div>
 					<button className="navigate-reverse col-lg-2 col-md-3" 
-							disabled={state.bundle.resources.length <= 1}
+							disabled={state.bundle?.resources.length <= 1}
 							onClick={() => {
 								State.emit("remove_from_bundle");
 								State.get().set("ui", {status:"cards"})
@@ -135,9 +134,6 @@ class RootComponent extends React.Component {
 					</div>
 					}
 					<DomainResource node={state.resource} errFields={state.errFields}/>
-					{state.bundle?.resources?.length > 1 && 
-						<DomainResource node={decorateResource(state.bundle?.resources?.[0], state.profiles)} errFields={state.errFields}/>
-					}
 				</div>
 			);
 		} else if (!state.bundle && (state.ui.status.indexOf("error") === -1)) {
@@ -145,19 +141,16 @@ class RootComponent extends React.Component {
 				<button className="btn btn-primary btn-block" onClick={this.handleOpen.bind(this)}>
 					Create Resource
 				</button>
-				<button className="btn btn-primary btn-block" onClick={() => {
-					State.get().set("CPGName", "CPGName")
-					State.get().set("mode", "basic")
-					State.get().set("ui", {status:"cards"});
+				<button className="btn btn-primary btn-block" onClick={(e) => {
+					State.emit("set_ui", "basic-cpg");
 					}}>
-					Create Basic CPG
+					Basic CPG
 				</button>
 				<button className="btn btn-primary btn-block" onClick={(e) => {
-					State.get().set("mode", "advanced");
-					this.handleCpg.bind(this)(e);
+					State.emit("set_ui", "advanced-cpg");
 				}
 					}>
-					Create Advanced CPG
+					Advanced CPG
 				</button>
 			</div></div>;
 		}
@@ -220,7 +213,8 @@ class RootComponent extends React.Component {
 				openMode={state.ui.openMode}
 				/>
 			<CpgDialog
-				show={state.ui.status == "cpg"}		
+				show={["basic-cpg", "advanced-cpg"].includes(state.ui.status)}
+				basic={state.ui.status === "basic-cpg"}	
 				/>
 			<ExportDialog show={state.ui.status === "export"}
 				bundle={state.bundle}

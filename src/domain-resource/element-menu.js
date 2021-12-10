@@ -103,7 +103,7 @@ class ElementMenu extends React.Component {
 				const required = unused.isRequired ? "*" : "";
 				if (name != "action" && name != "condition" && name != "expression" && name != "root node" ||
 					name == "action" && ["DefinitionCanonical", "Condition"].includes(unused.displayName) ||
-					name == "root node" && ["Action", "Author", "Editor"].includes(unused.displayName) ||
+					name == "root node" && ["Action"].includes(unused.displayName) ||
 					name == "condition" && ["Kind", "Expression"].includes(unused.displayName) || 
 					name == "expression" && ["Language", "Expression"].includes(unused.displayName)) {
 					result.push(<Dropdown.Item key={i} onSelect={this.handleAddItem.bind(this, unused)}>

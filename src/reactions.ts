@@ -244,13 +244,13 @@ const isBundleAndRootId = (node: SageNodeInitialized, parent: SageNodeInitialize
     (parent.level === 0);
 
 State.on("load_json_resource", (json, isCPG = true) => {
-	console.log('load_json_resource', json);
+	//console.log('load_json_resource', json);
 	State.get().set("canonicalUris", []);
 	const {
 		openMode
     } = State.get().ui;
 	const isBundle = checkBundle(json) as boolean;
-	console.log('load_json_resource', json);
+	//console.log('load_json_resource', json);
 	
 	// CPGName needs to be deleted
 	if (!isCPG) State.get().set("CPGName", "");

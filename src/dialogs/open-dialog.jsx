@@ -196,7 +196,11 @@ class OpenDialog extends React.Component {
                             type = "file"
                             id = "fileUpload"
                             style={{display: "none"}}
-                            onChange={this.handleSelectFile.bind(this)}
+                            onChange={(e) => {
+                                State.get().set("mode", "standard");
+                                this.handleSelectFile.bind(this)(e)
+                            }
+                            }
                             ref="fhirFile"
                         />
                         <label htmlFor="fileUpload" className="btn btn-primary btn-block" style={{marginTop: "20px"}}>
@@ -229,7 +233,10 @@ class OpenDialog extends React.Component {
                 >
                     <button
                         className="btn btn-primary btn-block"
-                        onClick={this.handleLoadText.bind(this)}
+                        onClick={(e) => {
+                            State.get().set("mode", "standard");
+                            this.handleLoadText.bind(this);
+                        }}
                         disabled={this.state.fhirText.length < 3}
                     >{`\
 \t\t\t\t\tLoad JSON\
@@ -261,7 +268,10 @@ class OpenDialog extends React.Component {
                     >
                         <button
                             className="btn btn-primary btn-block"
-                            onClick={this.handleLoadUrl.bind(this)}
+                            onClick={(e) => {
+                                State.get().set("mode", "standard");
+                                this.handleLoadUrl.bind(this)
+                            }}
                             disabled={this.state.fhirUrl.length < 3}
                         >{`\
 \t\t\t\t\tRead JSON\
@@ -321,7 +331,10 @@ class OpenDialog extends React.Component {
                     >
                         <button
                             className="btn btn-primary btn-block"
-                            onClick={this.handleLoadNew.bind(this)}
+                            onClick={(e) => {
+                                State.get().set("mode", "standard");
+                                this.handleLoadNew.bind(this);}
+                            }
                         >{`\
 \t\t\t\t\tCreate Resource\
 `}</button>
