@@ -33,16 +33,17 @@ export const Folder = (props: any) => {
             <BaseCard header={props.type} title="" link={props.link}/>
         </div>
         <div style={{position:"absolute", top:"16px", left:"0px", width:"100%"}}>
-            <BaseCard header="PlanDefinition" title="PlanDef Title" 
+            <BaseCard header="PlanDefinition" title={props.planTitle}
             content={
                 props.actTitle
                 }/>
         </div>
-        {State.get().bundle.resources.length > 1 && 
+        {State.get().bundle.resources.length > 2 && 
         <button className="delete" 
         onClick={(e) => {
             e.stopPropagation();
-            State.emit("remove_from_bundle", props.index);
+            State.emit("remove_from_bundle", props.index + 1);
+            State.emit("remove_from_bundle", props.index); 
             State.get().set("ui", {status:"collection"})
         }}>&times;</button>}
     </div>

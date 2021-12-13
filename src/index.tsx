@@ -20,6 +20,7 @@ import RefWarning from "./ref-warning";
 import Footer from "./footer";
 import SelectView from "./simplified/selectView"
 import Collection from "./simplified/collection"
+import { SimpleForm } from "./simplified/simpleForm";
 
 import DomainResource from "./domain-resource/";
 import CpgDialog from "./dialogs/cpg-dialog";
@@ -115,30 +116,9 @@ class RootComponent extends React.Component<RootProps> {
 			return <Collection />
 		} else if (state.bundle) {
 			return (
-				<div>
-					{state.mode === "basic" && 
-					<div>
-					<button className="navigate-reverse col-lg-2 col-md-3" 
-							disabled={state.bundle.resources.length <= 1}
-							onClick={() => {
-								State.emit("remove_from_bundle");
-								State.get().set("ui", {status:"cards"})
-							}}>
-							<FontAwesomeIcon icon={faCaretLeft} />
-							&nbsp;Delete Resource
-					</button>
-					<button className="navigate col-lg-2 col-md-3" 
-							onClick={() => {
-								State.emit("save_changes_to_bundle_json");
-								State.get().set("ui", {status:"collection"})
-							}}>
-								Save Resource&nbsp;
-								<FontAwesomeIcon icon={faCaretRight} />
-					</button>
-					</div>
-					}
+					state.mode === "basic" ? 
+					<SimpleForm actNode={state.bundle.resources[state.bundle.pos]} planNode={state.bundle.resources[state.bundle.pos+1]}/> : 
 					<DomainResource node={state.bundle.resources[state.bundle.pos]} errFields={state.errFields}/>
-				</div>
 			);
 		} else if (!state.bundle && (state.ui.status.indexOf("error") === -1)) {
 			return <div className="row" style={{marginTop: "60px", marginBottom: "60px"}}><div className="col-xs-offset-4 col-xs-4">

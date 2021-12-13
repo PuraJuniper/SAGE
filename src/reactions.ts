@@ -91,7 +91,7 @@ export const enforceDuplicates = function(id?: string, title?: string, url?: str
 		const resource = resources[i];
 		const resourceJson = SchemaUtils.toFhir(resource, false);
 		if (id && resourceJson.id == id) return "id_duplicate_error";
-		if (title && resourceJson.title == title) return "title_duplicate_error";
+		//if (title && resourceJson.title == title) return "title_duplicate_error";
 		if (url && resourceJson.url == url) return "url_duplicate_error";
 	}
 };

@@ -49,15 +49,20 @@ export const BaseCard = (props:any) => {
                         })
                         if (State.get().bundle) {
 	                        State.emit("save_changes_to_bundle_json");
+                            State.get().bundle.set("pos", State.get().bundle.resources.length-1);
                             State.get().ui.set("openMode", "insert");
                         }
-                        let resourceJson = {resourceType: "ActivityDefinition"};
-                        let json = {resourceType: "Bundle", entry: [{resource: resourceJson}]};
-                        const resourceProfile = SchemaUtils.getProfileOfResource(State.get().profiles, resourceJson);
+                        let json = {resourceType: "Bundle", entry: [{resource: {resourceType: "ActivityDefinition"}}]};
+                        //const resourceProfile = SchemaUtils.getProfileOfResource(State.get().profiles, resourceJson);
                         (json.entry[0].resource as any).meta = {
                             profile: [props.profile]
                         };
-                        return State.emit("load_json_resource", json);
+                        State.emit("load_json_resource", json);
+                        State.emit("save_changes_to_bundle_json");
+                        State.get().ui.set("openMode", "insert");
+                        json = {resourceType: "Bundle", entry: [{resource: {resourceType: "PlanDefinition"}}]};
+                        State.emit("load_json_resource", json);
+                        State.get().bundle.set("pos", State.get().bundle.pos-1);
                     }, 350)
                     }
                 }}

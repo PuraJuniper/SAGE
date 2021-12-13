@@ -25,14 +25,18 @@ const Collection = (props:any) => {
                 {
                 resources.map(
                         (resource, i) => {
-                            const titleNode = SchemaUtils.getChildOfNode(resource, "title");
+                            if (i % 2 == 1) return; // Every other resource would be a plandef
+                            const actTitleNode = SchemaUtils.getChildOfNode(resource, "title");
+                            const planTitleNode = SchemaUtils.getChildOfNode(resources[i+1], "title");
                             const metaNode = SchemaUtils.getChildOfNode(resource, "meta");
+                            const profile = SchemaUtils.getChildOfNode(resource, "profile");
                             const metaProfileNode = metaNode ? SchemaUtils.getChildOfNode(metaNode, "profile") : undefined;
                             const profilesArr = metaProfileNode ? SchemaUtils.getArrayFromObjectArrayNode(metaProfileNode) : [];
                         return <div className="col-lg-3 col-md-4 col-sm-6" key={i}>
                             <Folder 
-                            actTitle={titleNode ? titleNode.value : ""}
-                            type={profilesArr ? profilesArr[0].split("-")[1] : ""}
+                            actTitle={actTitleNode ? actTitleNode.value : ""}
+                            planTitle={planTitleNode ? planTitleNode.value : ""}
+                            type={profile ? (profile as any).profile.split("-")[1] : ""}
                             wait={i*25} 
                             index={i}
                             />
