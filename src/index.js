@@ -33,6 +33,8 @@ import UserSettingsDialog from "./dialogs/user-settings-dialog";
 import AppInfo from "../package.json";
 import SelectResourceDialog from "./dialogs/select-resource-canonical-dialog";
 
+// Whenever one of these are the statuses, the resourceContent does not need to update
+const changeLessContentStatuses = ["closedialog", "open", "basic-cpg", "advanced-cpg", "export"]
 class RootComponent extends React.Component {
 	
 	constructor() {
@@ -40,6 +42,9 @@ class RootComponent extends React.Component {
 		const versionSegments = AppInfo.version.split(".");
 		//only take the major and minor
 		this.appVersion = versionSegments.slice(0,versionSegments.length-1).join(".");
+		this.state = {
+			prevStatus: ""
+		}
 	}
 
 	getQs() {
@@ -50,6 +55,10 @@ class RootComponent extends React.Component {
 			data[k] = decodeURIComponent(v);
 		}
 		return data;
+	}
+
+	shouldComponentUpdate() {
+		return this.state.prevStatus !== State.get().ui.status;
 	}
 
 	componentDidMount() {
@@ -79,6 +88,9 @@ class RootComponent extends React.Component {
 	}
 
 	componentDidUpdate(prevProps, prevState, snapshot) {
+		if (!changeLessContentStatuses.includes(State.get().ui.status)) {
+			this.setState({prevStatus:State.get().ui.status});
+		}
 		window.scrollTo(0, snapshot);
 	} 
 
@@ -97,6 +109,7 @@ class RootComponent extends React.Component {
 	render() {
 		let bundleBar;
 		const state = State.get();
+		const prevStatus = this.state.prevStatus;
 
 		if (state.bundle && state.mode !== "basic") {
 			bundleBar = <BundleBar bundle={state.bundle} />;
@@ -105,9 +118,11 @@ class RootComponent extends React.Component {
 		const resourceContent = (() => {
 			if (state.ui.status === "loading") {
 			return <div className="spinner"><img src="../img/ajax-loader.gif" /></div>;
-		} else if (state.ui.status === "cards") {
+		} else if (state.ui.status === "cards" || 
+				prevStatus === "cards" && changeLessContentStatuses.includes(state.ui.status)) {
 			return <SelectView />
-		} else if (state.ui.status === "collection") {
+		} else if (state.ui.status === "collection" || 
+				prevStatus === "collection" && changeLessContentStatuses.includes(state.ui.status)) {
 			return <Collection />
 		} else if (state.resource) {
 			return (

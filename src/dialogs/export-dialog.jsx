@@ -22,8 +22,8 @@ class ExportDialog extends React.Component {
     }
 
     handleClose(errFields, e) {
-        if (errFields.length > 0) return State.emit("highlight_errors", errFields);
-        return State.emit("set_ui", "ready");
+        if (errFields.length > 0) State.emit("highlight_errors", errFields);
+        return State.emit("set_ui", "closedialog");
     }
 
     buildJson() {
@@ -101,7 +101,7 @@ class ExportDialog extends React.Component {
         const errNotice =
             errCount > 0 ? (
                 <div className="alert alert-danger">
-                    Note that the current resource has unresolved data entry errors:
+                    Note that this most recent resource has unresolved data entry errors:
                     {errFields.map(function(f, idx) {return (<li key={idx}>{f}</li>)})}
                 </div>
             ) : (

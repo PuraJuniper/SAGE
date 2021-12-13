@@ -82,7 +82,7 @@ class OpenDialog extends React.Component {
 
     handleClose(e) {
         this.setState({showSpinner: false});
-        return State.emit("set_ui", "ready");
+        return State.emit("set_ui", "closedialog");
     }
 
     handleSelectFile(e) {
