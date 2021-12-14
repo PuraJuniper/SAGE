@@ -36,27 +36,32 @@ class NavbarFred extends React.Component {
 
 	renderButtons() {	
 		const navItems = [
-			<Nav.Link key="open" onClick={this.handleUiChange.bind(this, "open")}>
-				Open Resource
+			<Nav.Link key="open" onClick={(e) => {
+				this.handleUiChange.bind(this, "open")(e)}
+			}>
+				Create Resource
 			</Nav.Link>
 		];
-		if (this.props.hasResource) { navItems.push(<Nav.Link 
-			key="resource_json" 
-			onClick={this.handleUiChange.bind(this, "export")}>
-				Export JSON
-		</Nav.Link>
-		); }
 
 		return navItems;
 	}
 
 	renderExtraButtons() {
 		const navCpg = [
-			<Nav.Link key="cpg" onClick={(e) => {
-				State.get().set("mode", "advanced");
-				this.handleUiChange.bind(this, "cpg")(e);
+			<Nav.Link key="bas-cpg" onClick={(e) => {
+				this.handleUiChange.bind(this, "basic-cpg")(e);
 				}}>
-				CPG
+				Basic CPG
+			</Nav.Link>,
+			<Nav.Link key="adv-cpg" onClick={(e) => {
+				this.handleUiChange.bind(this, "advanced-cpg")(e);
+				}}>
+				Advanced CPG
+			</Nav.Link>,
+			this.props.hasResource && <Nav.Link 
+			key="resource_json" 
+			onClick={this.handleUiChange.bind(this, "export")}>
+				Export JSON
 			</Nav.Link>,
 			<Nav.Link key="settings" onClick={this.handleUiChange.bind(this, "settings")}>
 				User Settings

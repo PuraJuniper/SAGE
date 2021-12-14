@@ -28,9 +28,9 @@ class CpgDialog extends React.Component {
             copyright:"",
             approvalDate:"",
             lastReviewDate:"",
-            author:"",
-            editor:"",
-            reviewer:"",
+            author:"author",
+            editor:"editor",
+            reviewer:"reviewer",
             CPGName: "cpgname",
             authname: "authname",
             fhirText: '{"resourceType": "Patient"}',
@@ -169,7 +169,7 @@ class CpgDialog extends React.Component {
 
     handleClose(e) {
         this.setState({showSpinner: false});
-        return State.emit("set_ui", "ready");
+        return State.emit("set_ui", "closedialog");
     }
 
     handleVersionChange(e) {
@@ -265,6 +265,11 @@ class CpgDialog extends React.Component {
             editor: this.state.editor,
             reviewer: this.state.reviewer,
         })
+        if (this.props.basic) {
+            State.get().set("mode", "basic");
+            return State.get().set("ui", {status:"cards"});
+        }
+        State.get().set("mode", "advanced");
         var resourceJson = {resourceType: "PlanDefinition"};
         var json = {resourceType: "Bundle", entry: [{resource: resourceJson}]};
         const resourceProfile = SchemaUtils.getProfileOfResource(State.get().profiles, resourceJson);
@@ -296,7 +301,10 @@ class CpgDialog extends React.Component {
                             type = "file"
                             id = "fileUpload"
                             style={{display: "none"}}
-                            onChange={this.handleSelectFile.bind(this)}
+                            onChange={(e) => {
+                                State.get().set("mode", "advanced");
+                                this.handleSelectFile.bind(this)(e);
+                            }}
                             ref="fhirFile"
                         />
                         <label htmlFor="fileUpload" className="btn btn-primary btn-block" style={{marginTop: "20px"}}>
@@ -311,7 +319,7 @@ class CpgDialog extends React.Component {
         return (
             <div className="row">
                 <div className="col-md-12">
-                    <p style={{marginTop: "20px"}}>
+                    <p style={{marginTop: "10px"}}>
                         Paste in a JSON FHIR Resource or Bundle:
                     </p>
                     <textarea
@@ -329,7 +337,10 @@ class CpgDialog extends React.Component {
                 >
                     <button
                         className="btn btn-primary btn-block"
-                        onClick={this.handleLoadText.bind(this)}
+                        onClick={(e) => {
+                            State.get().set("mode", "advanced");
+                            this.handleLoadText.bind(this)(e)
+                        }}
                         disabled={this.state.fhirText.length < 3}
                     >{`\
 \t\t\t\t\tLoad JSON\
@@ -344,7 +355,7 @@ class CpgDialog extends React.Component {
             <form onSubmit={this.handleLoadUrl.bind(this)}>
                 <div className="row">
                     <div className="col-md-12">
-                        <p style={{marginTop: "20px"}}>
+                        <p style={{marginTop: "10px"}}>
                             Enter the URL for a JSON FHIR Resource or Bundle:
                         </p>
                         <input
@@ -361,7 +372,10 @@ class CpgDialog extends React.Component {
                     >
                         <button
                             className="btn btn-primary btn-block"
-                            onClick={this.handleLoadUrl.bind(this)}
+                            onClick={(e) => {
+                                State.get().set("mode", "advanced");
+                                this.handleLoadUrl.bind(this)(e)
+                            }}
                             disabled={this.state.fhirUrl.length < 3}
                         >{`\
 \t\t\t\t\tRead JSON\
@@ -376,76 +390,68 @@ class CpgDialog extends React.Component {
         return (
             <Container>
                 <Row className="row">
-                    <Col md="3">   
-                        <p style={{marginTop: "20px"}}>Version:</p>
+                    <Col md="6">   
+                        <p style={{marginTop: "10px"}}>Version:</p>
                         <input
                             className="form-control"
-                            style={{marginTop: "10px", marginBottom: "10px"}}
                             value={this.state.version}
                             onChange={this.handleVersionChange.bind(this)}
                         />   
                     </Col>    
-                    <Col md="3">
-                        <p style={{marginTop: "20px"}}>Date:</p>
+                    <Col md="6">
+                        <p style={{marginTop: "10px"}}>Date:</p>
                         <input
                             className="form-control"
-                            style={{marginTop: "10px", marginBottom: "10px"}}
                             value={this.state.date}
                             onChange={this.handleDateChange.bind(this)}
                         />  
                     </Col>
-                    <Col md="3">
-                    <p style={{marginTop: "20px"}}>Status:</p>
+                    <Col md="6">
+                    <p style={{marginTop: "10px"}}>Status:</p>
                         <input
                             className="form-control"
-                            style={{marginTop: "10px", marginBottom: "10px"}}
                             value={this.state.status}
                             onChange={this.handleStatusChange.bind(this)}
                         />  
                     </Col> 
-                    <Col md="3">
-                        <p style={{marginTop: "20px"}}>Experimental:</p>
+                    <Col md="6">
+                        <p style={{marginTop: "10px"}}>Experimental:</p>
                         <input
                             className="form-control"
-                            style={{marginTop: "10px", marginBottom: "10px"}}
                             value={this.state.experimental}
                             onChange={this.handleExperimentalChange.bind(this)}
                         />  
                     </Col>
                 </Row>
                 <Row className="row">
-                    <Col md="3">
-                    <p style={{marginTop: "20px"}}>Publisher:</p>
+                    <Col md="6">
+                    <p style={{marginTop: "10px"}}>Publisher:</p>
                         <input
                             className="form-control"
-                            style={{marginTop: "10px", marginBottom: "10px"}}
                             value={this.state.authname}
                             onChange={this.handleAuthorNameChange.bind(this)}
                         />
                     </Col>
-                    <Col md="3">
-                        <p style={{marginTop: "20px"}}>Copyright:</p>
+                    <Col md="6">
+                        <p style={{marginTop: "10px"}}>Copyright:</p>
                         <input
                             className="form-control"
-                            style={{marginTop: "10px", marginBottom: "10px"}}
                             value={this.state.copyright}
                             onChange={this.handleCopyrightChange.bind(this)}
                         />  
                     </Col>   
-                    <Col md="3">
-                        <p style={{marginTop: "20px"}}>Approval Date:</p>
+                    <Col md="6">
+                        <p style={{marginTop: "10px"}}>Approval Date:</p>
                         <input
                             className="form-control"
-                            style={{marginTop: "10px", marginBottom: "10px"}}
                             value={this.state.approvalDate}
                             onChange={this.handleapprovaldateChange.bind(this)}
                         />  
                     </Col> 
-                    <Col md="3">
-                        <p style={{marginTop: "20px"}}>Last Review Date:</p>
+                    <Col md="6">
+                        <p style={{marginTop: "10px"}}>Last Review Date:</p>
                         <input
                             className="form-control"
-                            style={{marginTop: "10px", marginBottom: "10px"}}
                             value={this.state.lastReviewDate}
                             onChange={this.handlelastreviewdateChange.bind(this)}
                         />  
@@ -453,10 +459,9 @@ class CpgDialog extends React.Component {
                 </Row>
                 <Row className="row">
                 <Col md="12">                                     
-                        <p style={{marginTop: "20px"}}>CPG Name:</p>
+                        <p style={{marginTop: "10px"}}>CPG Name:</p>
                         <input
                             className="form-control"
-                            style={{marginTop: "10px", marginBottom: "10px"}}
                             value={this.state.CPGName}
                             onChange={this.handleCPGNameChange.bind(this)}
                         />
@@ -464,28 +469,25 @@ class CpgDialog extends React.Component {
                 </Row>
                 <Row className="row">
                 <Col md="4">                                     
-                        <p style={{marginTop: "20px"}}>Author:</p>
+                        <p style={{marginTop: "10px"}}>Author:</p>
                         <input
                             className="form-control"
-                            style={{marginTop: "10px", marginBottom: "10px"}}
                             value={this.state.author}
                             onChange={this.handleAuthorChange.bind(this)}
                         />
                     </Col>
                     <Col md="4">                                     
-                        <p style={{marginTop: "20px"}}>Editor:</p>
+                        <p style={{marginTop: "10px"}}>Editor:</p>
                         <input
                             className="form-control"
-                            style={{marginTop: "10px", marginBottom: "10px"}}
                             value={this.state.editor}
                             onChange={this.handleEditorChange.bind(this)}
                         />
                     </Col>
                     <Col md="4">                                     
-                        <p style={{marginTop: "20px"}}>Reviewer:</p>
+                        <p style={{marginTop: "10px"}}>Reviewer:</p>
                         <input
                             className="form-control"
-                            style={{marginTop: "10px", marginBottom: "10px"}}
                             value={this.state.reviewer}
                             onChange={this.handleReviewerChange.bind(this)}
                         />
@@ -495,7 +497,7 @@ class CpgDialog extends React.Component {
                     <Col
                         md="auto"
                         className="col-xs-4 col-xs-offset-4"
-                        style={{marginTop: "10px", marginBottom: "10px"}}
+                        style={{marginTop: "20px", marginBottom: "10px"}}
                     >
                         <button
                             className="btn btn-primary btn-block"

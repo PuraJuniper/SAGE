@@ -79,8 +79,7 @@ class ElementMenu extends React.Component {
 		return <Dropdown.Menu style={{margin: "0px"}}><Dropdown.Item>Loading...</Dropdown.Item></Dropdown.Menu>;
 	}
 
-	renderMenu() {
-		console.log(this.props.node);
+	renderMenu() {	
 		if (this.props.node?.ui?.status !== "menu") {
 			return this.renderPlaceholder(); 
 		}

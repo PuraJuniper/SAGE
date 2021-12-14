@@ -261,7 +261,7 @@ export const getAvailableElementChildren = function(profiles: SimplifiedProfiles
 	return getElementChildren(profiles, node, usedElements);
 }
 
-const getDefaultValue = (schema: SchemaDef, fhirType: string): {
+const getDefaultValue = (schema: SchemaDef, fhirType: string, parentName:string=""): {
 	isFixed: boolean,
 	defaultValue: string | boolean | null,
 } => {
@@ -288,8 +288,14 @@ const getDefaultValue = (schema: SchemaDef, fhirType: string): {
 		case "name":
 			if (State.get().CPGName != "") {
 				//filter editor and reviewer
-				if (pathSuffix[0] == "ContactDetail") {				
-					defaultValue = State.get().author;
+				if (pathSuffix[0] == "ContactDetail") {	
+					if (parentName == "author") {
+						defaultValue = State.get().author;
+					} else if (parentName == "editor") {
+						defaultValue = State.get().editor;
+					} else if (parentName == "reviewer") {
+						defaultValue = State.get().reviewer
+					}	
 				}
 				// if (pathSuffix[0] == "ContactDetail") {			
 				// 	defaultValue = State.get().editor;
@@ -424,7 +430,7 @@ export var buildChildNode = function(profiles: SimplifiedProfiles, parentNode: S
 		const {
 			isFixed,
 			defaultValue
-		} = getDefaultValue(schema, fhirType);
+		} = getDefaultValue(schema, fhirType, parentNode.name);
 		const resultNodeType = isComplexType(fhirType) && (parentNode.nodeType === "objectArray") ?
 				"arrayObject"
 			: isComplexType(fhirType) ?

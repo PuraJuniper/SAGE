@@ -35,7 +35,8 @@ import AppInfo from "../package.json";
 import SelectResourceDialog from "./dialogs/select-resource-canonical-dialog";
 
 interface RootProps {};
-class RootComponent extends React.Component<RootProps> {
+const changeLessContentStatuses = ["closedialog", "open", "basic-cpg", "advanced-cpg", "export"]
+class RootComponent extends React.Component<RootProps, {prevStatus:string}> {
 	appVersion: string;
 	isRemote: boolean;
 
@@ -45,6 +46,10 @@ class RootComponent extends React.Component<RootProps> {
 		//only take the major and minor
 		this.appVersion = versionSegments.slice(0,versionSegments.length-1).join(".");
 		this.isRemote = false;
+		this.state = {
+			prevStatus: ""
+		}
+		
 	}
 
 	getQs() {
@@ -55,6 +60,10 @@ class RootComponent extends React.Component<RootProps> {
 			data[k] = decodeURIComponent(v);
 		}
 		return data;
+	}
+
+	shouldComponentUpdate() {
+		return this.state.prevStatus !== State.get().ui.status;
 	}
 
 	componentDidMount() {
@@ -84,6 +93,9 @@ class RootComponent extends React.Component<RootProps> {
 	}
 
 	componentDidUpdate(prevProps: RootProps, prevState: RootProps, snapshot: any) {
+		if (!changeLessContentStatuses.includes(State.get().ui.status)) {
+			this.setState({prevStatus:State.get().ui.status});
+		}
 		window.scrollTo(0, snapshot);
 	} 
 
@@ -102,6 +114,8 @@ class RootComponent extends React.Component<RootProps> {
 	render() {
 		let bundleBar;
 		const state = State.get();
+		const prevStatus = this.state.prevStatus;
+		console.log(state.bundle?.resources);
 
 		if (state.bundle && state.mode !== "basic") {
 			bundleBar = <BundleBar bundle={state.bundle} />;
@@ -110,9 +124,11 @@ class RootComponent extends React.Component<RootProps> {
 		const resourceContent = (() => {
 			if (state.ui.status === "loading") {
 			return <div className="spinner"><img src="../img/ajax-loader.gif" /></div>;
-		} else if (state.ui.status === "cards") {
+		} else if (state.ui.status === "cards" || 
+				prevStatus === "cards" && changeLessContentStatuses.includes(state.ui.status)) {
 			return <SelectView />
-		} else if (state.ui.status === "collection") {
+		} else if (state.ui.status === "collection" || 
+				prevStatus === "collection" && changeLessContentStatuses.includes(state.ui.status)) {
 			return <Collection />
 		} else if (state.bundle) {
 			return (
@@ -125,19 +141,16 @@ class RootComponent extends React.Component<RootProps> {
 				<button className="btn btn-primary btn-block" onClick={this.handleOpen.bind(this)}>
 					Create Resource
 				</button>
-				<button className="btn btn-primary btn-block" onClick={() => {
-					State.get().set("CPGName", "CPGName")
-					State.get().set("mode", "basic")
-					State.get().set("ui", {status:"cards"});
+				<button className="btn btn-primary btn-block" onClick={(e) => {
+					State.emit("set_ui", "basic-cpg");
 					}}>
-					Create Basic CPG
+					Basic CPG
 				</button>
 				<button className="btn btn-primary btn-block" onClick={(e) => {
-					State.get().set("mode", "advanced");
-					this.handleCpg();
+					State.emit("set_ui", "advanced-cpg");
 				}
 					}>
-					Create Advanced CPG
+					Advanced CPG
 				</button>
 			</div></div>;
 		}
@@ -200,7 +213,8 @@ class RootComponent extends React.Component<RootProps> {
 				openMode={state.ui.openMode}
 				/>
 			<CpgDialog
-				show={state.ui.status == "cpg"}		
+				show={["basic-cpg", "advanced-cpg"].includes(state.ui.status)}
+				basic={state.ui.status === "basic-cpg"}	
 				/>
 			{state.bundle ? 
 			<>
