@@ -297,12 +297,6 @@ const getDefaultValue = (schema: SchemaDef, fhirType: string, parentName:string=
 						defaultValue = State.get().reviewer
 					}	
 				}
-				// if (pathSuffix[0] == "ContactDetail") {			
-				// 	defaultValue = State.get().editor;
-				// }
-				// if (pathSuffix[0] == "ContactDetail") {					
-				// 	defaultValue = State.get().reviewer;
-				// }
 				else {
 					defaultValue = `${pathSuffix[0]}-${State.get().CPGName}${State.get().resCount}`;
 				}
@@ -333,16 +327,6 @@ const getDefaultValue = (schema: SchemaDef, fhirType: string, parentName:string=
 		case "date":
 			if (State.get().date != "") {
 				defaultValue = State.get().date;
-			}
-			break;
-		case "status":
-			if (State.get().status != "") {
-				defaultValue = State.get().status;
-			}
-			break;
-		case "experimental":
-			if (State.get().experimental != "") {
-				defaultValue = State.get().experimental;
 			}
 			break;
 		case "copyright":
