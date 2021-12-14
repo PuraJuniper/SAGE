@@ -24,7 +24,7 @@ export interface StateVars {
 	editor: string,
 	reviewer: string,
 	CPGName: string,
-	authname: string,
+	publisher: string,
 	canonicalUris: {uri: string, resourceType: string}[],
 	showHiddenElements: boolean,
 	bundle?: {
@@ -59,7 +59,7 @@ const defaultStateVars: StateVars = {
 	editor: "",
 	reviewer: "",
 	CPGName: "",
-	authname: "",
+	publisher: "",
 	canonicalUris: [], // URIs to reference in canonical elements
 	showHiddenElements: false,
 	profiles: {},

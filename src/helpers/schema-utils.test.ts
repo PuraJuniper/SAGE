@@ -55,7 +55,7 @@ const invalidResource = {
 
 const startState = State.get().set({
     CPGName: 'test-cpg-name',
-    authname: 'test-cpg-author',
+    publisher: 'test-cpg-author',
 });
 
 beforeEach(() => {
