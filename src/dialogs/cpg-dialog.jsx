@@ -23,7 +23,7 @@ class CpgDialog extends React.Component {
             tab: "CPGNew",
             version:"",
             date:"",
-            status:"",
+            status:"0",
             experimental:"",
             copyright:"",
             approvalDate:"",
@@ -408,19 +408,31 @@ class CpgDialog extends React.Component {
                     </Col>
                     <Col md="6">
                     <p style={{marginTop: "10px"}}>Status:</p>
-                        <input
-                            className="form-control"
-                            value={this.state.status}
-                            onChange={this.handleStatusChange.bind(this)}
-                        />  
+                    <select
+					        className="form-control input-sm" 
+					        onChange = {(e) => {
+						        this.handleStatusChange.bind(this)(e);
+					        }}
+					    ref="inputField"
+				    >
+                        <option value="0">Draft (draft)</option>
+				        <option value="1">Active (active)</option>
+                        <option value="2">Retired (retired)</option>
+                        <option value="3">Unknown (unknown)</option>
+                    </select>
                     </Col> 
                     <Col md="6">
                         <p style={{marginTop: "10px"}}>Experimental:</p>
-                        <input
-                            className="form-control"
-                            value={this.state.experimental}
-                            onChange={this.handleExperimentalChange.bind(this)}
-                        />  
+                        <select
+					        className="form-control input-sm" 
+					        onChange = {(e) => {
+						        this.handleExperimentalChange.bind(this)(e);
+					        }}
+					    ref="inputField"
+				    >
+				        <option value="Yes">Yes</option>
+				        <option value="No">No</option>
+			            </select>
                     </Col>
                 </Row>
                 <Row className="row">

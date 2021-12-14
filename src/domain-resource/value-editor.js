@@ -153,15 +153,15 @@ class ValueEditor extends React.Component {
 
 	buildBooleanInput(value) {
 		const bool = State.get().experimental;
-		if (this.props.node.name === "experimental") {
+		if (this.props.node.name === "experimental" && bool == "No") {
 			return <span>
 			<select value={bool} 
 				className="form-control input-sm" 
 					onChange={this.handleChange.bind(this)} 
 					ref="inputField"
 				>
-				<option value={true}>Yes</option>
 				<option value={false}>No</option>
+				<option value={true}>Yes</option>
 			</select>
 		</span>;	
 			
@@ -228,7 +228,9 @@ class ValueEditor extends React.Component {
 
 	buildCodeInput(value, items) {
 		const options = [];
-		const fields = [];
+		const fields = []; //valueCode
+		const statusfields = []; //status
+		const status = State.get().status;
 		for (let i = 0; i < items.length; i++) {
 			const item = items[i];
 			options.push(<option key={item[1]} value={item[1]}>
@@ -236,21 +238,35 @@ class ValueEditor extends React.Component {
 			</option>
 			);
 		}
-		for (let i = 1; i < items.length; i++) {
+		let i = 1;
+		if (this.props.node.name === "status") {
+			i = status;
+		}
+		for (i; i < items.length; i++) {
 			const item = items[i];
-			fields.push(<option key={item[2]} value={item[2]}>
+			statusfields.push(<option>
+			{item[0]} ({item[1]})
+			</option> );
+			fields.push(<option>
 				{item[0]} ({item[1]})
-			</option>
-			);
+			</option> );
 		}
 		const option = items[0];
 			fields.push(<option key={option[1]} value={option[1]}>
 				{option[0]} ({option[1]})
 		</option>);
-
+		for (i = 0; i < status; i++) {
+			const pop = items[i];
+			statusfields.push(<option key={pop[1]} value={pop[1]}>
+				{pop[0]} ({pop[1]})
+			</option> );
+		}
 		let lists = options;
 		if (this.props.node.name === "valueCode") {
 			lists = fields;
+		}
+		if (this.props.node.name === "status") {
+			lists = statusfields;
 		}
 		return <span>
 			<select value={this.props.node.value || ""} 
