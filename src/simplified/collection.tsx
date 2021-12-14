@@ -25,7 +25,6 @@ const Collection = (props:any) => {
                 {
                 resources.map(
                         (resource, i) => {
-                            console.log(resource);
                             if (i % 2 == 1) return; // Every other resource would be a plandef
                             const actTitleNode = SchemaUtils.getChildOfNode(resource, "title");
                             const planTitleNode = SchemaUtils.getChildOfNode(resources[i+1], "title");

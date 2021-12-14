@@ -115,7 +115,7 @@ class RootComponent extends React.Component<RootProps, {prevStatus:string}> {
 		let bundleBar;
 		const state = State.get();
 		const prevStatus = this.state.prevStatus;
-		console.log(state.bundle?.resources);
+		
 
 		if (state.bundle && state.mode !== "basic") {
 			bundleBar = <BundleBar bundle={state.bundle} />;

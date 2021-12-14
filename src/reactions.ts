@@ -213,7 +213,7 @@ const bundleInsert = function(json: Resource | Bundle, isBundle?: boolean) {
 	resource.name = resource.title?.replace(/\s+/g, '');
 	// State.get().bundle.resources.splice(state.bundle.pos, 1, resource).now();
 	state = State.get();
-	console.log(state);
+	
 	state.set({resCount:state.resCount+1});
 
 	var resources: SchemaUtils.SageSupportedFhirResource[] = (() => {
@@ -313,7 +313,7 @@ State.on("load_json_resource", (json, isCPG = true) => {
 State.on("set_bundle_pos", function(newPos) {
 	let decorated;
 	const state = State.get();
-	console.log(state);
+	
 	// console.log('set_bundle_pos', state.resource);
 
 	//stop if errors
@@ -372,8 +372,8 @@ State.on("remove_from_bundle", function(deleteAt:number = -1) {
 		// .set("resource", decorated)
 		.bundle.resources.splice(deleteAt >= 0 ? deleteAt : state.bundle.pos, 1)
 		.bundle.set("pos", pos);
-	console.log(deleteAt);
-	console.log(pos);
+	
+	
 
 	return State.get().set("ui", {status: "ready"});
 });

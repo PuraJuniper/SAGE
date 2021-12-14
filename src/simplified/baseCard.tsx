@@ -43,10 +43,6 @@ export const BaseCard = (props:any) => {
                     if (e.target.tagName !== "svg" && e.target.tagName !== "path" && props.clickable) {
                     setShow(false);
                     setTimeout(() => {
-                        State.get().set({
-                            CPGName: "name",
-                            authname: "auth",
-                        })
                         if (State.get().bundle) {
 	                        State.emit("save_changes_to_bundle_json");
                             State.get().bundle.set("pos", State.get().bundle.resources.length-1);
