@@ -16,7 +16,7 @@ export const BaseCard = (props:any) => {
       }, []);
 
 
-    let index = props.header.indexOf("Activity");
+    let index = props.header.indexOf("activity");
     let header = index >= 0 && props.header.length > "ActivityDefinition".length 
         ? props.header.slice(0, index) : props.header;
     if (header.length > 24) {
@@ -31,6 +31,7 @@ export const BaseCard = (props:any) => {
     const content = props.content;
     let headerPadding = {};
     if (title == "") headerPadding = {padding:"7px"};
+    const isActivity = index >= 0;
     
     return (
         <CSSTransition

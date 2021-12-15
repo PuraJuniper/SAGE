@@ -21,7 +21,7 @@ class CpgDialog extends React.Component {
         this.state = {
             showSpinner: false,
             tab: "CPGNew",
-            version:"",
+            version:"1.0.0",
             date:"",
             status:"0",
             experimental:"",
