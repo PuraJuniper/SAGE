@@ -305,19 +305,19 @@ const getDefaultValue = (schema: SchemaDef, fhirType: string, parentName:string=
 			}
 			break;
 		case "publisher":
-			if (State.get().publisher!= "") {
-				defaultValue = State.get().publisher;
+			if (State.get().author!= "") {
+				defaultValue = State.get().author;
 			}
 			break;
 		case "url":
-			if (State.get().publisher!= "" && State.get().CPGName != "") {
+			if (State.get().author!= "" && State.get().CPGName != "") {
 				// Ignore extensions
 				if (pathSuffix[0] == "Extension") {
 					break;
 				}
-				defaultValue = `http://fhir.org/guides/${State.get().publisher}/${pathSuffix[0]}/${pathSuffix[0]}-${State.get().CPGName}${State.get().resCount}`;
+				defaultValue = `http://fhir.org/guides/${State.get().author}/${pathSuffix[0]}/${pathSuffix[0]}-${State.get().CPGName}${State.get().resCount}`;
 				if (pathSuffix[0].endsWith("Activity")) {
-					defaultValue = `http://fhir.org/guides/${State.get().publisher}/ActivityDefinition/ActivityDefinition-${State.get().CPGName}${State.get().resCount}`;
+					defaultValue = `http://fhir.org/guides/${State.get().author}/ActivityDefinition/ActivityDefinition-${State.get().CPGName}${State.get().resCount}`;
 				}
 			}
 			break;
@@ -545,7 +545,7 @@ export const getChildOfNode = function (node: SageNodeInitialized, childName: st
 			return child
 		}
 	}
-	console.log(`couldnt find child of name ${childName} for ${node.name}`);
+	console.log(`couldnt find child of name ${childName} for:`, node);
 	// if (tryToCreate && profiles) {
 	// 	const childNode = getElementChildren(profiles, node, []).find((v) => v.name == childName);
 	// 	if (childNode) {

@@ -20,7 +20,7 @@ export const Folder = (props: FolderProps) => {
         setTimeout(() => {
             setShow(true);
         }, props.wait);
-      }, []);
+      }, [props.wait]);
     
 
     return (
