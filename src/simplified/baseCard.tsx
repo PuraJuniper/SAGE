@@ -58,11 +58,14 @@ export const BaseCard = (props: BaseCardProps) => {
                             State.get().bundle.set("pos", State.get().bundle.resources.length-1);
                             State.get().ui.set("openMode", "insert");
                         }
-                        let json = {resourceType: "Bundle", entry: [{resource: {resourceType: "ActivityDefinition"}}]};
+                        let resType = isActivity ? "ActivityDefinition" : "Questionnaire"
+                        let json = {resourceType: "Bundle", entry: [{resource: {resourceType: resType}}]};
                         //const resourceProfile = SchemaUtils.getProfileOfResource(State.get().profiles, resourceJson);
-                        (json.entry[0].resource as any).meta = {
-                            profile: [props.profile]
-                        };
+                        if (isActivity) {
+                            (json.entry[0].resource as any).meta = {
+                                profile: [props.profile]
+                            };
+                        }
                         State.emit("load_json_resource", json);
                         State.emit("save_changes_to_bundle_json");
                         State.get().ui.set("openMode", "insert");

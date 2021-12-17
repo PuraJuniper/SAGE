@@ -68,7 +68,7 @@ export const SimpleForm = (props:SimpleFormProps) => {
 	// 	}
     //     setAvailableExpressions([...availableExpressions, ...foundExpressions]);
     // }
-
+    console.log(props.actNode);
     return (
         <div>
         <iframe name="void" style={{display:"none"}}></iframe>
@@ -88,7 +88,10 @@ export const SimpleForm = (props:SimpleFormProps) => {
                     Save Resource&nbsp;
                     <FontAwesomeIcon icon={faCaretRight} />
             </button>
-        <h3  style={{marginTop:"20px", marginBottom:"10px"}}><b>PlanDefinition/ActivityDefinition</b></h3>
+        <h3  style={{marginTop:"20px", marginBottom:"10px"}}><b>
+            {props.actNode.displayName}
+            /Plandefinition
+        </b></h3>
             <Row className="mb-2">
                 <Form.Group as= {Col} controlId="title">
                     <Form.Label as="b">Title</Form.Label>

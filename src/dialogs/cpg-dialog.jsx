@@ -24,7 +24,7 @@ class CpgDialog extends React.Component {
             version:"1.0.0",
             date:"",
             status:"0",
-            experimental:"",
+            experimental:true,
             copyright:"",
             approvalDate:"",
             lastReviewDate:"",
