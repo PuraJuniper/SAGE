@@ -4,7 +4,16 @@ import {BaseCard} from"./baseCard";
 import { CSSTransition } from 'react-transition-group';
 import State from "../state";
 
-export const Folder = (props: any) => {
+interface FolderProps {
+    actTitle: string,
+    planTitle: string,
+    index: number,
+    type: string,
+    link?: string
+    wait: number
+}
+
+export const Folder = (props: FolderProps) => {
     let [show, setShow] = useState(false);
 
     useEffect(() => {
@@ -35,7 +44,9 @@ export const Folder = (props: any) => {
         <div style={{position:"absolute", top:"16px", left:"0px", width:"100%"}}>
             <BaseCard header="PlanDefinition" title={props.planTitle}
             content={
-                props.actTitle
+                <div>
+                {props.actTitle}
+                </div>
                 }/>
         </div>
         {State.get().bundle.resources.length > 2 && 

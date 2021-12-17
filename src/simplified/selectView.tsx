@@ -7,7 +7,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {faBracketsCurly, faBookMedical, faCode, faTurtle, faCaretRight} from  '@fortawesome/pro-solid-svg-icons';
 import State from "../state";
 
-const SelectView = (props:any) => {
+const SelectView = () => {
     const resources = [
         "CPGAdministerMedicationActivityDefinition",
         "CPGCollectInformationActivityDefinition",
@@ -116,7 +116,6 @@ const SelectView = (props:any) => {
                         </div>
                         }
                         wait={i*25}
-                        changeView={props.changeView}
                         clickable={true}
                         profile={profiles[i]}
                         />

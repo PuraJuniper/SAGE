@@ -12,6 +12,7 @@ interface BaseCardProps {
     wait?: number,
     content?: JSX.Element,
     clickable?: boolean
+    link?: string
 }
 
 export const BaseCard = (props: BaseCardProps) => {
@@ -51,10 +52,6 @@ export const BaseCard = (props: BaseCardProps) => {
                     if (e.target.tagName !== "svg" && e.target.tagName !== "path" && props.clickable) {
                     setShow(false);
                     setTimeout(() => {
-                        State.get().set({
-                            CPGName: "name",
-                            authname: "auth",
-                        })
                         if (State.get().bundle) {
 	                        State.emit("save_changes_to_bundle_json");
                             State.get().bundle.set("pos", State.get().bundle.resources.length-1);

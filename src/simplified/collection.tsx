@@ -7,7 +7,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {faDownload, faCaretLeft} from  '@fortawesome/pro-solid-svg-icons';
 
 
-const Collection = (props:any) => {
+const Collection = () => {
 
     const resources = State.get().bundle?.resources ?? [];
 
