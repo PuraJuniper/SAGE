@@ -7,15 +7,26 @@
 import React from "react";
 import ValueDisplay from "./value-display";
 import ValueEditor from "./value-editor";
-import State from "../state";
+import { SageNodeInitialized } from "../helpers/schema-utils";
 
-class ValueNode extends React.Component {
+interface ValueNodeProps {
+	node: SageNodeInitialized,
+	errFields: string[],
+	parent: SageNodeInitialized,
+	onEditStart: (e?: React.SyntheticEvent) => void,
+	onEditCommit: (e?: React.SyntheticEvent) => void,
+	onNodeDelete: (e?: React.SyntheticEvent) => void,
+	onEditCancel: (e?: React.SyntheticEvent) => void,
+}
+
+class ValueNode extends React.Component<ValueNodeProps, {}> {
 	static initClass() {
 	
-		this.prototype.displayName = "ValueNode";
+		// this.prototype.displayName = "ValueNode";
 	}
 
-	shouldComponentUpdate(nextProps) {
+	shouldComponentUpdate(nextProps: ValueNodeProps) {
+		// console.log('scu', nextProps);
 		return nextProps.node !== this.props.node || nextProps.errFields !== this.props.errFields;
 	}
 
@@ -33,15 +44,16 @@ class ValueNode extends React.Component {
 		}
 	}
 
-	handleItemAdd(e) {
-		State.emit("add_array_value", this.props.node);
-		if (e) { return e.preventDefault(); }
-	}
+	// Unused?
+	// handleItemAdd(e) {
+	// 	State.emit("add_array_value", this.props.node);
+	// 	if (e) { return e.preventDefault(); }
+	// }
 
-	handleUiChange(status, e) {
-		e.preventDefault();
-		return State.emit("set_ui", status);
-	}
+	// handleUiChange(status: string, e) {
+	// 	e.preventDefault();
+	// 	return State.emit("set_ui", status);
+	// }
 
 	renderUnknown() {
 		const content = this.props.node.value ?
@@ -72,7 +84,7 @@ class ValueNode extends React.Component {
 	}
 
 
-	renderEditing(preview) {
+	renderEditing(preview?: JSX.Element) {
 		const required = this.props.node.isRequired ? "*" : undefined;
 
 		return <div className="fhir-data-element row">
@@ -101,7 +113,7 @@ class ValueNode extends React.Component {
 		const required = this.props.node.isRequired ? "*" : undefined;
 		const fixed = this.props.node.isFixed ? "!" : undefined;
 
-		return <div className="fhir-data-element row" onClick={this.props.onEditStart} >
+		return <div className="fhir-data-element row">
 			<div className="col-sm-3 fhir-data-title" title={this.props.node.short}>
 				{this.props.node.displayName}{required}{fixed}:
 			</div>
@@ -109,6 +121,7 @@ class ValueNode extends React.Component {
 				<ValueDisplay 
 					node={this.props.node} 
 					parent={this.props.parent}
+					onEditStart={this.props.onEditStart}
 				/>
 			</div>
 		</div>;

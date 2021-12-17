@@ -49,6 +49,8 @@ export type SageNodeInitialized = SageNode & {
 
 export type SageSupportedFhirResource = PlanDefinition | ActivityDefinition | Questionnaire | Library | ValueSet
 
+// type fhirTypeValues = "decimal" | "boolean" | "xhtml" | "base64Binary" | "code" | "uri" | "canonical";
+
 type ProfileDefs = {
 	'__meta': {
 		baseDefinition: string,
@@ -455,6 +457,24 @@ export var buildChildNode = function(profiles: SimplifiedProfiles, parentNode: S
 	}
 };
 
+export const findFirstSageNodeByUri = function(nodes: SageNodeInitialized[], uri: string) {
+	// Return the first SageNode of `nodes` that has a child "URL" SageNode with value equal to `uri`
+	let idx = 0;
+	for (const node of nodes) {
+		const URLNode = getChildOfNode(node, "url");
+		if (URLNode && URLNode.value == uri) {
+			return {
+				node,
+				pos: idx
+			};
+		}
+		idx += 1;
+	}
+	return {
+		node: null,
+		idx: null
+	}
+}
 
 export var buildDisplayName = function(name: string, sliceName?: string) {
 	const _fixCamelCase = function(text: string, lowerCase?: boolean) {
@@ -519,14 +539,59 @@ var getProfileOfSchemaDef = function(profiles: SimplifiedProfiles, schemaNode: S
 	}
 }
 
-export const getChildOfNode = function (node: SageNodeInitialized, childName: string) : SageNodeInitialized | undefined {
+export const getChildOfNode = function (node: SageNodeInitialized, childName: string, tryToCreate?: boolean, profiles?: SimplifiedProfiles) : SageNodeInitialized | undefined {
 	for (const child of node.children) {
 		if (child.name == childName) {
 			return child
 		}
 	}
+	console.log(`couldnt find child of name ${childName} for ${node.name}`);
+	// if (tryToCreate && profiles) {
+	// 	const childNode = getElementChildren(profiles, node, []).find((v) => v.name == childName);
+	// 	if (childNode) {
+	// 		return buildChildNode(profiles, node, childNode, childNode.fhirType);
+	// 	}
+	// }
 	return;
 };
+
+export const createChildrenFromJson = function (profiles: SimplifiedProfiles, nodeToWriteTo: SageNodeInitialized, fhirJson: any) {
+	const nodeProfileSchema = profiles[nodeToWriteTo.profile];
+	const nodePath = nodeToWriteTo.schemaPath
+	const newChildren = ((() => {
+		const result1 = [];
+		
+		for (let k in fhirJson) {
+			const v = (fhirJson as any)[k];
+			const childPath = `${nodePath}.${k}`;
+			const childDef = nodeProfileSchema[childPath];
+			if (childDef) {
+				const walkRes = walkNode(profiles, v, nodeToWriteTo.profile, childPath, (nodeToWriteTo.level || 0)+1);
+				if (walkRes) {
+					result1.push(walkRes);
+				}
+			}
+			else {
+				console.log(`Could not find definition for ${childPath}`);
+			}
+			// add else to check if childPath exists in another profile
+		}
+	
+		return result1;
+	})());
+	return newChildren;
+}
+
+export const getChildrenFromObjectArrayNode = function (node: SageNodeInitialized) : SageNodeInitialized[] {
+	if (node.nodeType != "objectArray") {
+		return [];
+	}
+	const retArr: SageNodeInitialized[] = [];
+	for (const child of node.children) {
+		retArr.push(child);
+	}
+	return retArr;
+}
 
 export const getArrayFromObjectArrayNode = function (node: SageNodeInitialized) : any[] {
 	if (node.nodeType != "objectArray") {
@@ -538,6 +603,211 @@ export const getArrayFromObjectArrayNode = function (node: SageNodeInitialized) 
 	}
 	return retArr;
 }
+
+export const walkNode = (profiles: SimplifiedProfiles, valueOfNode: any, profileUri: string, schemaPath: string, level: number | null, inArray?: boolean) : SageNodeInitialized | undefined => {
+	// TODO: dataNode could be a Resource in a `contained` element
+	// if ('resourceType' in dataNode) {
+	// 	const resourceType = dataNode.resourceType;
+	// }
+	// console.log("start _walkNode:", valueOfNode, profileUri, schemaPath, level, inArray);
+	let i, v;
+	if (level == null) {
+		//root node
+		level = 0;
+	}
+
+	const name = schemaPath.split('.').pop() as string; // we know pop() will return a string here
+	let trueSchemaPath = schemaPath;
+	let schema = profiles[profileUri]?.[trueSchemaPath];
+	let typeIdx = 0; // Assuming 0
+	let fhirType = schema?.type[typeIdx]?.code;
+	//is it a multi-type?
+	if (!schema) {
+		const elementName = schemaPath.split('.').pop() as string;
+		const nameParts = elementName.split(/(?=[A-Z])/);
+		let testSchemaPath = schemaPath.split(".").slice(0,schemaPath.split(".").length-1).join(".") + ".";
+		for (i = 0; i < nameParts.length; i++) {
+			var testSchema;
+			const namePart = nameParts[i];
+			testSchemaPath += `${namePart}`;
+			if (testSchema = profiles[profileUri]?.[`${testSchemaPath}[x]`]) {
+				schema = testSchema;
+				trueSchemaPath = `${testSchemaPath}[x]`;
+				const expectedType = nameParts.slice(i+1).join("");
+				for (var j=0;j<schema.type.length;j++) {
+					const type = schema.type[j];
+					if (type.code.toLowerCase() == expectedType.toLowerCase()) { // toLowerCase to deal with primitives being lowercase
+						fhirType = type.code;
+						typeIdx = j;
+					}
+				}
+				if (!fhirType) {
+					console.log(`Error: expected to find FHIR type ${expectedType} as a possible type for ${trueSchemaPath}`);
+					return;
+				}
+				// //allow for complex type multi-types
+				// if (!profiles[fhirType]) { 
+				// 	fhirType = fhirType[0].toLowerCase() + fhirType.slice(1);
+				// }
+				// displayName = buildDisplayName(schemaPath, fhirType);
+			}
+		}
+	}
+	if (!schema) {
+		console.log(`Error reading element of type ${schemaPath} with value ${valueOfNode}`);
+		return;
+	}
+
+	// Check if this element is a reference to another definition (replaces the definition)
+	if (schema.refSchema) {
+		trueSchemaPath = schema.refSchema;
+		// schema = profiles[profileUri]?.[trueSchemaPath];
+	}
+
+	// Check if a new profile should be used for this element
+	const newProfile = getProfileOfSchemaDef(profiles, schema, schema.type[typeIdx]);
+	const childSchemaPath = newProfile ? fhirType : trueSchemaPath;
+	const childProfile = newProfile || profileUri;
+	// TODO: Figure out which type of the array this node corresponds to
+	let displayName = buildDisplayName(name, schema.sliceName);
+	// if (isInfrastructureType(fhirType) && (schemaPath.length === 1)) {
+	// 	fhirType = schemaPath[0];
+	// }
+
+	// //contentReference and nameReference support
+	// if (schema?.refSchema) {
+	// 	schemaPath = schema.refSchema.split(".");
+	// 	const refSchema = profiles[schemaPath[0]]?.[schemaPath.join(".")];
+	// 	fhirType = refSchema?.type?.[0]?.code;
+	// }
+
+	
+	
+
+	const decorated : SageNodeInitialized = {
+		id: nextId++,
+		index: schema?.index || 0,
+		name, 
+		nodeType: schema.type[typeIdx].code[0] != schema.type[typeIdx].code[0].toUpperCase() ? "value" : "object", // naive way of checking if valueOfNode should be a primitive
+		displayName,
+		nodePath: trueSchemaPath,
+		schemaPath: childSchemaPath,
+		fhirType, 
+		level,
+		short: schema?.short,
+		sliceName: schema?.sliceName,
+		isRequired: schema?.min >=1,
+		binding: schema?.binding,
+		profile: childProfile,
+		children: [],
+	};
+
+	const {
+		isFixed,
+		defaultValue
+	} = getDefaultValue(schema, fhirType);
+	decorated.isFixed = isFixed;
+	decorated.defaultValue = defaultValue;
+	
+	if (schema?.min !== undefined) {
+		decorated.range = [schema?.min, schema?.max];
+	}
+
+	//hide resourceType item
+	if (name === "resourceType") {
+		decorated.hidden = true;
+	}
+
+	// //restart schema for complex types
+	// if (isComplexType(fhirType) && !isInfrastructureType(fhirType)) {
+	// 	schemaPath = [fhirType];
+	// }
+
+	//this is a little sloppy, but simplifies blob rendering
+	if ((fhirType === "Attachment") && valueOfNode.contentType && valueOfNode.data) {
+		decorated.contentType = valueOfNode.contentType;
+	}
+
+	// If the element is an array, we set this SageNode as an array container (objectArray or valueArray)
+	//  and create a SageNode per item as children
+	if (valueOfNode instanceof Array && decorated.range && (decorated.range[1] !== "1")) {
+		decorated.children = ((() => {
+			const result = [];
+			
+			for (i = 0; i < valueOfNode.length; i++) {
+				v = valueOfNode[i];
+				const childResult = walkNode(profiles, v, childProfile, childSchemaPath, level+1, true);
+				if (childResult) {
+					result.push(childResult);
+				}
+			}
+		
+			return result;
+		})());
+		decorated.nodeType = fhirType && isComplexType(fhirType) ?
+			"objectArray"
+		//unknown object arrays
+		: !fhirType && (typeof valueOfNode?.[0] === "object") ?
+			"objectArray"
+		:
+			"valueArray";
+
+	} else if ((decorated.nodeType == 'object') && 
+		!(valueOfNode instanceof Array) &&
+		!(valueOfNode instanceof Date)) {
+			decorated.nodeType = schema && (schema.max !== "1") ? "arrayObject" : "object";
+			decorated.children = ((() => {
+				const result1 = [];
+				
+				for (let k in valueOfNode) {
+					v = (valueOfNode as any)[k];
+					const childPath = `${childSchemaPath}.${k}`;
+					var walkRes = walkNode(profiles, v, childProfile, childPath, level+1);
+					if (walkRes != null && walkRes != undefined) {
+						result1.push(walkRes);
+					}
+				}
+			
+				return result1;
+			})());
+			decorated.children = decorated.children.sort((a, b) => a.index - b.index);
+
+	} else {
+		//some servers return decimals as numbers instead of strings
+		//which, of course, don't validate.
+		//This is very hacky - and arbitrarily sets precision
+		//need a better approach.
+		let error;
+		if ((fhirType === "decimal") && (valueOfNode !== "")) {
+			valueOfNode = parseFloat(valueOfNode).toString();
+			if (valueOfNode.indexOf(".") === -1) {
+				valueOfNode += ".0";
+			}
+		}
+
+		decorated.value = decorated.isFixed ? decorated.defaultValue : valueOfNode;
+
+		//check if value has a cardinality of > 1 and isn't in an array
+		if (decorated.range?.[1] && (decorated.range[1] !== "1") && !inArray) {
+			console.log('what is this?', decorated);
+			// decorated.fhirType = null;
+		}
+		
+		//check if value has a cardinality of 1 and is in an array
+		if (valueOfNode instanceof Array && (decorated.range?.[1] === "1")) {
+			console.log('what is this? 2', decorated);
+			// decorated.fhirType = null;
+		}
+		decorated.ui = {
+			status: "editing"
+		};
+		if (fhirType && (error = PrimitiveValidator(fhirType, valueOfNode))) {
+			decorated.ui = {validationErr: error, status: "editing"};
+		}
+	}
+
+	return decorated;
+};
 
 export var decorateFhirData = function(profiles: SimplifiedProfiles, resource: SageSupportedFhirResource) : SageNodeInitialized | undefined {
 	// if ('toJS' in resource) {
@@ -554,210 +824,7 @@ export var decorateFhirData = function(profiles: SimplifiedProfiles, resource: S
 	const addedUris = [];
 	// console.log('start decorateFhirData:', resourceProfile, resource);
 
-	var _walkNode = (valueOfNode: any, profileUri: string, schemaPath: string, level: number | null, inArray?: boolean) : SageNodeInitialized | undefined => {
-		// TODO: dataNode could be a Resource in a `contained` element
-		// if ('resourceType' in dataNode) {
-		// 	const resourceType = dataNode.resourceType;
-		// }
-		// console.log("start _walkNode:", valueOfNode, profileUri, schemaPath, level, inArray);
-		let i, v;
-		if (level == null) {
-			//root node
-			level = 0;
-		}
-
-		const name = schemaPath.split('.').pop() as string; // we know pop() will return a string here
-		let trueSchemaPath = schemaPath;
-		let schema = profiles[profileUri]?.[trueSchemaPath];
-		let typeIdx = 0; // Assuming 0
-		let fhirType = schema?.type[typeIdx]?.code;
-		//is it a multi-type?
-		if (!schema) {
-			const elementName = schemaPath.split('.').pop() as string;
-			const nameParts = elementName.split(/(?=[A-Z])/);
-			let testSchemaPath = schemaPath.split(".").slice(0,schemaPath.split(".").length-1).join(".") + ".";
-			for (i = 0; i < nameParts.length; i++) {
-				var testSchema;
-				const namePart = nameParts[i];
-				testSchemaPath += `${namePart}`;
-				if (testSchema = profiles[profileUri]?.[`${testSchemaPath}[x]`]) {
-					schema = testSchema;
-					trueSchemaPath = `${testSchemaPath}[x]`;
-					const expectedType = nameParts.slice(i+1).join("");
-					for (var j=0;j<schema.type.length;j++) {
-						const type = schema.type[j];
-						if (type.code.toLowerCase() == expectedType.toLowerCase()) { // toLowerCase to deal with primitives being lowercase
-							fhirType = type.code;
-							typeIdx = j;
-						}
-					}
-					if (!fhirType) {
-						console.log(`Error: expected to find FHIR type ${expectedType} as a possible type for ${trueSchemaPath}`);
-						return;
-					}
-					// //allow for complex type multi-types
-					// if (!profiles[fhirType]) { 
-					// 	fhirType = fhirType[0].toLowerCase() + fhirType.slice(1);
-					// }
-					// displayName = buildDisplayName(schemaPath, fhirType);
-				}
-			}
-		}
-		if (!schema) {
-			console.log(`Error reading element of type ${schemaPath} with value ${valueOfNode}`);
-			return;
-		}
-
-		// Check if this element is a reference to another definition (replaces the definition)
-		if (schema.refSchema) {
-			trueSchemaPath = schema.refSchema;
-			// schema = profiles[profileUri]?.[trueSchemaPath];
-		}
-
-		// Check if a new profile should be used for this element
-		const newProfile = getProfileOfSchemaDef(profiles, schema, schema.type[typeIdx]);
-		const childSchemaPath = newProfile ? fhirType : trueSchemaPath;
-		const childProfile = newProfile || profileUri;
-		// TODO: Figure out which type of the array this node corresponds to
-		let displayName = buildDisplayName(name, schema.sliceName);
-		// if (isInfrastructureType(fhirType) && (schemaPath.length === 1)) {
-		// 	fhirType = schemaPath[0];
-		// }
-
-		// //contentReference and nameReference support
-		// if (schema?.refSchema) {
-		// 	schemaPath = schema.refSchema.split(".");
-		// 	const refSchema = profiles[schemaPath[0]]?.[schemaPath.join(".")];
-		// 	fhirType = refSchema?.type?.[0]?.code;
-		// }
-
-		
-		
-
-		const decorated : SageNodeInitialized = {
-			id: nextId++,
-			index: schema?.index || 0,
-			name, 
-			nodeType: schema.type[typeIdx].code[0] != schema.type[typeIdx].code[0].toUpperCase() ? "value" : "object", // naive way of checking if valueOfNode should be a primitive
-			displayName,
-			nodePath: trueSchemaPath,
-			schemaPath: childSchemaPath,
-			fhirType, 
-			level,
-			short: schema?.short,
-			sliceName: schema?.sliceName,
-			isRequired: schema?.min >=1,
-			binding: schema?.binding,
-			profile: childProfile,
-			children: [],
-		};
-
-		const {
-			isFixed,
-			defaultValue
-		} = getDefaultValue(schema, fhirType);
-		decorated.isFixed = isFixed;
-		decorated.defaultValue = defaultValue;
-		
-		if (schema?.min !== undefined) {
-			decorated.range = [schema?.min, schema?.max];
-		}
-
-		//hide resourceType item
-		if (name === "resourceType") {
-			decorated.hidden = true;
-		}
-
-		// //restart schema for complex types
-		// if (isComplexType(fhirType) && !isInfrastructureType(fhirType)) {
-		// 	schemaPath = [fhirType];
-		// }
-
-		//this is a little sloppy, but simplifies blob rendering
-		if ((fhirType === "Attachment") && valueOfNode.contentType && valueOfNode.data) {
-			decorated.contentType = valueOfNode.contentType;
-		}
-
-		// If the element is an array, we set this SageNode as an array container (objectArray or valueArray)
-		//  and create a SageNode per item as children
-		if (valueOfNode instanceof Array && decorated.range && (decorated.range[1] !== "1")) {
-			decorated.children = ((() => {
-				const result = [];
-				
-				for (i = 0; i < valueOfNode.length; i++) {
-					v = valueOfNode[i];
-					const childResult = _walkNode(v, childProfile, childSchemaPath, level+1, true);
-					if (childResult) {
-						result.push(childResult);
-					}
-				}
-			
-				return result;
-			})());
-			decorated.nodeType = fhirType && isComplexType(fhirType) ?
-				"objectArray"
-			//unknown object arrays
-			: !fhirType && (typeof valueOfNode?.[0] === "object") ?
-				"objectArray"
-			:
-				"valueArray";
-
-		} else if ((decorated.nodeType == 'object') && 
-			!(valueOfNode instanceof Array) &&
-			!(valueOfNode instanceof Date)) {
-				decorated.nodeType = schema && (schema.max !== "1") ? "arrayObject" : "object";
-				decorated.children = ((() => {
-					const result1 = [];
-					
-					for (let k in valueOfNode) {
-						v = (valueOfNode as any)[k];
-						const childPath = `${childSchemaPath}.${k}`;
-						var walkRes = _walkNode(v, childProfile, childPath, level+1);
-						if (walkRes != null && walkRes != undefined) {
-							result1.push(walkRes);
-						}
-					}
-				
-					return result1;
-				})());
-				decorated.children = decorated.children.sort((a, b) => a.index - b.index);
-
-		} else {
-			//some servers return decimals as numbers instead of strings
-			//which, of course, don't validate.
-			//This is very hacky - and arbitrarily sets precision
-			//need a better approach.
-			let error;
-			if ((fhirType === "decimal") && (valueOfNode !== "")) {
-				valueOfNode = parseFloat(valueOfNode).toString();
-				if (valueOfNode.indexOf(".") === -1) {
-					valueOfNode += ".0";
-				}
-			}
-
-			decorated.value = decorated.isFixed ? decorated.defaultValue : valueOfNode;
-
-			//check if value has a cardinality of > 1 and isn't in an array
-			if (decorated.range?.[1] && (decorated.range[1] !== "1") && !inArray) {
-				console.log('what is this?', decorated);
-				// decorated.fhirType = null;
-			}
-			
-			//check if value has a cardinality of 1 and is in an array
-			if (valueOfNode instanceof Array && (decorated.range?.[1] === "1")) {
-				console.log('what is this? 2', decorated);
-				// decorated.fhirType = null;
-			}
-			decorated.ui = {
-				status: "editing"
-			};
-			if (fhirType && (error = PrimitiveValidator(fhirType, valueOfNode))) {
-				decorated.ui = {validationErr: error, status: "editing"};
-			}
-		}
-
-		return decorated;
-	};
+	
 
 	// Create root node first
 	let rootProfileSchema = profiles[resourceProfile]; // This is the schema of the profile
@@ -793,24 +860,7 @@ export var decorateFhirData = function(profiles: SimplifiedProfiles, resource: S
 		}
 	}
 
-	decorated.children = ((() => {
-		const result1 = [];
-		
-		for (let k in resource) {
-			const v = (resource as any)[k];
-			const childPath = `${rootPath}.${k}`;
-			const childDef = rootProfileSchema[childPath];
-			if (childDef) {
-				const walkRes = _walkNode(v, resourceProfile, childPath, 1);
-				if (walkRes) {
-					result1.push(walkRes);
-				}
-			}
-			// add else to check if childPath exists in another profile
-		}
-	
-		return result1;
-	})());
+	decorated.children = createChildrenFromJson(profiles, decorated, resource);
 	decorated.children = decorated.children.sort((a, b) => a.index - b.index);
 	// console.log('end decoratefhirdata: ', decorated);
 	return decorated;

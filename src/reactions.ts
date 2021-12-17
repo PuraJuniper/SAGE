@@ -656,7 +656,7 @@ State.on("insert_from_code_picker", function(node: FreezerNode<SageNodeInitializ
 	node.children.splice(0, node.children.length, ...codeNodes);
 });
 
-+State.on("show_canonical_dialog", function(node) {
+State.on("show_canonical_dialog", function(node) {
 	State.get().ui.pivot().set("selectedNode", node);
 	return State.emit("set_ui", "select");
 })
@@ -776,6 +776,15 @@ State.on("change_profile", function(nodeToChange: FreezerNode<SageNodeInitialize
 		}
 	}
 	State.emit("save_changes_to_bundle_json");
+});
+
+State.on("load_json_into", function(nodeToWriteTo: FreezerNode<SageNodeInitialized>, json: any) {
+	console.log('loading ', json, ' into ', nodeToWriteTo);
+	const newChildren = SchemaUtils.createChildrenFromJson(State.get().profiles, nodeToWriteTo, json);
+	console.log(newChildren);
+	nodeToWriteTo.set({
+		children: newChildren
+	});
 });
 
 export default State;

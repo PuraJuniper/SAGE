@@ -7,6 +7,7 @@ module.exports = {
     "extends": [
         // "eslint:recommended",
         // "plugin:react/recommended",
+        // "plugin:react-hooks/recommended",
     ],
     "parserOptions": {
         "ecmaFeatures": {
@@ -29,7 +30,8 @@ module.exports = {
             "extends": [
                 // "eslint:recommended",
                 // "plugin:react/recommended",
-                // "plugin:@typescript-eslint/recommended"
+                // "plugin:@typescript-eslint/recommended",
+                "plugin:react-hooks/recommended"
             ],
             "parser": "@typescript-eslint/parser",
             "parserOptions": {
@@ -38,6 +40,7 @@ module.exports = {
             "plugins": [
                 "react",
                 "@typescript-eslint",
+                "react-hooks",
             ],
             "rules": {
             }

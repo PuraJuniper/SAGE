@@ -4,30 +4,51 @@
  * DS206: Consider reworking classes to avoid initClass
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
-import React from "react";
+import React, { SyntheticEvent } from "react";
 import ReactDOM from "react-dom";
+import * as cql from 'cql-execution';
+import test from "../../test/sample-library.json";
 
 import State from "../state";
 import PrimitiveValidator from "../helpers/primitive-validator";
 import * as SchemaUtils from "../helpers/schema-utils";
 
-class ValueEditor extends React.Component {
-	static initClass() {
+interface ValueEditorProps {
+	node: SchemaUtils.SageNodeInitialized,
+	errFields: string[],
+	parent: SchemaUtils.SageNodeInitialized,
+	onEditCommit: (e?: React.SyntheticEvent) => void,
+	onNodeDelete: (e?: React.SyntheticEvent) => void,
+	onEditCancel: (e?: React.SyntheticEvent) => void,
+	hasFocus: boolean,
+	required: boolean,
+	shortName: any,
+}
+class ValueEditor extends React.Component<ValueEditorProps, {}> {
+	ESC_KEY: number;
+	ENTER_KEY: number;
+	TAB_KEY: number;
+	inputField: React.RefObject<HTMLInputElement>;
+
+	constructor(props: ValueEditorProps) {
+		super(props);
+
+		// this.prototype.displayName = "ValueEditor";
 	
-		this.prototype.displayName = "ValueEditor";
-	
-		this.prototype.ESC_KEY = 27;
-		this.prototype.ENTER_KEY = 13;
-		this.prototype.TAB_KEY = 9;
+		this.ESC_KEY = 27;
+		this.ENTER_KEY = 13;
+		this.TAB_KEY = 9;
+
+		this.inputField = React.createRef();
 	}
 
-	shouldComponentUpdate(nextProps) {
+	shouldComponentUpdate(nextProps: ValueEditorProps) {
 		return nextProps.node !== this.props.node || nextProps.errFields !== this.props.errFields;
 	}
 
 	componentDidMount() {
-		if (this.props.hasFocus && this.refs.inputField) {
-			const domNode = this.refs.inputField;
+		if (this.props.hasFocus && this.inputField.current) {
+			const domNode = this.inputField.current;
 			domNode.focus();
 			if (domNode.setSelectionRange) {
 				domNode.setSelectionRange(domNode.value.length, domNode.value.length);
@@ -50,7 +71,7 @@ class ValueEditor extends React.Component {
                 } = this.props.node.binding;
 				const vs = State.get().valuesets[reference];
 				if (vs && vs.type === "complete") {
-					return State.emit("value_change", this.props.node, this.refs.inputField.value);
+					return State.emit("value_change", this.props.node, this.inputField.current?.value);
 				}
 			}
 	}
@@ -64,13 +85,13 @@ class ValueEditor extends React.Component {
                 } = this.props.node.binding;
 				const vs = State.get().valuesets[reference];
 				if (vs && vs.type === "complete") {
-					return State.emit("value_change", this.props.node, this.refs.inputField.value);
+					return State.emit("value_change", this.props.node, this.inputField.current?.value);
 				}
 			}
 	}
 
 
-	handleChange(e) {
+	handleChange(e: React.ChangeEvent<HTMLSelectElement | HTMLTextAreaElement | HTMLInputElement>) {
 		let resources;
 		let isInvalid = this.isValid(this.props.node.fhirType, e.target.value);
 		if (!isInvalid) {
@@ -88,50 +109,51 @@ class ValueEditor extends React.Component {
 		return State.emit("value_change", this.props.node, e.target.value, isInvalid);
 	}
 
-	handleKeyDown(e) {
-		if (e.which === this.ESC_KEY) {
+	handleKeyDown(e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) {
+		console.log(e);
+		if (e.key == "Escape") {
 			return this.props.onEditCancel(e);
-		} else if ((e.which === this.ENTER_KEY) && 
-			(e.target.type === "text")) {
+		} else if (e.key == "Enter") {
 				return this.props.onEditCommit(e);
-		} else if ((e.which === this.TAB_KEY) &&
+		} else if ((e.key == "Tab") &&
 			(this.props.node.fhirType === "xhtml")) {
 				//bug where selection will jump to end of string
 				//http://searler.github.io/react.js/2014/04/11/React-controlled-text.html
 				e.preventDefault();
-				const newValue = e.target.value.substring(0, e.target.selectionStart) + "\t" + 
-					e.target.value.substring(e.target.selectionEnd);
-				return e.target.value = newValue;
+				const newValue = e.currentTarget.value.substring(0, e.currentTarget.selectionStart || undefined) + "\t" + 
+					e.currentTarget.value.substring(e.currentTarget.selectionEnd || 0);
+				return e.currentTarget.value = newValue;
 			}
 	}
  
-	isValid(fhirType, value) {
+	isValid(fhirType: string, value: string) {
 		return PrimitiveValidator(fhirType, value);
 	}
 
-	renderString(value) {
+	renderString(value: string) {
 		const inputField = this.buildTextInput((value||"").toString()); 
 		return this.wrapEditControls(inputField);
 	}
 
-	renderUri(value) {
+	renderUri(value: string) {
 		const inputField = this.buildTextInput((value||"").toString()); 
 		return this.wrapEditControls(inputField);
 	}
 
-	renderCanonical(value) {
-		const inputField = this.buildCanonicalInput(value);
+	renderCanonical(value: string) {
+		console.log('render canonical value is ', value);
+		const inputField = this.buildCanonicalInput();
 		return this.wrapEditControls(inputField);
 	}
 
-	renderCode(value) {
+	renderCode(value: string) {
 		//TODO: handle "preferred" and "extensible"
 		let inputField;
 		if (this.props.node?.binding?.strength === "required") {
 			const {
                 reference
             } = this.props.node.binding;
-			const vs = State.get().valuesets[reference];
+			const vs = State.get().valuesets[reference].toJS();
 			if (vs && vs.type === "complete") {
 				inputField =  this.buildCodeInput(value, vs.items);
 			}
@@ -141,17 +163,17 @@ class ValueEditor extends React.Component {
 		return this.wrapEditControls(inputField);
 	}
 
-	renderLongString(value) {
+	renderLongString(value: string) {
 		const inputField = this.buildTextAreaInput((value||"").toString()); 
 		return this.wrapEditControls(inputField);
 	}
 
-	renderBoolean(value) {
+	renderBoolean(value: string) {
 		const inputField = this.buildBooleanInput(value);
 		return this.wrapEditControls(inputField);
 	}
 
-	buildBooleanInput(value) {
+	buildBooleanInput(value: string) {
 		const bool = State.get().experimental;
 		if (this.props.node.name === "experimental" && bool == "No") {
 			return <span>
@@ -160,8 +182,8 @@ class ValueEditor extends React.Component {
 					onChange={this.handleChange.bind(this)} 
 					ref="inputField"
 				>
-				<option value={false}>No</option>
-				<option value={true}>Yes</option>
+				<option value={"false"}>No</option>
+				<option value={"true"}>Yes</option>
 			</select>
 		</span>;	
 			
@@ -172,40 +194,75 @@ class ValueEditor extends React.Component {
 					onChange={this.handleChange.bind(this)} 
 					ref="inputField"
 				>
-				<option value={true}>Yes</option>
-				<option value={false}>No</option>
+				<option value={"true"}>Yes</option>
+				<option value={"false"}>No</option>
 			</select>
 		</span>;
 	}
 
-	handleCanonicalChange() {
-		if (event.target.value == `http://fhir.org/guides/${State.get().authorName}/ActivityDefinition/ActivityDefinition-${State.get().CPGName}${State.get().resCount+1}`) {
+	handleCanonicalChange(e: React.ChangeEvent<HTMLSelectElement>) {
+		const parsedLib = new cql.Library(test);
+		for (const expressionKey of Object.keys(parsedLib.expressions)) {
+			console.log(expressionKey);
+		}
+		console.log(new cql.Library(test));
+		if (e.currentTarget.value == `http://fhir.org/guides/${State.get().authname}/ActivityDefinition/ActivityDefinition-${State.get().CPGName}${State.get().resCount+1}`) {
+			this.props.onEditCommit();
 			return State.emit("show_open_activity")
 		}
-		else if (event.target.value == `http://fhir.org/guides/${State.get().authorName}/PlanDefinition/PlanDefinition-${State.get().CPGName}${State.get().resCount+1}`) {
+		else if (e.currentTarget.value == `http://fhir.org/guides/${State.get().authname}/PlanDefinition/PlanDefinition-${State.get().CPGName}${State.get().resCount+1}`) {
+			this.props.onEditCommit();
 			return State.emit("show_open_insert")
 		}
-		else if (event.target.value == `http://fhir.org/guides/${State.get().authorName}/Questionnaire/Questionnaire-${State.get().CPGName}${State.get().resCount+1}`) {
+		else if (e.currentTarget.value == `http://fhir.org/guides/${State.get().authname}/Questionnaire/Questionnaire-${State.get().CPGName}${State.get().resCount+1}`) {
+			this.props.onEditCommit();
 			return State.emit("show_open_questionnaire")
 		}
-		else if (event.target.value == "Select") {
+		else if (e.currentTarget.value == "Select") {
 			return State.emit("show_canonical_dialog", this.props.parent);
 		}
 	}
 
-	buildCanonicalInput(preview) {
+	handleCreateNewLibrary() {
+
+	}
+
+	buildCanonicalInput() {
+		console.log(this.props);
+		const selectedResourceUri = this.props.node.value ?? "";
+		// For the library element, restrict to Library Resources
+		if (this.props.node.name == 'library') {
+			return <span>
+				<select value={selectedResourceUri} 
+					className="form-control input-sm" 
+					onChange = {(e) => {
+						if (e.target.value == "CreateNew") {
+							this.handleCreateNewLibrary.bind(this);
+							e.target.style.backgroundColor = "white";
+						}
+						else {
+							this.handleChange.bind(this)(e);
+						}
+					}}
+					ref="inputField"
+				>
+					<option value={selectedResourceUri} disabled>{selectedResourceUri ?? "Select:"}</option>
+					<option value='CreateNew'>Create new Library</option>
+				</select>
+			</span>
+		}
 		let nodeSchemaPath = this.props.node.schemaPath.substring(this.props.node.schemaPath.indexOf(".") + 1);
 		let val = this.props.node.value ?? "Blank";
 		let errFields = this.props.errFields;
 		let style = {};
-		let activityurl = `http://fhir.org/guides/${State.get().authorName}/ActivityDefinition/ActivityDefinition-${State.get().CPGName}${State.get().resCount+1}`;
-		let planurl = `http://fhir.org/guides/${State.get().authorName}/PlanDefinition/PlanDefinition-${State.get().CPGName}${State.get().resCount+1}`;
-		let questionurl = `http://fhir.org/guides/${State.get().authorName}/Questionnaire/Questionnaire-${State.get().CPGName}${State.get().resCount+1}`;
+		let activityurl = `http://fhir.org/guides/${State.get().authname}/ActivityDefinition/ActivityDefinition-${State.get().CPGName}${State.get().resCount+1}`;
+		let planurl = `http://fhir.org/guides/${State.get().authname}/PlanDefinition/PlanDefinition-${State.get().CPGName}${State.get().resCount+1}`;
+		let questionurl = `http://fhir.org/guides/${State.get().authname}/Questionnaire/Questionnaire-${State.get().CPGName}${State.get().resCount+1}`;
 		if (errFields && errFields.includes(nodeSchemaPath) && val == "Blank") {
 			style = {backgroundColor:"#ff9393"};
 		}
 		return <span>
-			<select value={val} 
+			<select value={selectedResourceUri} 
 					className="form-control input-sm" 
 					onChange = {(e) => {
 						if (e.target.value != "Select") {
@@ -217,8 +274,8 @@ class ValueEditor extends React.Component {
 					ref="inputField"
 					style={style}
 				>
-				<option value={val} disabled>{this.props.node.value ?? "Select:"}</option>
-				<option value= {activityurl}>ActivityDefinition</option>
+				<option value={selectedResourceUri} disabled>{selectedResourceUri || "Select:"}</option>
+				<option value={activityurl}>ActivityDefinition</option>
 				<option value={planurl}>PlanDefiniton</option>
 				<option value={questionurl}>Questionnaire</option>
 				<option value='Select'>Select from other resources in CPG</option>
@@ -226,9 +283,10 @@ class ValueEditor extends React.Component {
 		</span>;
 		} 
 
-	buildCodeInput(value, items) {
+	buildCodeInput(value: string, items: [string, string][]) {
+		console.log("buildCodeInput", value, items);
 		const options = [];
-		const fields = []; //valueCode
+		// const fields = []; //valueCode
 		const statusfields = []; //status
 		const status = State.get().status;
 		for (let i = 0; i < items.length; i++) {
@@ -238,36 +296,54 @@ class ValueEditor extends React.Component {
 			</option>
 			);
 		}
-		let i = 1;
-		if (this.props.node.name === "status") {
-			i = status;
-		}
-		for (i; i < items.length; i++) {
-			const item = items[i];
-			statusfields.push(<option>
-			{item[0]} ({item[1]})
-			</option> );
-			fields.push(<option>
-				{item[0]} ({item[1]})
-			</option> );
-		}
-		const option = items[0];
-			fields.push(<option key={option[1]} value={option[1]}>
-				{option[0]} ({option[1]})
-		</option>);
-		for (i = 0; i < status; i++) {
-			const pop = items[i];
-			statusfields.push(<option key={pop[1]} value={pop[1]}>
-				{pop[0]} ({pop[1]})
-			</option> );
-		}
+		// for (let i = 0; i < items.length; i++) {
+		// 	const item = items[i];
+		// 	options.push(<option key={item[1]} value={item[1]}>
+		// 		{item[0]} ({item[1]})
+		// 	</option>
+		// 	);
+		// }
+		// for (let i = 1; i < items.length; i++) {
+		// 	const item = items[i];
+		// 	fields.push(<option key={item[2]} value={item[2]}>
+		// 		{item[0]} ({item[1]})
+		// 	</option>
+		// 	);
+		// }
+		// const option = items[0];
+		// 	fields.push(<option key={option[1]} value={option[1]}>
+		// 		{option[0]} ({option[1]})
+		// </option>);
+		// let i = 1;
+		// if (this.props.node.name === "status") {
+		// 	i = status;
+		// }
+		// for (i; i < items.length; i++) {
+		// 	const item = items[i];
+		// 	statusfields.push(<option>
+		// 	{item[0]} ({item[1]})
+		// 	</option> );
+		// 	fields.push(<option>
+		// 		{item[0]} ({item[1]})
+		// 	</option> );
+		// }
+		// const option = items[0];
+		// 	fields.push(<option key={option[1]} value={option[1]}>
+		// 		{option[0]} ({option[1]})
+		// </option>);
+		// for (i = 0; i < status; i++) {
+		// 	const pop = items[i];
+		// 	statusfields.push(<option key={pop[1]} value={pop[1]}>
+		// 		{pop[0]} ({pop[1]})
+		// 	</option> );
+		// }
 		let lists = options;
-		if (this.props.node.name === "valueCode") {
-			lists = fields;
-		}
-		if (this.props.node.name === "status") {
-			lists = statusfields;
-		}
+		// if (this.props.node.name === "valueCode") {
+		// 	lists = fields;
+		// }
+		// if (this.props.node.name === "status") {
+		// 	lists = statusfields;
+		// }
 		return <span>
 			<select value={this.props.node.value || ""} 
 				className="form-control input-sm" 
@@ -281,7 +357,7 @@ class ValueEditor extends React.Component {
 		</span>;		
 	}
 
-	buildTextAreaInput(value) {
+	buildTextAreaInput(value: string) {
 		let xhtmlClass;
 		if (this.props.node.fhirType === "xhtml") {
 			xhtmlClass = " fhir-xhtml-edit";
@@ -296,7 +372,7 @@ class ValueEditor extends React.Component {
 		/>;
 	}
 
-	buildTextInput(value) {
+	buildTextInput(value: string) {
 		let nodeSchemaPath = this.props.node.schemaPath.substring(this.props.node.schemaPath.indexOf(".") + 1);
 		let errFields = this.props.errFields;
 		let style = {};
@@ -317,21 +393,25 @@ class ValueEditor extends React.Component {
 	}
 
 	buildCommitButton() {
-		let commitButtonClassName = "btn btn-default btn-sm";
+		let disabled = false;
 		if ([null, undefined, ""].includes(this.props.node.value) || 
 			this.props?.node?.ui?.validationErr) {
-				commitButtonClassName += " disabled";
-			}
+				disabled = true;
+			}	
+		if (disabled) {
+			return undefined
+		}
 
+		let commitButtonClassName = "btn btn-default btn-sm";
 		return <button type="button" 
 			className={commitButtonClassName} 
 			onClick={this.props.onEditCommit}
 		>
-			{/* <span className="fas fa-check"></span> */}
+			<span className="fas fa-check"></span>
 		</button>;
 	}
 
-	buildDeleteButton(disabled) {
+	buildDeleteButton(disabled: boolean) {
 		return <button type="button" 
 			className="btn btn-default btn-sm" 
 			onClick={this.props.onNodeDelete}
@@ -341,7 +421,7 @@ class ValueEditor extends React.Component {
 		</button>;
 	}
 
-	wrapEditControls(inputField, disableDelete) {
+	wrapEditControls(inputField: JSX.Element, disableDelete?: boolean) {
 		let commitButton, validationErr, validationHint;
 		let groupClassName = "input-group";
 
@@ -374,8 +454,8 @@ class ValueEditor extends React.Component {
 
 
 	render() {
-		const renderers = { 
-			decimal: this.renderDecimal, boolean: this.renderBoolean, xhtml: this.renderLongString, 
+		const renderers: {[key: string]: (value: any) => JSX.Element} = { 
+			boolean: this.renderBoolean, xhtml: this.renderLongString, 
 			base64Binary: this.renderLongString, code: this.renderCode,
 			uri: this.renderUri, canonical: this.renderCanonical
 		};
@@ -389,6 +469,5 @@ class ValueEditor extends React.Component {
 		return renderer.call(this, value);
 	}
 }
-ValueEditor.initClass();
 
 export default ValueEditor;

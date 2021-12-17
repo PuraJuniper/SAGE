@@ -11,20 +11,25 @@ import ReactDOM from "react-dom";
 import State from "../state";
 import PrimitiveValidator from "../helpers/primitive-validator";
 
-import ValueEditor from "./value-editor";
-import ValueDisplay from "./value-display";
 import ValueNode from "./value-node";
 import ValueArrayNode from "./value-array-node";
 import ElementMenu from "./element-menu";
 import { hiddenElements } from '../config';
+import { SageNodeInitialized } from "../helpers/schema-utils";
 
-class ResourceElement extends React.Component {
+interface ResourceElementProps {
+	node: SageNodeInitialized,
+	parent: SageNodeInitialized,
+	errFields: string[],
+}
+
+class ResourceElement extends React.Component<ResourceElementProps, {}> {
 	static initClass() {
 	
-		this.prototype.displayName = "ResourceElement";
+		// this.prototype.displayName = "ResourceElement";
 	}
 
-	isValid(node) {
+	isValid(node: SageNodeInitialized) {
 		//this is hacky - need to find a better place for pre-commit validation
 		for (let editNode of Array.from(node.children || [node])) {
 			var message;
@@ -38,14 +43,15 @@ class ResourceElement extends React.Component {
 		return true;
 	}
 
-	shouldComponentUpdate(nextProps) {
+	shouldComponentUpdate(nextProps: ResourceElementProps) {
+		// console.log("scu", nextProps);
 		return nextProps.node !== this.props.node || nextProps.errFields !== this.props.errFields;
 	}
 
 	componentDidMount() {
 		if (this.refs.complexElement && (this.props.node?.nodeCreator === "user")) {
 			const domNode = ReactDOM.findDOMNode(this.refs.complexElement);
-			domNode.scrollIntoView(true);
+			// domNode.scrollIntoView(true);
 			//account for fixed header
 			const {
                 scrollY
@@ -56,12 +62,12 @@ class ResourceElement extends React.Component {
 		}
 	}
 
-	handleEditStart(e) {
+	handleEditStart(e?: React.SyntheticEvent) {
 		State.emit("start_edit", this.props.node);
 		if (e) { return e.preventDefault(); }
 	}
 
-	handleEditCancel(e) {
+	handleEditCancel(e?: React.SyntheticEvent) {
 		//don't allow cancel if no previous value
 		if ([null, undefined, ""].includes(this.props.node?.ui?.prevState?.value)) {
 			return;
@@ -70,23 +76,23 @@ class ResourceElement extends React.Component {
 		if (e) { return e.preventDefault(); }
 	}
 
-	handleEditCommit(e) {
+	handleEditCommit(e?: React.SyntheticEvent) {
 		if (!this.isValid(this.props.node)) { return; }
 		State.emit("end_edit", this.props.node, this.props.parent);
 		if (e) { return e.preventDefault(); }
 	}
 
-	handleNodeDelete(e) {
+	handleNodeDelete(e?: React.SyntheticEvent) {
 		State.emit("delete_node", this.props.node, this.props.parent);
 		if (e) { return e.preventDefault(); }
 	}
 
-	handleAddContained(e) {
+	handleAddContained(e?: React.SyntheticEvent) {
 		State.emit("show_open_contained", this.props.node);
 		if (e) { return e.preventDefault(); }
 	}
 
-	handleObjectMenu(e) {
+	handleObjectMenu(e?: React.SyntheticEvent) {
 		if (this.props.node?.ui?.status === "menu") { return; }
 		State.emit("show_object_menu", this.props.node, this.props.parent);
 		if (e) { return e.preventDefault(); }

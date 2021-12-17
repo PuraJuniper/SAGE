@@ -5,15 +5,23 @@ import React from "react";
 import State from "../state";
 import * as SchemaUtils from "../helpers/schema-utils";
 
+interface BaseCardProps {
+    header: string,
+    title: string,
+    profile?: string,
+    wait?: number,
+    content?: JSX.Element,
+    clickable?: boolean
+}
 
-export const BaseCard = (props:any) => {
+export const BaseCard = (props: BaseCardProps) => {
     let [show, setShow] = useState(false);
 
     useEffect(() => {
         setTimeout(() => {
             setShow(true);
         }, props.wait);
-      }, []);
+      }, [props.wait]);
 
 
     let index = props.header.indexOf("Activity");
