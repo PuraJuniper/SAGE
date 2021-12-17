@@ -21,7 +21,7 @@ class CpgDialog extends React.Component {
         this.state = {
             showSpinner: false,
             tab: "CPGNew",
-            version:"",
+            version:"1.0.0",
             date:"",
             status:"0",
             experimental:"",
@@ -32,7 +32,7 @@ class CpgDialog extends React.Component {
             editor:"editor",
             reviewer:"reviewer",
             CPGName: "cpgname",
-            authname: "authname",
+            publisher: "publisher",
             fhirText: '{"resourceType": "Patient"}',
             fhirUrl: "",
             newResourceType: "Patient",
@@ -222,7 +222,7 @@ class CpgDialog extends React.Component {
 
     handleAuthorNameChange(e) {
         this.setState({
-            authname: e.target.value,
+            publisher: e.target.value,
         });
     }
 
@@ -249,7 +249,7 @@ class CpgDialog extends React.Component {
     }
     
     handleOpenResource(status, e) {
-        if (!this.state.CPGName || !this.state.authname) return;
+        if (!this.state.CPGName || !this.state.publisher) return;
 		e.preventDefault();
         State.get().set({
             version: this.state.version,
@@ -260,7 +260,7 @@ class CpgDialog extends React.Component {
             approvalDate: this.state.approvalDate,
             lastReviewDate: this.state.lastReviewDate,
             CPGName: this.state.CPGName,
-            authname: this.state.authname,
+            publisher: this.state.publisher,
             author: this.state.author,
             editor: this.state.editor,
             reviewer: this.state.reviewer,
@@ -440,7 +440,7 @@ class CpgDialog extends React.Component {
                     <p style={{marginTop: "10px"}}>Publisher:</p>
                         <input
                             className="form-control"
-                            value={this.state.authname}
+                            value={this.state.publisher}
                             onChange={this.handleAuthorNameChange.bind(this)}
                         />
                     </Col>

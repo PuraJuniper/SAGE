@@ -25,7 +25,7 @@ export const BaseCard = (props: BaseCardProps) => {
       }, [props.wait]);
 
 
-    let index = props.header.indexOf("Activity");
+    let index = props.header.indexOf("activity");
     let header = index >= 0 && props.header.length > "ActivityDefinition".length 
         ? props.header.slice(0, index) : props.header;
     if (header.length > 24) {
@@ -40,6 +40,7 @@ export const BaseCard = (props: BaseCardProps) => {
     const content = props.content;
     let headerPadding = {};
     if (title == "") headerPadding = {padding:"7px"};
+    const isActivity = index >= 0;
     
     return (
         <CSSTransition
@@ -66,6 +67,9 @@ export const BaseCard = (props: BaseCardProps) => {
                         State.emit("save_changes_to_bundle_json");
                         State.get().ui.set("openMode", "insert");
                         json = {resourceType: "Bundle", entry: [{resource: {resourceType: "PlanDefinition"}}]};
+                        (json.entry[0].resource as any).action = {
+                            definitionCanonical: `http://fhir.org/guides/${State.get().publisher}/ActivityDefinition/ActivityDefinition-${State.get().CPGName}${State.get().resCount}`
+                        };
                         State.emit("load_json_resource", json);
                         State.get().bundle.set("pos", State.get().bundle.pos-1);
                     }, 350)

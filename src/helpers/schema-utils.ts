@@ -305,19 +305,19 @@ const getDefaultValue = (schema: SchemaDef, fhirType: string, parentName:string=
 			}
 			break;
 		case "publisher":
-			if (State.get().authname!= "") {
-				defaultValue = State.get().authname;
+			if (State.get().publisher!= "") {
+				defaultValue = State.get().publisher;
 			}
 			break;
 		case "url":
-			if (State.get().authname!= "" && State.get().CPGName != "") {
+			if (State.get().publisher!= "" && State.get().CPGName != "") {
 				// Ignore extensions
 				if (pathSuffix[0] == "Extension") {
 					break;
 				}
-				defaultValue = `http://fhir.org/guides/${State.get().authname}/${pathSuffix[0]}/${pathSuffix[0]}-${State.get().CPGName}${State.get().resCount}`;
+				defaultValue = `http://fhir.org/guides/${State.get().publisher}/${pathSuffix[0]}/${pathSuffix[0]}-${State.get().CPGName}${State.get().resCount}`;
 				if (pathSuffix[0].endsWith("Activity")) {
-					defaultValue = `http://fhir.org/guides/${State.get().authname}/ActivityDefinition/ActivityDefinition-${State.get().CPGName}${State.get().resCount}`;
+					defaultValue = `http://fhir.org/guides/${State.get().publisher}/ActivityDefinition/ActivityDefinition-${State.get().CPGName}${State.get().resCount}`;
 				}
 			}
 			break;

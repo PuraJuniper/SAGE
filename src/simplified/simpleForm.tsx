@@ -12,8 +12,10 @@ interface SimpleFormProps {
     planNode: SchemaUtils.SageNodeInitialized,
 }
 
+
 export const SimpleForm = (props:SimpleFormProps) => {
     const state = State.get();
+    console.log(State.get().bundle?.resources?.[0]);
     const [name, setName] = useState<string>("");
     const [description, setDescription] = useState<string>("");
     const [condition, setCondition] = useState<PlanDefinitionActionCondition>();
@@ -87,21 +89,21 @@ export const SimpleForm = (props:SimpleFormProps) => {
         <div>
         <iframe name="void" style={{display:"none"}}></iframe>
         <Form style={{color:"#2a6b92"}} id="commonMetaDataForm" target="void" onSubmit={handleSubmit}>
-        <button className="navigate-reverse col-lg-2 col-md-3" 
-							disabled={state.bundle.resources.length <= 2}
-							onClick={() => {
-								State.emit("remove_from_bundle", state.bundle.pos + 1);
-            					State.emit("remove_from_bundle", state.bundle.pos); 
-								State.get().set("ui", {status:"cards"})
-							}}>
-							<FontAwesomeIcon icon={faCaretLeft} />
-							&nbsp;Delete Resource
-					</button>
-					<button className="navigate col-lg-2 col-md-3" 
-                            type="submit">
-							Save Resource&nbsp;
-							<FontAwesomeIcon icon={faCaretRight} />
-					</button>
+            <button className="navigate-reverse col-lg-2 col-md-3" 
+                    disabled={state.bundle.resources.length <= 2}
+                    onClick={() => {
+                        State.emit("remove_from_bundle", state.bundle.pos + 1);
+                        State.emit("remove_from_bundle", state.bundle.pos); 
+                        State.get().set("ui", {status:"cards"})
+                    }}>
+                    <FontAwesomeIcon icon={faCaretLeft} />
+                    &nbsp;Delete Resource
+            </button>
+            <button className="navigate col-lg-2 col-md-3" 
+                    type="submit">
+                    Save Resource&nbsp;
+                    <FontAwesomeIcon icon={faCaretRight} />
+            </button>
         <h3  style={{marginTop:"20px", marginBottom:"10px"}}><b>PlanDefinition/ActivityDefinition</b></h3>
             <Row className="mb-2">
                 <Form.Group as= {Col} controlId="title">

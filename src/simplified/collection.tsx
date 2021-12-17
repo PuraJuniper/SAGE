@@ -25,15 +25,14 @@ const Collection = () => {
                 {
                 resources.map(
                         (resource, i) => {
-                            console.log(resource);
                             if (i % 2 == 1) return; // Every other resource would be a plandef
                             const actTitleNode = SchemaUtils.getChildOfNode(resource, "title");
                             const planTitleNode = SchemaUtils.getChildOfNode(resources[i+1], "title");
                             const profile = SchemaUtils.getChildOfNode(resource, "profile");
                         return <div className="col-lg-3 col-md-4 col-sm-6" key={i}>
                             <Folder 
-                            actTitle={actTitleNode ? actTitleNode.value : ""}
-                            planTitle={planTitleNode ? planTitleNode.value : ""}
+                            actTitle={actTitleNode?.value ? actTitleNode.value : "Untitled AD"}
+                            planTitle={planTitleNode?.value ? planTitleNode.value : "Untitled PD"}
                             type={profile ? (profile as any).profile.split("-")[1] : ""}
                             wait={i*25} 
                             index={i}
