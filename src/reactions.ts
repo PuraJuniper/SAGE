@@ -143,7 +143,8 @@ State.on("set_profiles", json => State.get().set({
 
 const checkBundle = (json: Resource | Bundle) => (json.resourceType === "Bundle") && (json as Bundle).entry;
 
-const decorateResource = function(json: Resource, profiles: any) : SageNodeInitialized | undefined {
+const decorateResource = function(json: Resource, profiles: SchemaUtils.SimplifiedProfiles) : SageNodeInitialized | undefined {
+	console.log('decorating resource: ', json);
 	// TODO: this shouldn't be necessary if args are properly typed
 	if (!SchemaUtils.isSupportedResource(json)) {
 		console.log("decorateResource called on non-resource: ", json);
@@ -151,6 +152,20 @@ const decorateResource = function(json: Resource, profiles: any) : SageNodeIniti
 	}
 	const decoratedNode = SchemaUtils.decorateFhirData(profiles, json);
 	if (decoratedNode) {
+		// const resource = State.get().bundle.resources[State.get().bundle.pos];
+		const usedElementPaths = decoratedNode.children?.map((v) => v.nodePath) || [];
+		const unusedElements = SchemaUtils.getElementChildren(profiles, decoratedNode, usedElementPaths);
+		for (const element of unusedElements) {
+			if (element.isRequired) {
+				const {
+					position,
+					newNode
+				} = getFhirElementNodeAndPosition(decoratedNode, element);
+				if (newNode) {
+					decoratedNode.children.splice(position, 0, newNode);
+				}
+			}
+		}
 		return decoratedNode;
 	}
 	else {
@@ -280,30 +295,6 @@ State.on("load_json_resource", (json, isCPG = true) => {
 	:
 		openResource(json);
 
-
-	const {
-		profiles
-	} = State.get();
-	const resource = State.get().bundle.resources[State.get().bundle.pos];
-
-	const usedElementPaths = resource.children?.map((v) => v.nodePath) || [];
-	const unusedElements = SchemaUtils.getElementChildren(profiles, resource, usedElementPaths);
-	for (const element of unusedElements) {
-		if (element.isRequired) {
-			const curResource = State.get().bundle.resources[State.get().bundle.pos];
-			// // Fix for FHIR north: duplicated elements on import
-			// if (curResource.children.filter((v, i, a) => {return v.index == element.index}).length > 0) {
-			// 	continue;
-			// }
-			const {
-				position,
-				newNode
-			} = getFhirElementNodeAndPosition(curResource, element);
-			if (newNode) {
-				curResource.children.splice(position, 0, newNode);
-			}
-		}
-	}
 	let status = State.get().ui.status;
 	// sometimes the error status gets overwritten so this preserves the error
 	if (!status.endsWith("error")) status = success ? "ready" : "resource_load_error";
