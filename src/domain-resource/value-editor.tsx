@@ -206,15 +206,15 @@ class ValueEditor extends React.Component<ValueEditorProps, {}> {
 			console.log(expressionKey);
 		}
 		console.log(new cql.Library(test));
-		if (e.currentTarget.value == `http://fhir.org/guides/${State.get().authname}/ActivityDefinition/ActivityDefinition-${State.get().CPGName}${State.get().resCount+1}`) {
+		if (e.currentTarget.value == `http://fhir.org/guides/${State.get().author}/ActivityDefinition/ActivityDefinition-${State.get().CPGName}${State.get().resCount+1}`) {
 			this.props.onEditCommit();
 			return State.emit("show_open_activity")
 		}
-		else if (e.currentTarget.value == `http://fhir.org/guides/${State.get().authname}/PlanDefinition/PlanDefinition-${State.get().CPGName}${State.get().resCount+1}`) {
+		else if (e.currentTarget.value == `http://fhir.org/guides/${State.get().author}/PlanDefinition/PlanDefinition-${State.get().CPGName}${State.get().resCount+1}`) {
 			this.props.onEditCommit();
 			return State.emit("show_open_insert")
 		}
-		else if (e.currentTarget.value == `http://fhir.org/guides/${State.get().authname}/Questionnaire/Questionnaire-${State.get().CPGName}${State.get().resCount+1}`) {
+		else if (e.currentTarget.value == `http://fhir.org/guides/${State.get().author}/Questionnaire/Questionnaire-${State.get().CPGName}${State.get().resCount+1}`) {
 			this.props.onEditCommit();
 			return State.emit("show_open_questionnaire")
 		}
@@ -255,9 +255,9 @@ class ValueEditor extends React.Component<ValueEditorProps, {}> {
 		let val = this.props.node.value ?? "Blank";
 		let errFields = this.props.errFields;
 		let style = {};
-		let activityurl = `http://fhir.org/guides/${State.get().authname}/ActivityDefinition/ActivityDefinition-${State.get().CPGName}${State.get().resCount+1}`;
-		let planurl = `http://fhir.org/guides/${State.get().authname}/PlanDefinition/PlanDefinition-${State.get().CPGName}${State.get().resCount+1}`;
-		let questionurl = `http://fhir.org/guides/${State.get().authname}/Questionnaire/Questionnaire-${State.get().CPGName}${State.get().resCount+1}`;
+		let activityurl = `http://fhir.org/guides/${State.get().author}/ActivityDefinition/ActivityDefinition-${State.get().CPGName}${State.get().resCount+1}`;
+		let planurl = `http://fhir.org/guides/${State.get().author}/PlanDefinition/PlanDefinition-${State.get().CPGName}${State.get().resCount+1}`;
+		let questionurl = `http://fhir.org/guides/${State.get().author}/Questionnaire/Questionnaire-${State.get().CPGName}${State.get().resCount+1}`;
 		if (errFields && errFields.includes(nodeSchemaPath) && val == "Blank") {
 			style = {backgroundColor:"#ff9393"};
 		}

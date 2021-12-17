@@ -16,16 +16,18 @@ interface SimpleFormProps {
 export const SimpleForm = (props:SimpleFormProps) => {
     const state = State.get();
     console.log(State.get().bundle?.resources?.[0]);
-    const [name, setName] = useState<string>("");
+    const [title, setTitle] = useState<string>("");
     const [description, setDescription] = useState<string>("");
     const [condition, setCondition] = useState<PlanDefinitionActionCondition>();
     let [availableExpressions, setAvailableExpressions] = useState<Expression[]>([]);
 
     const handleSubmit = function() {
-        console.log(name);
+        console.log(title);
         console.log(description);
-        State.emit("value_change", SchemaUtils.getChildOfNode(props.actNode, "name"), name, false);
-        State.emit("value_change", SchemaUtils.getChildOfNode(props.planNode, "name"), name, false);
+        // State.emit("value_change", SchemaUtils.getChildOfNode(props.actNode, "name"), title, false);
+        // State.emit("value_change", SchemaUtils.getChildOfNode(props.planNode, "name"), title, false);
+        State.emit("value_change", SchemaUtils.getChildOfNode(props.actNode, "title"), title, false);
+        State.emit("value_change", SchemaUtils.getChildOfNode(props.planNode, "title"), title, false);
         State.emit("value_change", SchemaUtils.getChildOfNode(props.actNode, "description"), description, false);
         State.emit("value_change", SchemaUtils.getChildOfNode(props.planNode, "description"), description, false);
         const actionNode = SchemaUtils.getChildOfNode(props.planNode, "action")
@@ -33,7 +35,7 @@ export const SimpleForm = (props:SimpleFormProps) => {
             const actionNodes = SchemaUtils.getChildrenFromObjectArrayNode(actionNode);
             console.log(actionNodes);
             if (actionNodes) {
-                State.emit("value_change", SchemaUtils.getChildOfNode(actionNodes[0], "title"), name, false);
+                State.emit("value_change", SchemaUtils.getChildOfNode(actionNodes[0], "title"), title, false);
                 State.emit("value_change", SchemaUtils.getChildOfNode(actionNodes[0], "description"), description, false);
                 if (condition) {
                     const conditionNode = SchemaUtils.getChildOfNode(actionNodes[0], "condition");
@@ -44,24 +46,6 @@ export const SimpleForm = (props:SimpleFormProps) => {
                 }
             }
         }
-        
-        // State.emit("value_change", SchemaUtils.getChildOfNode(props.planNode, "condition"), condition, false);
-        // State.emit("save_changes_to_bundle_json");
-        // State.get().set("ui", {status:"collection"})
-        // let elements = (document.getElementById("commonMetaDataForm") as HTMLFormElement).elements;
-        // const titleElement = elements.namedItem('title');
-        // const descriptionElement = elements.namedItem('description');
-        // const conditionElement = elements.namedItem('condition');
-        // console.log(conditionElement);
-        // let obj:{ [key: string]: any } = {};
-        // for(let i = 2 ; i < elements.length ; i++){
-        //     let item = (elements.item(i) as HTMLInputElement);
-        //     let value = item.value;
-        //     console.log(item, value);
-        //     State.emit("value_change", SchemaUtils.getChildOfNode(props.actNode, item.id), value, false);
-        //     State.emit("value_change", SchemaUtils.getChildOfNode(props.planNode, item.id), value, false);
-        // }
-        // State.emit("save_changes_to_bundle_json");
         State.get().set("ui", {status:"collection"})
     }
 
@@ -111,7 +95,7 @@ export const SimpleForm = (props:SimpleFormProps) => {
                     <Form.Control 
                         type="text"
                         defaultValue={(SchemaUtils.getChildOfNode(props.actNode, "title"))?.value}
-                        onChange={(e) => setName(e.currentTarget.value)}
+                        onChange={(e) => setTitle(e.currentTarget.value)}
                     />
                 </Form.Group>
             </Row>
