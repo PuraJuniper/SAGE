@@ -23,8 +23,8 @@ class CpgDialog extends React.Component {
             tab: "CPGNew",
             version:"1.0.0",
             date:"",
-            status:"0",
-            experimental:"",
+            status:"draft",
+            experimental: true,
             copyright:"",
             approvalDate:"",
             lastReviewDate:"",
@@ -198,7 +198,7 @@ class CpgDialog extends React.Component {
 
     handleExperimentalChange(e) {
         this.setState({
-            experimental: e.target.value,
+            experimental: e.target.value == "true" ? true : false,
         });
     }
 
@@ -415,10 +415,10 @@ class CpgDialog extends React.Component {
 					        }}
 					    ref="inputField"
 				    >
-                        <option value="0">Draft (draft)</option>
-				        <option value="1">Active (active)</option>
-                        <option value="2">Retired (retired)</option>
-                        <option value="3">Unknown (unknown)</option>
+                        <option value="draft">Draft (draft)</option>
+				        <option value="active">Active (active)</option>
+                        <option value="retired">Retired (retired)</option>
+                        <option value="unknown">Unknown (unknown)</option>
                     </select>
                     </Col> 
                     <Col md="6">
@@ -430,8 +430,8 @@ class CpgDialog extends React.Component {
 					        }}
 					    ref="inputField"
 				    >
-				        <option value="Yes">Yes</option>
-				        <option value="No">No</option>
+				        <option value = {true}>Yes</option>
+				        <option value= {false}>No</option>
 			            </select>
                     </Col>
                 </Row>

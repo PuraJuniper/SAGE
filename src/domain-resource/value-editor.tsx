@@ -168,16 +168,17 @@ class ValueEditor extends React.Component<ValueEditorProps, {}> {
 		return this.wrapEditControls(inputField);
 	}
 
-	renderBoolean(value: string) {
+	renderBoolean(value: boolean) {
 		const inputField = this.buildBooleanInput(value);
 		return this.wrapEditControls(inputField);
 	}
 
-	buildBooleanInput(value: string) {
+	buildBooleanInput(value: boolean) {
 		const bool = State.get().experimental;
-		if (this.props.node.name === "experimental" && bool == "No") {
+		if (this.props.node.name === "experimental" && bool == false) {
+			console.log(this.props.node.value);
 			return <span>
-			<select value={bool} 
+			<select value={this.props.node.value} 
 				className="form-control input-sm" 
 					onChange={this.handleChange.bind(this)} 
 					ref="inputField"
@@ -186,7 +187,6 @@ class ValueEditor extends React.Component<ValueEditorProps, {}> {
 				<option value={"true"}>Yes</option>
 			</select>
 		</span>;	
-			
 		}
 		return <span>
 			<select value={this.props.node.value} 
