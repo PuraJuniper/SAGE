@@ -539,19 +539,39 @@ var getProfileOfSchemaDef = function(profiles: SimplifiedProfiles, schemaNode: S
 	}
 }
 
-export const getChildOfNode = function (node: SageNodeInitialized, childName: string, tryToCreate?: boolean, profiles?: SimplifiedProfiles) : SageNodeInitialized | undefined {
+export const getChildOfNodePath = function(node: SageNodeInitialized, childNames: string[]) : SageNodeInitialized | undefined {
+	if (childNames.length > 1) {
+		const nextChild = getChildOfNode(node, childNames[0]);
+		if (nextChild) {
+			return getChildOfNodePath(nextChild, childNames.slice(1));
+		}
+	}
+	else if (childNames.length == 1) {
+		return getChildOfNode(node, childNames[0]);
+	}
+	else {
+		// It would be nice to type-check this case away
+		return;
+	}
+}
+
+export const getChildOfNode = function (node: SageNodeInitialized, childName: string) : SageNodeInitialized | undefined {
+	if (node.nodeType == "objectArray") {
+		const nodesOfArray = getChildrenFromObjectArrayNode(node);
+		if (nodesOfArray.length > 0) {
+			return getChildOfNode(nodesOfArray[0], childName);
+		}
+		else {
+			console.log(`Node named "${node.name}" is an empty objectArray, so cannot not traverse to ${childName}. Empty Node follows:`, node);
+			return;
+		}
+	}
 	for (const child of node.children) {
 		if (child.name == childName) {
 			return child
 		}
 	}
-	console.log(`couldnt find child of name ${childName} for:`, node);
-	// if (tryToCreate && profiles) {
-	// 	const childNode = getElementChildren(profiles, node, []).find((v) => v.name == childName);
-	// 	if (childNode) {
-	// 		return buildChildNode(profiles, node, childNode, childNode.fhirType);
-	// 	}
-	// }
+	console.log(`Couldnt find child named "${childName}" for:`, node);
 	return;
 };
 

@@ -4,8 +4,10 @@ import State from "../state";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {faCaretRight, faCaretLeft} from  '@fortawesome/pro-solid-svg-icons';
 import * as SchemaUtils from "../helpers/schema-utils"
-import { getExpressionsFromLibraries } from "./conditionBuilder";
 import { Expression, PlanDefinitionActionCondition } from "fhir/r4";
+import * as cql from 'cql-execution';
+
+import test from "../../test/sample-library.json";
 
 interface SimpleFormProps {
     actNode: SchemaUtils.SageNodeInitialized,
@@ -35,22 +37,18 @@ export const SimpleForm = (props:SimpleFormProps) => {
         State.emit("value_change", SchemaUtils.getChildOfNode(props.planNode, "experimental"), State.get().experimental, false);
         State.emit("value_change", SchemaUtils.getChildOfNode(props.actNode, "status"), State.get().status, false);
         State.emit("value_change", SchemaUtils.getChildOfNode(props.planNode, "status"), State.get().status, false);
-        const actionNode = SchemaUtils.getChildOfNode(props.planNode, "action")
-        if (actionNode) {
-            console.log(actionNode);
-            const actionNodes = SchemaUtils.getChildrenFromObjectArrayNode(actionNode);
-            console.log(actionNodes);
-            if (actionNodes) {
-                State.emit("value_change", SchemaUtils.getChildOfNode(actionNodes[0], "title"), title, false);
-                State.emit("value_change", SchemaUtils.getChildOfNode(actionNodes[0], "description"), description, false);
-                if (condition) {
-                    const conditionNode = SchemaUtils.getChildOfNode(actionNodes[0], "condition");
-                    if (conditionNode) {
-                        const conditionNodes = SchemaUtils.getChildrenFromObjectArrayNode(conditionNode);
-                        State.emit("load_json_into", conditionNodes[0], condition);
-                    }
-                }
-            }
+        const titleNode = SchemaUtils.getChildOfNodePath(props.planNode, ["action", "title"]);
+        if (titleNode) {
+            State.emit("value_change", titleNode, title, false);
+        }
+        const descriptionNode = SchemaUtils.getChildOfNodePath(props.planNode, ["action", "description"]);
+        if (descriptionNode) {
+            State.emit("value_change", descriptionNode, description, false);
+        }
+        const conditionNode = SchemaUtils.getChildOfNodePath(props.planNode, ["action", "condition"]);
+        if (conditionNode) {
+            const conditionNodes = SchemaUtils.getChildrenFromObjectArrayNode(conditionNode);
+            State.emit("load_json_into", conditionNodes[0], condition);
         }
         State.get().set("ui", {status:"collection"})
     }
@@ -63,17 +61,17 @@ export const SimpleForm = (props:SimpleFormProps) => {
         [],
     );
 
-    // const getExpressionsFromLibraries = () => {
-	// 	const parsedLib = new cql.Library(test);
-    //     const foundExpressions: Expression[] = [];
-	// 	for (const expressionKey of Object.keys(parsedLib.expressions)) {
-    //         foundExpressions.push({
-    //             language: 'text/cql',
-    //             expression: expressionKey
-    //         });
-	// 	}
-    //     setAvailableExpressions([...availableExpressions, ...foundExpressions]);
-    // }
+    const getExpressionsFromLibraries = () => {
+        const parsedLib = new cql.Library(test);
+        const foundExpressions: Expression[] = [];
+        for (const expressionKey of Object.keys(parsedLib.expressions)) {
+            foundExpressions.push({
+                language: 'text/cql',
+                expression: expressionKey
+            });
+        }
+        return foundExpressions;
+    }
 
     return (
         <div>
@@ -118,18 +116,25 @@ export const SimpleForm = (props:SimpleFormProps) => {
             <Row className="mb-2">
                 <Form.Group as= {Col} controlId="condition">
                     <Form.Label as="b">Condition</Form.Label>
-                    <Form.Control as="select" aria-label="Default select example" 
-                    onChange={(e) => {
-                        console.log(e.currentTarget.value);
-                        setCondition({
-                            expression: {
-                                language: 'text/cql',
-                                expression: e.currentTarget.value
-                            },
-                            kind: 'applicability'
-                        })
-                    }}>
-                        <option key="" value="">None</option>
+                    <Form.Control as="select" 
+                        onChange={(e) => {
+                            if (e.currentTarget.value == 'none') {
+                                setCondition(undefined);
+                            }
+                            else {
+                                setCondition({
+                                    expression: {
+                                        language: 'text/cql',
+                                        expression: e.currentTarget.value
+                                    },
+                                    kind: 'applicability'
+                                })
+                            }
+                        }}
+                        defaultValue={SchemaUtils.getChildOfNodePath(props.planNode, ["action", "condition", "expression", "expression"])?.value || "none"}
+                    >
+                        <option key="cur" value={SchemaUtils.getChildOfNodePath(props.planNode, ["action", "condition", "expression", "expression"])?.value}>{SchemaUtils.getChildOfNodePath(props.planNode, ["action", "condition", "expression", "expression"])?.value}</option>
+                        <option key="" value="none">None</option>
                         {availableExpressions.map((v) => {
                             return <option key={v.expression} value={v.expression}>{v.expression}</option>
                         })}

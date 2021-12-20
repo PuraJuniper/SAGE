@@ -7,6 +7,7 @@ import State from "../state";
 interface FolderProps {
     actTitle: string,
     planTitle: string,
+    conditionExpressions: string[],
     index: number,
     type: string,
     link?: string
@@ -15,7 +16,6 @@ interface FolderProps {
 
 export const Folder = (props: FolderProps) => {
     let [show, setShow] = useState(false);
-
     useEffect(() => {
         setTimeout(() => {
             setShow(true);
@@ -45,7 +45,7 @@ export const Folder = (props: FolderProps) => {
             <BaseCard header="PlanDefinition" title={props.planTitle}
             content={
                 <div>
-                {props.actTitle}
+                {props.actTitle} {props.conditionExpressions.length > 0 ? `WHEN ${props.conditionExpressions[0]} IS TRUE` : ""}
                 </div>
                 }/>
         </div>
