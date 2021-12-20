@@ -14,21 +14,33 @@ interface SimpleFormProps {
     planNode: SchemaUtils.SageNodeInitialized,
 }
 
+const buildConditionFromSelection = (expression?: string): PlanDefinitionActionCondition | undefined => {
+    if (expression) {
+        return {
+            expression: {
+                language: 'text/cql',
+                expression: expression
+            },
+            kind: 'applicability'
+        };
+    }
+    else {
+        return undefined;
+    }
+}
 
 export const SimpleForm = (props:SimpleFormProps) => {
     const state = State.get();
     // console.log(State.get().bundle?.resources?.[0]);
     const [title, setTitle] = useState<string>("");
     const [description, setDescription] = useState<string>("");
-    const [condition, setCondition] = useState<PlanDefinitionActionCondition>();
+    const [condition, setCondition] = useState<PlanDefinitionActionCondition | undefined>(buildConditionFromSelection(SchemaUtils.getChildOfNodePath(props.planNode, ["action", "condition", "expression", "expression"])?.value));
     let [availableExpressions, setAvailableExpressions] = useState<Expression[]>([]);
 
     const handleSubmit = function() {
         console.log(props.planNode);
         console.log(title);
         console.log(description);
-        // State.emit("value_change", SchemaUtils.getChildOfNode(props.actNode, "name"), title, false);
-        // State.emit("value_change", SchemaUtils.getChildOfNode(props.planNode, "name"), title, false);
         State.emit("value_change", SchemaUtils.getChildOfNode(props.actNode, "title"), title, false);
         State.emit("value_change", SchemaUtils.getChildOfNode(props.planNode, "title"), title, false);
         State.emit("value_change", SchemaUtils.getChildOfNode(props.actNode, "description"), description, false);
@@ -119,22 +131,15 @@ export const SimpleForm = (props:SimpleFormProps) => {
                     <Form.Control as="select" 
                         onChange={(e) => {
                             if (e.currentTarget.value == 'none') {
-                                setCondition(undefined);
+                                setCondition(buildConditionFromSelection());
                             }
                             else {
-                                setCondition({
-                                    expression: {
-                                        language: 'text/cql',
-                                        expression: e.currentTarget.value
-                                    },
-                                    kind: 'applicability'
-                                })
+                                setCondition(buildConditionFromSelection(e.currentTarget.value));
                             }
                         }}
-                        defaultValue={SchemaUtils.getChildOfNodePath(props.planNode, ["action", "condition", "expression", "expression"])?.value || "none"}
+                        value={condition?.expression?.expression || ""}
                     >
-                        <option key="cur" value={SchemaUtils.getChildOfNodePath(props.planNode, ["action", "condition", "expression", "expression"])?.value}>{SchemaUtils.getChildOfNodePath(props.planNode, ["action", "condition", "expression", "expression"])?.value}</option>
-                        <option key="" value="none">None</option>
+                        <option key="" value="">None</option>
                         {availableExpressions.map((v) => {
                             return <option key={v.expression} value={v.expression}>{v.expression}</option>
                         })}
