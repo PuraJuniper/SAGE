@@ -28,11 +28,14 @@ const Collection = () => {
                             if (i % 2 == 1) return; // Every other resource would be a plandef
                             const actTitleNode = SchemaUtils.getChildOfNode(resource, "title");
                             const planTitleNode = SchemaUtils.getChildOfNode(resources[i+1], "title");
+                            const firstExpression: string | undefined = SchemaUtils.getChildOfNodePath(resources[i+1], ["action", "condition", "expression", "expression"])?.value;
+                            const conditionExpressions: string[] = firstExpression ? [firstExpression] : [];
                             const profile = SchemaUtils.getChildOfNode(resource, "profile");
                         return <div className="col-lg-3 col-md-4 col-sm-6" key={i}>
                             <Folder 
                             actTitle={actTitleNode?.value ? actTitleNode.value : "Untitled AD"}
                             planTitle={planTitleNode?.value ? planTitleNode.value : "Untitled PD"}
+                            conditionExpressions={conditionExpressions}
                             type={profile ? (profile as any).profile.split("-")[1] : "computable"}
                             wait={i*25} 
                             index={i}

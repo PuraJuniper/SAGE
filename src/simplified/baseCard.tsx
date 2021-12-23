@@ -58,7 +58,31 @@ export const BaseCard = (props: BaseCardProps) => {
                             State.get().bundle.set("pos", State.get().bundle.resources.length-1);
                             State.get().ui.set("openMode", "insert");
                         }
-                        let json = {resourceType: "Bundle", entry: [{resource: {resourceType: isActivity ? "ActivityDefinition" : "Questionnaire"}}, {resource: {resourceType: "PlanDefinition"}}]};
+                        let json = {
+                            resourceType: "Bundle",
+                            entry: [
+                                {
+                                    resource: {resourceType: isActivity ? "ActivityDefinition" : "Questionnaire"}},
+                                {
+                                    resource: {
+                                        resourceType: "PlanDefinition",
+                                        library: [],
+                                        action: [
+                                            {
+                                                title: "",
+                                                description: "",
+                                                condition: [
+                                                    {
+                                                        kind: "applicability",
+                                                    }
+                                                ],
+                                                definitionCanonical: `http://fhir.org/guides/${State.get().publisher}/ActivityDefinition/ActivityDefinition-${State.get().CPGName}${State.get().resCount}`
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                            };
                         //const resourceProfile = SchemaUtils.getProfileOfResource(State.get().profiles, resourceJson);
                         if (isActivity) {
                             (json.entry[0].resource as any).meta = {
