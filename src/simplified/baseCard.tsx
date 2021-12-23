@@ -53,7 +53,7 @@ export const BaseCard = (props: BaseCardProps) => {
                     if (e.target.tagName !== "svg" && e.target.tagName !== "path" && props.clickable) {
                     setShow(false);
                     setTimeout(() => {
-                        if (State.get().bundle) {
+                        if (State.get().bundle?.resources.length) {
 	                        State.emit("save_changes_to_bundle_json");
                             State.get().bundle.set("pos", State.get().bundle.resources.length-1);
                             State.get().ui.set("openMode", "insert");
@@ -66,14 +66,6 @@ export const BaseCard = (props: BaseCardProps) => {
                             };
                         }
                         State.emit("load_json_resource", json);
-                        // State.emit("save_changes_to_bundle_json");
-                        // State.get().ui.set("openMode", "insert");
-                        // json = {resourceType: "Bundle", entry: [{resource: {resourceType: "PlanDefinition"}}]};
-                        // (json.entry[0].resource as any).action = {
-                        //     definitionCanonical: `http://fhir.org/guides/${State.get().publisher}/ActivityDefinition/ActivityDefinition-${State.get().CPGName}${State.get().resCount}`
-                        // };
-                        // State.emit("load_json_resource", json);
-                        // State.get().bundle.set("pos", State.get().bundle.pos-1);
                     }, 350)
                     }
                 }}
