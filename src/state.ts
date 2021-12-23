@@ -1,3 +1,4 @@
+import { Library } from 'cql-execution';
 import Freezer from 'freezer-js';
 import { SageNodeInitialized, SimplifiedProfiles, SimplifiedValuesets, SageSupportedFhirResource } from './helpers/schema-utils';
 
@@ -31,6 +32,14 @@ export interface StateVars {
 		pos: number
 		resources: SageNodeInitialized[],
 	},
+	simplified: { // Data only used by the simplified view
+		libraries: {
+			[libraryIdentifier: string]: {
+				library: Library,
+				url: string,
+			}
+		}
+	}
 	resCount?: number,
 	errFields?: string[],
 	profiles: SimplifiedProfiles,
@@ -61,6 +70,9 @@ const defaultStateVars: StateVars = {
 	CPGName: "",
 	publisher: "",
 	canonicalUris: [], // URIs to reference in canonical elements
+	simplified: {
+		libraries: {}
+	},
 	showHiddenElements: false,
 	profiles: {},
 	valuesets: {},

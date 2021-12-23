@@ -19,7 +19,7 @@ declare module 'freezer-js' {
     export type FreezerNode<T> = T extends Array<infer ArrayType> ? FreezerArray<ArrayType> : T extends string | number | boolean | null | undefined ? T : FreezerObject<T>;
 
     type FreezerCommon<T> = FreezerListener & {
-        getListener(): void,
+        getListener(): FreezerListener,
         now(): void,
         pivot(): FreezerNodePivoted<T, T>,
         reset(a: FreezerNode<T>): FreezerNode<T>,

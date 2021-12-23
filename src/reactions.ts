@@ -13,6 +13,7 @@ import * as BundleUtils from './helpers/bundle-utils';
 import { SageNode, SageNodeInitialized, SimplifiedProfiles } from './helpers/schema-utils';
 import { FreezerNode } from 'freezer-js';
 import { NonceProvider } from 'react-select';
+import * as cql from 'cql-execution';
 
 const canMoveNode = function(node: SageNodeInitialized, parent: SageNodeInitialized) {
 	if (!["objectArray", "valueArray"].includes(parent?.nodeType)) {
@@ -776,6 +777,15 @@ State.on("load_json_into", function(nodeToWriteTo: FreezerNode<SageNodeInitializ
 	nodeToWriteTo.set({
 		children: newChildren
 	});
+});
+
+State.on("load_library", function(library: cql.Library, url: string) {
+	const libraryIdentifier = `${library.source.library.identifier.id}v${library.source.library.identifier.version}`
+	State.get().simplified.libraries.set(libraryIdentifier, {
+		library: library,
+		url: url
+	});
+	console.log(State.get());
 });
 
 export default State;
