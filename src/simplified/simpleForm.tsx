@@ -57,8 +57,8 @@ const getExpressionOptionsFromLibraries = (libraries: {library: Library, url: st
 export const SimpleForm = (props:SimpleFormProps) => {
     const state = State.get();
     // console.log(State.get().bundle?.resources?.[0]);
-    const [title, setTitle] = useState<string>("");
-    const [description, setDescription] = useState<string>("");
+    const [title, setTitle] = useState<string>(SchemaUtils.getChildOfNode(props.actNode, "title")?.value || "");
+    const [description, setDescription] = useState<string>(SchemaUtils.getChildOfNode(props.actNode, "description")?.value || "");
     const [condition, setCondition] = useState<PlanDefinitionActionCondition | undefined>(() => {
         return buildConditionFromSelection(SchemaUtils.getChildOfNodePath(props.planNode, ["action", "condition", "expression", "expression"])?.value)
     });
@@ -211,7 +211,7 @@ export const SimpleForm = (props:SimpleFormProps) => {
                     <Form.Label as="b">Title</Form.Label>
                     <Form.Control 
                         type="text"
-                        defaultValue={(SchemaUtils.getChildOfNode(props.actNode, "title"))?.value}
+                        defaultValue={title}
                         onChange={(e) => setTitle(e.currentTarget.value)}
                     />
                 </Form.Group>
@@ -221,7 +221,7 @@ export const SimpleForm = (props:SimpleFormProps) => {
                     <Form.Label as="b">Description</Form.Label>
                     <Form.Control 
                         type="text"
-                        defaultValue={(SchemaUtils.getChildOfNode(props.actNode, "description"))?.value}
+                        defaultValue={description}
                         onChange={(e) => setDescription(e.currentTarget.value)}
                     />
                 </Form.Group>
