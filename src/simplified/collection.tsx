@@ -36,7 +36,7 @@ const Collection = () => {
                             actTitle={actTitleNode?.value ? actTitleNode.value : "Untitled AD"}
                             planTitle={planTitleNode?.value ? planTitleNode.value : "Untitled PD"}
                             conditionExpressions={conditionExpressions}
-                            type={profile ? (profile as any).profile.split("-")[1] : ""}
+                            type={profile ? (profile as any).profile.split("-")[1] : "computable"}
                             wait={i*25} 
                             index={i}
                             />

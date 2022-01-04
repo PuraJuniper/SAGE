@@ -216,7 +216,7 @@ class RootComponent extends React.Component<RootProps, {prevStatus:string}> {
 				show={["basic-cpg", "advanced-cpg"].includes(state.ui.status)}
 				basic={state.ui.status === "basic-cpg"}	
 				/>
-			{state.bundle ? 
+			{state.bundle?.resources.length > 0 ? 
 			<>
 				<ExportDialog show={state.ui.status === "export"} bundle={state.bundle} />
 				<ChangeProfileDialog show={state.ui.status === "change_profile"} nodeToChange={state.bundle.resources[state.bundle.pos]}

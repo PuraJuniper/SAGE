@@ -157,16 +157,18 @@ export const SimpleForm = (props:SimpleFormProps) => {
 
     // All logic for saving the Simplified Form data into the underlying FHIR Resources should be performed here
     const handleSaveResource = function() {
-        console.log(props.planNode);
+        console.log(props.actNode);
         console.log(title);
         console.log(description);
-        State.emit("value_change", SchemaUtils.getChildOfNode(props.actNode, "title"), title, false);
+        if (props.actNode.displayName == "ActivityDefinition") { // Questionnaires have trouble saving otherwise
+            State.emit("value_change", SchemaUtils.getChildOfNode(props.actNode, "title"), title, false);
+            State.emit("value_change", SchemaUtils.getChildOfNode(props.actNode, "description"), description, false);
+            State.emit("value_change", SchemaUtils.getChildOfNode(props.actNode, "experimental"), State.get().experimental, false);
+            State.emit("value_change", SchemaUtils.getChildOfNode(props.actNode, "status"), State.get().status, false);
+        }
         State.emit("value_change", SchemaUtils.getChildOfNode(props.planNode, "title"), title, false);
-        State.emit("value_change", SchemaUtils.getChildOfNode(props.actNode, "description"), description, false);
         State.emit("value_change", SchemaUtils.getChildOfNode(props.planNode, "description"), description, false);
-        State.emit("value_change", SchemaUtils.getChildOfNode(props.actNode, "experimental"), State.get().experimental, false);
         State.emit("value_change", SchemaUtils.getChildOfNode(props.planNode, "experimental"), State.get().experimental, false);
-        State.emit("value_change", SchemaUtils.getChildOfNode(props.actNode, "status"), State.get().status, false);
         State.emit("value_change", SchemaUtils.getChildOfNode(props.planNode, "status"), State.get().status, false);
         const titleNode = SchemaUtils.getChildOfNodePath(props.planNode, ["action", "title"]);
         if (titleNode) {
@@ -205,7 +207,10 @@ export const SimpleForm = (props:SimpleFormProps) => {
                     Save Resource&nbsp;
                     <FontAwesomeIcon icon={faCaretRight} />
             </button>
-        <h3  style={{marginTop:"20px", marginBottom:"10px"}}><b>PlanDefinition/ActivityDefinition</b></h3>
+        <h3  style={{marginTop:"20px", marginBottom:"10px"}}><b>
+            {props.actNode.displayName}
+            /Plandefinition
+        </b></h3>
             <Row className="mb-2">
                 <Form.Group as= {Col} controlId="title">
                     <Form.Label as="b">Title</Form.Label>

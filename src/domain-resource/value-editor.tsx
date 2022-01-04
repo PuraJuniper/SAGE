@@ -175,7 +175,7 @@ class ValueEditor extends React.Component<ValueEditorProps, {}> {
 
 	buildBooleanInput(value: boolean) {
 		const bool = State.get().experimental;
-		if (this.props.node.name === "experimental" && bool == false) {
+		if (this.props.node.name === "experimental") {
 			console.log(this.props.node.value);
 			return <span>
 			<select value={this.props.node.value} 

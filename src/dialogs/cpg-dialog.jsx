@@ -265,6 +265,7 @@ class CpgDialog extends React.Component {
             editor: this.state.editor,
             reviewer: this.state.reviewer,
         })
+        State.get().bundle?.set("resources", []);
         if (this.props.basic) {
             State.get().set("mode", "basic");
             return State.get().set("ui", {status:"cards"});
