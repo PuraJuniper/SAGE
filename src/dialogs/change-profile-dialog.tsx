@@ -18,7 +18,6 @@ import State from "../state";
 type ChangeProfileProps = {
     show: boolean,
     nodeToChange: SageNodeInitialized,
-    previousProfile: keyof SimplifiedProfiles,
     profiles: SimplifiedProfiles,
 }
 
@@ -28,10 +27,13 @@ type ChangeProfileState = {
 }
 
 class ChangeProfileDialog extends React.Component<ChangeProfileProps, ChangeProfileState> {
+    previousProfile: keyof SimplifiedProfiles
+
     constructor(props: ChangeProfileProps) {
         super(props);
+        this.previousProfile = props.nodeToChange.profile;
         this.state = {
-            newProfile: props.previousProfile,
+            newProfile: this.previousProfile,
             showSpinner: false,
         };
     }
@@ -61,6 +63,7 @@ class ChangeProfileDialog extends React.Component<ChangeProfileProps, ChangeProf
             return;
         }
 		return Object.entries(this.props.profiles).filter((v) => {return v[1]['__meta']['type'] == this.props.nodeToChange.nodePath}).map((option, idx) => {
+            console.log(option[0]);
             return <option value={option[0]}>{option[1]['__meta']['id']}</option>
 		});
 	}
@@ -70,7 +73,7 @@ class ChangeProfileDialog extends React.Component<ChangeProfileProps, ChangeProf
             <h5>
                 Current Profile:
             </h5>
-            {this.props.previousProfile}
+            {this.previousProfile}
         </div>
     }
     

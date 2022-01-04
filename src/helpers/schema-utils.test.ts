@@ -1,6 +1,6 @@
 import { mocked } from 'ts-jest/utils';
 
-import { Resource } from 'fhir/r4';
+import { Resource, PlanDefinition } from 'fhir/r4';
 
 import * as SchemaUtils from './schema-utils';
 import * as config from '../config';
@@ -24,26 +24,26 @@ const r4AndCpg: SchemaUtils.SimplifiedProfiles = {
     ...cpg,
 };
 
-const samplePD = _samplePD;
-const samplePDWithProfile = _samplePDWithProfile
+const samplePD = _samplePD as PlanDefinition;
+const samplePDWithProfile = _samplePDWithProfile as PlanDefinition;
 
-const validResource: Resource = {
+const validResource = {
     resourceType: "PlanDefinition",
     meta: {
         profile: [
             'someProfileUri'
         ]
     }
-}
+} as PlanDefinition
 
-const fakeResourceType: Resource = {
+const fakeResourceType = {
     resourceType: "FakeResourceType",
     meta: {
         profile: [
             'someFakeProfileUri'
         ]
     }
-}
+} as Resource
 
 const invalidResource = {
     "id": "1032702",
@@ -55,7 +55,7 @@ const invalidResource = {
 
 const startState = State.get().set({
     CPGName: 'test-cpg-name',
-    authorName: 'test-cpg-author',
+    publisher: 'test-cpg-author',
 });
 
 beforeEach(() => {
@@ -63,12 +63,12 @@ beforeEach(() => {
 });
 
 test('if isResource is true on valid Resource', () => {
-    expect(SchemaUtils.isResource(validResource)).toBe(true);
-    expect(SchemaUtils.isResource(samplePD)).toBe(true);
+    expect(SchemaUtils.isSupportedResource(validResource)).toBe(true);
+    expect(SchemaUtils.isSupportedResource(samplePD)).toBe(true);
 });
 
 test('if isResource is false on invalid Resource', () => {
-    expect(SchemaUtils.isResource(invalidResource)).toBe(false);
+    expect(SchemaUtils.isSupportedResource(invalidResource)).toBe(false);
 });
 
 test('if getProfileOfResource gets the correct profile', () => {

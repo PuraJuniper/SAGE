@@ -22,22 +22,26 @@ class ExportDialog extends React.Component {
     }
 
     handleClose(errFields, e) {
-        if (errFields.length > 0) return State.emit("highlight_errors", errFields);
-        return State.emit("set_ui", "ready");
+        if (errFields.length > 0) State.emit("highlight_errors", errFields);
+        return State.emit("set_ui", "closedialog");
     }
 
     buildJson() {
         let [resource, errCount, errFields] = Array.from(
-            SchemaUtils.toFhir(this.props.resource, true)
+            SchemaUtils.toFhir(this.props.bundle.resources[this.props.bundle.pos], true)
         );
+
+        const resourcesJson = [];
+        for (const resource of this.props.bundle.resources) {
+            resourcesJson.push(SchemaUtils.toFhir(resource, false));
+        }
+        var bundleJson;
         if (this.props.bundle) {
-            resource = BundleUtils.generateBundle(
-                this.props.bundle.resources,
-                this.props.bundle.pos,
-                resource
+            bundleJson = BundleUtils.generateBundle(
+                resourcesJson
             );
         }
-        const jsonString = JSON.stringify(resource, null, 3);
+        const jsonString = JSON.stringify(bundleJson, null, 3);
         return {jsonString, errCount, errFields, resourceType: resource.resourceType};
     }
 
@@ -101,7 +105,7 @@ class ExportDialog extends React.Component {
         const errNotice =
             errCount > 0 ? (
                 <div className="alert alert-danger">
-                    Note that the current resource has unresolved data entry errors:
+                    Note that this most recent resource has unresolved data entry errors:
                     {errFields.map(function(f, idx) {return (<li key={idx}>{f}</li>)})}
                 </div>
             ) : (

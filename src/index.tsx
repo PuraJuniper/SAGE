@@ -10,12 +10,17 @@ import { UncontrolledAlert } from 'reactstrap';
 import ReactDOM from "react-dom";
 import State from "./reactions";
 import * as SchemaUtils from "./helpers/schema-utils";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import {faCaretRight, faCaretLeft} from  '@fortawesome/pro-solid-svg-icons';
 
 import NavbarFred from "./navbar";
 import RemoteNavbar from "./remote-navbar";
 import BundleBar from "./bundle-bar";
 import RefWarning from "./ref-warning";
 import Footer from "./footer";
+import SelectView from "./simplified/selectView"
+import Collection from "./simplified/collection"
+import { SimpleForm } from "./simplified/simpleForm";
 
 import DomainResource from "./domain-resource/";
 import CpgDialog from "./dialogs/cpg-dialog";
@@ -29,23 +34,36 @@ import UserSettingsDialog from "./dialogs/user-settings-dialog";
 import AppInfo from "../package.json";
 import SelectResourceDialog from "./dialogs/select-resource-canonical-dialog";
 
-class RootComponent extends React.Component {
-	
-	constructor() {
-		super();
+interface RootProps {};
+const changeLessContentStatuses = ["closedialog", "open", "basic-cpg", "advanced-cpg", "export"]
+class RootComponent extends React.Component<RootProps, {prevStatus:string}> {
+	appVersion: string;
+	isRemote: boolean;
+
+	constructor(props: RootProps) {
+		super(props);
 		const versionSegments = AppInfo.version.split(".");
 		//only take the major and minor
 		this.appVersion = versionSegments.slice(0,versionSegments.length-1).join(".");
+		this.isRemote = false;
+		this.state = {
+			prevStatus: ""
+		}
+		
 	}
 
 	getQs() {
-		const data = {};
+		const data: any = {};
 		const params = window.document.location.search?.substr(1).split("&");
 		for (let param of Array.from(params)) {
 			const [k,v] = param.split("=");
 			data[k] = decodeURIComponent(v);
 		}
 		return data;
+	}
+
+	shouldComponentUpdate() {
+		return this.state.prevStatus !== State.get().ui.status;
 	}
 
 	componentDidMount() {
@@ -57,7 +75,7 @@ class RootComponent extends React.Component {
 
 		if (qs.warn !== "0") {
 			window.onbeforeunload = () => {
-				if (State.get().resource) {
+				if (State.get().bundle) {
 					return "If you leave this page you will lose any unsaved changes.";
 				}
 			};
@@ -65,7 +83,7 @@ class RootComponent extends React.Component {
 
 		const defaultProfilePath = "profiles/cpg.json";
 
-		return State.on("update", () => this.forceUpdate()).emit("load_initial_json",
+		return (State.on("update", () => this.forceUpdate()) as any).emit("load_initial_json",
 			qs.profiles || defaultProfilePath,
 			qs.resource, this.isRemote);
 	}
@@ -74,7 +92,10 @@ class RootComponent extends React.Component {
 		return window.pageYOffset;
 	}
 
-	componentDidUpdate(prevProps, prevState, snapshot) {
+	componentDidUpdate(prevProps: RootProps, prevState: RootProps, snapshot: any) {
+		if (!changeLessContentStatuses.includes(State.get().ui.status)) {
+			this.setState({prevStatus:State.get().ui.status});
+		}
 		window.scrollTo(0, snapshot);
 	} 
 
@@ -93,23 +114,43 @@ class RootComponent extends React.Component {
 	render() {
 		let bundleBar;
 		const state = State.get();
+		const prevStatus = this.state.prevStatus;
+		
 
-		if (state.bundle) {
+		if (state.bundle && state.mode !== "basic") {
 			bundleBar = <BundleBar bundle={state.bundle} />;
 		}
 
 		const resourceContent = (() => {
 			if (state.ui.status === "loading") {
 			return <div className="spinner"><img src="../img/ajax-loader.gif" /></div>;
-		} else if (state.resource) {
-			return <DomainResource node={state.resource} errFields={state.errFields}/>;
+		} else if (state.ui.status === "cards" || 
+				prevStatus === "cards" && changeLessContentStatuses.includes(state.ui.status)) {
+			return <SelectView />
+		} else if (state.ui.status === "collection" || 
+				prevStatus === "collection" && changeLessContentStatuses.includes(state.ui.status)) {
+			return <Collection />
+		} else if (state.bundle) {
+			return (
+					state.mode === "basic" ? 
+					<SimpleForm actNode={state.bundle.resources[state.bundle.pos]} planNode={state.bundle.resources[state.bundle.pos+1]}/> : 
+					<DomainResource node={state.bundle.resources[state.bundle.pos]} errFields={state.errFields}/>
+			);
 		} else if (!state.bundle && (state.ui.status.indexOf("error") === -1)) {
 			return <div className="row" style={{marginTop: "60px", marginBottom: "60px"}}><div className="col-xs-offset-4 col-xs-4">
 				<button className="btn btn-primary btn-block" onClick={this.handleOpen.bind(this)}>
-					Open Resource
+					Create Resource
 				</button>
-				<button className="btn btn-primary btn-block" onClick={this.handleCpg.bind(this)}>
-					CPG
+				<button className="btn btn-primary btn-block" onClick={(e) => {
+					State.emit("set_ui", "basic-cpg");
+					}}>
+					Basic CPG
+				</button>
+				<button className="btn btn-primary btn-block" onClick={(e) => {
+					State.emit("set_ui", "advanced-cpg");
+				}
+					}>
+					Advanced CPG
 				</button>
 			</div></div>;
 		}
@@ -152,12 +193,12 @@ class RootComponent extends React.Component {
 
 		const navBar = this.isRemote ?
 			<RemoteNavbar
-				hasResource={state.resource ? true : undefined}
+				hasResource={state.bundle ? true : undefined}
 				appVersion={this.appVersion} 
 				hasProfiles={state.profiles !== null}
 			/>
 		:
-			<NavbarFred hasResource={state.resource ? true : undefined} appVersion={this.appVersion} />;
+			<NavbarFred hasResource={state.bundle ? true : undefined} appVersion={this.appVersion} />;
 		
 		return <div>
 			{navBar}
@@ -172,20 +213,23 @@ class RootComponent extends React.Component {
 				openMode={state.ui.openMode}
 				/>
 			<CpgDialog
-				show={state.ui.status == "cpg"}		
+				show={["basic-cpg", "advanced-cpg"].includes(state.ui.status)}
+				basic={state.ui.status === "basic-cpg"}	
 				/>
-			<ExportDialog show={state.ui.status === "export"}
-				bundle={state.bundle}
-				resource={state.resource}
-			/>
-			<CodePickerDialog show={state.ui.status === "codePicker"} node={state.ui.selectedNode} />
-			<ChangeProfileDialog show={state.ui.status === "change_profile"} nodeToChange={state.resource} profiles={state.profiles} previousProfile={state.resource?.profile}/>
-			<ValueSetDialog show={state.ui.status === "valueSet"} node={state.ui.selectedNode} 
-			profile={state.resource?.profile} valueset={state.valuesets}/>
+			{state.bundle?.resources.length > 0 ? 
+			<>
+				<ExportDialog show={state.ui.status === "export"} bundle={state.bundle} />
+				<ChangeProfileDialog show={state.ui.status === "change_profile"} nodeToChange={state.bundle.resources[state.bundle.pos]}
+					profiles={state.profiles}/>
+				<ValueSetDialog show={state.ui.status === "valueSet"} node={state.ui.selectedNode} 
+					profile={state.bundle.resources[state.bundle.pos].profile} valueset={state.valuesets} />
+				<SelectResourceDialog show={state.ui.status === "select"} node={state.ui.selectedNode} 
+					bundle = {state.bundle} /> 
+				<CodePickerDialog show={state.ui.status === "codePicker"} node={state.ui.selectedNode} />
+			</>
+			: ""
+			}
 			<UserSettingsDialog show={state.ui.status === "settings"} />
-			<SelectResourceDialog show={state.ui.status === "select"} node={state.ui.selectedNode} 
-			bundle = {state.bundle}
-			resource = {state.resource} /> 
 		</div>;
 	}
 }

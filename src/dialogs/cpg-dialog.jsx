@@ -21,8 +21,18 @@ class CpgDialog extends React.Component {
         this.state = {
             showSpinner: false,
             tab: "CPGNew",
+            version:"1.0.0",
+            date:"",
+            status:"draft",
+            experimental: true,
+            copyright:"",
+            approvalDate:"",
+            lastReviewDate:"",
+            author:"author",
+            editor:"editor",
+            reviewer:"reviewer",
             CPGName: "cpgname",
-            authorName: "authname",
+            publisher: "publisher",
             fhirText: '{"resourceType": "Patient"}',
             fhirUrl: "",
             newResourceType: "Patient",
@@ -159,7 +169,19 @@ class CpgDialog extends React.Component {
 
     handleClose(e) {
         this.setState({showSpinner: false});
-        return State.emit("set_ui", "ready");
+        return State.emit("set_ui", "closedialog");
+    }
+
+    handleVersionChange(e) {
+        this.setState({
+            version: e.target.value,
+        });
+    }
+
+    handleDateChange(e) {
+        this.setState({
+            date: e.target.value,
+        });
     }
 
     handleCPGNameChange(e) {
@@ -168,9 +190,57 @@ class CpgDialog extends React.Component {
         });
     }
 
+    handleStatusChange(e) {
+        this.setState({
+            status: e.target.value,
+        });
+    }
+
+    handleExperimentalChange(e) {
+        this.setState({
+            experimental: e.target.value == "true" ? true : false,
+        });
+    }
+
+    handleCopyrightChange(e) {
+        this.setState({
+            copyright: e.target.value,
+        });
+    }
+
+    handleapprovaldateChange(e) {
+        this.setState({
+            approvalDate: e.target.value,
+        });
+    }
+
+    handlelastreviewdateChange(e) {
+        this.setState({
+            lastReviewDate: e.target.value,
+        });
+    }
+
     handleAuthorNameChange(e) {
         this.setState({
-            authorName: e.target.value,
+            publisher: e.target.value,
+        });
+    }
+
+    handleAuthorChange(e) {
+        this.setState({
+            author: e.target.value,
+        });
+    }
+
+    handleEditorChange(e) {
+        this.setState({
+            editor: e.target.value,
+        });
+    }
+
+    handleReviewerChange(e) {
+        this.setState({
+            reviewer: e.target.value,
         });
     }
 
@@ -179,12 +249,28 @@ class CpgDialog extends React.Component {
     }
     
     handleOpenResource(status, e) {
-        if (!this.state.CPGName || !this.state.authorName) return;
+        if (!this.state.CPGName || !this.state.publisher) return;
 		e.preventDefault();
         State.get().set({
+            version: this.state.version,
+            date: this.state.date,
+            status: this.state.status,
+            experimental: this.state.experimental,
+            copyright: this.state.copyright,
+            approvalDate: this.state.approvalDate,
+            lastReviewDate: this.state.lastReviewDate,
             CPGName: this.state.CPGName,
-            authorName: this.state.authorName,
+            publisher: this.state.publisher,
+            author: this.state.author,
+            editor: this.state.editor,
+            reviewer: this.state.reviewer,
         })
+        State.get().bundle?.set("resources", []);
+        if (this.props.basic) {
+            State.get().set("mode", "basic");
+            return State.get().set("ui", {status:"cards"});
+        }
+        State.get().set("mode", "advanced");
         var resourceJson = {resourceType: "PlanDefinition"};
         var json = {resourceType: "Bundle", entry: [{resource: resourceJson}]};
         const resourceProfile = SchemaUtils.getProfileOfResource(State.get().profiles, resourceJson);
@@ -216,7 +302,10 @@ class CpgDialog extends React.Component {
                             type = "file"
                             id = "fileUpload"
                             style={{display: "none"}}
-                            onChange={this.handleSelectFile.bind(this)}
+                            onChange={(e) => {
+                                State.get().set("mode", "advanced");
+                                this.handleSelectFile.bind(this)(e);
+                            }}
                             ref="fhirFile"
                         />
                         <label htmlFor="fileUpload" className="btn btn-primary btn-block" style={{marginTop: "20px"}}>
@@ -231,7 +320,7 @@ class CpgDialog extends React.Component {
         return (
             <div className="row">
                 <div className="col-md-12">
-                    <p style={{marginTop: "20px"}}>
+                    <p style={{marginTop: "10px"}}>
                         Paste in a JSON FHIR Resource or Bundle:
                     </p>
                     <textarea
@@ -249,7 +338,10 @@ class CpgDialog extends React.Component {
                 >
                     <button
                         className="btn btn-primary btn-block"
-                        onClick={this.handleLoadText.bind(this)}
+                        onClick={(e) => {
+                            State.get().set("mode", "advanced");
+                            this.handleLoadText.bind(this)(e)
+                        }}
                         disabled={this.state.fhirText.length < 3}
                     >{`\
 \t\t\t\t\tLoad JSON\
@@ -264,7 +356,7 @@ class CpgDialog extends React.Component {
             <form onSubmit={this.handleLoadUrl.bind(this)}>
                 <div className="row">
                     <div className="col-md-12">
-                        <p style={{marginTop: "20px"}}>
+                        <p style={{marginTop: "10px"}}>
                             Enter the URL for a JSON FHIR Resource or Bundle:
                         </p>
                         <input
@@ -281,7 +373,10 @@ class CpgDialog extends React.Component {
                     >
                         <button
                             className="btn btn-primary btn-block"
-                            onClick={this.handleLoadUrl.bind(this)}
+                            onClick={(e) => {
+                                State.get().set("mode", "advanced");
+                                this.handleLoadUrl.bind(this)(e)
+                            }}
                             disabled={this.state.fhirUrl.length < 3}
                         >{`\
 \t\t\t\t\tRead JSON\
@@ -296,26 +391,126 @@ class CpgDialog extends React.Component {
         return (
             <Container>
                 <Row className="row">
-                    <Col md="12">                                                
-                        <p style={{marginTop: "20px"}}>Enter CPG Name:</p>
+                    <Col md="6">   
+                        <p style={{marginTop: "10px"}}>Version:</p>
                         <input
                             className="form-control"
-                            style={{marginTop: "10px", marginBottom: "10px"}}
-                            value={this.state.CPGName}
-                            onChange={this.handleCPGNameChange.bind(this)}
-                        />
-                        <p style={{marginTop: "20px"}}>Enter Author Name:</p>
+                            value={this.state.version}
+                            onChange={this.handleVersionChange.bind(this)}
+                        />   
+                    </Col>    
+                    <Col md="6">
+                        <p style={{marginTop: "10px"}}>Date:</p>
                         <input
                             className="form-control"
-                            style={{marginTop: "10px", marginBottom: "10px"}}
-                            value={this.state.authorName}
+                            value={this.state.date}
+                            onChange={this.handleDateChange.bind(this)}
+                        />  
+                    </Col>
+                    <Col md="6">
+                    <p style={{marginTop: "10px"}}>Status:</p>
+                    <select
+					        className="form-control input-sm" 
+					        onChange = {(e) => {
+						        this.handleStatusChange.bind(this)(e);
+					        }}
+					    ref="inputField"
+				    >
+                        <option value="draft">Draft (draft)</option>
+				        <option value="active">Active (active)</option>
+                        <option value="retired">Retired (retired)</option>
+                        <option value="unknown">Unknown (unknown)</option>
+                    </select>
+                    </Col> 
+                    <Col md="6">
+                        <p style={{marginTop: "10px"}}>Experimental:</p>
+                        <select
+					        className="form-control input-sm" 
+					        onChange = {(e) => {
+						        this.handleExperimentalChange.bind(this)(e);
+					        }}
+					    ref="inputField"
+				    >
+				        <option value = {true}>Yes</option>
+				        <option value= {false}>No</option>
+			            </select>
+                    </Col>
+                </Row>
+                <Row className="row">
+                    <Col md="6">
+                    <p style={{marginTop: "10px"}}>Publisher:</p>
+                        <input
+                            className="form-control"
+                            value={this.state.publisher}
                             onChange={this.handleAuthorNameChange.bind(this)}
                         />
                     </Col>
+                    <Col md="6">
+                        <p style={{marginTop: "10px"}}>Copyright:</p>
+                        <input
+                            className="form-control"
+                            value={this.state.copyright}
+                            onChange={this.handleCopyrightChange.bind(this)}
+                        />  
+                    </Col>   
+                    <Col md="6">
+                        <p style={{marginTop: "10px"}}>Approval Date:</p>
+                        <input
+                            className="form-control"
+                            value={this.state.approvalDate}
+                            onChange={this.handleapprovaldateChange.bind(this)}
+                        />  
+                    </Col> 
+                    <Col md="6">
+                        <p style={{marginTop: "10px"}}>Last Review Date:</p>
+                        <input
+                            className="form-control"
+                            value={this.state.lastReviewDate}
+                            onChange={this.handlelastreviewdateChange.bind(this)}
+                        />  
+                    </Col> 
+                </Row>
+                <Row className="row">
+                <Col md="12">                                     
+                        <p style={{marginTop: "10px"}}>CPG Name:</p>
+                        <input
+                            className="form-control"
+                            value={this.state.CPGName}
+                            onChange={this.handleCPGNameChange.bind(this)}
+                        />
+                    </Col>
+                </Row>
+                <Row className="row">
+                <Col md="4">                                     
+                        <p style={{marginTop: "10px"}}>Author:</p>
+                        <input
+                            className="form-control"
+                            value={this.state.author}
+                            onChange={this.handleAuthorChange.bind(this)}
+                        />
+                    </Col>
+                    <Col md="4">                                     
+                        <p style={{marginTop: "10px"}}>Editor:</p>
+                        <input
+                            className="form-control"
+                            value={this.state.editor}
+                            onChange={this.handleEditorChange.bind(this)}
+                        />
+                    </Col>
+                    <Col md="4">                                     
+                        <p style={{marginTop: "10px"}}>Reviewer:</p>
+                        <input
+                            className="form-control"
+                            value={this.state.reviewer}
+                            onChange={this.handleReviewerChange.bind(this)}
+                        />
+                    </Col>
+                </Row>
+                <Row className="row">
                     <Col
                         md="auto"
                         className="col-xs-4 col-xs-offset-4"
-                        style={{marginTop: "10px", marginBottom: "10px"}}
+                        style={{marginTop: "20px", marginBottom: "10px"}}
                     >
                         <button
                             className="btn btn-primary btn-block"

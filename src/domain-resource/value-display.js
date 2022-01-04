@@ -9,6 +9,7 @@ import React from "react";
 import Moment from "moment";
 import Sanitize from "sanitize-caja";
 import State from "../state";
+import * as SchemaUtils from "../helpers/schema-utils";
 
 class ValueDisplay extends React.Component {
 	static initClass() {
@@ -143,13 +144,52 @@ ${this.props.node.value}
 		return <span className="empty-value">...</span>;
 	}
 
+	buildShortcutButton(pos) {
+		let shortcutButtonClassName = "btn btn-default btn-sm";
+		return <button type="button" 
+			className={shortcutButtonClassName} 
+			onClick={() => {return State.emit("set_bundle_pos", pos)}}
+		>
+			<span className="fas fa-arrow-right"></span>
+		</button>;
+	}
+
+	formatCanonical(value) {
+		if (!value) {
+			return undefined
+		}
+		let linkedResourceDisplay = ""; // Human-friendly name for linked Resource
+		let shortcutButton = "";
+		const {
+			node: linkedResourceNode,
+			pos: linkedResourcePos
+		} = SchemaUtils.findFirstSageNodeByUri(State.get().bundle.resources, value);
+		if (linkedResourceNode && linkedResourcePos) {
+			const nameNode = SchemaUtils.getChildOfNode(linkedResourceNode, "name");
+			if (nameNode) {
+				linkedResourceDisplay = nameNode.value;
+			}
+			shortcutButton = this.buildShortcutButton(linkedResourcePos);
+		}
+		if (!linkedResourceDisplay) {
+			// Could occur if no Resource with that URI exists, or if the resource has no "name" element
+			linkedResourceDisplay = value;
+		}
+		return <span>
+			<span onClick={this.props.onEditStart}>
+				<b>{linkedResourceDisplay}</b>
+			</span>
+			{shortcutButton}
+		</span>
+	}
+
 	render() {
 		const formatters = { 
 			date: this.formatDate, time: this.formatTime, instant: this.formatInstant, dateTime: this.formatDateTime,
 			integer: this.formatInt, unsignedInt: this.formatInt, positiveInt: this.formatInt, decimal: this.formatDecimal,
 			boolean: this.formatBoolean, string: this.formatString, uri: this.formatString, oid: this.formatString, code: this.formatString,
 			id: this.formatString, markdown: this.formatString, xhtml: this.formatXhtml, code: this.formatCode,
-			"http://hl7.org/fhirpath/System.String": this.formatString, canonical: this.formatString,
+			"http://hl7.org/fhirpath/System.String": this.formatString, canonical: this.formatCanonical,
 		};
 
 		const formatter = formatters[this.props.node.fhirType || "string"] || this.formatString;
@@ -166,6 +206,9 @@ ${this.props.node.value}
 		:
 			this.formatBlank();
 
+		if (this.props.node.fhirType != "canonical") {
+			return <span className="fhir-element-value" onClick={this.props.onEditStart}>{displayValue}</span>;
+		}
 		return <span className="fhir-element-value">{displayValue}</span>;
 	}
 }

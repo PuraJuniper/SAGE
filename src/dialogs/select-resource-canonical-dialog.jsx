@@ -13,6 +13,7 @@
 import React from "react";
 import {Container, Row, Col, Modal, Tabs, Tab, Dropdown, DropdownButton} from "react-bootstrap";
 import State from "../state";
+import * as SchemaUtils from "../helpers/schema-utils"
 
 class SelectResourceDialog extends React.Component {
 
@@ -41,6 +42,10 @@ class SelectResourceDialog extends React.Component {
 
     renderResourceInput() {
         const resources = this.props.bundle.resources;
+        const resourcesJson = [];
+        for (const resource of resources) {
+            resourcesJson.push(SchemaUtils.toFhir(resource, false));
+        }
 
         return (
             <Container>
@@ -48,7 +53,7 @@ class SelectResourceDialog extends React.Component {
                     <Col md="12">
                         <form className="navbar-form">
 
-				{resources.map((resource, i) => {
+				{resourcesJson.map((resource, i) => {
 					const className = (() => {
                         // FontAwesome icons
 						if (resource.resourceType === "PlanDefinition") {

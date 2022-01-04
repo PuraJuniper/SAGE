@@ -6,6 +6,7 @@
 import React from 'react';
 import State from './state';
 import {DropdownButton, Dropdown, Col} from 'react-bootstrap';
+import * as SchemaUtils from "./helpers/schema-utils"
 
 class BundleBar extends React.Component {
 
@@ -59,6 +60,11 @@ class BundleBar extends React.Component {
 		const title = `Bundled Resource ${pos} of ${count}`;
 		const resources = this.props.bundle.resources;
 
+        const resourcesJson = [];
+        for (const resource of resources) {
+            resourcesJson.push(SchemaUtils.toFhir(resource, false));
+        }
+
 		return <div className="row" style={{textAlign: "center"}}>
 			<form className="navbar-form">
 
@@ -74,7 +80,7 @@ class BundleBar extends React.Component {
                     style={{marginRight: "0px"}}
                     onSelect={this.handleMenu.bind(this)}
             >
-				{resources.map((resource, i) => {
+				{resourcesJson.map((resource, i) => {
 					const className = (() => {
                         // FontAwesome icons
 						if (resource.resourceType === "PlanDefinition") {
