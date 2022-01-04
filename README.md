@@ -47,20 +47,26 @@ FRED is an open source web application that enables users to edit JSON [FHIR res
     git clone https://github.com/PuraJuniper/SAGE
     cd SAGE
     ```
+
+3. Add the fontawesome repository to npm:
+    ```
+    npm config set "@fortawesome:registry" https://npm.fontawesome.com/
+    npm config set "//npm.fontawesome.com/:_authToken" {PASSWORD}
+    ```
     
-3. Install the dependencies
+4. Install the dependencies
     
     ```
     npm install
     ```
     
-4. Run the dev server
+5. Run the dev server
 
     ```
     npm run dev
     ```
     
-5. Browse to ```http://localhost:8080```
+6. Browse to ```http://localhost:8080```
 
 ## Commands
 | Action | Command |
