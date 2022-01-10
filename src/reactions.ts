@@ -7,7 +7,7 @@
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
 import State, { SageUiStatus } from './state';
-import { Bundle, Resource } from 'fhir/r4';
+import { Bundle, Library, Resource } from 'fhir/r4';
 import * as SchemaUtils from './helpers/schema-utils';
 import * as BundleUtils from './helpers/bundle-utils';
 import { SageNode, SageNodeInitialized, SimplifiedProfiles } from './helpers/schema-utils';
@@ -779,9 +779,10 @@ State.on("load_json_into", function(nodeToWriteTo: FreezerNode<SageNodeInitializ
 	});
 });
 
-State.on("load_library", function(library: cql.Library, url: string) {
+State.on("load_library", function(library: cql.Library, url: string, fhirLibrary: Library) {
 	const libraryIdentifier = `${library.source.library.identifier.id}v${library.source.library.identifier.version}`
 	State.get().simplified.libraries.set(libraryIdentifier, {
+		fhirLibrary: fhirLibrary,
 		library: library,
 		url: url
 	});

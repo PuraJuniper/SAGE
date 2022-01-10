@@ -24,8 +24,8 @@ declare module 'freezer-js' {
         pivot(): FreezerNodePivoted<T, T>,
         reset(a: FreezerNode<T>): FreezerNode<T>,
         run(): void,
-        set(state: Partial<T>) : FreezerNode<T>;
-        set<K extends keyof T>(key: K, value: Partial<T[K]>) : FreezerNode<T>;
+        set<K extends keyof T>(key: K, value: T[K]) : FreezerNode<T>; // Technically, freezer-js accepts `value: Partial<T[K]>` but that makes it possible to define an object of type T[K] without all its required properties
+        set(state: Partial<T>) : FreezerNode<T>; // The above problem doesn't apply here since all required properties of T must have been set for this call to be made
         toJS(): T,
         transact(): void,
     }

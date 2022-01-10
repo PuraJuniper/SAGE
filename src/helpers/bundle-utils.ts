@@ -193,7 +193,7 @@ export var generateBundle = function(resources: (SageSupportedFhirResource | Fre
 		resourceType: "Bundle",
 		type: "transaction",
 		meta: {
-			lastUpdated: (new Date()).toISOString(),
+			lastUpdated: (new Date(Date.now())).toISOString(),
 			source: "https://fred-ca431.web.app/"
 		},
 		entry: entries

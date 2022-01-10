@@ -139,17 +139,17 @@ test('if original element index is preserved when the definition of the element 
 });
 
 // WIP
-it('should return all possible element children of an element whose definition is a reference to another definition', () => {
-    const decoratedNode = SchemaUtils.decorateFhirData(r4AndCpg, samplePD);
-    expect(decoratedNode).toBeDefined();
+// it('should return all possible element children of an element whose definition is a reference to another definition', () => {
+//     const decoratedNode = SchemaUtils.decorateFhirData(r4AndCpg, samplePD);
+//     expect(decoratedNode).toBeDefined();
     
-    // check import
-    const actionNode = SchemaUtils.getChildOfNode(decoratedNode!, 'action');
-    const subActionNode = SchemaUtils.getChildOfNode(actionNode!.children[0], 'action');
+//     // check import
+//     const actionNode = SchemaUtils.getChildOfNode(decoratedNode!, 'action');
+//     const subActionNode = SchemaUtils.getChildOfNode(actionNode!.children[0], 'action');
     
-    const availableChildren = SchemaUtils.getElementChildren(r4AndCpg, subActionNode!.children[0]!, []);
-    const subActionUninitNode = availableChildren.find((v, i) => v.nodePath == 'PlanDefinition.action.action');
-    const newSubActionNode = SchemaUtils.buildChildNode(r4AndCpg, actionNode!, subActionUninitNode!, subActionUninitNode!.fhirType);
-    const availableSubActionChildren = SchemaUtils.getElementChildren(r4AndCpg, newSubActionNode!, []);
+//     const availableChildren = SchemaUtils.getElementChildren(r4AndCpg, subActionNode!.children[0]!, []);
+//     const subActionUninitNode = availableChildren.find((v, i) => v.nodePath == 'PlanDefinition.action.action');
+//     const newSubActionNode = SchemaUtils.buildChildNode(r4AndCpg, actionNode!, subActionUninitNode!, subActionUninitNode!.fhirType);
+//     const availableSubActionChildren = SchemaUtils.getElementChildren(r4AndCpg, newSubActionNode!, []);
 
-});
+// });

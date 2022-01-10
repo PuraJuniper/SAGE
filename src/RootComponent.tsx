@@ -123,7 +123,7 @@ class RootComponent extends React.Component<RootProps, {prevStatus:string}> {
 
 		const resourceContent = (() => {
 			if (state.ui.status === "loading") {
-			return <div className="spinner"><img src="../img/ajax-loader.gif" /></div>;
+			return <div role="progressbar" aria-label="loading-symbol" className="spinner"><img src="../img/ajax-loader.gif" /></div>;
 		} else if (state.ui.status === "cards" || 
 				prevStatus === "cards" && changeLessContentStatuses.includes(state.ui.status)) {
 			return <SelectView />
@@ -234,4 +234,4 @@ class RootComponent extends React.Component<RootProps, {prevStatus:string}> {
 	}
 }
 
-ReactDOM.render(<RootComponent />, document.getElementById("content"));
+export default RootComponent;

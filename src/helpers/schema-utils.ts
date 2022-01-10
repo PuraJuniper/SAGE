@@ -592,7 +592,9 @@ export const createChildrenFromJson = function (profiles: SimplifiedProfiles, no
 				}
 			}
 			else {
-				console.log(`Could not find definition for ${childPath}`);
+				if (childPath.split('.').pop() != 'resourceType') { // resourceType is not in the schema for some reason
+					console.log(`Could not find definition for ${childPath}`);
+				}
 			}
 			// add else to check if childPath exists in another profile
 		}
@@ -815,7 +817,8 @@ export const walkNode = (profiles: SimplifiedProfiles, valueOfNode: any, profile
 		
 		//check if value has a cardinality of 1 and is in an array
 		if (valueOfNode instanceof Array && (decorated.range?.[1] === "1")) {
-			console.log('what is this? 2', decorated);
+			// TODO: figure out what this is for
+			//console.log('what is this? 2', decorated);
 			// decorated.fhirType = null;
 		}
 		decorated.ui = {
