@@ -31,10 +31,41 @@ class ExportDialog extends React.Component {
             SchemaUtils.toFhir(this.props.bundle.resources[this.props.bundle.pos], true)
         );
 
+        // Convert all resources to FHIR JSON
         const resourcesJson = [];
+        const urlsInBundle = []; // All URLs being exported
+        const referencedLibraries = {}; // All Library URLs that are referenced
         for (const resource of this.props.bundle.resources) {
-            resourcesJson.push(SchemaUtils.toFhir(resource, false));
+            const resourceAsFhirJson = SchemaUtils.toFhir(resource, false);
+            if (resourceAsFhirJson.url) {
+                urlsInBundle.push(resourceAsFhirJson.url);
+            }
+            if (resourceAsFhirJson.library) {
+                for (const libUrl of resourceAsFhirJson.library) {
+                    referencedLibraries[libUrl] = true;
+                }
+            }
+            resourcesJson.push(resourceAsFhirJson);
         }
+
+        // Add in any Libraries that are referenced but aren't currently part of the Bundle
+        const libraryStore = State.get().simplified.libraries.toJS();
+        for (const libUrl of Object.keys(referencedLibraries)) {
+            if (!urlsInBundle.find((v) => v == libUrl)) {
+                // Must add Library with url `libUrl` to exported Bundle
+                let found = false;
+                for (const libId of Object.keys(libraryStore)) {
+                    if (libraryStore[libId].url == libUrl) {
+                        resourcesJson.push(libraryStore[libId].fhirLibrary);
+                        found = true;
+                    }
+                }
+                if (!found) {
+                    console.log(`Could not find referenced FHIR Library for ${libUrl}.\nLibrary will be missing from exported Bundle`);
+                }
+            }
+        }
+
         var bundleJson;
         if (this.props.bundle) {
             bundleJson = BundleUtils.generateBundle(
@@ -120,12 +151,13 @@ class ExportDialog extends React.Component {
                 onKeyUp={this.handleKeyUp.bind(this)}
             >
                 <Modal.Header closeButton={true}>
-                    <Modal.Title>Export JSON</Modal.Title>
+                    <Modal.Title>Exported FHIR JSON</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     {errNotice}
                     <textarea
                         readOnly={true}
+                        title="exportedJson"
                         ref="jsonOutput"
                         className="form-control"
                         style={{height: "300px"}}
@@ -138,7 +170,7 @@ class ExportDialog extends React.Component {
                         <option value="DataElement">DataElement</option>
                     </select>
                     <p className="small">
-                        *Press Ctrl+C / Command+C to copy json text to system clipboard
+                        <i>Warning: The FHIR Bundle may not contain all Resources necessary for execution unless they were explicitly added within SAGE. Please verify that all dependencies of each Library are present before attempting to execute it.</i>
                     </p>
                 </Modal.Body>
                 <Modal.Footer>

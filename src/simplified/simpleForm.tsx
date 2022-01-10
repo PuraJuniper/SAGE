@@ -7,7 +7,7 @@ import * as SchemaUtils from "../helpers/schema-utils"
 import { Expression, PlanDefinitionActionCondition } from "fhir/r4";
 import * as SageUtils from "../helpers/sage-utils";
 
-import diabetesLibElm from "../../test/sample-library.json";
+import hypertensionLibrary from "../../public/samples/hypertension-library.json";
 import { Library } from "cql-execution";
 
 interface ExpressionOptionDict {
@@ -79,9 +79,9 @@ export const SimpleForm = (props:SimpleFormProps) => {
                 }));
             }
             librariesListener.on("update", updateCB);
-            const diabetesLib = SageUtils.getCqlExecutionLibraryFromJsonElm(diabetesLibElm);
-            if (diabetesLib) {
-                State.emit("load_library", diabetesLib, "sampleDiabetesLibraryUrl");
+            const newLib = SageUtils.getCqlExecutionLibraryFromInputLibraryResource(hypertensionLibrary);
+            if (newLib) {
+                State.emit("load_library", newLib.library, newLib.url, hypertensionLibrary);
             }
             return () => {
                 librariesListener.off("update", updateCB);
@@ -111,7 +111,7 @@ export const SimpleForm = (props:SimpleFormProps) => {
                 const parsedFhir = JSON.parse(FhirLibrary);
                 const newLib = SageUtils.getCqlExecutionLibraryFromInputLibraryResource(parsedFhir);
                 if (newLib) {
-                    State.emit("load_library", newLib.library, newLib.url);
+                    State.emit("load_library", newLib.library, newLib.url, parsedFhir);
                 }
             }
             catch (err) {
@@ -138,6 +138,7 @@ export const SimpleForm = (props:SimpleFormProps) => {
                         />
                     </Form.Group>
                 </Form>
+                <i>Please note that any dependencies of the pasted FHIR Library will not be automatically resolved or added to the final Bundle.</i>
             </Modal.Body>
             <Modal.Footer>
             <Button variant="secondary" onClick={handleCloseImportModal}>
@@ -157,9 +158,9 @@ export const SimpleForm = (props:SimpleFormProps) => {
 
     // All logic for saving the Simplified Form data into the underlying FHIR Resources should be performed here
     const handleSaveResource = function() {
-        console.log(props.actNode);
-        console.log(title);
-        console.log(description);
+        // console.log(props.actNode);
+        // console.log(title);
+        // console.log(description);
         if (props.actNode.displayName == "ActivityDefinition") { // Questionnaires have trouble saving otherwise
             State.emit("value_change", SchemaUtils.getChildOfNode(props.actNode, "title"), title, false);
             State.emit("value_change", SchemaUtils.getChildOfNode(props.actNode, "description"), description, false);
@@ -213,7 +214,7 @@ export const SimpleForm = (props:SimpleFormProps) => {
         </b></h3>
             <Row className="mb-2">
                 <Form.Group as= {Col} controlId="title">
-                    <Form.Label as="b">Title</Form.Label>
+                    <Form.Label>Title</Form.Label>
                     <Form.Control 
                         type="text"
                         defaultValue={title}
@@ -223,7 +224,7 @@ export const SimpleForm = (props:SimpleFormProps) => {
             </Row>
             <Row className="mb-2">
                 <Form.Group as= {Col} controlId="description">
-                    <Form.Label as="b">Description</Form.Label>
+                    <Form.Label>Description</Form.Label>
                     <Form.Control 
                         type="text"
                         defaultValue={description}
@@ -233,7 +234,7 @@ export const SimpleForm = (props:SimpleFormProps) => {
             </Row>
             <Row className="mb-2">
                 <Form.Group as= {Col} controlId="condition">
-                    <Form.Label as="b">Condition</Form.Label>
+                    <Form.Label>Condition</Form.Label>
                     <InputGroup className="mb-3">
                         {/* <DropdownButton
                             as={InputGroup.Prepend}

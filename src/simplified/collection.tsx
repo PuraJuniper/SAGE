@@ -20,6 +20,11 @@ const Collection = () => {
             <FontAwesomeIcon icon={faCaretLeft} />
                             &nbsp;New Resource
             </button>
+            <button className="navigate-reverse col-lg-2 col-md-3" 
+                    onClick={() => State.get().set("ui", {status:"export"})}>
+            <FontAwesomeIcon icon={faDownload} />
+                            &nbsp;Export Resource
+            </button>
             </div>
             <div className="row box">
                 {

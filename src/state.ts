@@ -1,4 +1,5 @@
-import { Library } from 'cql-execution';
+import * as cql from 'cql-execution';
+import { Library } from 'fhir/r4';
 import Freezer from 'freezer-js';
 import { SageNodeInitialized, SimplifiedProfiles, SimplifiedValuesets, SageSupportedFhirResource } from './helpers/schema-utils';
 
@@ -35,7 +36,8 @@ export interface StateVars {
 	simplified: { // Data only used by the simplified view
 		libraries: {
 			[libraryIdentifier: string]: {
-				library: Library,
+				fhirLibrary: Library,
+				library: cql.Library,
 				url: string,
 			}
 		}
@@ -52,7 +54,7 @@ export type SageUiStatus = 'ready' | 'contained' | 'open' | 'validation_error' |
 
 const defaultStateVars: StateVars = {
 	ui: { 
-		status: "ready",
+		status: "loading",
 	},
 	mode: "advanced",
 	VSACEndpoint: "https://cts.nlm.nih.gov/fhir/r4",

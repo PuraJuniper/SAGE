@@ -2,7 +2,6 @@ module.exports = {
     "env": {
         "browser": true,
         "es2021": true,
-        "node": true
     },
     "extends": [
         // "eslint:recommended",
@@ -15,6 +14,11 @@ module.exports = {
         },
         "ecmaVersion": 12,
         "sourceType": "module"
+    },
+    "settings": {
+        "react": {
+            "version": "detect"
+        }
     },
     "plugins": [
         "react",
@@ -41,6 +45,37 @@ module.exports = {
                 "react",
                 "@typescript-eslint",
                 "react-hooks",
+            ],
+            "rules": {
+            }
+        },
+        {
+            "files": [
+                "**/*.test.ts",
+                "**/*.test.tsx",
+                "**/*.test.js",
+                "**/*.test.jsx"
+            ],
+            env: {
+                jest: true
+            },
+            "extends": [
+                "eslint:recommended",
+                "plugin:jest/recommended",
+                // "plugin:@typescript-eslint/recommended", // annoying to work with until this is complete (uncomment to see why): https://github.com/DefinitelyTyped/DefinitelyTyped/issues/41179
+                "plugin:testing-library/react",
+                "plugin:jest-dom/recommended"
+                
+            ],
+            "parser": "@typescript-eslint/parser",
+            "parserOptions": {
+                "project": "./tsconfig.json"
+            },
+            "plugins": [
+                "jest",
+                "testing-library",
+                "jest-dom",
+                "@typescript-eslint",
             ],
             "rules": {
             }
