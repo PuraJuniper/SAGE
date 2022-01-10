@@ -14,7 +14,7 @@ class Footer extends React.Component {
 	render() {
 		return <div className="row footer">
 			<div className="col-xs-12">
-			<a href="https://github.com/PuraJuniper/SAGE">SAGE</a> is based on FRED, which is project of <a href="https://smarthealthit.org" target="_blank">SMART Health IT</a> and the open source code for the app is available on <a href="https://github.com/PuraJuniper/SAGE">GitHub</a>. To stay updated on the project follow <a href="https://twitter.com/intent/user?screen_name=gotdan" target="_blank">@gotdan</a> and <a href="https://twitter.com/intent/user?screen_name=smarthealthit" target="_blank">@smarthealthit</a> on twitter.
+			Based on FRED, which is project of <a href="https://smarthealthit.org" target="_blank">SMART Health IT</a>, and the open source code for this app is <a href="https://github.com/PuraJuniper/SAGE">available on GitHub</a>. To stay updated on FRED follow <a href="https://twitter.com/intent/user?screen_name=gotdan" target="_blank">@gotdan</a> and <a href="https://twitter.com/intent/user?screen_name=smarthealthit" target="_blank">@smarthealthit</a> on twitter.
 			</div>
 		</div>;
 	}

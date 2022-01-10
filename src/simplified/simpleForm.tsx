@@ -236,23 +236,6 @@ export const SimpleForm = (props:SimpleFormProps) => {
                 <Form.Group as= {Col} controlId="condition">
                     <Form.Label>Condition</Form.Label>
                     <InputGroup className="mb-3">
-                        {/* <DropdownButton
-                            as={InputGroup.Prepend}
-                            variant="outline-secondary"
-                            title="Dropdown"
-                            id="input-group-dropdown-1"
-                        >
-                        <Dropdown.Item href="#">Action</Dropdown.Item>
-                        <Dropdown.Item href="#">Another action</Dropdown.Item>
-                        <Dropdown.Item href="#">Something else here</Dropdown.Item>
-                        <Dropdown.Divider />
-                        <Dropdown.Item 
-                            href="#"
-                            onClick={()=>{
-                                handleShowImportModal();
-                            }}
-                        >Separated link</Dropdown.Item>
-                        </DropdownButton> */}
                         <Form.Control as="select" 
                             onChange={(e) => {
                                 if (e.currentTarget.value == '') {

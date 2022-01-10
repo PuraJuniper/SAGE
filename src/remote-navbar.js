@@ -99,10 +99,9 @@ class RemoteNavbar extends React.Component {
 		return <Navbar fixed="top" className="navbar-custom">
 			<Navbar.Header>
 				<div className="pull-left" style={{margin: "10px"}}>
-					<img src="../img/SAGELogo-color.png" />
 				</div>
 				<Navbar.Brand>
-					SAGE
+					Forking FRED
 				</Navbar.Brand>
 				<Navbar.Toggle />
 			</Navbar.Header>
