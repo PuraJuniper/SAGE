@@ -2,7 +2,7 @@
 
 ## What is SAGE?
 
-SAGE is an extension of [FRED](https://github.com/smart-on-fhir/fred), built with a focus on CPGs (Clinical Practice Guideline), allowing users to create and edit JSON CPG resources as specified under FHIR. 
+SAGE is a Work in Progress (WIP) extension of [FRED](https://github.com/smart-on-fhir/fred), built with a focus on CPGs (Clinical Practice Guideline), allowing users to create and edit JSON CPG resources as specified under FHIR. 
 
 ### FRED
 FRED is an open source web application that enables users to edit JSON [FHIR resources](https://www.hl7.org/fhir/resourcelist.html) and [FHIR bundles](https://www.hl7.org/fhir/bundle.html). Built as an HTML5 app, FRED runs entirely within your web browser - no data is sent to a server. *Note - the project is currently under active development. Code is rough, there are bugs and features may change or be removed!*  
