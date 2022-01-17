@@ -1,7 +1,6 @@
 import {Card} from "react-bootstrap";
 import {useState, useEffect} from "react";
 import { CSSTransition } from 'react-transition-group';
-import React from "react";
 import State from "../state";
 import * as SchemaUtils from "../helpers/schema-utils";
 
@@ -16,7 +15,7 @@ interface BaseCardProps {
 }
 
 export const BaseCard = (props: BaseCardProps) => {
-    let [show, setShow] = useState(false);
+    const [show, setShow] = useState(false);
 
     useEffect(() => {
         setTimeout(() => {
@@ -54,11 +53,11 @@ export const BaseCard = (props: BaseCardProps) => {
                     setShow(false);
                     setTimeout(() => {
                         if (State.get().bundle?.resources.length) {
-	                        State.emit("save_changes_to_bundle_json");
+                            State.emit("save_changes_to_bundle_json");
                             State.get().bundle.set("pos", State.get().bundle.resources.length-1);
                             State.get().ui.set("openMode", "insert");
                         }
-                        let json = {
+                        const json = {
                             resourceType: "Bundle",
                             entry: [
                                 {

@@ -26,15 +26,16 @@ module.exports = {
     "rules": {
     },
     "overrides": [
-        {
+        { // Typescript files
             "files": [
                 "**/*.ts",
                 "**/*.tsx"
             ],
+            excludedFiles: ["**/*.test.*"],
             "extends": [
-                // "eslint:recommended",
-                // "plugin:react/recommended",
-                // "plugin:@typescript-eslint/recommended",
+                "eslint:recommended",
+                "plugin:react/recommended",
+                "plugin:@typescript-eslint/recommended",
                 "plugin:react-hooks/recommended"
             ],
             "parser": "@typescript-eslint/parser",
@@ -47,9 +48,12 @@ module.exports = {
                 "react-hooks",
             ],
             "rules": {
+                "react/react-in-jsx-scope": 0,
+                "@typescript-eslint/no-unused-vars": 0,
+                "@typescript-eslint/no-explicit-any": [1, { "ignoreRestArgs": true }],
             }
         },
-        {
+        { // Jest files
             "files": [
                 "**/*.test.ts",
                 "**/*.test.tsx",

@@ -1,24 +1,21 @@
 /*
  * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
  * DS102: Remove unnecessary code created because of implicit returns
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
 import React from "react";
-import State from "../state";
+import State, { SageNodeInitializedFreezerNode } from "../state";
 import ResourceElement from "./resource-element";
 import ElementMenu from "./element-menu";
 import { Button } from "react-bootstrap";
 import { hiddenElements } from '../config';
-import { SageNodeInitialized } from "../helpers/schema-utils";
 
 type DomainResourceProps = {
-	node: SageNodeInitialized,
+	node: SageNodeInitializedFreezerNode,
 	errFields: string[],
 };
 
-type DomainResourceState = {
-};
+type DomainResourceState = Record<string, never>;
 
 class DomainResource extends React.Component<DomainResourceProps, DomainResourceState> {
 
@@ -47,7 +44,7 @@ class DomainResource extends React.Component<DomainResourceProps, DomainResource
 		let resourceId = null;
 		const children = [];
 		const showHidden = State.get().showHiddenElements; 
-		for (let child of Array.from(node.children)) {
+		for (const child of node.children) {
 			if (child.name === "id") {
 				resourceId = child.value;
 			}

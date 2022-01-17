@@ -1,6 +1,5 @@
 /*
  * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
  * DS102: Remove unnecessary code created because of implicit returns
  * DS206: Consider reworking classes to avoid initClass
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
@@ -18,7 +17,7 @@ class ValueDisplay extends React.Component {
 		this.prototype.maxTextLength = 40;
 	}
 
-	shouldComponentUpdate(nextProps) {
+	shouldComponentUpdate() {
 		return nextProps.node !== this.props.node;
 	}
 
@@ -75,7 +74,7 @@ class ValueDisplay extends React.Component {
             } = this.props.node.binding;
 			const vs = State.get().valuesets[reference];
 			if (vs) {
-				for (let [display, code] of Array.from(vs.items)) {
+				for (let [display, code] of vs.items) {
 					if (code === value) {
 						invalid = false;
 						value = display;
@@ -100,15 +99,15 @@ class ValueDisplay extends React.Component {
 	formatXhtml(value) {
 		return <div>
 			<div className="fhir-xhtml" dangerouslySetInnerHTML={{__html: Sanitize(value)}} />
-			<div className="small text-right" onClick={this.handleXhtmlPopup.bind(this)}><a href="#">view in new window</a></div>
-		</div>;
-	}
-
-	handleXhtmlPopup(e) {
-		e.preventDefault();
-		e.stopPropagation();
-		const win = window.open("", "XHTML Preview");
-		return win.document.body.innerHTML = `\
+			<div className="small text-right"
+				onClick={(e) => {
+					e.preventDefault();
+					e.stopPropagation();
+					const win = window.open("", "XHTML Preview");
+					if (!win) {
+						return;
+					}
+					return win.document.body.innerHTML = `\
 <html><head>
 <link href='narrative.css' rel='stylesheet'>
 <link href='normalize.css' rel='stylesheet'>
@@ -116,6 +115,8 @@ class ValueDisplay extends React.Component {
 ${this.props.node.value}
 </body></html>\
 `;
+			}}><a href="#">view in new window</a></div>
+		</div>;
 	}
 
 	formatInt(value) {
@@ -159,7 +160,7 @@ ${this.props.node.value}
 			return undefined
 		}
 		let linkedResourceDisplay = ""; // Human-friendly name for linked Resource
-		let shortcutButton = "";
+		let shortcutButton;
 		const {
 			node: linkedResourceNode,
 			pos: linkedResourcePos
@@ -187,7 +188,7 @@ ${this.props.node.value}
 		const formatters = { 
 			date: this.formatDate, time: this.formatTime, instant: this.formatInstant, dateTime: this.formatDateTime,
 			integer: this.formatInt, unsignedInt: this.formatInt, positiveInt: this.formatInt, decimal: this.formatDecimal,
-			boolean: this.formatBoolean, string: this.formatString, uri: this.formatString, oid: this.formatString, code: this.formatString,
+			boolean: this.formatBoolean, string: this.formatString, uri: this.formatString, oid: this.formatString,
 			id: this.formatString, markdown: this.formatString, xhtml: this.formatXhtml, code: this.formatCode,
 			"http://hl7.org/fhirpath/System.String": this.formatString, canonical: this.formatCanonical,
 		};

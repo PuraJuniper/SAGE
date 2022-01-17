@@ -1,6 +1,6 @@
 declare module 'cql-execution' {
     export class Library {
-        constructor(elm: any);
+        constructor(elm: unknown);
         expressions: {[key: string]: ExpressionDef}
         source: {
             library: LibrarySource

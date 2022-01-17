@@ -8,10 +8,12 @@ export function getCqlExecutionLibraryFromInputLibraryResource(resource: any) {
                     try {
                         const elm = JSON.parse(window.atob(content.data));
                         const parsedLib = getCqlExecutionLibraryFromJsonElm(elm);
-                        return {
-                            library: parsedLib,
-                            url: resource.url
-                        };
+                        if (parsedLib) {
+                            return {
+                                library: parsedLib,
+                                url: resource.url
+                            };
+                        }
                     }
                     catch(error) {
                         console.log("Could not parse encoded JSON ELM in resource:", resource);

@@ -4,20 +4,19 @@
 /* eslint-disable no-unused-vars */
 /*
  * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
  * DS102: Remove unnecessary code created because of implicit returns
  * DS207: Consider shorter variations of null checks
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
 import React from "react";
 import {Modal} from "react-bootstrap";
-import { SageNodeInitialized, SimplifiedProfiles } from "../helpers/schema-utils";
+import { SimplifiedProfiles } from "../helpers/schema-utils";
 
-import State from "../state";
+import State, { SageNodeInitializedFreezerNode } from "../state";
 
 type ChangeProfileProps = {
     show: boolean,
-    nodeToChange: SageNodeInitialized,
+    nodeToChange: SageNodeInitializedFreezerNode,
     profiles: SimplifiedProfiles,
 }
 
@@ -38,12 +37,6 @@ class ChangeProfileDialog extends React.Component<ChangeProfileProps, ChangeProf
         };
     }
 
-    componentDidMount() {
-    }
-
-    componentDidUpdate(prevProps: ChangeProfileProps, prevState: ChangeProfileState) {
-    }
-
     handleClose() {
         this.setState({showSpinner: false});
         return State.emit("set_ui", "ready");
@@ -62,9 +55,8 @@ class ChangeProfileDialog extends React.Component<ChangeProfileProps, ChangeProf
         if (!this.props.nodeToChange) {
             return;
         }
-		return Object.entries(this.props.profiles).filter((v) => {return v[1]['__meta']['type'] == this.props.nodeToChange.nodePath}).map((option, idx) => {
-            console.log(option[0]);
-            return <option value={option[0]}>{option[1]['__meta']['id']}</option>
+		return Object.entries(this.props.profiles).filter((v) => {return v[1]['__meta']['type'] == this.props.nodeToChange.nodePath}).map((option) => {
+            return <option key={option[0]} value={option[0]}>{option[1]['__meta']['id']}</option>
 		});
 	}
 

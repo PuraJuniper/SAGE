@@ -1,47 +1,55 @@
 declare module 'freezer-js' {
-    
     export interface FreezerOptions{
         mutable: boolean,
         live: boolean,
         freezeInstances: boolean,
     }
 
-    export interface FreezerListener {
-        on:(eventName: string, cb: (...params:any[]) => void) => void;
+    export type EventDict<E> = E extends {[K in keyof E]: (...args: any[]) => any} ? {
+        [K in keyof E]: E[K]
+    } : never;
 
-        once:(eventName: string, cb: (...params:any[]) => void) => void;
-        
-        off:(eventName: string, cb: (...params:any[]) => void) => void;
+    // FreezerEvents shortened to FE because it will be repeated a lot!
+    type FE<T, E extends EventDict<any>> = E & {
+        "update": (state: T, prevState: T) => void,
+        "beforeAll": <K extends keyof E>(eventName: K, ...args: Parameters<E[K]>) => void,
+        "afterAll": <K extends keyof E>(eventName: K, ...args: Parameters<E[K]>) => void,
+    };
 
-        emit:(eventName:string, ...params:any[]) => void;
-    }
+    export type FreezerListener<E extends EventDict<any>> = {
+        on: <K extends keyof E>(eventName: K, cb: E[K]) => void;
+        once: <K extends keyof E>(eventName: K, cb: E[K]) => void;
+        off: <K extends keyof E>(eventName: K, cb: E[K]) => void;
+        emit: <K extends keyof E>(eventName: K, ...args: Parameters<E[K]>) => ReturnType<E[K]>;
+        trigger: <K extends keyof E>(eventName: K, ...args: Parameters<E[K]>) => ReturnType<E[K]>; // deprecated
+    };
     
-    export type FreezerNode<T> = T extends Array<infer ArrayType> ? FreezerArray<ArrayType> : T extends string | number | boolean | null | undefined ? T : FreezerObject<T>;
+    export type FreezerNode<T, E extends EventDict<any>> = T extends Array<infer ArrayType> ? FreezerArray<ArrayType, E> : T extends string | number | boolean | null | undefined ? T : FreezerObject<T, E>;
 
-    type FreezerCommon<T> = FreezerListener & {
-        getListener(): FreezerListener,
+    type FreezerCommon<T, E extends EventDict<any>> = FreezerListener<E> & {
+        getListener(): FreezerListener<E>,
         now(): void,
-        pivot(): FreezerNodePivoted<T, T>,
-        reset(a: FreezerNode<T>): FreezerNode<T>,
+        pivot(): FreezerNodePivoted<T, E, T>,
+        reset(a: FreezerNode<T, E>): FreezerNode<T, E>,
         run(): void,
-        set<K extends keyof T>(key: K, value: T[K]) : FreezerNode<T>; // Technically, freezer-js accepts `value: Partial<T[K]>` but that makes it possible to define an object of type T[K] without all its required properties
-        set(state: Partial<T>) : FreezerNode<T>; // The above problem doesn't apply here since all required properties of T must have been set for this call to be made
+        set<K extends keyof T>(key: K, value: T[K]) : FreezerNode<T, E>; // Technically, freezer-js accepts `value: Partial<T[K]>` but that makes it possible to define an object of type T[K] without all its required properties
+        set(state: Partial<T>) : FreezerNode<T, E>; // The above problem doesn't apply here since all required properties of T must have been set for this call to be made
         toJS(): T,
         transact(): void,
     }
 
-    type FreezerArray<T> = FreezerCommon<T> & {
-        append(a: T[]): FreezerArray<T>,
+    type FreezerArray<T, E extends EventDict<any>> = FreezerCommon<T, E> & {
+        append(a: T[]): FreezerArray<T, E>,
         pop(): T | undefined,
-        prepend(): FreezerArray<T>,
-        push(a: T): FreezerArray<T>,
-        shift(): FreezerArray<T>,
-        sort(): FreezerArray<T>,
-        splice(start: number, deleteCount: number, ...items: T[]): FreezerNode<T>,
-        splice(start: number, deleteCount: number, item: T): FreezerNode<T>,
-        splice(start: number, deleteCount?: number): FreezerNode<T>,
-        unshift(): FreezerArray<T>,
-    } & FreezerNode<T>[];
+        prepend(): FreezerArray<T, E>,
+        push(a: T): FreezerArray<T, E>,
+        shift(): FreezerArray<T, E>,
+        sort(): FreezerArray<T, E>,
+        splice(start: number, deleteCount: number, ...items: T[]): FreezerArray<T, E>,
+        splice(start: number, deleteCount: number, item: T): FreezerArray<T, E>,
+        splice(start: number, deleteCount?: number): FreezerArray<T, E>,
+        unshift(): FreezerArray<T, E>,
+    } & FreezerNode<T, E>[];
 
     // From https://stackoverflow.com/a/53899815
     type OptionalPropertyOf<T> = Exclude<{
@@ -50,86 +58,70 @@ declare module 'freezer-js' {
           : K
       }[keyof T], undefined>
       
-    type FreezerObject<T> = FreezerCommon<T> & {
-        remove(a: OptionalPropertyOf<T>): FreezerObject<T>,
-        remove(a: OptionalPropertyOf<T>[]): FreezerObject<T>,
+    type FreezerObject<T, E extends EventDict<any>> = FreezerCommon<T, E> & {
+        remove(a: OptionalPropertyOf<T>): FreezerObject<T, E>,
+        remove(a: OptionalPropertyOf<T>[]): FreezerObject<T, E>,
     } & {
-        [K in keyof T]-?: FreezerNode<T[K]>
+        [K in keyof T]-?: FreezerNode<T[K], E>
     };
 
     // Definitions repeated for pivots
-    export type FreezerNodePivoted<PivotType, T> = T extends Array<infer Type> ? FreezerArrayPivoted<PivotType, Type> : T extends string | number | boolean | null | undefined ? T : FreezerObjectPivoted<PivotType, T>;
+    export type FreezerNodePivoted<PivotType, E extends EventDict<any>, T> = T extends Array<infer Type> ? FreezerArrayPivoted<PivotType, E, Type> : T extends string | number | boolean | null | undefined ? T : FreezerObjectPivoted<PivotType, E, T>;
 
-    type FreezerCommonPivoted<PivotType, T> = FreezerListener & {
+    type FreezerCommonPivoted<PivotType, E extends EventDict<any>, T> = FreezerListener<E> & {
         getListener(): void,
         now(): void,
-        pivot(): FreezerNodePivoted<T, T>,
-        reset(a: FreezerNode<T>): FreezerNodePivoted<PivotType, PivotType>,
+        pivot(): FreezerNodePivoted<T, E, T>,
+        reset(a: FreezerNode<T, E>): FreezerNodePivoted<PivotType, E, PivotType>,
         run(): void,
-        set(state: Partial<T>) : FreezerNodePivoted<PivotType, PivotType>;
-        set<K extends keyof T>(key: K, value: Partial<T[K]>) : FreezerNodePivoted<PivotType, PivotType>;
+        set(state: Partial<T>) : FreezerNodePivoted<PivotType, E, PivotType>;
+        set<K extends keyof T>(key: K, value: Partial<T[K]>) : FreezerNodePivoted<PivotType, E, PivotType>;
         toJS(): T,
         transact(): void,
     }
 
-    type FreezerArrayPivoted<PivotType, T> = FreezerCommonPivoted<PivotType, T> & {
-        append(): FreezerNodePivoted<PivotType, PivotType>,
+    type FreezerArrayPivoted<PivotType, E extends EventDict<any>, T> = FreezerCommonPivoted<PivotType, E, T> & {
+        append(): FreezerNodePivoted<PivotType, E, PivotType>,
         pop(): T | undefined,
-        prepend(): FreezerNodePivoted<PivotType, PivotType>,
-        push(): FreezerNodePivoted<PivotType, PivotType>,
-        shift(): FreezerNodePivoted<PivotType, PivotType>,
-        sort(): FreezerNodePivoted<PivotType, PivotType>,
-        splice(start: number, deleteCount: number, ...items: T[]): FreezerNodePivoted<PivotType, PivotType>,
-        splice(start: number, deleteCount: number, item: T): FreezerNodePivoted<PivotType, PivotType>,
-        splice(start: number, deleteCount?: number): FreezerNodePivoted<PivotType, PivotType>,
-        unshift(): FreezerNodePivoted<PivotType, PivotType>,
-    } & FreezerNodePivoted<PivotType, T>[];
+        prepend(): FreezerNodePivoted<PivotType, E, PivotType>,
+        push(): FreezerNodePivoted<PivotType, E, PivotType>,
+        shift(): FreezerNodePivoted<PivotType, E, PivotType>,
+        sort(): FreezerNodePivoted<PivotType, E, PivotType>,
+        splice(start: number, deleteCount: number, ...items: T[]): FreezerNodePivoted<PivotType, E, PivotType>,
+        splice(start: number, deleteCount: number, item: T): FreezerNodePivoted<PivotType, E, PivotType>,
+        splice(start: number, deleteCount?: number): FreezerNodePivoted<PivotType, E, PivotType>,
+        unshift(): FreezerNodePivoted<PivotType, E, PivotType>,
+    } & FreezerNodePivoted<PivotType, E, T>[];
 
-    type FreezerObjectPivoted<PivotType, T> = FreezerCommonPivoted<PivotType, T> & {
+    type FreezerObjectPivoted<PivotType, E extends EventDict<any>, T> = FreezerCommonPivoted<PivotType, E, T> & {
         // remove(a: string): FreezerObject<Omit<T,a>>,
-        remove(a: string): FreezerNodePivoted<PivotType, PivotType>,
-        remove(a: string[]): FreezerNodePivoted<PivotType, PivotType>,
+        remove(a: string): FreezerNodePivoted<PivotType, E, PivotType>,
+        remove(a: string[]): FreezerNodePivoted<PivotType, E, PivotType>,
     } & {
-        [K in keyof T]-?: FreezerNodePivoted<PivotType, T[K]>
+        [K in keyof T]-?: FreezerNodePivoted<PivotType, E, T[K]>
     };
 
-    export class Freezer<T> implements FreezerListener{
+    export class Freezer<T, E extends EventDict<any>>{
         constructor(a: T, b?: FreezerOptions);
+
+        get() : FreezerNode<T, FE<T, E>>;
+        set(state: T) : FreezerNode<T, FE<T, E>>;
+        set(state: FreezerNode<T, FE<T, E>>) : FreezerNode<T, FE<T, E>>;
+        // set() : FreezerCommon<T, FE<T, E>>;
         
-        get() : FreezerNode<T>;
-        set(state: T) : FreezerNode<T>;
-        set(state: FreezerNode<T>) : FreezerNode<T>;
-        
-        getEventHub() : FreezerListener;
+        getEventHub() : FreezerListener<FE<T, E>>;
 
-        // emit() : FreezerCommon<T>;
-        getData() : FreezerCommon<T>;
-        // off() : FreezerCommon<T>;
-        // on() : FreezerCommon<T>;
-        // once() : FreezerCommon<T>;
-        set() : FreezerCommon<T>;
-        setData() : FreezerCommon<T>;
-        trigger() : FreezerCommon<T>; // deprecated
-        new (a: Freezer<T>, b: FreezerOptions) : Freezer<T>;
+        getData() : FreezerCommon<T, FE<T, E>>;
+        setData() : FreezerCommon<T, FE<T, E>>;
 
-        on:(eventName: string, cb: (...params:any[]) => void) => void;
-
-        once:(eventName: string, cb: (...params:any[]) => void) => void;
-        
-        off:(eventName: string, cb: (...params:any[]) => void) => void;
-
-        emit:(eventName:string, ...params:any[]) => void;
-
+        on: <K extends keyof FE<T, E>>(eventName: K, cb: FE<T, E>[K]) => void;
+        once: <K extends keyof FE<T, E>>(eventName: K, cb: FE<T, E>[K]) => void;
+        off: <K extends keyof FE<T, E>>(eventName: K, cb: FE<T, E>[K]) => void;
+        emit: <K extends keyof FE<T, E>>(eventName: K, ...args: Parameters<FE<T, E>[K]>) => ReturnType<FE<T, E>[K]>;
+        trigger: <K extends keyof FE<T, E>>(eventName: K, ...args: Parameters<FE<T, E>[K]>) => ReturnType<FE<T, E>[K]>; // deprecated
 
         // reset(newData:any):void;
 
-        // getEventHub(): FreezerListener;
-
-        // on(eventName: string, cb: (...params:any[]) => void) : void;
-
-        // once(eventName: string, cb: (...params:any[]) => void) : void;
-        // off(eventName: string, cb: (...params:any[]) => void) : void;
-        // emit(eventName:string, ...params:any[]) : void;
     }
 
     export default Freezer;

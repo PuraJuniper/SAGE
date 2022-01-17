@@ -6,7 +6,7 @@
  * DS207: Consider shorter variations of null checks
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
-import State from '../state';
+import State, { SageNodeInitializedFreezerNode } from '../state';
 import PrimitiveValidator from './primitive-validator';
 import { Bundle, Resource, Element, ElementDefinition, ElementDefinitionType, ActivityDefinition, PlanDefinition, Questionnaire, Library, ValueSet, FhirResource } from 'fhir/r4';
 
@@ -112,10 +112,10 @@ export function toFhir<B extends boolean>(decorated: SageNodeInitialized, valida
 export function toFhir(decorated: SageNodeInitialized, validate: boolean): [SageSupportedFhirResource, number, string[]] | SageSupportedFhirResource {
 	// console.log('toFhir', decorated, validate);
 	let errCount = 0;
-	let errFields: string[] = [];
-	var _walkNode = function(node: SageNodeInitialized, parent?: any) {
+	const errFields: string[] = [];
+	const _walkNode = function(node: SageNodeInitialized, parent?: any) {
 		if (parent == null) { parent = {}; }
-		for (var child of Array.from(node.children)) {
+		for (const child of Array.from(node.children)) {
 			const value = (() => {
 				if (["object", "arrayObject"].includes(child.nodeType)) {
 				return _walkNode(child, {});
@@ -157,19 +157,19 @@ export function toFhir(decorated: SageNodeInitialized, validate: boolean): [Sage
 	} else {
 		return fhir;
 	}
-};
+}
 
 export const getNextId = () => {
 	return nextId++;
 }
 
-// export var toBundle = (resources, pos, resource) => resource;
+// export const toBundle = (resources, pos, resource) => resource;
 
 // getAllowedReferences: (schemaPath) ->
 
 // Build array of possible children from the schema for `node`
 //  optionally excluding some paths (useful for building the dropdown of available elements to add)
-export var getElementChildren = function(profiles: SimplifiedProfiles, node: SageNode, nodePathsToExclude: string[]) : SageNode[] {
+export const getElementChildren = function(profiles: SimplifiedProfiles, node: SageNode, nodePathsToExclude: string[]) : SageNode[] {
 	// console.log('getelementchildren', node, nodePathsToExclude);
 	if (nodePathsToExclude == null) { nodePathsToExclude = []; }
 	const _buildChild = (name: string, childSchema: SchemaDef, typeDef: ElementDefinitionType) : SageNode => {
@@ -198,7 +198,7 @@ export var getElementChildren = function(profiles: SimplifiedProfiles, node: Sag
 
 	const _buildMultiTypePermutations = function(schema: SchemaDef) : SageNode[] {
 		const permutations: SageNode[] = [];
-		for (let type of Array.from(schema.type)) {
+		for (const type of Array.from(schema.type)) {
 			const capType = type.code[0].toUpperCase() + type.code.slice(1);
 			const name = (schema.path.split(".").pop() as string).replace("[x]", capType);
 			permutations.push(_buildChild(name, schema, type));
@@ -250,9 +250,9 @@ export const getAvailableElementChildren = function(profiles: SimplifiedProfiles
 	const usedElements = [];
 	// console.log(node);
 	// console.log(node.children[0]);
-	for (let child of Array.from(node.children)) { 
+	for (const child of Array.from(node.children)) { 
 		if (!child.range || (child.range[1] === "1") 
-		 	// These two nodeTypes have an "Add Item" option in their menus, so they're ignored here
+			// These two nodeTypes have an "Add Item" option in their menus, so they're ignored here
 			|| child.nodeType == "objectArray" || (child.nodeType === "valueArray")
 			|| ((child.range[1] !== "*") && (parseInt(child.range[1]) < (child?.children?.length || 0))
 		)) {
@@ -263,7 +263,7 @@ export const getAvailableElementChildren = function(profiles: SimplifiedProfiles
 	return getElementChildren(profiles, node, usedElements);
 }
 
-const getDefaultValue = (schema: SchemaDef, fhirType: string, parentName:string=""): {
+const getDefaultValue = (schema: SchemaDef, fhirType: string, parentName=""): {
 	isFixed: boolean,
 	defaultValue: string | boolean | null,
 } => {
@@ -354,7 +354,7 @@ const getDefaultValue = (schema: SchemaDef, fhirType: string, parentName:string=
 	}
 }
 
-export var buildChildNode = function(profiles: SimplifiedProfiles, parentNode: SageNodeInitialized, childNode: SageNode, fhirType: string): SageNodeInitialized {
+export const buildChildNode = function(profiles: SimplifiedProfiles, parentNode: SageNodeInitialized, childNode: SageNode, fhirType: string): SageNodeInitialized {
 	// Add required children of `parentNode2`
 	const _addRequiredChildren = (parentNode2: SageNodeInitialized, fhirType: string) => {
 
@@ -365,7 +365,7 @@ export var buildChildNode = function(profiles: SimplifiedProfiles, parentNode: S
 		const children = getElementChildren(profiles, parentNode2, []);
 
 		const reqChildren = [];
-		for (let child of Array.from(children)) {
+		for (const child of Array.from(children)) {
 			if (child.isRequired) {
 				reqChildren.push(buildChildNode(profiles, parentNode2, child, child.fhirType));
 			}
@@ -476,7 +476,7 @@ export const findFirstSageNodeByUri = function(nodes: SageNodeInitialized[], uri
 	}
 }
 
-export var buildDisplayName = function(name: string, sliceName?: string) {
+export const buildDisplayName = function(name: string, sliceName?: string) {
 	const _fixCamelCase = function(text: string, lowerCase?: boolean) {
 		//function has an issue with consecutive capital letters (eg. ID)
 		//and not convinced splitting camelcase words has value
@@ -494,7 +494,7 @@ export var buildDisplayName = function(name: string, sliceName?: string) {
 
 // checks if we have a default profile for this resource (without a profile, how do we know what fields exist?)
 // and returns it if it exists in `profiles`
-export var getProfileOfResource = function(profiles: SimplifiedProfiles, resource: Resource) : string | undefined {
+export const getProfileOfResource = function(profiles: SimplifiedProfiles, resource: Resource) : string | undefined {
 	if (resource.meta?.profile && resource.meta.profile.length > 0 && profiles[resource.meta.profile[0]]) {
 		return resource.meta.profile[0];
 	}
@@ -509,13 +509,13 @@ export var getProfileOfResource = function(profiles: SimplifiedProfiles, resourc
 };
 
 // checks if the given object is a Resource
-export var isSupportedResource = function(data: any): data is SageSupportedFhirResource {
+export const isSupportedResource = function(data: any): data is SageSupportedFhirResource {
 	return (data as SageSupportedFhirResource).resourceType !== undefined;
 }
 
 // checks if the SchemaNode uses a profile and returns its URI if so. 
 // otherwise, it returns a default for that type or undefined if one doesn't exist (bad?)
-var getProfileOfSchemaDef = function(profiles: SimplifiedProfiles, schemaNode: SchemaDef, typeDef?: ElementDefinitionType) : string | undefined {
+const getProfileOfSchemaDef = function(profiles: SimplifiedProfiles, schemaNode: SchemaDef, typeDef?: ElementDefinitionType) : string | undefined {
 	typeDef = typeDef || schemaNode.type[0];
 	if (typeDef.profile) {
 		return typeDef.profile[0];
@@ -539,7 +539,9 @@ var getProfileOfSchemaDef = function(profiles: SimplifiedProfiles, schemaNode: S
 	}
 }
 
-export const getChildOfNodePath = function(node: SageNodeInitialized, childNames: string[]) : SageNodeInitialized | undefined {
+export function getChildOfNodePath (node: SageNodeInitializedFreezerNode, childNames: string[]) : SageNodeInitializedFreezerNode | undefined;
+export function getChildOfNodePath (node: SageNodeInitialized, childNames: string[]) : SageNodeInitialized | undefined;
+export function getChildOfNodePath (node: SageNodeInitialized, childNames: string[]) : SageNodeInitialized | undefined {
 	if (childNames.length > 1) {
 		const nextChild = getChildOfNode(node, childNames[0]);
 		if (nextChild) {
@@ -555,7 +557,9 @@ export const getChildOfNodePath = function(node: SageNodeInitialized, childNames
 	}
 }
 
-export const getChildOfNode = function (node: SageNodeInitialized, childName: string) : SageNodeInitialized | undefined {
+export function getChildOfNode (node: SageNodeInitializedFreezerNode, childName: string) : SageNodeInitializedFreezerNode | undefined;
+export function getChildOfNode (node: SageNodeInitialized, childName: string) : SageNodeInitialized | undefined;
+export function getChildOfNode (node: SageNodeInitialized, childName: string): SageNodeInitialized | undefined {
 	if (node.nodeType == "objectArray") {
 		const nodesOfArray = getChildrenFromObjectArrayNode(node);
 		if (nodesOfArray.length > 0) {
@@ -573,7 +577,7 @@ export const getChildOfNode = function (node: SageNodeInitialized, childName: st
 	}
 	console.log(`Couldnt find child named "${childName}" for:`, node);
 	return;
-};
+}
 
 export const createChildrenFromJson = function (profiles: SimplifiedProfiles, nodeToWriteTo: SageNodeInitialized, fhirJson: any) {
 	const nodeProfileSchema = profiles[nodeToWriteTo.profile];
@@ -581,7 +585,7 @@ export const createChildrenFromJson = function (profiles: SimplifiedProfiles, no
 	const newChildren = ((() => {
 		const result1 = [];
 		
-		for (let k in fhirJson) {
+		for (const k in fhirJson) {
 			const v = (fhirJson as any)[k];
 			const childPath = `${nodePath}.${k}`;
 			const childDef = nodeProfileSchema[childPath];
@@ -604,7 +608,9 @@ export const createChildrenFromJson = function (profiles: SimplifiedProfiles, no
 	return newChildren;
 }
 
-export const getChildrenFromObjectArrayNode = function (node: SageNodeInitialized) : SageNodeInitialized[] {
+export function getChildrenFromObjectArrayNode (node: SageNodeInitializedFreezerNode) : SageNodeInitializedFreezerNode[];
+export function getChildrenFromObjectArrayNode (node: SageNodeInitialized) : SageNodeInitialized[];
+export function getChildrenFromObjectArrayNode (node: SageNodeInitialized) : SageNodeInitialized[] {
 	if (node.nodeType != "objectArray") {
 		return [];
 	}
@@ -649,14 +655,14 @@ export const walkNode = (profiles: SimplifiedProfiles, valueOfNode: any, profile
 		const nameParts = elementName.split(/(?=[A-Z])/);
 		let testSchemaPath = schemaPath.split(".").slice(0,schemaPath.split(".").length-1).join(".") + ".";
 		for (i = 0; i < nameParts.length; i++) {
-			var testSchema;
+			let testSchema;
 			const namePart = nameParts[i];
 			testSchemaPath += `${namePart}`;
-			if (testSchema = profiles[profileUri]?.[`${testSchemaPath}[x]`]) {
+			if ((testSchema = profiles[profileUri]?.[`${testSchemaPath}[x]`])) {
 				schema = testSchema;
 				trueSchemaPath = `${testSchemaPath}[x]`;
 				const expectedType = nameParts.slice(i+1).join("");
-				for (var j=0;j<schema.type.length;j++) {
+				for (let j=0;j<schema.type.length;j++) {
 					const type = schema.type[j];
 					if (type.code.toLowerCase() == expectedType.toLowerCase()) { // toLowerCase to deal with primitives being lowercase
 						fhirType = type.code;
@@ -691,7 +697,7 @@ export const walkNode = (profiles: SimplifiedProfiles, valueOfNode: any, profile
 	const childSchemaPath = newProfile ? fhirType : trueSchemaPath;
 	const childProfile = newProfile || profileUri;
 	// TODO: Figure out which type of the array this node corresponds to
-	let displayName = buildDisplayName(name, schema.sliceName);
+	const displayName = buildDisplayName(name, schema.sliceName);
 	// if (isInfrastructureType(fhirType) && (schemaPath.length === 1)) {
 	// 	fhirType = schemaPath[0];
 	// }
@@ -781,10 +787,10 @@ export const walkNode = (profiles: SimplifiedProfiles, valueOfNode: any, profile
 			decorated.children = ((() => {
 				const result1 = [];
 				
-				for (let k in valueOfNode) {
+				for (const k in valueOfNode) {
 					v = (valueOfNode as any)[k];
 					const childPath = `${childSchemaPath}.${k}`;
-					var walkRes = walkNode(profiles, v, childProfile, childPath, level+1);
+					const walkRes = walkNode(profiles, v, childProfile, childPath, level+1);
 					if (walkRes != null && walkRes != undefined) {
 						result1.push(walkRes);
 					}
@@ -832,7 +838,7 @@ export const walkNode = (profiles: SimplifiedProfiles, valueOfNode: any, profile
 	return decorated;
 };
 
-export var decorateFhirData = function(profiles: SimplifiedProfiles, resource: SageSupportedFhirResource) : SageNodeInitialized | undefined {
+export const decorateFhirData = function(profiles: SimplifiedProfiles, resource: SageSupportedFhirResource) : SageNodeInitialized | undefined {
 	// if ('toJS' in resource) {
 	// 	console.log('freezernode');
 	// 	resource = (resource as FreezerNode<Resource>).toJS()
@@ -850,8 +856,8 @@ export var decorateFhirData = function(profiles: SimplifiedProfiles, resource: S
 	
 
 	// Create root node first
-	let rootProfileSchema = profiles[resourceProfile]; // This is the schema of the profile
-	let rootPath = resource.resourceType; // This path gives you the schema of the Resource itself
+	const rootProfileSchema = profiles[resourceProfile]; // This is the schema of the profile
+	const rootPath = resource.resourceType; // This path gives you the schema of the Resource itself
 	const decorated : SageNodeInitialized = {
 		id: nextId++,
 		index: rootProfileSchema[rootPath].index,

@@ -1,22 +1,22 @@
+/* eslint-disable react/no-string-refs */
 /*
  * decaffeinate suggestions:
  * DS102: Remove unnecessary code created because of implicit returns
  * DS206: Consider reworking classes to avoid initClass
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
-import React, { SyntheticEvent } from "react";
-import ReactDOM from "react-dom";
+import React from "react";
 import * as cql from 'cql-execution';
 import test from "../../test/sample-library.json";
 
-import State from "../state";
+import State, { SageNodeInitializedFreezerNode } from "../state";
 import PrimitiveValidator from "../helpers/primitive-validator";
 import * as SchemaUtils from "../helpers/schema-utils";
 
 interface ValueEditorProps {
-	node: SchemaUtils.SageNodeInitialized,
+	node: SageNodeInitializedFreezerNode,
 	errFields: string[],
-	parent: SchemaUtils.SageNodeInitialized,
+	parent: SageNodeInitializedFreezerNode,
 	onEditCommit: (e?: React.SyntheticEvent) => void,
 	onNodeDelete: (e?: React.SyntheticEvent) => void,
 	onEditCancel: (e?: React.SyntheticEvent) => void,
@@ -24,7 +24,7 @@ interface ValueEditorProps {
 	required: boolean,
 	shortName: any,
 }
-class ValueEditor extends React.Component<ValueEditorProps, {}> {
+class ValueEditor extends React.Component<ValueEditorProps, Record<string, never>> {
 	ESC_KEY: number;
 	ENTER_KEY: number;
 	TAB_KEY: number;
@@ -223,10 +223,6 @@ class ValueEditor extends React.Component<ValueEditorProps, {}> {
 		}
 	}
 
-	handleCreateNewLibrary() {
-
-	}
-
 	buildCanonicalInput() {
 		console.log(this.props);
 		const selectedResourceUri = this.props.node.value ?? "";
@@ -237,7 +233,7 @@ class ValueEditor extends React.Component<ValueEditorProps, {}> {
 					className="form-control input-sm" 
 					onChange = {(e) => {
 						if (e.target.value == "CreateNew") {
-							this.handleCreateNewLibrary.bind(this);
+							// Todo
 							e.target.style.backgroundColor = "white";
 						}
 						else {
@@ -251,13 +247,13 @@ class ValueEditor extends React.Component<ValueEditorProps, {}> {
 				</select>
 			</span>
 		}
-		let nodeSchemaPath = this.props.node.schemaPath.substring(this.props.node.schemaPath.indexOf(".") + 1);
-		let val = this.props.node.value ?? "Blank";
-		let errFields = this.props.errFields;
+		const nodeSchemaPath = this.props.node.schemaPath.substring(this.props.node.schemaPath.indexOf(".") + 1);
+		const val = this.props.node.value ?? "Blank";
+		const errFields = this.props.errFields;
 		let style = {};
-		let activityurl = `http://fhir.org/guides/${State.get().author}/ActivityDefinition/ActivityDefinition-${State.get().CPGName}${State.get().resCount+1}`;
-		let planurl = `http://fhir.org/guides/${State.get().author}/PlanDefinition/PlanDefinition-${State.get().CPGName}${State.get().resCount+1}`;
-		let questionurl = `http://fhir.org/guides/${State.get().author}/Questionnaire/Questionnaire-${State.get().CPGName}${State.get().resCount+1}`;
+		const activityurl = `http://fhir.org/guides/${State.get().author}/ActivityDefinition/ActivityDefinition-${State.get().CPGName}${State.get().resCount+1}`;
+		const planurl = `http://fhir.org/guides/${State.get().author}/PlanDefinition/PlanDefinition-${State.get().CPGName}${State.get().resCount+1}`;
+		const questionurl = `http://fhir.org/guides/${State.get().author}/Questionnaire/Questionnaire-${State.get().CPGName}${State.get().resCount+1}`;
 		if (errFields && errFields.includes(nodeSchemaPath) && val == "Blank") {
 			style = {backgroundColor:"#ff9393"};
 		}
@@ -337,7 +333,7 @@ class ValueEditor extends React.Component<ValueEditorProps, {}> {
 		// 		{pop[0]} ({pop[1]})
 		// 	</option> );
 		// }
-		let lists = options;
+		const lists = options;
 		// if (this.props.node.name === "valueCode") {
 		// 	lists = fields;
 		// }
@@ -373,8 +369,8 @@ class ValueEditor extends React.Component<ValueEditorProps, {}> {
 	}
 
 	buildTextInput(value: string) {
-		let nodeSchemaPath = this.props.node.schemaPath.substring(this.props.node.schemaPath.indexOf(".") + 1);
-		let errFields = this.props.errFields;
+		const nodeSchemaPath = this.props.node.schemaPath.substring(this.props.node.schemaPath.indexOf(".") + 1);
+		const errFields = this.props.errFields;
 		let style = {};
 		if (errFields && errFields.includes(nodeSchemaPath) && value == "") {
 			style = {backgroundColor:"#ff9393"};
@@ -402,7 +398,7 @@ class ValueEditor extends React.Component<ValueEditorProps, {}> {
 			return undefined
 		}
 
-		let commitButtonClassName = "btn btn-default btn-sm";
+		const commitButtonClassName = "btn btn-default btn-sm";
 		return <button type="button" 
 			className={commitButtonClassName} 
 			onClick={this.props.onEditCommit}
@@ -425,7 +421,7 @@ class ValueEditor extends React.Component<ValueEditorProps, {}> {
 		let commitButton, validationErr, validationHint;
 		let groupClassName = "input-group";
 
-		if (validationErr = this.props?.node?.ui?.validationErr) {
+		if ((validationErr = this.props?.node?.ui?.validationErr)) {
 			groupClassName += " has-error";
 			validationHint = <div className="help-block">{validationErr}</div>;
 		}
@@ -460,8 +456,7 @@ class ValueEditor extends React.Component<ValueEditorProps, {}> {
 			uri: this.renderUri, canonical: this.renderCanonical
 		};
 
-		var renderer;
-		renderer = renderers[this.props.node.fhirType || "string"] || this.renderString;
+		const renderer = renderers[this.props.node.fhirType || "string"] || this.renderString;
 
 		const {
             value

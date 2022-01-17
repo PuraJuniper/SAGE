@@ -17,7 +17,6 @@ import State from "../state";
 
 class ValueSetDialog extends React.Component {
     constructor(props) {
-      super(...arguments);
       super(props);
       this.state = {
         showSpinner:false

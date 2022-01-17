@@ -3,7 +3,7 @@
         "outDir": "./public",
         "allowJs": true,
         "module": "ES6",
-        "target": "ES5",
+        "target": "ES6",
         "esModuleInterop": true,
         "moduleResolution": "Node",
         "strict": true,

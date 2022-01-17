@@ -3,6 +3,7 @@ import '@testing-library/jest-dom'
 import $ from 'jquery';
 global.$ = $;
 
+jest.setTimeout(10000);
 
 // Mock functions
 window.scrollTo = jest.fn(); // unimplemented in jsdom

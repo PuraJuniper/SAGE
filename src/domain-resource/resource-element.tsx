@@ -1,3 +1,4 @@
+/* eslint-disable react/no-string-refs */
 /*
  * decaffeinate suggestions:
  * DS101: Remove unnecessary use of Array.from
@@ -6,35 +7,33 @@
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
 import React from "react";
-import ReactDOM from "react-dom";
 
-import State from "../state";
+import State, { SageNodeInitializedFreezerNode } from "../state";
 import PrimitiveValidator from "../helpers/primitive-validator";
 
 import ValueNode from "./value-node";
 import ValueArrayNode from "./value-array-node";
 import ElementMenu from "./element-menu";
 import { hiddenElements } from '../config';
-import { SageNodeInitialized } from "../helpers/schema-utils";
 
 interface ResourceElementProps {
-	node: SageNodeInitialized,
-	parent: SageNodeInitialized,
+	node: SageNodeInitializedFreezerNode,
+	parent: SageNodeInitializedFreezerNode,
 	errFields: string[],
 }
 
-class ResourceElement extends React.Component<ResourceElementProps, {}> {
+class ResourceElement extends React.Component<ResourceElementProps, Record<string, never>> {
 	static initClass() {
 	
 		// this.prototype.displayName = "ResourceElement";
 	}
 
-	isValid(node: SageNodeInitialized) {
+	isValid(node: SageNodeInitializedFreezerNode) {
 		//this is hacky - need to find a better place for pre-commit validation
-		for (let editNode of Array.from(node.children || [node])) {
-			var message;
+		for (const editNode of Array.from(node.children || [node])) {
+			let message;
 			if (node.ui?.validationErr) { return false; }
-			if (message = PrimitiveValidator(editNode.fhirType, editNode.value, true)) {
+			if ((message = PrimitiveValidator(editNode.fhirType, editNode.value, true))) {
 				State.emit("value_change", editNode, editNode.value, message);
 				return false;
 			}
@@ -50,7 +49,7 @@ class ResourceElement extends React.Component<ResourceElementProps, {}> {
 
 	componentDidMount() {
 		if (this.refs.complexElement && (this.props.node?.nodeCreator === "user")) {
-			const domNode = ReactDOM.findDOMNode(this.refs.complexElement);
+			// const domNode = ReactDOM.findDOMNode(this.refs.complexElement);
 			// domNode.scrollIntoView(true);
 			//account for fixed header
 			const {
@@ -101,7 +100,7 @@ class ResourceElement extends React.Component<ResourceElementProps, {}> {
 	renderChildren() {
 		const showHidden = State.get().showHiddenElements;
 		const children = [];
-		for (let child of Array.from(this.props.node.children)) {
+		for (const child of Array.from(this.props.node.children)) {
 			if (showHidden) {
 				children.push(<ResourceElement 
 					key={child.id} node={child} 

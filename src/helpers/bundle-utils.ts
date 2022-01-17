@@ -1,6 +1,5 @@
 /*
  * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
  * DS102: Remove unnecessary code created because of implicit returns
  * DS205: Consider reworking code to avoid use of IIFEs
  * DS207: Consider shorter variations of null checks
@@ -9,7 +8,7 @@
 import { FreezerNode } from 'freezer-js';
 import { Bundle, BundleEntry, BundleEntryRequest } from 'fhir/r4';
 import { v4 as uuidv4 } from 'uuid';
-import State from '../state'
+import State, { SageFreezerNode } from '../state'
 import { SageSupportedFhirResource } from './schema-utils';
 
 type Substitution = {
@@ -17,7 +16,7 @@ type Substitution = {
 	to?: string,
 }
 
-export var fixAllRefs = function(resources: (SageSupportedFhirResource | FreezerNode<SageSupportedFhirResource>)[] , subs: Substitution[]) {
+export const fixAllRefs = function(resources: (SageSupportedFhirResource | SageFreezerNode<SageSupportedFhirResource>)[] , subs: Substitution[]) {
 	const fixed = [];
 	for (let i = 0; i < resources.length; i++) {
 		let resource = resources[i];
@@ -29,15 +28,15 @@ export var fixAllRefs = function(resources: (SageSupportedFhirResource | Freezer
 };
 
 
-export var fixRefs = function(resource: SageSupportedFhirResource, subs: Substitution[]) {
+export const fixRefs = function(resource: SageSupportedFhirResource, subs: Substitution[]) {
 	let count = 0;
 	const _notDate = (value: any) => !(value instanceof Date);
 
-	var _walkNode = function(node: any) {
+	const _walkNode = function(node: any) {
 		if (node instanceof Array) {
 			return ((): any => {
 				const result = [];
-				for (let v of Array.from(node)) { 					result.push(_walkNode(v));
+				for (const v of node) { 					result.push(_walkNode(v));
 				}
 				return result;
 			})();
@@ -45,14 +44,14 @@ export var fixRefs = function(resource: SageSupportedFhirResource, subs: Substit
 		} else if ((typeof node === "object") && _notDate(node)) {
 			return ((): any => {
 				const result1 = [];
-				for (var k in node) {
-					var v = node[k];
+				for (const k in node) {
+					const v = node[k];
 					if (k !== "reference") {
 						result1.push(_walkNode(v));
 					} else if (v) {
 						result1.push((() => {
 							const result2 = [];
-							for (let sub of Array.from(subs)) {
+							for (const sub of subs) {
 								if (v && sub.from && 
 							(v.toUpperCase() === sub.from.toUpperCase())) {
 									if (sub.to) { node[k] = sub.to; }
@@ -75,9 +74,9 @@ export var fixRefs = function(resource: SageSupportedFhirResource, subs: Substit
 };
 
 
-export var countRefs = function(resources: SageSupportedFhirResource[], ref: string): number {
+export const countRefs = function(resources: SageSupportedFhirResource[], ref: string): number {
 	let count = 0;
-	for (let resource of Array.from(resources)) {
+	for (const resource of resources) {
 		const hasRefs = fixRefs(resource, [{from: ref}]);
 		if (hasRefs !== 0) { count += 1; }
 	}
@@ -85,16 +84,16 @@ export var countRefs = function(resources: SageSupportedFhirResource[], ref: str
 };
 
 
-export var buildFredId = () => uuidv4();
+export const buildFredId = () => uuidv4();
 
 
-export var findNextId = function(entries: (Bundle | BundleEntry)[]): number {
+export const findNextId = function(entries: (Bundle | BundleEntry)[]): number {
 	let maxId = 1;
-	for (let entry of Array.from(entries)) {
+	for (const entry of entries) {
 		const id = "resource" in entry ? entry.resource?.id : entry.id;
 		if (id) {
-			var matches;
-			if (matches = id.match(/^sage\-(\d+)/i)) {
+			let matches;
+			if ((matches = id.match(/^sage-(\d+)/i))) {
 				maxId = Math.max(maxId, parseInt(matches[1])+1);
 			}
 		}
@@ -103,7 +102,7 @@ export var findNextId = function(entries: (Bundle | BundleEntry)[]): number {
 };
 
 
-export var parseBundle = function(bundle: Bundle, clearInternalIds?: boolean): SageSupportedFhirResource[] {
+export const parseBundle = function(bundle: Bundle, clearInternalIds?: boolean): SageSupportedFhirResource[] {
 	const idSubs = [];
 	const resourceURIs = [];
 	const state = State.get();
@@ -112,12 +111,11 @@ export var parseBundle = function(bundle: Bundle, clearInternalIds?: boolean): S
 		return [];
 	}
 	let entryPos = findNextId(bundle.entry);
-	for (const entry of Array.from(bundle.entry)) {
+	for (const entry of bundle.entry) {
 		if (entry.resource) {
 			const resource = (entry.resource as SageSupportedFhirResource);
 			if (((entry.fullUrl && /^urn:uuid:/.test(entry.fullUrl)) ||
 				!entry.resource.id || clearInternalIds)) {
-					var toId;
 					const {
 						resourceType
 					} = resource;
@@ -140,7 +138,7 @@ export var parseBundle = function(bundle: Bundle, clearInternalIds?: boolean): S
 	
 	State.get().canonicalUris.append(resourceURIs);
 	const resources = [];
-	for (const entry of Array.from(bundle.entry)) {
+	for (const entry of bundle.entry) {
 		fixRefs(entry.resource as SageSupportedFhirResource, idSubs);
 		resources.push(entry.resource as SageSupportedFhirResource);
 	}
@@ -148,7 +146,7 @@ export var parseBundle = function(bundle: Bundle, clearInternalIds?: boolean): S
 };
 
 
-export var generateBundle = function(resources: (SageSupportedFhirResource | FreezerNode<SageSupportedFhirResource>)[], splicePos?: number | null, spliceData?: SageSupportedFhirResource | null): Bundle {
+export const generateBundle = function(resources: (SageSupportedFhirResource | SageFreezerNode<SageSupportedFhirResource>)[], splicePos?: number | null, spliceData?: SageSupportedFhirResource | null): Bundle {
 	if (resources == null) { resources = []; }
 	if (splicePos && splicePos != null && spliceData && spliceData != null) {
 		resources = resources.splice(splicePos, 1, spliceData);
@@ -156,12 +154,12 @@ export var generateBundle = function(resources: (SageSupportedFhirResource | Fre
 
 	const idSubs = [];
 	const entries: BundleEntry[] = [];
-	for (const resourceObj of Array.from(resources)) {
-		var fullUrl;
-		var request: BundleEntryRequest;
+	for (const resourceObj of resources) {
+		let fullUrl: string;
+		let request: BundleEntryRequest;
 		let resource = resourceObj;
 		if ("toJS" in resourceObj) { resource = resourceObj.toJS(); }
-		if (resource.id && !/^[Ff][Rr][Ee][Dd]\-\d+/.test(resource.id)) {
+		if (resource.id && !/^[Ff][Rr][Ee][Dd]-\d+/.test(resource.id)) {
 			fullUrl = `${resource.resourceType}/${resource.id}`;
 			request = {method: "PUT", url: fullUrl};
 		} else {
@@ -183,7 +181,7 @@ export var generateBundle = function(resources: (SageSupportedFhirResource | Fre
 		});
 	}
 	
-	for (const entry of Array.from(entries)) {
+	for (const entry of entries) {
 		if (entry.resource) {
 			fixRefs(entry.resource as SageSupportedFhirResource, idSubs);
 		}

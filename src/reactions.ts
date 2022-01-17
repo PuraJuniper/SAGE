@@ -1,19 +1,15 @@
 /*
  * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
  * DS102: Remove unnecessary code created because of implicit returns
  * DS205: Consider reworking code to avoid use of IIFEs
  * DS207: Consider shorter variations of null checks
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
-import State, { SageUiStatus } from './state';
+import State from './state';
 import { Bundle, Library, Resource } from 'fhir/r4';
 import * as SchemaUtils from './helpers/schema-utils';
 import * as BundleUtils from './helpers/bundle-utils';
 import { SageNode, SageNodeInitialized, SimplifiedProfiles } from './helpers/schema-utils';
-import { FreezerNode } from 'freezer-js';
-import { NonceProvider } from 'react-select';
-import * as cql from 'cql-execution';
 
 const canMoveNode = function(node: SageNodeInitialized, parent: SageNodeInitialized) {
 	if (!["objectArray", "valueArray"].includes(parent?.nodeType)) {
@@ -35,7 +31,7 @@ const findParent = function(targetNode: SageNodeInitialized) {
 				};
 			} else if (child.children) {
 				let result;
-				if (result = _walkNode(child)) {
+				if ((result = _walkNode(child))) {
 					return result; 
 				}
 			}
@@ -74,7 +70,7 @@ const getParentById = function(id: number) {
 				};
 			} else if (child.children) {
 				let result;
-				if (result = _walkNode(child)) {
+				if ((result = _walkNode(child))) {
 					return result; 
 				}
 			}
@@ -98,14 +94,14 @@ export const enforceDuplicates = function(id?: string, title?: string, url?: str
 };
 
 State.on("load_initial_json", function(profilePath, resourcePath, isRemote) {
-	const queue = [
+	const queue: [string, "set_profiles" | "load_json_resource", "profile_load_error" | "resource_load_error"][] = [
 		[profilePath, "set_profiles", "profile_load_error"],
 		["profiles/r4.json", "set_profiles", "profile_load_error"],
 		[resourcePath, "load_json_resource", "resource_load_error"]
 	];
 
 	State.emit("set_ui", "loading");
-	let current: typeof queue[0] | undefined = [];
+	let current: typeof queue[0] | undefined;
 	const loadNext = function() {
 		if ((current = queue.shift()) && current[0]) {
 			return $.ajax({ 
@@ -232,9 +228,9 @@ const bundleInsert = function(json: Resource | Bundle, isBundle?: boolean) {
 	
 	state.set({resCount:state.resCount+1});
 
-	var resources: SchemaUtils.SageSupportedFhirResource[] = (() => {
+	const resources: SchemaUtils.SageSupportedFhirResource[] = (() => {
 		if (isBundle) {
-		return resources = BundleUtils.parseBundle(json as Bundle);
+		return BundleUtils.parseBundle(json as Bundle);
 	} else if (json.id) {
 		return [json as SchemaUtils.SageSupportedFhirResource];
 	} else {
@@ -252,7 +248,7 @@ const bundleInsert = function(json: Resource | Bundle, isBundle?: boolean) {
 		}
 	}
 
-	if (decorated = decorateResource(resources[0], state.profiles)) {
+	if ((decorated = decorateResource(resources[0], state.profiles))) {
 		State.get().pivot()
 			.set("errFields", [])
 			.bundle.resources.splice(state.bundle.pos+1, 0, ...nodesToInsert)
@@ -263,7 +259,7 @@ const bundleInsert = function(json: Resource | Bundle, isBundle?: boolean) {
 
 const replaceContained = function(json: Resource) {
 	let decorated;
-	if (decorated = decorateResource(json, State.get().profiles)) {		
+	if ((decorated = decorateResource(json, State.get().profiles))) {		
 		const {parentNode, childIdx} = getParentById(State.get().ui.replaceId);
 		if (parentNode) {
 			parentNode.children.splice(childIdx, 1, decorated);
@@ -344,7 +340,7 @@ State.on('save_changes_to_bundle_json', function() {
 });
 
 
-State.on("remove_from_bundle", function(deleteAt:number = -1) {
+State.on("remove_from_bundle", function(deleteAt = -1) {
 	let decorated;
 	const state = State.get();
 	let {
@@ -407,7 +403,7 @@ State.on("show_open_questionnaire", () => {
 	State.emit("set_bundle_pos", State.get().bundle.pos);
 	if (State.get().CPGName) {
 		State.get().ui.set("openMode", "insert");
-		let questionnaireJson = {resourceType: "Questionnaire"};
+		const questionnaireJson = {resourceType: "Questionnaire"};
 		const json = {resourceType: "Bundle", entry: [{resource: questionnaireJson}]};
 		return State.emit("load_json_resource", json);
 	}
@@ -420,7 +416,7 @@ State.on("show_open_activity", () => {
 	State.emit("set_bundle_pos", State.get().bundle.pos);
        if (State.get().CPGName) {
                State.get().ui.set("openMode", "insert");
-               let activityDefJson = {resourceType: "ActivityDefinition"};
+               const activityDefJson = {resourceType: "ActivityDefinition"};
                const json = {resourceType: "Bundle", entry: [{resource: activityDefJson}]};
                return State.emit("load_json_resource", json);
        }
@@ -434,19 +430,20 @@ State.on("highlight_errors", function(errFields) {
 	State.emit("set_ui", "ready");
 });
 
-State.on("set_ui", function(status: SageUiStatus) {//, params: ReturnType<typeof State.get>['ui']['status']) { // Do we need this params argument?
-	// if (params == null) { params = {}; }
+State.on("set_ui", function(status) {
 	return State.get().ui.set({status});
 });
 
 
 State.on("value_update", (node, value) => node.ui.reset({status: "ready"}));
 
-State.on("value_change", function(node, value, validationErr, strictValidationErr) {
+State.on("value_change", function(node?, value?, validationErr?, strictValidationErr?) {
 	//in case there are pre-save errors
 	//this causes conflict when the status is changed to "open" so has been left out
 	//State.get().ui.set({status: "ready"});
-
+	if (!node || !value) {
+		return;
+	}
 	if (node.ui) {
 		return node.pivot()
 			.set({value})
@@ -478,7 +475,7 @@ State.on("start_edit", function (node) {
 });
 
 const getResourceType = function(node: SageNodeInitialized) {
-	for (const child of Array.from(node.children)) {
+	for (const child of node.children) {
 		if (child.name === "resourceType") {
 			return child.value;
 		}
@@ -544,6 +541,7 @@ State.on("delete_node", function(node, parent) {
 			}
 			else {
 				console.log("ERROR in 'delete_node': parent of nodeType 'objectArray' has no parent. Args follow: (node, parent)", node, parent);
+				return;
 			}
 	} else {
 		targetNode = parent;
@@ -568,21 +566,21 @@ State.on("move_array_node", function(node, parent, down) {
 	const position = parent.children.indexOf(node);
 	const newPostion = down ? position+1 : position-1;
 
-	node = node.toJS();
-	node.ui.status = "ready";
+	const nodeObj = node.toJS();
+	nodeObj.ui.status = "ready";
 	return parent.children
 		.splice(position, 1)
 		.splice(newPostion, 0, node);
 });
 
-State.on("show_object_menu", function(node: FreezerNode<SageNodeInitialized>, parent: SageNodeInitialized) {
+State.on("show_object_menu", function(node, parent) {
 	let unusedElements;
 	if (node.nodeType !== "objectArray") {
 		const {
             profiles
         } = State.get();
 		const usedElements = [];
-		for (const child of Array.from(node.children)) { 
+		for (const child of node.children) { 
 			if (!child.range || (child.range[1] === "1") || (child.nodeType === "valueArray") || (
 				(child.range[1] !== "*") && (parseInt(child.range[1]) < (child?.children?.length || 0))
 			)) {
@@ -615,7 +613,7 @@ State.on("show_value_set", function(node) {
 
 // Insert system, code, version, and display elements to the given node.
 // `node` is expected to be of type Coding
-State.on("insert_from_code_picker", function(node: FreezerNode<SageNodeInitialized>, system: string, code: string, systemOID: string, version: string, display: string) {
+State.on("insert_from_code_picker", function(node, system, code, systemOID, version, display) {
 
 	if (node.displayName != "Coding") {
 		console.log("insert_from_code_picker event emitted with an unexpected FHIR type -- returning");
@@ -653,7 +651,7 @@ State.on("show_canonical_dialog", function(node) {
 	return State.emit("set_ui", "select");
 })
 
-State.on("set_selected_canonical", function(node: FreezerNode<SageNodeInitialized>, pos: number) {
+State.on("set_selected_canonical", function(node, pos) {
 	const state = State.get();
 	const referencedResourceJson = SchemaUtils.toFhir(state.bundle.resources[pos], false);
 	const url = referencedResourceJson.url;
@@ -695,7 +693,7 @@ State.on("set_selected_canonical", function(node: FreezerNode<SageNodeInitialize
 	// }
 });
 
-State.on("add_array_value", function(node: SageNodeInitialized) {
+State.on("add_array_value", function(node) {
 	const {
         profiles
     } = State.get();
@@ -704,7 +702,7 @@ State.on("add_array_value", function(node: SageNodeInitialized) {
 	return node.children.push(newNode);
 });
 
-State.on("add_array_object", function(node: SageNodeInitialized) {
+State.on("add_array_object", function(node) {
 	const {
         profiles
     } = State.get();
@@ -754,7 +752,7 @@ State.on("add_object_element", function(node, fhirElement) {
 	}
 });
 
-State.on("change_profile", function(nodeToChange: FreezerNode<SageNodeInitialized>, newProfile: keyof SimplifiedProfiles) {
+State.on("change_profile", function(nodeToChange, newProfile) {
 	// Assuming a 'meta' element exists (should this be part of a type for Resource SageNodes?)
 	for (const child of nodeToChange.children) {
 		if (child.fhirType == 'Meta') {
@@ -770,7 +768,7 @@ State.on("change_profile", function(nodeToChange: FreezerNode<SageNodeInitialize
 	State.emit("save_changes_to_bundle_json");
 });
 
-State.on("load_json_into", function(nodeToWriteTo: FreezerNode<SageNodeInitialized>, json: any) {
+State.on("load_json_into", function(nodeToWriteTo, json) {
 	console.log('loading ', json, ' into ', nodeToWriteTo);
 	const newChildren = SchemaUtils.createChildrenFromJson(State.get().profiles, nodeToWriteTo, json);
 	console.log(newChildren);
@@ -779,7 +777,7 @@ State.on("load_json_into", function(nodeToWriteTo: FreezerNode<SageNodeInitializ
 	});
 });
 
-State.on("load_library", function(library: cql.Library, url: string, fhirLibrary: Library) {
+State.on("load_library", function(library, url, fhirLibrary) {
 	const libraryIdentifier = `${library.source.library.identifier.id}v${library.source.library.identifier.version}`
 	State.get().simplified.libraries.set(libraryIdentifier, {
 		fhirLibrary: fhirLibrary,

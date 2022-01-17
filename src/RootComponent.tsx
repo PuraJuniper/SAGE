@@ -1,6 +1,5 @@
 /*
  * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
  * DS102: Remove unnecessary code created because of implicit returns
  * DS205: Consider reworking code to avoid use of IIFEs
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
@@ -34,9 +33,12 @@ import UserSettingsDialog from "./dialogs/user-settings-dialog";
 import AppInfo from "../package.json";
 import SelectResourceDialog from "./dialogs/select-resource-canonical-dialog";
 
-interface RootProps {};
+type RootProps = Record<string, never>;
+type RootState = {
+	prevStatus: string
+}
 const changeLessContentStatuses = ["closedialog", "open", "basic-cpg", "advanced-cpg", "export"]
-class RootComponent extends React.Component<RootProps, {prevStatus:string}> {
+class RootComponent extends React.Component<RootProps, RootState> {
 	appVersion: string;
 	isRemote: boolean;
 
@@ -55,7 +57,7 @@ class RootComponent extends React.Component<RootProps, {prevStatus:string}> {
 	getQs() {
 		const data: any = {};
 		const params = window.document.location.search?.substr(1).split("&");
-		for (let param of Array.from(params)) {
+		for (const param of params) {
 			const [k,v] = param.split("=");
 			data[k] = decodeURIComponent(v);
 		}
@@ -92,7 +94,7 @@ class RootComponent extends React.Component<RootProps, {prevStatus:string}> {
 		return window.pageYOffset;
 	}
 
-	componentDidUpdate(prevProps: RootProps, prevState: RootProps, snapshot: any) {
+	componentDidUpdate(prevProps: RootProps, prevState: RootState, snapshot: any) {
 		if (!changeLessContentStatuses.includes(State.get().ui.status)) {
 			this.setState({prevStatus:State.get().ui.status});
 		}

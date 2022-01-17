@@ -15,7 +15,7 @@ interface FolderProps {
 }
 
 export const Folder = (props: FolderProps) => {
-    let [show, setShow] = useState(false);
+    const [show, setShow] = useState(false);
     useEffect(() => {
         setTimeout(() => {
             setShow(true);
@@ -31,7 +31,7 @@ export const Folder = (props: FolderProps) => {
         unmountOnExit
     >
     <div className="folder" style={{position:"relative", marginBottom:"65px", marginTop: "10px"}}
-        onClick={(e: any) => {
+        onClick={(e) => {
             setShow(false);
             setTimeout(() => {
                 State.emit("set_bundle_pos", props.index);

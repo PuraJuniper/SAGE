@@ -7,19 +7,19 @@
 import React from "react";
 import ValueDisplay from "./value-display";
 import ValueEditor from "./value-editor";
-import { SageNodeInitialized } from "../helpers/schema-utils";
+import { SageNodeInitializedFreezerNode } from "../state";
 
 interface ValueNodeProps {
-	node: SageNodeInitialized,
+	node: SageNodeInitializedFreezerNode,
 	errFields: string[],
-	parent: SageNodeInitialized,
+	parent: SageNodeInitializedFreezerNode,
 	onEditStart: (e?: React.SyntheticEvent) => void,
 	onEditCommit: (e?: React.SyntheticEvent) => void,
 	onNodeDelete: (e?: React.SyntheticEvent) => void,
 	onEditCancel: (e?: React.SyntheticEvent) => void,
 }
 
-class ValueNode extends React.Component<ValueNodeProps, {}> {
+class ValueNode extends React.Component<ValueNodeProps, Record<string, never>> {
 	static initClass() {
 	
 		// this.prototype.displayName = "ValueNode";

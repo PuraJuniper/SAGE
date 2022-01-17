@@ -1,14 +1,16 @@
 import React, { FormEvent, useEffect, useState } from "react";
 import { Form, Row , Col, InputGroup, DropdownButton, Dropdown, FormControl, Modal, Button} from 'react-bootstrap';
-import State from "../state";
+import State, { SageNodeInitializedFreezerNode } from "../state";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {faCaretRight, faCaretLeft} from  '@fortawesome/pro-solid-svg-icons';
 import * as SchemaUtils from "../helpers/schema-utils"
-import { Expression, PlanDefinitionActionCondition } from "fhir/r4";
+import { Library, PlanDefinitionActionCondition } from "fhir/r4";
 import * as SageUtils from "../helpers/sage-utils";
 
-import hypertensionLibrary from "../../public/samples/hypertension-library.json";
-import { Library } from "cql-execution";
+import hypertensionLibraryJson from "../../public/samples/hypertension-library.json";
+import * as cql from "cql-execution";
+
+const hypertensionLibrary: Library = hypertensionLibraryJson as Library;
 
 interface ExpressionOptionDict {
     [expression: string]: ExpressionOption // The key is exactly what's written in the Condition's "expression" element
@@ -20,8 +22,8 @@ interface ExpressionOption {
 }
 
 interface SimpleFormProps {
-    actNode: SchemaUtils.SageNodeInitialized,
-    planNode: SchemaUtils.SageNodeInitialized,
+    actNode: SageNodeInitializedFreezerNode,
+    planNode: SageNodeInitializedFreezerNode,
 }
 
 const buildConditionFromSelection = (expression?: string): PlanDefinitionActionCondition | undefined => {
@@ -39,7 +41,7 @@ const buildConditionFromSelection = (expression?: string): PlanDefinitionActionC
     }
 }
 
-const getExpressionOptionsFromLibraries = (libraries: {library: Library, url: string}[]) => {
+const getExpressionOptionsFromLibraries = (libraries: {library: cql.Library, url: string}[]) => {
     const foundOptions: ExpressionOptionDict = {};
     for (const library of libraries) {
         for (const expressionKey of Object.keys(library.library.expressions)) {
@@ -90,7 +92,7 @@ export const SimpleForm = (props:SimpleFormProps) => {
         []
     )
     
-    const [libraries, setLibraries] = useState<{library: Library, url: string}[]>([]);
+    const [libraries, setLibraries] = useState<{library: cql.Library, url: string}[]>([]);
     useEffect(
         () => {
             setExpressionOptions(getExpressionOptionsFromLibraries(libraries));

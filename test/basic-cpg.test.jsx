@@ -34,8 +34,6 @@ beforeAll(() => server.listen());
 afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
 
-
-jest.setTimeout(10000);
 test('Create a basic CPG with a single PD that uses the hypertension library and export it', async () => {
     render(<RootComponent />);
     // Wait for profiles to load
