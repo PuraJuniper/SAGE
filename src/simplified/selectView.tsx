@@ -70,7 +70,7 @@ const SelectView = () => {
     return (
         <div style={{marginTop:"50px", paddingRight:"12px"}}>
             <div className="row">
-            <h3 className="col-lg-10 col-md-9" style={{color:"#2a6b92"}}><b>Available Resources</b></h3>
+            <h3 className="col-lg-10 col-md-9" style={{color:"#2a6b92"}}><b>Make a Card</b></h3>
             <button className="navigate col-lg-2 col-md-3" 
                 onClick={() => State.get().set("ui", {status:"collection"})}>
                 Saved Resources&nbsp;<FontAwesomeIcon icon={faCaretRight} />
