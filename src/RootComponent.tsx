@@ -85,7 +85,7 @@ class RootComponent extends React.Component<RootProps, RootState> {
 
 		const defaultProfilePath = "profiles/cpg.json";
 
-		return (State.on("update", () => this.forceUpdate()) as any).emit("load_initial_json",
+		return (State.on("update", () => this.forceUpdate())).emit("load_initial_json",
 			qs.profiles || defaultProfilePath,
 			qs.resource, this.isRemote);
 	}

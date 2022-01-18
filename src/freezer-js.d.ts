@@ -17,9 +17,9 @@ declare module 'freezer-js' {
     };
 
     export type FreezerListener<E extends EventDict<any>> = {
-        on: <K extends keyof E>(eventName: K, cb: E[K]) => void;
-        once: <K extends keyof E>(eventName: K, cb: E[K]) => void;
-        off: <K extends keyof E>(eventName: K, cb: E[K]) => void;
+        on: <K extends keyof E>(eventName: K, cb: E[K]) => FreezerListener<E>;
+        once: <K extends keyof E>(eventName: K, cb: E[K]) => FreezerListener<E>;
+        off: <K extends keyof E>(eventName: K, cb: E[K]) => FreezerListener<E>;
         emit: <K extends keyof E>(eventName: K, ...args: Parameters<E[K]>) => ReturnType<E[K]>;
         trigger: <K extends keyof E>(eventName: K, ...args: Parameters<E[K]>) => ReturnType<E[K]>; // deprecated
     };
@@ -114,9 +114,9 @@ declare module 'freezer-js' {
         getData() : FreezerCommon<T, FE<T, E>>;
         setData() : FreezerCommon<T, FE<T, E>>;
 
-        on: <K extends keyof FE<T, E>>(eventName: K, cb: FE<T, E>[K]) => void;
-        once: <K extends keyof FE<T, E>>(eventName: K, cb: FE<T, E>[K]) => void;
-        off: <K extends keyof FE<T, E>>(eventName: K, cb: FE<T, E>[K]) => void;
+        on: <K extends keyof FE<T, E>>(eventName: K, cb: FE<T, E>[K]) => FreezerListener<FE<T, E>>;
+        once: <K extends keyof FE<T, E>>(eventName: K, cb: FE<T, E>[K]) => FreezerListener<FE<T, E>>;
+        off: <K extends keyof FE<T, E>>(eventName: K, cb: FE<T, E>[K]) => FreezerListener<FE<T, E>>;
         emit: <K extends keyof FE<T, E>>(eventName: K, ...args: Parameters<FE<T, E>[K]>) => ReturnType<FE<T, E>[K]>;
         trigger: <K extends keyof FE<T, E>>(eventName: K, ...args: Parameters<FE<T, E>[K]>) => ReturnType<FE<T, E>[K]>; // deprecated
 
