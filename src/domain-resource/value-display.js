@@ -17,7 +17,7 @@ class ValueDisplay extends React.Component {
 		this.prototype.maxTextLength = 40;
 	}
 
-	shouldComponentUpdate() {
+	shouldComponentUpdate(nextProps) {
 		return nextProps.node !== this.props.node;
 	}
 
