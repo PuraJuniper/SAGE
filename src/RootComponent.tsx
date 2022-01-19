@@ -109,10 +109,6 @@ class RootComponent extends React.Component<RootProps, RootState> {
 		return State.emit("set_ui", "cpg");
 	}
 
-	handleSelect() {
-		return State.emit("set_ui", "select");
-	}
-
 	render() {
 		let bundleBar;
 		const state = State.get();
@@ -226,7 +222,7 @@ class RootComponent extends React.Component<RootProps, RootState> {
 				<ValueSetDialog show={state.ui.status === "valueSet"} node={state.ui.selectedNode} 
 					profile={state.bundle.resources[state.bundle.pos].profile} valueset={state.valuesets} />
 				<SelectResourceDialog show={state.ui.status === "select"} node={state.ui.selectedNode} 
-					bundle = {state.bundle} /> 
+					bundle = {state.bundle} resourceTypeFilter={state.ui.selectCanonicalResourceTypeFilter} /> 
 				<CodePickerDialog show={state.ui.status === "codePicker"} node={state.ui.selectedNode} />
 			</>
 			: ""
