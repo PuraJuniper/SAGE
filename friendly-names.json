@@ -1,0 +1,76 @@
+{
+  "FHIR_TO_FRIENDLY": {
+    "ACTIVITY_DEFINITION": {
+      "FHIR": "ActivityDefinition",
+      "FRIENDLY": "Activity"
+    },
+    "ACTIVITY_DEFINITIONS_LIST": [
+      {
+        "FHIR": "AdministerMedication",
+        "FRIENDLY": "Give Medication"
+      },
+      {
+        "FHIR": "CollectInformation",
+        "FRIENDLY": "Ask for Info"
+      },
+      {
+        "FHIR": "CommunicationRequest",
+        "FRIENDLY": "Talk to me"
+      },
+      {
+        "FHIR": "Computable",
+        "FRIENDLY": "Can go in computer"
+      },
+      {
+        "FHIR": "DispenseMedication",
+        "FRIENDLY": "Give Meds"
+      },
+      {
+        "FHIR": "DocumentMedication",
+        "FRIENDLY": "Note the meds"
+      },
+      {
+        "FHIR": "Enrollment",
+        "FRIENDLY": "Start them on program"
+      },
+      {
+        "FHIR": "GenerateReport",
+        "FRIENDLY": "Make a Report"
+      },
+      {
+        "FHIR": "ImmunizationRecommendation",
+        "FRIENDLY": "Recommend a Shot"
+      },
+      {
+        "FHIR": "MedicationRequest",
+        "FRIENDLY": "Write Prescription"
+      },
+      {
+        "FHIR": "ProposeDiagnosisTask",
+        "FRIENDLY": "Suggest Diagnosis"
+      },
+      {
+        "FHIR": "RecordDetectedIssueTask",
+        "FRIENDLY": "Note Issue"
+      },
+      {
+        "FHIR": "RecordInferenceTask",
+        "FRIENDLY": "Note Prognosis"
+      },
+      {
+        "FHIR": "ReportFlagTask",
+        "FRIENDLY": "Notable item to flag"
+      },
+      {
+        "FHIR": "ServiceRequest",
+        "FRIENDLY": "Request Help"
+      }
+    ],
+    "PLAN_DEFINITION_LIST": [
+      {
+        "FHIR": "PlanDefinition",
+        "FRIENDLY": "Plan"
+      }
+    ]
+  }
+}

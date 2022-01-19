@@ -3,27 +3,32 @@ import {BaseCard} from"./baseCard";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {faCaretRight, faInfoCircle} from  '@fortawesome/pro-solid-svg-icons';
 import State from "../state";
+import friendlyNames from "../../friendly-names.json";
 
 const SelectView = () => {
-    const resources = [
-        "CPGAdministerMedicationActivityDefinition",
-        "CPGCollectInformationActivityDefinition",
-        "CPGCommunicationRequestActivityDefinition",
-        "CPGComputableActivityDefinition",
-        "CPGDispenseMedicationActivityDefinition",
-        "CPGDocumentMedicationActivityDefinition",
-        "CPGEnrollmentActivityDefinition",
-        "CPGGenerateReportActivityDefinition",
-        "CPGImmunizationRecommendationActivityDefinition",
-        "CPGMedicationRequestActivityDefinition",
-        "CPGProposeDiagnosisTaskActivityDefinition",
-        "CPGRecordDetectedIssueTaskActivityDefinition",
-        "CPGRecordInferenceTaskActivityDefinition",
-        "CPGReportFlagTaskActivityDefinition",
-        "CPGServiceRequestActivityDefinition",
-        "Questionnaire"
-    ];
-
+    
+    // const resources = [
+    //     "CPGAdministerMedicationActivityDefinition",
+    //     "CPGCollectInformationActivityDefinition",
+    //     "CPGCommunicationRequestActivityDefinition",
+    //     "CPGComputableActivityDefinition",
+    //     "CPGDispenseMedicationActivityDefinition",
+    //     "CPGDocumentMedicationActivityDefinition",
+    //     "CPGEnrollmentActivityDefinition",
+    //     "CPGGenerateReportActivityDefinition",
+    //     "CPGImmunizationRecommendationActivityDefinition",
+    //     "CPGMedicationRequestActivityDefinition",
+    //     "CPGProposeDiagnosisTaskActivityDefinition",
+    //     "CPGRecordDetectedIssueTaskActivityDefinition",
+    //     "CPGRecordInferenceTaskActivityDefinition",
+    //     "CPGReportFlagTaskActivityDefinition",
+    //     "CPGServiceRequestActivityDefinition",
+    //     "Questionnaire"
+    // ];
+    const linkPrefixes = {
+        "CPG": "http://hl7.org/fhir/uv/cpg/",
+        "SDC": "http://hl7.org/fhir/uv/sdc/"
+    } 
     const links = [
         "http://hl7.org/fhir/uv/cpg/ActivityDefinition/cpg-administermedication-activitydefinition",
         "http://hl7.org/fhir/uv/cpg/ActivityDefinition/cpg-collectinformation-activitydefinition",
@@ -42,7 +47,7 @@ const SelectView = () => {
         "http://hl7.org/fhir/uv/cpg/ActivityDefinition/cpg-servicerequest-activitydefinition",
         "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire"
     ];
-
+    
     const profiles = [
         "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-administermedication",
         "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-collectinformationactivity",
@@ -64,45 +69,44 @@ const SelectView = () => {
         "http://hl7.org/fhir/StructureDefinition/ActivityDefinition"
     ]
     
-    const baseUrl = "http://hl7.org/fhir/uv/cpg/STU1/ActivityDefinition-";
-
-    return (
-        <div style={{marginTop:"50px", paddingRight:"12px"}}>
+    const makeCard = (resource: { FHIR: string; FRIENDLY: string; }, i: number): JSX.Element => {
+        return (
+            <div className="col-lg-3 col-md-4 col-sm-6" key={i}>
+            <BaseCard
+            header={resource.FHIR}
+            title={resource.FRIENDLY}
+            content={<div style={{ fontSize: "20px", textAlign: "right" }}>
+            <a href={links[i]} target="_blank" rel="noreferrer" className="c-tooltip">
+            <FontAwesomeIcon icon={faInfoCircle} />
+            <span className="c-tooltiptext">FHIR Docs</span>
+            </a>
+            </div>}
+            wait={i * 25}
+            clickable={true}
+            profile={profiles[i]} />
+            </div>
+            );
+        };
+        return (
+            <div style={{marginTop:"50px", paddingRight:"12px"}}>
             <div className="row">
             <h3 className="col-lg-10 col-md-9" style={{color:"#2a6b92"}}><b>Make a Card</b></h3>
             <button className="navigate col-lg-2 col-md-3" 
-                onClick={() => State.get().set("ui", {status:"collection"})}>
-                Saved Resources&nbsp;<FontAwesomeIcon icon={faCaretRight} />
-                            
+            onClick={() => State.get().set("ui", {status:"collection"})}>
+            Saved Resources&nbsp;<FontAwesomeIcon icon={faCaretRight} />
+            
             </button>
             </div>
             <div className="row box">
-                {
-                resources.map(
-                        (resource, i) => {
-                        return (
-                        <div className="col-lg-3 col-md-4 col-sm-6" key={i}>
-                        <BaseCard 
-                        header={resource.length > "ActivityDefinition".length ? "ActivityDefinition" : resource}
-                        title={resource} 
-                        content={
-                        <div style={{fontSize:"20px", textAlign:"right"}}>
-                            <a href={links[i]} target="_blank" rel="noreferrer" className="c-tooltip">
-                                <FontAwesomeIcon icon={faInfoCircle} />
-                                <span className="c-tooltiptext">FHIR Docs</span>
-                            </a>
-                        </div>
-                        }
-                        wait={i*25}
-                        clickable={true}
-                        profile={profiles[i]}
-                        />
-                        </div>
-                )})
-        }
+            {
+                friendlyNames.FHIR_TO_FRIENDLY.ACTIVITY_DEFINITIONS_LIST.map(makeCard)
+            }
+            {
+                friendlyNames.FHIR_TO_FRIENDLY.PLAN_DEFINITION_LIST.map(makeCard)
+            }
             </div>
-        </div>
-    );
-}
-
-export default SelectView
+            </div>
+            );
+        }
+        
+        export default SelectView
