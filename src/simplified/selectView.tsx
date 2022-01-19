@@ -6,25 +6,6 @@ import State from "../state";
 import friendlyNames from "../../friendly-names.json";
 
 const SelectView = () => {
-    
-    // const resources = [
-    //     "CPGAdministerMedicationActivityDefinition",
-    //     "CPGCollectInformationActivityDefinition",
-    //     "CPGCommunicationRequestActivityDefinition",
-    //     "CPGComputableActivityDefinition",
-    //     "CPGDispenseMedicationActivityDefinition",
-    //     "CPGDocumentMedicationActivityDefinition",
-    //     "CPGEnrollmentActivityDefinition",
-    //     "CPGGenerateReportActivityDefinition",
-    //     "CPGImmunizationRecommendationActivityDefinition",
-    //     "CPGMedicationRequestActivityDefinition",
-    //     "CPGProposeDiagnosisTaskActivityDefinition",
-    //     "CPGRecordDetectedIssueTaskActivityDefinition",
-    //     "CPGRecordInferenceTaskActivityDefinition",
-    //     "CPGReportFlagTaskActivityDefinition",
-    //     "CPGServiceRequestActivityDefinition",
-    //     "Questionnaire"
-    // ];
     const linkPrefixes = {
         "CPG": "http://hl7.org/fhir/uv/cpg/",
         "SDC": "http://hl7.org/fhir/uv/sdc/"
@@ -68,45 +49,43 @@ const SelectView = () => {
         "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-publishableactivity",
         "http://hl7.org/fhir/StructureDefinition/ActivityDefinition"
     ]
-    
-    const makeCard = (resource: { FHIR: string; FRIENDLY: string; }, i: number): JSX.Element => {
-        return (
-            <div className="col-lg-3 col-md-4 col-sm-6" key={i}>
-            <BaseCard
-            header={resource.FHIR}
-            title={resource.FRIENDLY}
-            content={<div style={{ fontSize: "20px", textAlign: "right" }}>
-            <a href={links[i]} target="_blank" rel="noreferrer" className="c-tooltip">
-            <FontAwesomeIcon icon={faInfoCircle} />
-            <span className="c-tooltiptext">FHIR Docs</span>
-            </a>
-            </div>}
-            wait={i * 25}
-            clickable={true}
-            profile={profiles[i]} />
-            </div>
-            );
-        };
-        return (
-            <div style={{marginTop:"50px", paddingRight:"12px"}}>
-            <div className="row">
-            <h3 className="col-lg-10 col-md-9" style={{color:"#2a6b92"}}><b>Make a Card</b></h3>
-            <button className="navigate col-lg-2 col-md-3" 
-            onClick={() => State.get().set("ui", {status:"collection"})}>
-            Saved Resources&nbsp;<FontAwesomeIcon icon={faCaretRight} />
-            
-            </button>
-            </div>
-            <div className="row box">
-            {
-                friendlyNames.FHIR_TO_FRIENDLY.ACTIVITY_DEFINITIONS_LIST.map(makeCard)
-            }
-            {
-                friendlyNames.FHIR_TO_FRIENDLY.PLAN_DEFINITION_LIST.map(makeCard)
-            }
-            </div>
-            </div>
-            );
-        }
+    return (
+        <div style={{marginTop:"50px", paddingRight:"12px"}}>
+        <div className="row">
+        <h3 className="col-lg-10 col-md-9" style={{color:"#2a6b92"}}><b>Make a Card</b></h3>
+        <button className="navigate col-lg-2 col-md-3" 
+        onClick={() => State.get().set("ui", {status:"collection"})}>
+        Saved Resources&nbsp;<FontAwesomeIcon icon={faCaretRight} />
         
-        export default SelectView
+        </button>
+        </div>
+        <div className="row box">
+        {
+            friendlyNames.RESOURCES.map(
+                (resource) => (
+                    resource.LIST.map((listItem, i) => (
+                        <div className="col-lg-3 col-md-4 col-sm-6" key={i}>
+                        <BaseCard
+                        header={resource.SELF.FRIENDLY}
+                        title={listItem.FRIENDLY}
+                        content={<div style={{ fontSize: "20px", textAlign: "right" }}>
+                        <a href={links[i]} target="_blank" rel="noreferrer" className="c-tooltip">
+                        <FontAwesomeIcon icon={faInfoCircle} />
+                        <span className="c-tooltiptext">FHIR Docs</span>
+                        </a>
+                        </div>}
+                        wait={i * 25}
+                        clickable={true}
+                        profile={profiles[i]} />
+                        </div>
+                        )
+                        )
+                        )
+                        )
+                    }
+                    </div>
+                    </div>
+                    );
+                }
+                
+                export default SelectView
