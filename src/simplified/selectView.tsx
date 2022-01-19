@@ -6,28 +6,12 @@ import State from "../state";
 import friendlyNames from "../../friendly-names.json";
 
 const SelectView = () => {
-    const linkPrefixes = {
-        "CPG": "http://hl7.org/fhir/uv/cpg/",
-        "SDC": "http://hl7.org/fhir/uv/sdc/"
+    const linkProperties = {
+        "prefix": "http://hl7.org/fhir/uv/"
     } 
-    const links = [
-        "http://hl7.org/fhir/uv/cpg/ActivityDefinition/cpg-administermedication-activitydefinition",
-        "http://hl7.org/fhir/uv/cpg/ActivityDefinition/cpg-collectinformation-activitydefinition",
-        "http://hl7.org/fhir/uv/cpg/ActivityDefinition/cpg-communicationrequest-activitydefinition",
-        "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-computableactivity",
-        "http://hl7.org/fhir/uv/cpg/ActivityDefinition/cpg-dispensemedication-activitydefinition",
-        "http://hl7.org/fhir/uv/cpg/ActivityDefinition/cpg-documentmedication-activitydefinition",
-        "http://hl7.org/fhir/uv/cpg/ActivityDefinition/cpg-enrollment-activitydefinition",
-        "http://hl7.org/fhir/uv/cpg/ActivityDefinition/cpg-generatereport-activitydefinition",
-        "http://hl7.org/fhir/uv/cpg/ActivityDefinition/cpg-immunizationrecommendation-activitydefinition",
-        "http://hl7.org/fhir/uv/cpg/ActivityDefinition/cpg-medicationrequest-activitydefinition",
-        "http://hl7.org/fhir/uv/cpg/ActivityDefinition/cpg-proposediagnosistask-activitydefinition",
-        "http://hl7.org/fhir/uv/cpg/ActivityDefinition/cpg-recorddetectedissuetask-activitydefinition",
-        "http://hl7.org/fhir/uv/cpg/ActivityDefinition/cpg-recordinferencetask-activitydefinition",
-        "http://hl7.org/fhir/uv/cpg/ActivityDefinition/cpg-reportflagtask-activitydefinition",
-        "http://hl7.org/fhir/uv/cpg/ActivityDefinition/cpg-servicerequest-activitydefinition",
-        "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire"
-    ];
+    function makeLink (prefix: string, code: string, resource: { FHIR: any; FRIENDLY?: string; }, type: { FHIR?: string; FRIENDLY?: string; ""?: any; }) {
+        return prefix + code + "/" + type.FHIR + "/" + code + "-" + (resource.FHIR + "-" + type.FHIR).toLowerCase()
+    }
     
     const profiles = [
         "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-administermedication",
@@ -62,14 +46,14 @@ const SelectView = () => {
         <div className="row box">
         {
             friendlyNames.RESOURCES.map(
-                (resource) => (
-                    resource.LIST.map((listItem, i) => (
+                (resourceType) => (
+                    resourceType.LIST.map((resource, i) => (
                         <div className="col-lg-3 col-md-4 col-sm-6" key={i}>
                         <BaseCard
-                        header={resource.SELF.FRIENDLY}
-                        title={listItem.FRIENDLY}
+                        header={resourceType.SELF.FRIENDLY}
+                        title={resource.FRIENDLY}
                         content={<div style={{ fontSize: "20px", textAlign: "right" }}>
-                        <a href={links[i]} target="_blank" rel="noreferrer" className="c-tooltip">
+                        <a href={makeLink("http://hl7.org/fhir/uv/", "cpg", resource, resourceType.SELF)} target="_blank" rel="noreferrer" className="c-tooltip">
                         <FontAwesomeIcon icon={faInfoCircle} />
                         <span className="c-tooltiptext">FHIR Docs</span>
                         </a>
