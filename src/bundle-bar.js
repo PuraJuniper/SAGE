@@ -7,6 +7,7 @@ import React from 'react';
 import State from './state';
 import {DropdownButton, Dropdown, Col} from 'react-bootstrap';
 import * as SchemaUtils from "./helpers/schema-utils"
+import { ACTIVITY_DEFINITION, LIBRARY, PLAN_DEFINITION, QUESTIONNAIRE } from './simplified/nameHelpers';
 
 class BundleBar extends React.Component {
 
@@ -83,13 +84,13 @@ class BundleBar extends React.Component {
 				{resourcesJson.map((resource, i) => {
 					const className = (() => {
                         // FontAwesome icons
-						if (resource.resourceType === "PlanDefinition") {
+					if (resource.resourceType === PLAN_DEFINITION.FHIR) {
 						return "far fa-folder-open";
-					} else if (resource.resourceType === "ActivityDefinition") {
+					} else if (resource.resourceType === ACTIVITY_DEFINITION.FHIR) {
 						return "far fa-file-alt";
-					} else if (resource.resourceType === "Library") {
-						return "fas fa-book-medical";
-					} else if (resource.resourceType == "Questionnaire") {
+					} else if (resource.resourceType === LIBRARY.FHIR) {
+					return "fas fa-book-medical";
+					} else if (resource.resourceType == QUESTIONNAIRE.FHIR) {
 						return "fas fa-question";
 					}
 					})();

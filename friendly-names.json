@@ -74,9 +74,25 @@
         "FRIENDLY": "Plan"
       },
       "LIST": [
+      ]
+    },
+    {
+      "SELF": {
+        "FHIR": "Library",
+        "FRIENDLY": "Place for Books"
+      },
+      "LIST": [
+      ]
+    },
+    {
+      "SELF": {
+        "FHIR": "Questionnaire",
+        "FRIENDLY": "List of Questions"
+      },
+      "LIST": [
         {
-          "FHIR": "Questionnaire",
-          "FRIENDLY": "Question List"
+          "FHIR": "QuestionnaireExample",
+          "FRIENDLY": "An Example Questionnaire"
         }
       ]
     }
