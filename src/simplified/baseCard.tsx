@@ -53,7 +53,7 @@ export const BaseCard = (props: BaseCardProps) => {
                         resourceType: "Bundle",
                         entry: [
                             {
-                                resource: {resourceType: friendlyToFhir(props.header)}
+                                resource: {resourceType: resourceType}
                             },
                             {
                                 resource: {
