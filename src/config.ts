@@ -10,12 +10,12 @@ const hiddenElements = [
     'Questionnaire.linkId'
 ];
 
-// info: We want to apply base-level cpg profiles to all relevant Resources (PlanDefinitions, ActivityDefinitions, etc),
-//  so we must manually fix that profile's URI per Resource
 // The default profile used when the specified Resource type is created.
 type ResourceTypeToUri = {
     [key: string]: string
 }
+// We want to apply base-level cpg profiles to all relevant Resources (PlanDefinitions, ActivityDefinitions, etc),
+//  so we must manually fix that profile's URI per Resource
 const defaultProfileUriOfResourceType: ResourceTypeToUri = {
     'PlanDefinition': 'http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-computableplandefinition',
     'ActivityDefinition': 'http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-computableactivity',
