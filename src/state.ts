@@ -1,11 +1,12 @@
 import * as cql from 'cql-execution';
 import { Library } from 'fhir/r4';
-import Freezer, { EventDict, FreezerNode } from 'freezer-js';
-import { SageNode, SageNodeInitialized, SimplifiedProfiles, SimplifiedValuesets } from './helpers/schema-utils';
+import Freezer, { EventDict, FE, FreezerNode } from 'freezer-js';
+import { SageNewResource, SageNode, SageNodeInitialized, SimplifiedProfiles, SimplifiedValuesets } from './helpers/schema-utils';
 
 export interface StateVars {
 	ui: {
 		status: SageUiStatus,
+		selectCanonicalResourceTypeFilter?: string[],
 		openMode?: string,
 		replaceId?: number,
 		count?: number,
@@ -79,7 +80,7 @@ export interface SageReactions {
 	"show_code_picker": (node: SageNodeInitializedFreezerNode) => unknown;
 	"show_value_set": (node: SageNodeInitializedFreezerNode) => unknown;
 	"insert_from_code_picker": (node: SageNodeInitializedFreezerNode, system: string, code: string, systemOID: string, version: string, display: string) => unknown;
-	"show_canonical_dialog": (node: SageNodeInitializedFreezerNode) => unknown;
+	"show_canonical_dialog": (node: SageNodeInitializedFreezerNode, resourceTypes?: string[]) => unknown;
 	"set_selected_canonical": (node: SageNodeInitializedFreezerNode, pos: number) => unknown;
 	"add_array_value": (node: SageNodeInitializedFreezerNode) => unknown;
 	"add_array_object": (node: SageNodeInitializedFreezerNode) => unknown;
@@ -87,6 +88,7 @@ export interface SageReactions {
 	"change_profile": (nodeToChange: SageNodeInitializedFreezerNode, newProfile: keyof SimplifiedProfiles) => unknown;
 	"load_json_into": (nodeToWriteTo: SageNodeInitializedFreezerNode, json: any) => unknown;
 	"load_library": (library: cql.Library, url: string, fhirLibrary: Library) => unknown;
+	"insert_resource_into_bundle": (resource: SageNewResource) => void;
 }
 
 const defaultStateVars: StateVars = {
@@ -120,7 +122,7 @@ const defaultStateVars: StateVars = {
 const State = new Freezer<StateVars, EventDict<SageReactions>>(defaultStateVars);
 
 // convenience
-export type SageFreezerNode<T> = FreezerNode<T, EventDict<SageReactions>>;
+export type SageFreezerNode<T> = FreezerNode<T, FE<T, EventDict<SageReactions>>>;
 export type StateVarsFreezerNode = SageFreezerNode<StateVars>
 export type SageNodeInitializedFreezerNode = SageFreezerNode<SageNodeInitialized>
 
