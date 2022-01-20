@@ -233,10 +233,7 @@ class OpenDialog extends React.Component {
                 >
                     <button
                         className="btn btn-primary btn-block"
-                        onClick={(e) => {
-                            State.get().set("mode", "standard");
-                            this.handleLoadText.bind(this);
-                        }}
+                        onClick={this.handleLoadText.bind(this)}
                         disabled={this.state.fhirText.length < 3}
                     >{`\
 \t\t\t\t\tLoad JSON\
