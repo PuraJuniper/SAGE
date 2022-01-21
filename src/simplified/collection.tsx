@@ -14,11 +14,11 @@ const Collection = () => {
     return (
         <div style={{marginTop:"50px"}}>
             <div className="row">
-            <h3 className="col-lg-10 col-md-9" style={{color:"#2a6b92"}}><b>Saved Resources</b></h3>
+            <h3 className="col-lg-10 col-md-9" style={{color:"#2a6b92"}}><b>Saved Cards</b></h3>
             <button className="navigate-reverse col-lg-2 col-md-3" 
                     onClick={() => State.get().set("ui", {status:"cards"})}>
             <FontAwesomeIcon icon={faCaretLeft} />
-                            &nbsp;New Resource
+                            &nbsp;New Card
             </button>
             <button className="navigate-reverse col-lg-2 col-md-3" 
                     onClick={() => State.get().set("ui", {status:"export"})}>

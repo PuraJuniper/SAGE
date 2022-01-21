@@ -4,45 +4,32 @@
 /* eslint-disable no-unused-vars */
 /*
  * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
  * DS102: Remove unnecessary code created because of implicit returns
- * DS103: Rewrite code to no longer use __guard__
  * DS207: Consider shorter variations of null checks
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
 import React from "react";
-import {Container, Row, Col, Modal, Tabs, Tab, Dropdown, DropdownButton} from "react-bootstrap";
-import State from "../state";
+import {Container, Row, Col, Modal, Dropdown} from "react-bootstrap";
+import State, { SageNodeInitializedFreezerNode, StateVars } from "../state";
 import * as SchemaUtils from "../helpers/schema-utils"
 
-class SelectResourceDialog extends React.Component {
+interface SelectResourceDialogProps {
+    show: boolean,
+    bundle: NonNullable<StateVars['bundle']>,
+    node: SageNodeInitializedFreezerNode,
+    resourceTypeFilter: string[]
+}
 
-    shouldComponentUpdate(nextProps) {
+class SelectResourceDialog extends React.Component<SelectResourceDialogProps> {
+
+    shouldComponentUpdate(nextProps: SelectResourceDialogProps) {
         return nextProps.show !== this.props.show;
     }
-
-    handleClose(e) {
-        return State.emit("set_ui", "ready");
-    }
-
-    handleClick(pos, e) {
-		e.preventDefault();
-        State.emit("set_ui", "ready");
-		return State.emit("set_selected_canonical", this.props.node, pos);
-	}
-
-    handleMenu(e, item) {
-		return State.emit(e);
-	}
-
-    handleUiChange(status, e) {
-		e.preventDefault();
-		return State.emit("set_ui", status);
-	}
 
     renderResourceInput() {
         const resources = this.props.bundle.resources;
         const resourcesJson = [];
+        const curResourceJson = SchemaUtils.toFhir(this.props.bundle.resources[this.props.bundle.pos], false);
         for (const resource of resources) {
             resourcesJson.push(SchemaUtils.toFhir(resource, false));
         }
@@ -67,16 +54,24 @@ class SelectResourceDialog extends React.Component {
 					}
 					})();
 
-                    if (i == State.get().bundle.pos) return;
-					return (
-					<Dropdown.Item
-						onClick={(e) => {
-                            this.handleClick.bind(this)(i, e);
-                        }}
-						key = {resource.id}
-					>
-						<span className={className} style={{marginRight:"10px"}}></span> {resource.title} | { resource.id}
-					</Dropdown.Item>
+                    if (resource.id == curResourceJson.id) return; // Do not show current resource
+                    if (this.props.resourceTypeFilter && !this.props.resourceTypeFilter.includes(resource.resourceType)) return;
+                    const disabled = resource.url ? false : true;
+					
+                    return (
+                        <Dropdown.Item
+                            disabled={disabled}
+                            onClick={(e) => {
+                                e.preventDefault();
+                                State.emit("set_ui", "ready");
+                                return State.emit("set_selected_canonical", this.props.node, i);
+                            }}
+                            key = {resource.id}
+                        >
+                            <span className={className} style={{marginRight:"10px"}}>
+                            </span>
+                            {resource.title} | {resource.id} {disabled ? <i>(Resource has no URI, cannot be selected)</i> : ""}
+                        </Dropdown.Item>
 					)}
 				)}
 
@@ -97,7 +92,7 @@ class SelectResourceDialog extends React.Component {
         const content = this.renderResourceInput;
 
         return (
-            <Modal show={true} onHide={this.handleClose.bind(this)} animation={false} size="lg">
+            <Modal show={true} onHide={()=>State.emit("set_ui", "ready")} animation={false} size="lg">
                 <Modal.Header closeButton={true}>
                     <Modal.Title>{title}</Modal.Title>
                 </Modal.Header>

@@ -12,5 +12,6 @@ const hiddenElementsForType = (resourceType: string): string[] => {
     .concat(hiddenElementsForType(ACTIVITY_DEFINITION))
     .concat(hiddenElementsForType(QUESTIONNAIRE));
 
+
     export {hiddenElements}
     

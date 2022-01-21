@@ -10,7 +10,7 @@ declare module 'freezer-js' {
     } : never;
 
     // FreezerEvents shortened to FE because it will be repeated a lot!
-    type FE<T, E extends EventDict<any>> = E & {
+    export type FE<T, E extends EventDict<any>> = E & {
         "update": (state: T, prevState: T) => void,
         "beforeAll": <K extends keyof E>(eventName: K, ...args: Parameters<E[K]>) => void,
         "afterAll": <K extends keyof E>(eventName: K, ...args: Parameters<E[K]>) => void,
@@ -74,8 +74,8 @@ declare module 'freezer-js' {
         pivot(): FreezerNodePivoted<T, E, T>,
         reset(a: FreezerNode<T, E>): FreezerNodePivoted<PivotType, E, PivotType>,
         run(): void,
+        set<K extends keyof T>(key: K, value: T[K]) : FreezerNodePivoted<PivotType, E, PivotType>;
         set(state: Partial<T>) : FreezerNodePivoted<PivotType, E, PivotType>;
-        set<K extends keyof T>(key: K, value: Partial<T[K]>) : FreezerNodePivoted<PivotType, E, PivotType>;
         toJS(): T,
         transact(): void,
     }

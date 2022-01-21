@@ -24,6 +24,7 @@ export type SageNode = {
 	// Path relative to the nearest top-level definition i.e. "PlanDefinition.action.description" or "PlanDefinition.Extension" (often the same as schemaPath)
 	nodePath: string, 
 	fhirType: string,
+	type: ElementDefinitionType,
 	level?: number,
 	sliceName: string,
 	short: any, 
@@ -46,7 +47,12 @@ export type SageNodeInitialized = SageNode & {
 	value?: any,
 }
 
-export type SageSupportedFhirResource = PlanDefinition | ActivityDefinition | Questionnaire | Library | ValueSet
+export type SageSupportedFhirResource = PlanDefinition | ActivityDefinition | Questionnaire | Library | ValueSet;
+
+export type SageNewResource = {
+	resourceType: string,
+	url?: string,
+}
 
 // type fhirTypeValues = "decimal" | "boolean" | "xhtml" | "base64Binary" | "code" | "uri" | "canonical";
 
@@ -186,6 +192,7 @@ export const getElementChildren = function(profiles: SimplifiedProfiles, node: S
 			index: childSchema.index,
 			isRequired: childSchema.min >=1,
 			fhirType: typeDef.code,
+			type: typeDef,
 			short: childSchema.short,
 			range: [childSchema.min, childSchema.max],
 			nodeType: isComplexType(typeDef.code) ?
@@ -397,6 +404,7 @@ export const buildChildNode = function(profiles: SimplifiedProfiles, parentNode:
 			schemaPath: childNode.schemaPath, 
 			sliceName: childNode.sliceName,
 			fhirType: childNode.fhirType,
+			type: childNode.type,
 			displayName: buildDisplayName(name, childNode.sliceName),
 			nodeType: isComplexType(fhirType) ? "objectArray" : "valueArray",
 			short: schema.short,
@@ -430,6 +438,7 @@ export const buildChildNode = function(profiles: SimplifiedProfiles, parentNode:
 			schemaPath: childNode.schemaPath, 
 			sliceName: childNode.sliceName,
 			fhirType: childNode.fhirType,
+			type: childNode.type,
 			displayName: buildDisplayName(name, childNode.sliceName),
 			isRequired: schema.min >=1,
 			short: schema.short,
@@ -538,17 +547,17 @@ const getProfileOfSchemaDef = function(profiles: SimplifiedProfiles, schemaNode:
 	}
 }
 
-export function getChildOfNodePath (node: SageNodeInitializedFreezerNode, childNames: string[]) : SageNodeInitializedFreezerNode | undefined;
-export function getChildOfNodePath (node: SageNodeInitialized, childNames: string[]) : SageNodeInitialized | undefined;
-export function getChildOfNodePath (node: SageNodeInitialized, childNames: string[]) : SageNodeInitialized | undefined {
-	if (childNames.length > 1) {
-		const nextChild = getChildOfNode(node, childNames[0]);
+export function getChildOfNodePath (node: SageNodeInitializedFreezerNode, childNamePath: string[]) : SageNodeInitializedFreezerNode | undefined;
+export function getChildOfNodePath (node: SageNodeInitialized, childNamePath: string[]) : SageNodeInitialized | undefined;
+export function getChildOfNodePath (node: SageNodeInitialized, childNamePath: string[]) : SageNodeInitialized | undefined {
+	if (childNamePath.length > 1) {
+		const nextChild = getChildOfNode(node, childNamePath[0]);
 		if (nextChild) {
-			return getChildOfNodePath(nextChild, childNames.slice(1));
+			return getChildOfNodePath(nextChild, childNamePath.slice(1));
 		}
 	}
-	else if (childNames.length == 1) {
-		return getChildOfNode(node, childNames[0]);
+	else if (childNamePath.length == 1) {
+		return getChildOfNode(node, childNamePath[0]);
 	}
 	else {
 		// It would be nice to type-check this case away
@@ -607,6 +616,24 @@ export const createChildrenFromJson = function (profiles: SimplifiedProfiles, no
 	return newChildren;
 }
 
+export function buildUrlForResource(resourceType: string) {
+	return `http://fhir.org/guides/${State.get().author}/${resourceType}/${resourceType}-${State.get().CPGName}${State.get().resCount+1}`;
+}
+
+/**
+ * 
+ * @param resourceType The type of resource to create
+ * @param withUrl Whether a URL should be generated for the resource
+ * @returns A (possibly incomplete) FHIR resource
+ */
+export function buildNewFhirResource(resourceType: string, withUrl?: boolean): SageNewResource {
+	const newResource = {
+		resourceType,
+		url: withUrl ? buildUrlForResource(resourceType) : undefined,
+	}
+	return newResource;
+}
+
 export function getChildrenFromObjectArrayNode (node: SageNodeInitializedFreezerNode) : SageNodeInitializedFreezerNode[];
 export function getChildrenFromObjectArrayNode (node: SageNodeInitialized) : SageNodeInitialized[];
 export function getChildrenFromObjectArrayNode (node: SageNodeInitialized) : SageNodeInitialized[] {
@@ -648,6 +675,7 @@ export const walkNode = (profiles: SimplifiedProfiles, valueOfNode: any, profile
 	let schema = profiles[profileUri]?.[trueSchemaPath];
 	let typeIdx = 0; // Assuming 0
 	let fhirType = schema?.type[typeIdx]?.code;
+	let type = schema?.type[typeIdx];
 	//is it a multi-type?
 	if (!schema) {
 		const elementName = schemaPath.split('.').pop() as string;
@@ -662,9 +690,10 @@ export const walkNode = (profiles: SimplifiedProfiles, valueOfNode: any, profile
 				trueSchemaPath = `${testSchemaPath}[x]`;
 				const expectedType = nameParts.slice(i+1).join("");
 				for (let j=0;j<schema.type.length;j++) {
-					const type = schema.type[j];
-					if (type.code.toLowerCase() == expectedType.toLowerCase()) { // toLowerCase to deal with primitives being lowercase
-						fhirType = type.code;
+					const curType = schema.type[j];
+					if (curType.code.toLowerCase() == expectedType.toLowerCase()) { // toLowerCase to deal with primitives being lowercase
+						fhirType = curType.code;
+						type = curType;
 						typeIdx = j;
 					}
 				}
@@ -719,7 +748,8 @@ export const walkNode = (profiles: SimplifiedProfiles, valueOfNode: any, profile
 		displayName,
 		nodePath: trueSchemaPath,
 		schemaPath: childSchemaPath,
-		fhirType, 
+		fhirType,
+		type,
 		level,
 		short: schema?.short,
 		sliceName: schema?.sliceName,
@@ -838,10 +868,6 @@ export const walkNode = (profiles: SimplifiedProfiles, valueOfNode: any, profile
 };
 
 export const decorateFhirData = function(profiles: SimplifiedProfiles, resource: SageSupportedFhirResource) : SageNodeInitialized | undefined {
-	// if ('toJS' in resource) {
-	// 	console.log('freezernode');
-	// 	resource = (resource as FreezerNode<Resource>).toJS()
-	// }
 	// console.log('decorateFhirData', profiles, resource);
 	const resourceProfile = getProfileOfResource(profiles, resource);
 	if (!resourceProfile) {
@@ -849,14 +875,11 @@ export const decorateFhirData = function(profiles: SimplifiedProfiles, resource:
 		return;
 	}
 	nextId = 0;
-	const addedUris = [];
-	// console.log('start decorateFhirData:', resourceProfile, resource);
-
 	
-
 	// Create root node first
 	const rootProfileSchema = profiles[resourceProfile]; // This is the schema of the profile
 	const rootPath = resource.resourceType; // This path gives you the schema of the Resource itself
+	const type = rootProfileSchema[rootPath].type[0];
 	const decorated : SageNodeInitialized = {
 		id: nextId++,
 		index: rootProfileSchema[rootPath].index,
@@ -866,7 +889,8 @@ export const decorateFhirData = function(profiles: SimplifiedProfiles, resource:
 		nodePath: rootPath,
 		schemaPath: rootPath,
 		sliceName: rootProfileSchema[rootPath].sliceName,
-		fhirType: rootProfileSchema[rootPath].type?.[0]?.code,
+		fhirType: type.code,
+		type: type,
 		level: 0, // Visually, this fhirNode should be the only one on-screen when selected
 		short: rootProfileSchema[rootPath].short,
 		isRequired: rootProfileSchema[rootPath].min >= 1,

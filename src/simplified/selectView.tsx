@@ -32,6 +32,7 @@ const SelectView = () => {
             friendlyNames.RESOURCES.map(
                 (resourceType) => (
                     resourceType.LIST.map((resource, i) => (
+
                         <div className="col-lg-3 col-md-4 col-sm-6" key={i}>
                         <BaseCard
                         header={resourceType.SELF.FRIENDLY}
