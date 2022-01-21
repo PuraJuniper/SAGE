@@ -20,6 +20,7 @@ import RootComponent from '../src/RootComponent';
 
 // expected results
 import basicCpgExport from './expected/basic-cpg-hypertension-bundle.json'
+import advancedCpgExport from './expected/advanced-cpg-plan-activity-bundle.json'
 
 const server = setupServer(
     rest.get('/profiles/cpg.json', (req, res, ctx) => {
@@ -56,4 +57,25 @@ test('Create a basic CPG with a single PD that uses the hypertension library and
     // ExportDialog open on screen
     await screen.findByText('Exported FHIR JSON');
     expect(JSON.parse(screen.getByRole('textbox', {name: "exportedJson"}).textContent)).toStrictEqual(basicCpgExport);
+})
+
+test.only('Create an advanced CPG with a PlanDefinition linked to an ActiviityDefinition and export it', async () => {
+    render(<RootComponent />);
+    // Wait for profiles to load
+    await waitForElementToBeRemoved(() => screen.queryByRole('progressbar', {name: "loading-symbol"}), {timeout: 5000, interval: 1000});
+    
+    userEvent.click(screen.getAllByRole('button', {name: 'Advanced CPG'})[0]);
+    userEvent.click(await screen.findByRole('button', {name: 'Open Resource'}));
+
+    userEvent.click(await screen.findByText('Action'));
+    userEvent.click(await screen.findByText('DefinitionCanonical'));
+    userEvent.click(await screen.findByText('Select:'));
+    //await screen.findByText('ActivityDefinition');
+    userEvent.click(await screen.findByRole('option', {name: 'Creat a new ActivityDefinition'}));
+
+    await screen.findByText('ActivityDefinition');
+    userEvent.click(await screen.findByText('Export JSON'));
+
+    await screen.findByText('Exported FHIR JSON');
+    expect(JSON.parse(screen.getByRole('textbox', {name: "exportedJson"}).textContent)).toStrictEqual(advancedCpgExport);
 })

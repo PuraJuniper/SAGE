@@ -1,0 +1,81 @@
+{
+    "resourceType": "Bundle",
+    "type": "transaction",
+    "meta": {
+       "lastUpdated": "2022-01-20T17:59:52.408Z",
+       "source": "https://fred-ca431.web.app/"
+    },
+    "entry": [
+       {
+          "fullUrl": "PlanDefinition/059d8b55-6d17-4b0c-a826-ae30dd37f4ac",
+          "request": {
+             "method": "PUT",
+             "url": "PlanDefinition/059d8b55-6d17-4b0c-a826-ae30dd37f4ac"
+          },
+          "resource": {
+             "id": "059d8b55-6d17-4b0c-a826-ae30dd37f4ac",
+             "meta": {
+                "profile": [
+                   "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-computableplandefinition"
+                ]
+             },
+             "url": "http://fhir.org/guides/author/PlanDefinition/PlanDefinition-cpgname1",
+             "version": "1.0.0",
+             "name": "PlanDefinition-cpgname1",
+             "title": null,
+             "type": {},
+             "status": null,
+             "experimental": true,
+             "publisher": "author",
+             "description": null,
+             "action": [
+                {
+                   "title": null,
+                   "description": null,
+                   "condition": [
+                      {
+                         "kind": null,
+                         "expression": {
+                            "language": null,
+                            "expression": null
+                         }
+                      }
+                   ],
+                   "definitionCanonical": "http://fhir.org/guides/author/ActivityDefinition/ActivityDefinition-cpgname2"
+                }
+             ],
+             "resourceType": "PlanDefinition"
+          }
+       },
+       {
+          "fullUrl": "ActivityDefinition/454e96cc-1b05-43be-9feb-cc700ad123ca",
+          "request": {
+             "method": "PUT",
+             "url": "ActivityDefinition/454e96cc-1b05-43be-9feb-cc700ad123ca"
+          },
+          "resource": {
+             "id": "454e96cc-1b05-43be-9feb-cc700ad123ca",
+             "meta": {
+                "profile": [
+                   "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-computableactivity"
+                ]
+             },
+             "extension": [
+                {
+                   "url": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-knowledgeCapability"
+                }
+             ],
+             "url": "http://fhir.org/guides/author/ActivityDefinition/ActivityDefinition-cpgname2",
+             "version": "1.0.0",
+             "name": "ActivityDefinition-cpgname2",
+             "title": null,
+             "status": null,
+             "experimental": true,
+             "publisher": "author",
+             "description": null,
+             "kind": null,
+             "resourceType": "ActivityDefinition"
+          }
+       }
+    ]
+ }
