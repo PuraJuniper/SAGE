@@ -2,7 +2,7 @@ import {Card} from "react-bootstrap";
 import {useState, useEffect} from "react";
 import { CSSTransition } from 'react-transition-group';
 import State from "../state";
-import { friendlyToFhir, PLAN_DEFINITION } from "./nameHelpers";
+import { ACTIVITY_DEFINITION, friendlyToFhir, PLAN_DEFINITION } from "./nameHelpers";
 
 
 
@@ -68,7 +68,7 @@ export const BaseCard = (props: BaseCardProps) => {
                                                     kind: "applicability",
                                                 }
                                             ],
-                                            definitionCanonical: `http://fhir.org/guides/${State.get().publisher}/ActivityDefinition/ActivityDefinition-${State.get().CPGName}${State.get().resCount}`
+                                            definitionCanonical: `http://fhir.org/guides/${State.get().publisher}/${ACTIVITY_DEFINITION}/${ACTIVITY_DEFINITION}-${State.get().CPGName}${State.get().resCount}`
                                         }
                                     ]
                                 }

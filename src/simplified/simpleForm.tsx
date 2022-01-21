@@ -9,7 +9,7 @@ import * as SageUtils from "../helpers/sage-utils";
 
 import hypertensionLibraryJson from "../../public/samples/hypertension-library.json";
 import * as cql from "cql-execution";
-import { ACTIVITY_DEFINITION } from "./nameHelpers";
+import { ACTIVITY_DEFINITION, PLAN_DEFINITION } from "./nameHelpers";
 
 const hypertensionLibrary: Library = hypertensionLibraryJson as Library;
 
@@ -213,7 +213,7 @@ export const SimpleForm = (props:SimpleFormProps) => {
             </button>
         <h3  style={{marginTop:"20px", marginBottom:"10px"}}><b>
             {props.actNode.displayName}
-            /Plandefinition
+            /{PLAN_DEFINITION}
         </b></h3>
             <Row className="mb-2">
                 <Form.Group as= {Col} controlId="title">
