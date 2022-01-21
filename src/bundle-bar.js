@@ -84,13 +84,13 @@ class BundleBar extends React.Component {
 				{resourcesJson.map((resource, i) => {
 					const className = (() => {
                         // FontAwesome icons
-					if (resource.resourceType === PLAN_DEFINITION.FHIR) {
+					if (resource.resourceType === PLAN_DEFINITION) {
 						return "far fa-folder-open";
-					} else if (resource.resourceType === ACTIVITY_DEFINITION.FHIR) {
+					} else if (resource.resourceType === ACTIVITY_DEFINITION) {
 						return "far fa-file-alt";
-					} else if (resource.resourceType === LIBRARY.FHIR) {
+					} else if (resource.resourceType === LIBRARY) {
 					return "fas fa-book-medical";
-					} else if (resource.resourceType == QUESTIONNAIRE.FHIR) {
+					} else if (resource.resourceType == QUESTIONNAIRE) {
 						return "fas fa-question";
 					}
 					})();

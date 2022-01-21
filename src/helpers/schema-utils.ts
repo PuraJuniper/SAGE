@@ -9,8 +9,7 @@
 import State, { SageNodeInitializedFreezerNode } from '../state';
 import PrimitiveValidator from './primitive-validator';
 import { Bundle, Resource, Element, ElementDefinition, ElementDefinitionType, ActivityDefinition, PlanDefinition, Questionnaire, Library, ValueSet, FhirResource } from 'fhir/r4';
-
-import { defaultProfileUriOfResourceType } from '../config';
+import { defaultProfileUriOfResourceType } from '../simplified/nameHelpers';
 
 // Template of a SageNode for a specific element/resource
 export type SageNode = {
@@ -498,7 +497,7 @@ export const getProfileOfResource = function(profiles: SimplifiedProfiles, resou
 	if (resource.meta?.profile && resource.meta.profile.length > 0 && profiles[resource.meta.profile[0]]) {
 		return resource.meta.profile[0];
 	}
-	const defaultProfile = defaultProfileUriOfResourceType[resource.resourceType]
+	const defaultProfile = defaultProfileUriOfResourceType(resource.resourceType);
 	if (defaultProfile && profiles[defaultProfile]) {
 		return defaultProfile;
 	}
@@ -520,8 +519,8 @@ const getProfileOfSchemaDef = function(profiles: SimplifiedProfiles, schemaNode:
 	if (typeDef.profile) {
 		return typeDef.profile[0];
 	}
-	else if (defaultProfileUriOfResourceType[typeDef.code]) {
-		return defaultProfileUriOfResourceType[typeDef.code];
+	else if (defaultProfileUriOfResourceType(typeDef.code)) {
+		return defaultProfileUriOfResourceType(typeDef.code);
 	}
 	else if (profiles[`http://hl7.org/fhir/StructureDefinition/${typeDef.code}`]) {
 		// skipping all types that start with a lowercase letter since they are primitives)

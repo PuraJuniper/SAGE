@@ -3,7 +3,8 @@
     {
       "SELF": {
         "FHIR": "ActivityDefinition",
-        "FRIENDLY": "Activity"
+        "FRIENDLY": "Activity",
+          "DEFAULT_PROFILE_URI": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-computableactivity"
       },
       "LIST": [
         {
@@ -71,7 +72,8 @@
     {
       "SELF": {
         "FHIR": "PlanDefinition",
-        "FRIENDLY": "Plan"
+        "FRIENDLY": "Plan",
+        "DEFAULT_PROFILE_URI": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-computableplandefinition"
       },
       "LIST": [
       ]
@@ -79,7 +81,9 @@
     {
       "SELF": {
         "FHIR": "Library",
-        "FRIENDLY": "Place for Books"
+        "FRIENDLY": "Place for Books",
+        "DEFAULT_PROFILE_URI": "NONE"
+
       },
       "LIST": [
       ]
@@ -87,7 +91,9 @@
     {
       "SELF": {
         "FHIR": "Questionnaire",
-        "FRIENDLY": "List of Questions"
+        "FRIENDLY": "List of Questions",
+        "DEFAULT_PROFILE_URI": "NONE"
+
       },
       "LIST": [
         {
