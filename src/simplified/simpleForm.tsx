@@ -211,8 +211,7 @@ export const SimpleForm = (props:SimpleFormProps) => {
                     <FontAwesomeIcon icon={faCaretRight} />
             </button>
         <h3  style={{marginTop:"20px", marginBottom:"10px"}}><b>
-            {props.actNode.displayName}
-            /Plandefinition
+            {props.actNode ? profileToResource[SchemaUtils.toFhir(props.actNode, false).meta?.profile?.[0] || ""] : ""}
         </b></h3>
             <Row className="mb-2">
                 <Form.Group as= {Col} controlId="title">
@@ -270,3 +269,24 @@ export const SimpleForm = (props:SimpleFormProps) => {
     </div>);
     
 }
+
+// Temporary until we add in the friendly-names mapping file
+const profileToResource: {[key: string]: string} = {
+    "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-administermedication" : "CPGAdministerMedicationActivityDefinition",
+    "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-collectinformationactivity" : "CPGCollectInformationActivityDefinition",
+    "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-communicationactivity" : "CPGCommunicationRequestActivityDefinition",
+    "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-computableactivity": "CPGComputableActivityDefinition",
+    "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-dispensemedicationactivity": "CPGDispenseMedicationActivityDefinition",
+    "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-documentmedicationactivity": "CPGDocumentMedicationActivityDefinition",
+    "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-enrollmentactivity": "CPGEnrollmentActivityDefinition",
+    "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-generatereportactivity": "CPGGenerateReportActivityDefinition",
+    "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-immunizationactivity": "CPGImmunizationRecommendationActivityDefinition",
+    "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-medicationrequestactivity": "CPGMedicationRequestActivityDefinition",
+    "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-proposediagnosisactivity": "CPGProposeDiagnosisTaskActivityDefinition",
+    "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-recorddetectedissueactivity": "CPGRecordDetectedIssueTaskActivityDefinition",
+    "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-recordinferenceactivity": "CPGRecordInferenceTaskActivityDefinition",
+    "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-reportflagactivity": "CPGReportFlagTaskActivityDefinition",
+    "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-servicerequestactivity": "CPGServiceRequestActivityDefinition",
+    "http://hl7.org/fhir/StructureDefinition/Questionnaire": "Questionnaire",
+    "": "Unknown profile"
+};
