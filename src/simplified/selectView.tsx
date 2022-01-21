@@ -3,6 +3,7 @@ import {BaseCard} from"./baseCard";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {faCaretRight, faInfoCircle} from  '@fortawesome/pro-solid-svg-icons';
 import State from "../state";
+import { Container, Row, Col } from "react-bootstrap";
 
 const SelectView = () => {
     const resources = [
@@ -76,30 +77,38 @@ const SelectView = () => {
                             
             </button>
             </div>
-            <div className="row box">
+            <div className="box">
+            <Container fluid="lg">
+                <Row lg="4" md="3" sm="2" noGutters> 
                 {
                 resources.map(
                         (resource, i) => {
+                            const isActivity = resource != 'Questionnaire';
                         return (
-                        <div className="col-lg-3 col-md-4 col-sm-6" key={i}>
-                        <BaseCard 
-                        header={resource.length > "ActivityDefinition".length ? "ActivityDefinition" : resource}
-                        title={resource} 
-                        content={
-                        <div style={{fontSize:"20px", textAlign:"right"}}>
-                            <a href={links[i]} target="_blank" rel="noreferrer" className="c-tooltip">
-                                <FontAwesomeIcon icon={faInfoCircle} />
-                                <span className="c-tooltiptext">FHIR Docs</span>
-                            </a>
-                        </div>
-                        }
-                        wait={i*25}
-                        clickable={true}
-                        profile={profiles[i]}
-                        />
-                        </div>
+                        <div style={{padding: "10px"}} key={i}><Col>
+                            <BaseCard 
+                                bsBg="sage-white"
+                                bsText="sage-blue"
+                                bsBorder={isActivity ? "activitydefinition" : "questionnaire"}
+                                header={isActivity ? "ActivityDefinition" : "Questionnaire"}
+                                title={resource} 
+                                content={
+                                <div style={{fontSize:"20px", textAlign:"right"}}>
+                                    <a href={links[i]} target="_blank" rel="noreferrer" className="c-tooltip">
+                                        <FontAwesomeIcon icon={faInfoCircle} />
+                                        <span className="c-tooltiptext">FHIR Docs</span>
+                                    </a>
+                                </div>
+                                }
+                                wait={i*25}
+                                clickable={true}
+                                profile={profiles[i]}
+                            />
+                        </Col></div>
                 )})
         }
+                </Row>
+            </Container>
             </div>
         </div>
     );

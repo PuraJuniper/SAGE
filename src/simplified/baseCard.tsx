@@ -3,6 +3,7 @@ import {useState, useEffect} from "react";
 import { CSSTransition } from 'react-transition-group';
 import State from "../state";
 import * as SchemaUtils from "../helpers/schema-utils";
+import { Color } from "react-bootstrap/esm/types";
 
 interface BaseCardProps {
     header: string,
@@ -12,6 +13,9 @@ interface BaseCardProps {
     content?: JSX.Element,
     clickable?: boolean
     link?: string
+    bsBg?: string,
+    bsText?: Color | string,
+    bsBorder?: string,
 }
 
 export const BaseCard = (props: BaseCardProps) => {
@@ -48,10 +52,12 @@ export const BaseCard = (props: BaseCardProps) => {
         classNames="res-card"
         >
         <Card
+            bg={props.bsBg}
+            text={props.bsText as Color}
+            border={props.bsBorder}
                 onClick={(e: any) => {
                     if (e.target.tagName !== "svg" && e.target.tagName !== "path" && props.clickable) {
-                    setShow(false);
-                    setTimeout(() => {
+                        setShow(false);
                         if (State.get().bundle?.resources.length) {
                             State.emit("save_changes_to_bundle_json");
                             State.get().bundle.set("pos", State.get().bundle.resources.length-1);
@@ -89,16 +95,15 @@ export const BaseCard = (props: BaseCardProps) => {
                             };
                         }
                         State.emit("load_json_resource", json);
-                    }, 350)
                     }
                 }}
                 >
-                <Card.Header as="h6" style={headerPadding}>
+                <Card.Header style={headerPadding}>
                     {header}
                 </Card.Header>
                 <Card.Body>
-                    <Card.Title as="h6">{title}</Card.Title>
-                    <Card.Text as="div">
+                    <Card.Title>{title}</Card.Title>
+                    <Card.Text>
                         {content}
                     </Card.Text>
                 </Card.Body>
