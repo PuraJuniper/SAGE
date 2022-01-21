@@ -93,12 +93,12 @@ const SelectView = () => {
                                 header={isActivity ? "ActivityDefinition" : "Questionnaire"}
                                 title={resource} 
                                 content={
-                                <div style={{fontSize:"20px", textAlign:"right"}}>
+                                <span style={{fontSize:"20px", textAlign:"right"}}>
                                     <a href={links[i]} target="_blank" rel="noreferrer" className="c-tooltip">
                                         <FontAwesomeIcon icon={faInfoCircle} />
                                         <span className="c-tooltiptext">FHIR Docs</span>
                                     </a>
-                                </div>
+                                </span>
                                 }
                                 wait={i*25}
                                 clickable={true}

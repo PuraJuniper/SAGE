@@ -18,9 +18,10 @@ export const Folder = (props: FolderProps) => {
     const [show, setShow] = useState(false);
     const isActivity = props.type != "computable"; // bad
     useEffect(() => {
-        setTimeout(() => {
+        const timeoutId = setTimeout(() => {
             setShow(true);
         }, props.wait);
+        return () => clearTimeout(timeoutId);
       }, [props.wait]);
     
 
@@ -48,9 +49,9 @@ export const Folder = (props: FolderProps) => {
         <div style={{position:"absolute", top:"16px", left:"0px", width:"100%"}}>
             <BaseCard header="PlanDefinition" title={props.planTitle}
             content={
-                <div>
+                <span>
                 {props.actTitle} {props.conditionExpressions.length > 0 ? `WHEN ${props.conditionExpressions[0]} IS TRUE` : ""}
-                </div>
+                </span>
                 }/>
         </div>
         {State.get().bundle.resources.length > 1 && 

@@ -22,9 +22,10 @@ export const BaseCard = (props: BaseCardProps) => {
     const [show, setShow] = useState(false);
 
     useEffect(() => {
-        setTimeout(() => {
+        const timeoutId = setTimeout(() => {
             setShow(true);
         }, props.wait);
+        return () => clearTimeout(timeoutId);
       }, [props.wait]);
 
 
