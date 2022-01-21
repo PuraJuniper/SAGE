@@ -2,7 +2,7 @@ import {Card} from "react-bootstrap";
 import {useState, useEffect} from "react";
 import { CSSTransition } from 'react-transition-group';
 import State from "../state";
-import { friendlyToFhir } from "./nameHelpers";
+import { friendlyToFhir, PLAN_DEFINITION } from "./nameHelpers";
 
 
 
@@ -57,7 +57,7 @@ export const BaseCard = (props: BaseCardProps) => {
                             },
                             {
                                 resource: {
-                                    resourceType: "PlanDefinition",
+                                    resourceType: PLAN_DEFINITION,
                                     library: [],
                                     action: [
                                         {

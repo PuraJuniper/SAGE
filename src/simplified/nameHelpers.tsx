@@ -16,11 +16,16 @@ const getType = (type: string) => {
     export const ACTIVITY_DEFINITION = getType("ActivityDefinition");
     export const LIBRARY = getType("Library");
     export const QUESTIONNAIRE = getType("Questionnaire");
+    export const DATA_ELEMENT = getType("DataElement");
+    export const VALUE_SET = getType("ValueSet");
+    export const STRUCTURE_DEFINITION = getType("StructureDefinition");
+
     
-    export function getFhirProps(resourceType: string) {
-        return friendlyNames.RESOURCES.find(
+    
+     export function getFhirSelf(resourceParent: any[], resourceType: string) {
+        return resourceParent.find(
             (resource) => {
-                return resource.SELF.FHIR === resourceType;
+                return resource.SELF.FHIR === resourceType|| resource.FHIR === resourceType;
             }
             );
         }
@@ -34,7 +39,7 @@ const getType = (type: string) => {
         }
         
         export const fhirToFriendly = (fhirWord: string) => {
-            return elseIfUndefined(getFhirProps(fhirWord)
+            return elseIfUndefined(getFhirSelf(friendlyNames.RESOURCES, fhirWord)
             ,((o:string) => (o))
             , defaultUndefinedString);
         }
@@ -46,7 +51,7 @@ const getType = (type: string) => {
         }
         
         export const defaultProfileUriOfResourceType = (resourceType: string) => {
-            return elseIfUndefined(getFhirProps(resourceType)
+            return elseIfUndefined(getFhirSelf(friendlyNames.RESOURCES, resourceType)
             ,((object: { SELF: { DEFAULT_PROFILE_URI: any; }; }) => object.SELF.DEFAULT_PROFILE_URI)
             , defaultUndefinedString);
         }

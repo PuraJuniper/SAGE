@@ -4,7 +4,7 @@
       "SELF": {
         "FHIR": "ActivityDefinition",
         "FRIENDLY": "Activity",
-          "DEFAULT_PROFILE_URI": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-computableactivity"
+        "DEFAULT_PROFILE_URI": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-computableactivity"
       },
       "LIST": [
         {
@@ -66,6 +66,10 @@
         {
           "FHIR": "ServiceRequest",
           "FRIENDLY": "Request Help"
+        },
+        {
+          "FHIR": "ServiceRequest",
+          "FRIENDLY": "Request Help"
         }
       ]
     },
@@ -100,6 +104,36 @@
           "FHIR": "QuestionnaireExample",
           "FRIENDLY": "An Example Questionnaire"
         }
+      ]
+    },
+    {
+      "SELF": {
+        "FHIR": "DataElement",
+        "FRIENDLY": "Piece of Data",
+        "DEFAULT_PROFILE_URI": "NONE"
+
+      },
+      "LIST": [
+      ]
+    },
+    {
+      "SELF": {
+        "FHIR": "ValueSet",
+        "FRIENDLY": "Set of Values",
+        "DEFAULT_PROFILE_URI": "NONE"
+
+      },
+      "LIST": [
+      ]
+    },
+    {
+      "SELF": {
+        "FHIR": "StructureDefinition",
+        "FRIENDLY": "A Defined Structure",
+        "DEFAULT_PROFILE_URI": "NONE"
+
+      },
+      "LIST": [
       ]
     }
   ]

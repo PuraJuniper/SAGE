@@ -9,7 +9,7 @@
 import State, { SageNodeInitializedFreezerNode } from '../state';
 import PrimitiveValidator from './primitive-validator';
 import { Bundle, Resource, Element, ElementDefinition, ElementDefinitionType, ActivityDefinition, PlanDefinition, Questionnaire, Library, ValueSet, FhirResource } from 'fhir/r4';
-import { defaultProfileUriOfResourceType } from '../simplified/nameHelpers';
+import { defaultProfileUriOfResourceType, STRUCTURE_DEFINITION, VALUE_SET } from '../simplified/nameHelpers';
 
 // Template of a SageNode for a specific element/resource
 export type SageNode = {
@@ -917,4 +917,33 @@ export const decorateFhirData = function(profiles: SimplifiedProfiles, resource:
 	// console.log('end decoratefhirdata: ', decorated);
 	return decorated;
 };
+
+const linkPrefix = "http://hl7.org/fhir/uv/";
+const cpgCode = "cpg";
+const ipsCode = "ips"
+
+export function makeLink (resource: { FHIR: any; FRIENDLY?: string; }
+	, type: { FHIR?: string; FRIENDLY?: string; ""?: any; }) {
+
+	return linkPrefix + cpgCode + "/" + type.FHIR + "/" + cpgCode + "-" 
+	+ (resource.FHIR + "-" + type.FHIR).toLowerCase()
+}
+
+export function makeProfile(resource: { FHIR: any; FRIENDLY?: string; } | string): string {
+
+	var resourceAsString: string = ""
+	if (typeof(resource) !== 'string') {
+		resourceAsString = resource.FHIR;
+	} else {
+		resourceAsString = resource
+	}
+
+	return linkPrefix + cpgCode + "/" + STRUCTURE_DEFINITION + "/" + cpgCode + "-" 
+	+ resourceAsString.toLowerCase()
+}
+
+export function makeValueSetURL(resource: { FHIR: any; FRIENDLY?: string; }): string {
+
+	return linkPrefix + ipsCode + "/" + VALUE_SET + "/" + (resource.FHIR).toLowerCase()
+}
 

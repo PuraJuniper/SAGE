@@ -1,4 +1,4 @@
-import { ACTIVITY_DEFINITION, getFhirProps, PLAN_DEFINITION, QUESTIONNAIRE } from "./simplified/nameHelpers";
+import { ACTIVITY_DEFINITION, PLAN_DEFINITION, QUESTIONNAIRE } from "./simplified/nameHelpers";
 
 const hiddenElementsForType = (resourceType: string): string[] => {
     const suffixes = ['meta', 'url', 'id', 'name', 'publisher', 'version', 'linkId'];

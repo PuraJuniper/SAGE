@@ -4,19 +4,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {faCaretRight, faInfoCircle} from  '@fortawesome/pro-solid-svg-icons';
 import State from "../state";
 import friendlyNames from "../../friendly-names.json";
+import { makeLink, makeProfile } from "../helpers/schema-utils";
 
-const linkPrefix = "http://hl7.org/fhir/uv/";
-const cpgCode = "cpg";
-
-const SelectView = () => {
-    function makeLink (resource: { FHIR: any; FRIENDLY?: string; }, type: { FHIR?: string; FRIENDLY?: string; ""?: any; }) {
-        return linkPrefix + cpgCode + "/" + type.FHIR + "/" + cpgCode + "-" + (resource.FHIR + "-" + type.FHIR).toLowerCase()
-    }
-    
-    function makeProfile(resource: { FHIR: any; FRIENDLY?: string; }, type: { FHIR: string; FRIENDLY: string; }) {
-        return linkPrefix + cpgCode + "/" + "StructureDefinition/" + cpgCode + "-" + (resource.FHIR).toLowerCase()
-    }
-    
+const SelectView = () => {    
     return (
         <div style={{marginTop:"50px", paddingRight:"12px"}}>
         <div className="row">
@@ -45,7 +35,7 @@ const SelectView = () => {
                         </div>}
                         wait={i * 25}
                         clickable={true}
-                        profile={makeProfile(resource, resourceType.SELF)} />
+                        profile={makeProfile(resource)} />
                         </div>
                         )
                         )
