@@ -68,14 +68,9 @@ test.only('Create an advanced CPG with a PlanDefinition linked to an ActiviityDe
     userEvent.click(await screen.findByRole('button', {name: 'Open Resource'}));
 
     userEvent.click(await screen.findByText('Action'));
-    userEvent.click(await screen.findByText('DefinitionCanonical'));
-
-    //userEvent.selectOptions(screen.getByDisplayValue ('Create a new ActivityDefinition'));
-    userEvent.selectOptions(screen.getByLabelText('DefinitionCanonical'), 'Create a new ActivityDefinition');
-
-    await (new Promise(resolve => setTimeout(resolve, 1000)));
-
-    screen.debug()
+    fireEvent.click(await screen.findByTestId('DefinitionCanonical'), undefined, { skipPointersEventsCheck: true });
+    // screen.debug(undefined, Infinity);
+    userEvent.selectOptions(await screen.findByTestId('select-DefinitionCanonical'), 'Create a new ActivityDefinition');
 
     await screen.findByText('ActivityDefinition');
     userEvent.click(await screen.findByText('Export JSON'));

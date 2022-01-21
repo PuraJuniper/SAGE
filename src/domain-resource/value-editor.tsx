@@ -224,6 +224,7 @@ class ValueEditor extends React.Component<ValueEditorProps, Record<string, never
 
 		return <span>
 			<select value={selectedResourceUri} 
+				data-testid="select-DefinitionCanonical"
 					className="form-control input-sm" 
 					onChange = {(e) => {
 						if (e.target.value != "[[Select]]") {
@@ -250,7 +251,7 @@ class ValueEditor extends React.Component<ValueEditorProps, Record<string, never
 	}
 
 	buildCodeInput(value: string, items: [string, string][]) {
-		console.log("buildCodeInput", value, items);
+		// console.log("buildCodeInput", value, items);
 		const options = [];
 		// const fields = []; //valueCode
 		const statusfields = []; //status
