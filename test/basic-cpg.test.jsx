@@ -69,9 +69,13 @@ test.only('Create an advanced CPG with a PlanDefinition linked to an ActiviityDe
 
     userEvent.click(await screen.findByText('Action'));
     userEvent.click(await screen.findByText('DefinitionCanonical'));
-    userEvent.click(await screen.findByText('Select:'));
-    //await screen.findByText('ActivityDefinition');
-    userEvent.click(await screen.findByRole('option', {name: 'Creat a new ActivityDefinition'}));
+
+    //userEvent.selectOptions(screen.getByDisplayValue ('Create a new ActivityDefinition'));
+    userEvent.selectOptions(screen.getByLabelText('DefinitionCanonical'), 'Create a new ActivityDefinition');
+
+    await (new Promise(resolve => setTimeout(resolve, 1000)));
+
+    screen.debug()
 
     await screen.findByText('ActivityDefinition');
     userEvent.click(await screen.findByText('Export JSON'));
