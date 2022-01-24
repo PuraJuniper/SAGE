@@ -6,10 +6,21 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run: npm config set '//npm.fontawesome.com/:_authToken' "${{ secrets.FONTAWESOME_PRO_AUTH_TOKEN }}"
+
+      - name: Cache node modules
+      - uses: actions/cache@v2
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+
       - run: npm install
       - run: npm run build
+
+      - name: Deploy to firebase
       - uses: w9jds/firebase-action@v2.0.0
         with:
           args: hosting:channel:deploy preview-$GITHUB_SHA --expires 14d
         env:
           GCP_SA_KEY: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_FRED_CA431 }}'
+
+        run: npm run test
