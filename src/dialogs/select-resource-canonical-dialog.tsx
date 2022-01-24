@@ -12,6 +12,8 @@ import React from "react";
 import {Container, Row, Col, Modal, Dropdown} from "react-bootstrap";
 import State, { SageNodeInitializedFreezerNode, StateVars } from "../state";
 import * as SchemaUtils from "../helpers/schema-utils"
+import { PLAN_DEFINITION } from "../simplified/nameHelpers";
+import { iconForResource } from "../bundle-bar";
 
 interface SelectResourceDialogProps {
     show: boolean,
@@ -43,15 +45,9 @@ class SelectResourceDialog extends React.Component<SelectResourceDialogProps> {
 				{resourcesJson.map((resource, i) => {
 					const className = (() => {
                         // FontAwesome icons
-						if (resource.resourceType === "PlanDefinition") {
-						return "far fa-folder-open";
-					} else if (resource.resourceType === "ActivityDefinition") {
-						return "far fa-file-alt";
-					} else if (resource.resourceType === "Library") {
-						return "fas fa-book-medical";
-					} else if (resource.resourceType == "Questionnaire") {
-						return "fas fa-question";
-					}
+                        let iconType = "";
+                        iconType = iconForResource(resource, iconType);
+                        return iconType;
 					})();
 
                     if (resource.id == curResourceJson.id) return; // Do not show current resource

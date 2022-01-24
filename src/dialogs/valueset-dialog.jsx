@@ -14,6 +14,8 @@ import Select from 'react-select'
 import {Container, Row, Col, Modal, Tabs, Tab, Button} from "react-bootstrap";
 
 import State from "../state";
+import { makeProfile } from "../helpers/schema-utils";
+import friendlyNames from "../../friendly-names.json";
 
 class ValueSetDialog extends React.Component {
     constructor(props) {
@@ -25,11 +27,11 @@ class ValueSetDialog extends React.Component {
 
     static getDerivedStateFromProps(nextProps, prevState) {
       switch (nextProps.profile) {
-        case "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-immunizationactivity":
+        case makeProfile("ImmunicationActivity"):
             return {
                 valueset: nextProps.valueset["http://hl7.org/fhir/uv/ips/ValueSet/vaccines-gps-uv-ips"],
             };
-        case "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-medicationrequestactivity":
+        case makeProfile("MedicationRequest"):
             return {
                 valueset: nextProps.valueset["http://hl7.org/fhir/uv/ips/ValueSet/whoatc-uv-ips"],
             };
@@ -113,7 +115,7 @@ class ValueSetDialog extends React.Component {
             ? this.renderSpinner()
             : this.renderCodePicker();
 
-        const title = "ValueSet Selector"
+        const title = VALUE_SET + " Selector"
 
         return (
             <Modal show={true} onHide={this.handleClose.bind(this)} animation={false} size="lg">

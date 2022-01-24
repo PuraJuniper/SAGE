@@ -14,6 +14,7 @@ import React from "react";
 import {Container, Row, Col, Modal, Tabs, Tab, Button} from "react-bootstrap";
 import State from "../state";
 import * as SchemaUtils from "../helpers/schema-utils";
+import { PLAN_DEFINITION } from "../simplified/nameHelpers";
 
 class CpgDialog extends React.Component {
     constructor(props) {
@@ -271,7 +272,7 @@ class CpgDialog extends React.Component {
             return State.get().set("ui", {status:"cards"});
         }
         State.get().set("mode", "advanced");
-        var resourceJson = {resourceType: "PlanDefinition"};
+        var resourceJson = {resourceType: PLAN_DEFINITION};
         var json = {resourceType: "Bundle", entry: [{resource: resourceJson}]};
         const resourceProfile = SchemaUtils.getProfileOfResource(State.get().profiles, resourceJson);
 		json.entry[0].resource.meta = {

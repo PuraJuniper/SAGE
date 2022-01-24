@@ -7,6 +7,20 @@ import React from 'react';
 import State from './state';
 import {DropdownButton, Dropdown, Col} from 'react-bootstrap';
 import * as SchemaUtils from "./helpers/schema-utils"
+import { ACTIVITY_DEFINITION, LIBRARY, PLAN_DEFINITION, QUESTIONNAIRE } from './simplified/nameHelpers';
+
+export function iconForResource(resource, iconType) {
+	if (resource.resourceType === PLAN_DEFINITION) {
+		iconType = "far fa-folder-open";
+	} else if (resource.resourceType === ACTIVITY_DEFINITION) {
+		iconType = "far fa-file-alt";
+	} else if (resource.resourceType === LIBRARY) {
+		iconType = "fas fa-book-medical";
+	} else if (resource.resourceType == QUESTIONNAIRE) {
+		iconType = "fas fa-question";
+	}
+	return iconType;
+}
 
 class BundleBar extends React.Component {
 
@@ -83,15 +97,9 @@ class BundleBar extends React.Component {
 				{resourcesJson.map((resource, i) => {
 					const className = (() => {
                         // FontAwesome icons
-						if (resource.resourceType === "PlanDefinition") {
-						return "far fa-folder-open";
-					} else if (resource.resourceType === "ActivityDefinition") {
-						return "far fa-file-alt";
-					} else if (resource.resourceType === "Library") {
-						return "fas fa-book-medical";
-					} else if (resource.resourceType == "Questionnaire") {
-						return "fas fa-question";
-					}
+					let iconType = "";
+					iconType = iconForResource(resource, iconType);
+					return iconType;
 					})();
 
 					return (
@@ -149,3 +157,4 @@ class BundleBar extends React.Component {
 }
 
 export default BundleBar;
+
