@@ -2,6 +2,7 @@ import axios from 'axios';
 import _ from 'lodash';
 // const config = require('../config');
 import State from "../state";
+import { VALUE_SET } from "../simplified/nameHelpers";
 
 const USERNAME = "apikey";
 
@@ -32,7 +33,7 @@ function getValueSet(oid) {
   const password = State.get().UMLSKey;
   const options = {
     method: 'GET',
-    url: `${State.get().VSACEndpoint}/ValueSet/${oid}/$expand`,
+    url: `${State.get().VSACEndpoint}/` + VALUE_SET + `/${oid}/$expand`,
     headers: {
       Accept: 'application/json',
     },
@@ -66,7 +67,7 @@ function searchForValueSets(search) {
   const password = State.get().UMLSKey;
   const options = {
     method: 'GET',
-    url: `${State.get().VSACEndpoint}/ValueSet?name:contains=${search}`,
+    url: `${State.get().VSACEndpoint}/` + VALUE_SET + `?name:contains=${search}`,
     crossOrigin: true,
     headers: {
       Accept: 'application/json',
@@ -179,7 +180,7 @@ function getOneValueSet() {
   const oneCodeVSOID = '2.16.840.1.113762.1.4.1034.65';
   const options = {
     method: 'GET',
-    url: `${State.get().VSACEndpoint}/ValueSet/${oneCodeVSOID}`,
+    url: `${State.get().VSACEndpoint}/` + VALUE_SET + `/${oneCodeVSOID}`,
     crossOrigin: true,
     headers: {
       Accept: 'application/json',

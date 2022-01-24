@@ -9,6 +9,7 @@ import * as SageUtils from "../helpers/sage-utils";
 
 import hypertensionLibraryJson from "../../public/samples/hypertension-library.json";
 import * as cql from "cql-execution";
+import { ACTIVITY_DEFINITION, PLAN_DEFINITION, profileToFriendlyResourceListEntry } from "./nameHelpers";
 
 const hypertensionLibrary: Library = hypertensionLibraryJson as Library;
 
@@ -163,7 +164,7 @@ export const SimpleForm = (props:SimpleFormProps) => {
         // console.log(props.actNode);
         // console.log(title);
         // console.log(description);
-        if (props.actNode.displayName == "ActivityDefinition") { // Questionnaires have trouble saving otherwise
+        if (props.actNode.displayName == ACTIVITY_DEFINITION) { // Questionnaires have trouble saving otherwise
             State.emit("value_change", SchemaUtils.getChildOfNode(props.actNode, "title"), title, false);
             State.emit("value_change", SchemaUtils.getChildOfNode(props.actNode, "description"), description, false);
             State.emit("value_change", SchemaUtils.getChildOfNode(props.actNode, "experimental"), State.get().experimental, false);
@@ -211,7 +212,7 @@ export const SimpleForm = (props:SimpleFormProps) => {
                     <FontAwesomeIcon icon={faCaretRight} />
             </button>
         <h3  style={{marginTop:"20px", marginBottom:"10px"}}><b>
-            {props.actNode ? profileToResource[SchemaUtils.toFhir(props.actNode, false).meta?.profile?.[0] || ""] : ""}
+            {props.actNode ? profileToFriendlyResourceListEntry(SchemaUtils.toFhir(props.actNode, false).meta?.profile?.[0])?.FRIENDLY ?? "Unknown Resource Type" : ""}
         </b></h3>
             <Row className="mb-2">
                 <Form.Group as= {Col} controlId="title">

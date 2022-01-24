@@ -3,6 +3,7 @@ import {BaseCard} from"./baseCard";
 import { CSSTransition } from 'react-transition-group';
 import State from "../state";
 import { CloseButton } from "react-bootstrap";
+import { PLAN_DEFINITION } from "./nameHelpers";
 
 interface FolderProps {
     actTitle: string,
@@ -37,7 +38,7 @@ export const Folder = (props: FolderProps) => {
             setShow(false);
             State.emit("set_bundle_pos", props.index);
         }}>
-        <BaseCard header="_" title="PlanDefinition" />
+        <BaseCard header="_" title={PLAN_DEFINITION} />
         <div className="folder-type" style={{position:"absolute", top:"-18px", left:"20px", maxWidth:"90%"}}>
             <BaseCard
                 bsBg="sage-white"
@@ -47,7 +48,7 @@ export const Folder = (props: FolderProps) => {
             />
         </div>
         <div style={{position:"absolute", top:"16px", left:"0px", width:"100%"}}>
-            <BaseCard header="PlanDefinition" title={props.planTitle}
+            <BaseCard header={PLAN_DEFINITION} title={props.planTitle}
             content={
                 <span>
                 {props.actTitle} {props.conditionExpressions.length > 0 ? `WHEN ${props.conditionExpressions[0]} IS TRUE` : ""}

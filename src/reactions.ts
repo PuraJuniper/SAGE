@@ -10,6 +10,7 @@ import { Bundle, Library, Resource } from 'fhir/r4';
 import * as SchemaUtils from './helpers/schema-utils';
 import * as BundleUtils from './helpers/bundle-utils';
 import { SageNode, SageNodeInitialized, SimplifiedProfiles } from './helpers/schema-utils';
+import { ACTIVITY_DEFINITION, PLAN_DEFINITION, QUESTIONNAIRE } from './simplified/nameHelpers';
 
 const canMoveNode = function(node: SageNodeInitialized, parent: SageNodeInitialized) {
 	if (!["objectArray", "valueArray"].includes(parent?.nodeType)) {
@@ -391,7 +392,7 @@ State.on("show_open_insert", () => {
 	if (State.get().CPGName) {
 		// ie if the bundle is a CPG
 		State.get().ui.set("openMode", "insert");
-		const json = {resourceType: "Bundle", entry: [{resource: {resourceType: "PlanDefinition"}}]};
+		const json = {resourceType: "Bundle", entry: [{resource: {resourceType: PLAN_DEFINITION}}]};
         return State.emit("load_json_resource", json);
 	}
 	State.get().ui.pivot()
@@ -403,7 +404,7 @@ State.on("show_open_questionnaire", () => {
 	State.emit("set_bundle_pos", State.get().bundle.pos);
 	if (State.get().CPGName) {
 		State.get().ui.set("openMode", "insert");
-		const questionnaireJson = {resourceType: "Questionnaire"};
+		const questionnaireJson = {resourceType: QUESTIONNAIRE};
 		const json = {resourceType: "Bundle", entry: [{resource: questionnaireJson}]};
 		return State.emit("load_json_resource", json);
 	}
@@ -416,7 +417,7 @@ State.on("show_open_activity", () => {
 	State.emit("set_bundle_pos", State.get().bundle.pos);
        if (State.get().CPGName) {
                State.get().ui.set("openMode", "insert");
-               const activityDefJson = {resourceType: "ActivityDefinition"};
+               const activityDefJson = {resourceType: ACTIVITY_DEFINITION};
                const json = {resourceType: "Bundle", entry: [{resource: activityDefJson}]};
                return State.emit("load_json_resource", json);
        }
