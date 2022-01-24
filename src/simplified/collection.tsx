@@ -21,10 +21,10 @@ const Collection = () => {
             <FontAwesomeIcon icon={faCaretLeft} />
                             &nbsp;New Card
             </button>
-            <button className="navigate-reverse col-lg-2 col-md-3" 
+            <button className="navigate-reverse col-lg-2 col-md-2" 
                     onClick={() => State.get().set("ui", {status:"export"})}>
             <FontAwesomeIcon icon={faDownload} />
-                            &nbsp;Export Resource
+                            &nbsp;Export as FHIR Bundle
             </button>
             </div>
             <div className="row box">
