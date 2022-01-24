@@ -55,7 +55,7 @@ export const Folder = (props: FolderProps) => {
                 </span>
                 }/>
         </div>
-        {State.get().bundle.resources.length > 1 && 
+        {State.get().bundle.resources.length > 2 && 
             <div className="delete">
                 <CloseButton
                     onClick={(e) => {

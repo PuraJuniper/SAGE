@@ -1,6 +1,6 @@
 import friendlyNames from "../../friendly-names.json";
 
-export type FriendlyResource = typeof friendlyNames.RESOURCES extends Array<infer T> ? T : never;
+export type FriendlyResource = (typeof friendlyNames.RESOURCES) extends Array<infer T> ? T : never;
 export type FriendlyResourceSelf = FriendlyResource["SELF"];
 export type FriendlyResourceListEntry = FriendlyResource["LIST"] extends Array<infer T> ? T : never;
 

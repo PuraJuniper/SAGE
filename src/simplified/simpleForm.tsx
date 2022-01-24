@@ -161,9 +161,6 @@ export const SimpleForm = (props:SimpleFormProps) => {
 
     // All logic for saving the Simplified Form data into the underlying FHIR Resources should be performed here
     const handleSaveResource = function() {
-        // console.log(props.actNode);
-        // console.log(title);
-        // console.log(description);
         if (props.actNode.displayName == ACTIVITY_DEFINITION) { // Questionnaires have trouble saving otherwise
             State.emit("value_change", SchemaUtils.getChildOfNode(props.actNode, "title"), title, false);
             State.emit("value_change", SchemaUtils.getChildOfNode(props.actNode, "description"), description, false);
@@ -270,24 +267,3 @@ export const SimpleForm = (props:SimpleFormProps) => {
     </div>);
     
 }
-
-// Temporary until we add in the friendly-names mapping file
-const profileToResource: {[key: string]: string} = {
-    "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-administermedication" : "CPGAdministerMedicationActivityDefinition",
-    "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-collectinformationactivity" : "CPGCollectInformationActivityDefinition",
-    "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-communicationactivity" : "CPGCommunicationRequestActivityDefinition",
-    "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-computableactivity": "CPGComputableActivityDefinition",
-    "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-dispensemedicationactivity": "CPGDispenseMedicationActivityDefinition",
-    "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-documentmedicationactivity": "CPGDocumentMedicationActivityDefinition",
-    "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-enrollmentactivity": "CPGEnrollmentActivityDefinition",
-    "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-generatereportactivity": "CPGGenerateReportActivityDefinition",
-    "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-immunizationactivity": "CPGImmunizationRecommendationActivityDefinition",
-    "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-medicationrequestactivity": "CPGMedicationRequestActivityDefinition",
-    "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-proposediagnosisactivity": "CPGProposeDiagnosisTaskActivityDefinition",
-    "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-recorddetectedissueactivity": "CPGRecordDetectedIssueTaskActivityDefinition",
-    "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-recordinferenceactivity": "CPGRecordInferenceTaskActivityDefinition",
-    "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-reportflagactivity": "CPGReportFlagTaskActivityDefinition",
-    "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-servicerequestactivity": "CPGServiceRequestActivityDefinition",
-    "http://hl7.org/fhir/StructureDefinition/Questionnaire": "Questionnaire",
-    "": "Unknown profile"
-};
