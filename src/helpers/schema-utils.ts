@@ -27,7 +27,7 @@ export type SageNode = {
 	type: ElementDefinitionType,
 	level?: number,
 	sliceName: string,
-	short: any, 
+	short: string, 
 	isRequired: boolean,
 	profile: string, // This profile must be able to resolve `schemaPath`
 	binding?: any,

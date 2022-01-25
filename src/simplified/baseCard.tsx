@@ -40,8 +40,8 @@ export const BaseCard = (props: BaseCardProps) => {
         classNames="res-card"
         >
         <Card
-        onClick={(e: any) => {
-            if (e.target.tagName !== "svg" && e.target.tagName !== "path" && props.clickable) {
+        onClick={(e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+            if (e.target instanceof Element && e.target.tagName !== "svg" && e.target.tagName !== "path" && props.clickable) {
                 setShow(false);
                 setTimeout(() => {
                     if (State.get().bundle?.resources.length) {

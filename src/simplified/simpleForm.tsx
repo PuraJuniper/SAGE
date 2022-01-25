@@ -1,6 +1,7 @@
 import React, { FormEvent, useEffect, useState } from "react";
 import { Form, Row , Col, InputGroup, DropdownButton, Dropdown, FormControl, Modal, Button} from 'react-bootstrap';
 import State, { SageNodeInitializedFreezerNode } from "../state";
+import { ExtractTypeOfFN } from "freezer-js";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {faCaretRight, faCaretLeft} from  '@fortawesome/pro-solid-svg-icons';
 import * as SchemaUtils from "../helpers/schema-utils"
@@ -73,7 +74,7 @@ export const SimpleForm = (props:SimpleFormProps) => {
         () => {
             const initialLibraries = State.get().simplified.libraries;
             const librariesListener = initialLibraries.getListener();
-            const updateCB = function(libraries: any, prevLibraries: any) {
+            const updateCB = function(libraries: ExtractTypeOfFN<typeof initialLibraries>) {
                 setLibraries(Object.keys(libraries).map((v) => {
                     return {
                         library: libraries[v].library,
@@ -107,11 +108,11 @@ export const SimpleForm = (props:SimpleFormProps) => {
     const [showImportModal, setShowImportModal] = useState<boolean>(false);
     const handleShowImportModal = () => setShowImportModal(true);
     const handleCloseImportModal = () => setShowImportModal(false);
-    const [FhirLibrary, setFhirLibrary] = useState<any>();
+    const [FhirLibraryStr, setFhirLibraryStr] = useState<string>();
     const handleImportLibrary = () => {
-        if (FhirLibrary) {
+        if (FhirLibraryStr) {
             try {
-                const parsedFhir = JSON.parse(FhirLibrary);
+                const parsedFhir = JSON.parse(FhirLibraryStr);
                 const newLib = SageUtils.getCqlExecutionLibraryFromInputLibraryResource(parsedFhir);
                 if (newLib) {
                     State.emit("load_library", newLib.library, newLib.url, parsedFhir);
@@ -137,7 +138,7 @@ export const SimpleForm = (props:SimpleFormProps) => {
                         <Form.Control as="textarea" rows={14} wrap="hard"
                             className="name-input" type="text" placeholder="FHIR Library" name="FHIR Library"
                             autoComplete="off"
-                            onChange={(e) => setFhirLibrary(e.currentTarget.value)}
+                            onChange={(e) => setFhirLibraryStr(e.currentTarget.value)}
                         />
                     </Form.Group>
                 </Form>

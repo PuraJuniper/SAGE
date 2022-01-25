@@ -5,6 +5,8 @@ declare module 'freezer-js' {
         freezeInstances: boolean,
     }
 
+    export type ExtractTypeOfFN<FN> = FN extends FreezerNode<infer T, infer E> ? T : never;
+    
     export type EventDict<E> = E extends {[K in keyof E]: (...args: any[]) => unknown} ? {
         [K in keyof E]: E[K]
     } : never;

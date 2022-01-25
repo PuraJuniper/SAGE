@@ -20,7 +20,7 @@ interface ValueEditorProps {
 	onEditCancel: (e?: React.SyntheticEvent) => void,
 	hasFocus: boolean,
 	required: boolean,
-	shortName: any,
+	shortName: string,
 }
 class ValueEditor extends React.Component<ValueEditorProps, Record<string, never>> {
 	ESC_KEY: number;
