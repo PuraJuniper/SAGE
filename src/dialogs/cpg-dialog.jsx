@@ -19,6 +19,8 @@ class CpgDialog extends React.Component {
     constructor(props) {
         super(...arguments);
         this.state = {
+            fields: {},
+            errors: {},
             showSpinner: false,
             tab: "CPGNew",
             version:"1.0.0",
@@ -247,7 +249,7 @@ class CpgDialog extends React.Component {
     handleTabChange(key) {
         return this.setState({tab: key});
     }
-    
+
     handleOpenResource(status, e) {
         if (!this.state.CPGName || !this.state.publisher) return;
 		e.preventDefault();
@@ -279,6 +281,37 @@ class CpgDialog extends React.Component {
 		};
         return State.emit("load_json_resource", json);
 	}
+
+    //HOW TO HANDLE REQUIRED FIELDS?????
+    handleValidation() {
+        let fields = this.state.fields;
+        let errors = {};
+        let formIsValid = true;
+
+        //Date
+        if (!fields["author"]) {
+            formIsValid = false;
+            errors["author"] = "Cannot be empty";
+        }
+        this.setState({errors: errors});
+        return formIsValid;
+    }
+    
+    contactSubmit(e) {
+        e.preventDefault();
+
+        if (this.handleValidation()) {
+            alert("Form submitted");
+        } else {
+            alert("Form has errors")
+        }
+    }
+
+    handleChange(field, e) {
+        let fields = this.state.fields;
+        fields[fields] = e.target.value;
+        this.setState({ fields });
+    }
 
     renderFileInput() {
         const dragClass = this.state.drag ? " dropzone" : "";
@@ -390,136 +423,144 @@ class CpgDialog extends React.Component {
     renderNewCPGInput() {
         return (
             <Container>
-                <Row className="row">
-                    <Col md="6">   
-                        <p style={{marginTop: "10px"}}>Version:</p>
-                        <input
-                            className="form-control"
-                            value={this.state.version}
-                            onChange={this.handleVersionChange.bind(this)}
-                        />   
-                    </Col>    
-                    <Col md="6">
-                        <p style={{marginTop: "10px"}}>Date:</p>
-                        <input
-                            className="form-control"
-                            value={this.state.date}
-                            onChange={this.handleDateChange.bind(this)}
-                        />  
-                    </Col>
-                    <Col md="6">
-                    <p style={{marginTop: "10px"}}>Status:</p>
-                    <select
-					        className="form-control input-sm" 
-					        onChange = {(e) => {
-						        this.handleStatusChange.bind(this)(e);
-					        }}
-					    ref="inputField"
-				    >
-                        <option value="draft">Draft (draft)</option>
-				        <option value="active">Active (active)</option>
-                        <option value="retired">Retired (retired)</option>
-                        <option value="unknown">Unknown (unknown)</option>
-                    </select>
-                    </Col> 
-                    <Col md="6">
-                        <p style={{marginTop: "10px"}}>Experimental:</p>
+                <form>
+                    <div className="row" onSubmit= {this.contactSubmit.bind(this)}>
+                        <Col md="6">   
+                            <p style={{marginTop: "10px"}}>Version:<span style={{color: "red"}}>*</span></p>
+                            <fieldset>
+                                <input
+                                    ref = "version"
+                                    className="form-control"
+                                    //value={this.state.version}
+                                    value={this.state.fields["version"]}
+                                    onChange={this.handleVersionChange.bind(this)}
+                                />
+                                <span className="error">{this.state.errors["version"]}</span>
+                            </fieldset>
+                            
+                        </Col>    
+                        <Col md="6">
+                            <p style={{marginTop: "10px"}}>Date:</p>
+                            <input
+                                className="form-control"
+                                value={this.state.date}
+                                onChange={this.handleDateChange.bind(this)}
+                            />  
+                        </Col>
+                        <Col md="6">
+                        <p style={{marginTop: "10px"}}>Status:<span style={{color: "red"}}>*</span></p>
                         <select
-					        className="form-control input-sm" 
-					        onChange = {(e) => {
-						        this.handleExperimentalChange.bind(this)(e);
-					        }}
-					    ref="inputField"
-				    >
-				        <option value = {true}>Yes</option>
-				        <option value= {false}>No</option>
-			            </select>
-                    </Col>
-                </Row>
-                <Row className="row">
-                    <Col md="6">
-                    <p style={{marginTop: "10px"}}>Publisher:</p>
-                        <input
-                            className="form-control"
-                            value={this.state.publisher}
-                            onChange={this.handleAuthorNameChange.bind(this)}
-                        />
-                    </Col>
-                    <Col md="6">
-                        <p style={{marginTop: "10px"}}>Copyright:</p>
-                        <input
-                            className="form-control"
-                            value={this.state.copyright}
-                            onChange={this.handleCopyrightChange.bind(this)}
-                        />  
-                    </Col>   
-                    <Col md="6">
-                        <p style={{marginTop: "10px"}}>Approval Date:</p>
-                        <input
-                            className="form-control"
-                            value={this.state.approvalDate}
-                            onChange={this.handleapprovaldateChange.bind(this)}
-                        />  
-                    </Col> 
-                    <Col md="6">
-                        <p style={{marginTop: "10px"}}>Last Review Date:</p>
-                        <input
-                            className="form-control"
-                            value={this.state.lastReviewDate}
-                            onChange={this.handlelastreviewdateChange.bind(this)}
-                        />  
-                    </Col> 
-                </Row>
-                <Row className="row">
-                <Col md="12">                                     
-                        <p style={{marginTop: "10px"}}>CPG Name:</p>
-                        <input
-                            className="form-control"
-                            value={this.state.CPGName}
-                            onChange={this.handleCPGNameChange.bind(this)}
-                        />
-                    </Col>
-                </Row>
-                <Row className="row">
-                <Col md="4">                                     
-                        <p style={{marginTop: "10px"}}>Author:</p>
-                        <input
-                            className="form-control"
-                            value={this.state.author}
-                            onChange={this.handleAuthorChange.bind(this)}
-                        />
-                    </Col>
-                    <Col md="4">                                     
-                        <p style={{marginTop: "10px"}}>Editor:</p>
-                        <input
-                            className="form-control"
-                            value={this.state.editor}
-                            onChange={this.handleEditorChange.bind(this)}
-                        />
-                    </Col>
-                    <Col md="4">                                     
-                        <p style={{marginTop: "10px"}}>Reviewer:</p>
-                        <input
-                            className="form-control"
-                            value={this.state.reviewer}
-                            onChange={this.handleReviewerChange.bind(this)}
-                        />
-                    </Col>
-                </Row>
-                <Row className="row">
-                    <Col
-                        md="auto"
-                        className="col-xs-4 col-xs-offset-4"
-                        style={{marginTop: "20px", marginBottom: "10px"}}
-                    >
-                        <button
-                            className="btn btn-primary btn-block"
-                            onClick={this.handleOpenResource.bind(this, "open")}
+                                className="form-control input-sm" 
+                                onChange = {(e) => {
+                                    this.handleStatusChange.bind(this)(e);
+                                }}
+                            ref="inputField"
                         >
-                            Open Resource
-                        </button>
-                    </Col>
-                </Row>
+                            <option value="draft">Draft (draft)</option>
+                            <option value="active">Active (active)</option>
+                            <option value="retired">Retired (retired)</option>
+                            <option value="unknown">Unknown (unknown)</option>
+                        </select>
+                        </Col> 
+                        <Col md="6">
+                            <p style={{marginTop: "10px"}}>Experimental:<span style={{color: "red"}}>*</span></p>
+                            <select
+                                className="form-control input-sm" 
+                                onChange = {(e) => {
+                                    this.handleExperimentalChange.bind(this)(e);
+                                }}
+                            ref="inputField"
+                        >
+                            <option value = {true}>Yes</option>
+                            <option value= {false}>No</option>
+                            </select>
+                        </Col>
+                    </div>
+                    <div className="row">
+                        <Col md="6">
+                        <p style={{marginTop: "10px"}}>Publisher:<span style={{color: "red"}}>*</span></p>
+                            <input
+                                className="form-control"
+                                value={this.state.publisher}
+                                onChange={this.handleAuthorNameChange.bind(this)}
+                            />
+                        </Col>
+                        <Col md="6">
+                            <p style={{marginTop: "10px"}}>Copyright:</p>
+                            <input
+                                className="form-control"
+                                value={this.state.copyright}
+                                onChange={this.handleCopyrightChange.bind(this)}
+                            />  
+                        </Col>   
+                        <Col md="6">
+                            <p style={{marginTop: "10px"}}>Approval Date:</p>
+                            <input
+                                className="form-control"
+                                value={this.state.approvalDate}
+                                onChange={this.handleapprovaldateChange.bind(this)}
+                            />  
+                        </Col> 
+                        <Col md="6">
+                            <p style={{marginTop: "10px"}}>Last Review Date:</p>
+                            <input
+                                className="form-control"
+                                value={this.state.lastReviewDate}
+                                onChange={this.handlelastreviewdateChange.bind(this)}
+                            />  
+                        </Col> 
+                    </div>
+                    <div className="row">
+                        <Col md="12">                                     
+                            <p style={{marginTop: "10px"}}>CPG Name:<span style={{color: "red"}}>*</span></p>
+                            <input
+                                className="form-control"
+                                value={this.state.CPGName}
+                                onChange={this.handleCPGNameChange.bind(this)}
+                            />
+                        </Col>
+                    </div>
+                    <div className="row">
+                    <Col md="4">                                     
+                            <p style={{marginTop: "10px"}}>Author:<span style={{color: "red"}}>*</span></p>
+                            <input
+                                className="form-control"
+                                value={this.state.author}
+                                onChange={this.handleAuthorChange.bind(this)}
+                            />
+                        </Col>
+                        <Col md="4">                                     
+                            <p style={{marginTop: "10px"}}>Editor:<span style={{color: "red"}}>*</span></p>
+                            <input
+                                className="form-control"
+                                value={this.state.editor}
+                                onChange={this.handleEditorChange.bind(this)}
+                            />
+                        </Col>
+                        <Col md="4">                                     
+                            <p style={{marginTop: "10px"}}>Reviewer:<span style={{color: "red"}}>*</span></p>
+                            <input
+                                className="form-control"
+                                value={this.state.reviewer}
+                                onChange={this.handleReviewerChange.bind(this)}
+                            />
+                        </Col>
+                    </div>
+                    <div className="row">
+                        <Col
+                            md="auto"
+                            className="col-xs-4 col-xs-offset-4"
+                            style={{marginTop: "20px", marginBottom: "10px"}}
+                        >
+                            <button
+                                className="btn btn-primary btn-block"
+                                onClick={this.handleOpenResource.bind(this, "open")}
+                            >
+                                Open Resource
+                            </button>
+                        </Col>
+                    </div>
+                </form>
             </Container>
         );
     }
