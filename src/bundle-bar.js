@@ -22,6 +22,11 @@ export function iconForResource(resource, iconType) {
 	return iconType;
 }
 
+export function contentForResource(resource){
+	if (resource.title == undefined) return resource.id;
+	return `${resource.title}, ${resource.id}`;
+}
+
 class BundleBar extends React.Component {
 
 	shouldComponentUpdate(nextProps) {
@@ -101,13 +106,14 @@ class BundleBar extends React.Component {
 					iconType = iconForResource(resource, iconType);
 					return iconType;
 					})();
-
+					let content = "";
+					content = contentForResource(resource, content);
 					return (
 					<Dropdown.Item 
 						onClick={this.handleNav.bind(this, i)}
 						key = {resource.id}
 					>
-						<span className={className} style={{marginRight:"10px"}}></span> {resource.title}
+						<span className={className} style={{marginRight:"10px"}}> {content}</span> 
 					</Dropdown.Item>
 					)}
 				)}
