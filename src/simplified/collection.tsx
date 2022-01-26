@@ -46,7 +46,8 @@ const Collection = () => {
                             />
                         </div>
                 })
-            } 
+                }
+                { resources.length == 0 ? <div style={{margin: "50px", marginTop: "40px"}}> <i>No Cards</i> </div> : undefined }
             </div>
         </div>
     );

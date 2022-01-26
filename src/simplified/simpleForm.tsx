@@ -194,8 +194,7 @@ export const SimpleForm = (props:SimpleFormProps) => {
         <div>
         {importModalElement}
         <Form style={{color:"#2a6b92"}} id="commonMetaDataForm" target="void" onSubmit={handleSaveResource}>
-            <button className="navigate-reverse col-lg-2 col-md-3" 
-                disabled={state.bundle.resources.length <= 2}
+            <button className="navigate-reverse col-lg-2 col-md-3"
                 onClick={() => {
                     State.emit("remove_from_bundle", state.bundle.pos + 1);
                     State.emit("remove_from_bundle", state.bundle.pos); 

@@ -36,7 +36,6 @@ export const BaseCard = (props: BaseCardProps) => {
     let headerPadding = {};
     if (props.title == "") headerPadding = {padding:"7px"};
     const resourceType = friendlyToFhir(props.header);
-    const isActivity = resourceType?.includes("Activity");
     
     return (
         <CSSTransition
