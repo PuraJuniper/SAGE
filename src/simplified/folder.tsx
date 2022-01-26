@@ -3,21 +3,22 @@ import {BaseCard} from"./baseCard";
 import { CSSTransition } from 'react-transition-group';
 import State from "../state";
 import { CloseButton } from "react-bootstrap";
-import { PLAN_DEFINITION } from "./nameHelpers";
+import { ACTIVITY_DEFINITION, PLAN_DEFINITION, profileToFriendlyResourceListEntry, profileToFriendlyResourceSelf } from "./nameHelpers";
 
 interface FolderProps {
     actTitle: string,
     planTitle: string,
     conditionExpressions: string[],
     index: number,
-    type: string,
+    profile: string,
     link?: string
     wait: number
 }
 
 export const Folder = (props: FolderProps) => {
     const [show, setShow] = useState(false);
-    const isActivity = props.type != "computable"; // bad
+    const friendlyName = profileToFriendlyResourceListEntry(props.profile)?.FRIENDLY ?? "Unknown";
+    const resourceType = profileToFriendlyResourceSelf(props.profile)?.FHIR ?? "";
     useEffect(() => {
         const timeoutId = setTimeout(() => {
             setShow(true);
@@ -43,8 +44,8 @@ export const Folder = (props: FolderProps) => {
             <BaseCard
                 bsBg="sage-white"
                 bsText="sage-blue"
-                bsBorder={isActivity ? "activitydefinition" : "questionnaire"}
-                header={props.type} title="" link={props.link}
+                bsBorder={resourceType == ACTIVITY_DEFINITION ? "activitydefinition" : "questionnaire"}
+                header={friendlyName} title="" link={props.link}
             />
         </div>
         <div style={{position:"absolute", top:"16px", left:"0px", width:"100%"}}>

@@ -5,6 +5,7 @@ import {faCaretRight, faInfoCircle} from  '@fortawesome/pro-solid-svg-icons';
 import State from "../state";
 import { Container, Row, Col } from "react-bootstrap";
 import friendlyNames from "../../friendly-names.json";
+import { ACTIVITY_DEFINITION } from "./nameHelpers";
 
 const SelectView = () => {    
     return (
@@ -23,7 +24,6 @@ const SelectView = () => {
                 {
                 friendlyNames.RESOURCES.map(
                     (resourceType) => {
-                        const isActivity = resourceType.SELF.FHIR == 'ActivityDefinition';
                         return resourceType.LIST.map(
                             (resource, i) => {
                                 return (
@@ -32,7 +32,7 @@ const SelectView = () => {
                                     <BaseCard 
                                         bsBg="sage-white"
                                         bsText="sage-blue"
-                                        bsBorder={isActivity ? "activitydefinition" : "questionnaire"}
+                                        bsBorder={resourceType.SELF.FHIR == ACTIVITY_DEFINITION ? "activitydefinition" : "questionnaire"}
                                         header={resourceType.SELF.FRIENDLY}
                                         title={resource.FRIENDLY} 
                                         content={

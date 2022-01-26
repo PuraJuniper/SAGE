@@ -3,7 +3,7 @@ import {useState, useEffect} from "react";
 import { CSSTransition } from 'react-transition-group';
 import State from "../state";
 import { Color } from "react-bootstrap/esm/types";
-import { ACTIVITY_DEFINITION, friendlyToFhir, PLAN_DEFINITION } from "./nameHelpers";
+import { ACTIVITY_DEFINITION, friendlyToFhir, PLAN_DEFINITION, QUESTIONNAIRE } from "./nameHelpers";
 
 
 
@@ -60,7 +60,10 @@ export const BaseCard = (props: BaseCardProps) => {
                         resourceType: "Bundle",
                         entry: [
                             {
-                                resource: {resourceType: isActivity ? "ActivityDefinition" : "Questionnaire"}
+                                resource: {
+                                    resourceType: isActivity ? ACTIVITY_DEFINITION : QUESTIONNAIRE,
+                                    meta: {profile: [props.profile]}
+                                }
                             },
                             {
                                 resource: {
@@ -82,11 +85,6 @@ export const BaseCard = (props: BaseCardProps) => {
                             }
                         ]
                     };
-                    if (isActivity) {
-                        (json.entry[0].resource as any).meta = {
-                            profile: [props.profile]
-                        };
-                    }
                     State.emit("load_json_resource", json);
                 }
             }}
