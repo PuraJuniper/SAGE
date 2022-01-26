@@ -9,67 +9,78 @@
       "LIST": [
         {
           "FHIR": "AdministerMedication",
-          "FRIENDLY": "Give Medication"
+          "FRIENDLY": "Give Medication",
+          "PROFILE_URI": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-administermedication"
         },
         {
           "FHIR": "CollectInformation",
-          "FRIENDLY": "Ask for Info"
+          "FRIENDLY": "Ask for Info",
+          "PROFILE_URI": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-collectinformationactivity"
         },
         {
           "FHIR": "CommunicationRequest",
-          "FRIENDLY": "Talk to me"
+          "FRIENDLY": "Talk to me",
+          "PROFILE_URI": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-communicationactivity"
         },
         {
           "FHIR": "Computable",
-          "FRIENDLY": "Can go in computer"
+          "FRIENDLY": "Can go in computer",
+          "PROFILE_URI": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-computableactivity"
         },
         {
           "FHIR": "DispenseMedication",
-          "FRIENDLY": "Give Meds"
+          "FRIENDLY": "Give Meds",
+          "PROFILE_URI": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-dispensemedicationactivity"
         },
         {
           "FHIR": "DocumentMedication",
-          "FRIENDLY": "Note the meds"
+          "FRIENDLY": "Note the meds",
+          "PROFILE_URI": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-documentmedicationactivity"
         },
         {
           "FHIR": "Enrollment",
-          "FRIENDLY": "Start them on program"
+          "FRIENDLY": "Start them on program",
+          "PROFILE_URI": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-enrollmentactivity"
         },
         {
           "FHIR": "GenerateReport",
-          "FRIENDLY": "Make a Report"
+          "FRIENDLY": "Make a Report",
+          "PROFILE_URI": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-generatereportactivity"
         },
         {
           "FHIR": "ImmunizationRecommendation",
-          "FRIENDLY": "Recommend a Shot"
+          "FRIENDLY": "Recommend a Shot",
+          "PROFILE_URI": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-immunizationactivity"
         },
         {
           "FHIR": "MedicationRequest",
-          "FRIENDLY": "Write Prescription"
+          "FRIENDLY": "Write Prescription",
+          "PROFILE_URI": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-medicationrequestactivity"
         },
         {
           "FHIR": "ProposeDiagnosisTask",
-          "FRIENDLY": "Suggest Diagnosis"
+          "FRIENDLY": "Suggest Diagnosis",
+          "PROFILE_URI": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-proposediagnosisactivity"
         },
         {
           "FHIR": "RecordDetectedIssueTask",
-          "FRIENDLY": "Note Issue"
+          "FRIENDLY": "Note Issue",
+          "PROFILE_URI": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-recorddetectedissueactivity"
         },
         {
           "FHIR": "RecordInferenceTask",
-          "FRIENDLY": "Note Prognosis"
+          "FRIENDLY": "Note Prognosis",
+          "PROFILE_URI": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-recordinferenceactivity"
         },
         {
           "FHIR": "ReportFlagTask",
-          "FRIENDLY": "Notable item to flag"
+          "FRIENDLY": "Notable item to flag",
+          "PROFILE_URI": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-reportflagactivity"
         },
         {
           "FHIR": "ServiceRequest",
-          "FRIENDLY": "Request Help"
-        },
-        {
-          "FHIR": "ServiceRequest",
-          "FRIENDLY": "Request Help"
+          "FRIENDLY": "Request Help",
+          "PROFILE_URI": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-servicerequestactivity"
         }
       ]
     },
@@ -96,13 +107,14 @@
       "SELF": {
         "FHIR": "Questionnaire",
         "FRIENDLY": "List of Questions",
-        "DEFAULT_PROFILE_URI": "NONE"
+        "DEFAULT_PROFILE_URI": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-shareablequestionnaire"
 
       },
       "LIST": [
         {
           "FHIR": "QuestionnaireExample",
-          "FRIENDLY": "An Example Questionnaire"
+          "FRIENDLY": "An Example Questionnaire",
+          "PROFILE_URI": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-shareablequestionnaire"
         }
       ]
     },

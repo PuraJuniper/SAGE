@@ -299,7 +299,7 @@ span.fhir-element-value {
 .box {
   border:3px solid #2a6b92;
   padding:25px 10px 10px 10px;
-  border-radius:10px;
+  border-radius:0.25rem;
 }
 
 a {
@@ -308,7 +308,7 @@ a {
 
 /* CARDS AND FOLDERS */
 
-.card {
+/* .card {
   cursor:pointer;
   margin:0px 0px 15px 0px;
   border-radius:10px;
@@ -326,15 +326,34 @@ a {
 
 .card-body {
   background-color:#88d1ff;
+}*/
+
+.bg-sage-white {
+  background-color: #ffffff;
 }
 
-.folder:hover .card{
+.text-sage-blue {
+  color: #2a6b92;
+}
+
+.border-activitydefinition, .border-questionnaire {
+  border-width: medium;
+}
+
+.border-activitydefinition {
+  border-color: #904c77;
+}
+
+.border-questionnaire {
+  border-color: #ce6c47;
+}
+
+/* .folder:hover .card{
   color: white;
   transition: .3s;
-}
+} */
 
 .folder:hover .folder-type {
-  color: white;
   transform: translate(0px, -9px);
   transition: transform .3s;
 }
@@ -346,6 +365,24 @@ a {
 .folder .folder-type .card-header {
   height: 60px;
 }
+
+.folder .delete {
+  position:absolute;
+  top:22px;
+  left:213px;
+  width:30px;
+  height:30px;
+  border-radius:30px;
+  border: 0px;
+  /* background-color:#25a5f5; */
+  font-size:17px;
+
+}
+
+/* .folder .delete:hover {
+  color:red;
+  background-color: #296a90;
+} */
 
 /* BUTTONS */
 
@@ -487,23 +524,6 @@ a {
   opacity: 0;
   transform: scale(0.9);
   transition: opacity 300ms, transform 300ms;
-}
-button.delete {
-  position:absolute;
-  top:22px;
-  left:213px;
-  width:30px;
-  height:30px;
-  border-radius:30px;
-  border: 0px;
-  background-color:#25a5f5;
-  font-size:17px;
-
-}
-
-button.delete:hover {
-  color:red;
-  background-color: #296a90;
 }
 
 /* SLIDE IN/OUT TRANSITIONS */

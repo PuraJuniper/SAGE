@@ -526,6 +526,20 @@ class CpgDialog extends React.Component {
     }
 
     renderTabs() {
+        if (this.props.basic) {
+            // The basic Tabs will eventually be the same as in the else clause, so this duplication is temporary
+            return (
+                <Tabs
+                    activeKey={this.state.tab}
+                    onSelect={this.handleTabChange.bind(this)}
+                    animation="false"
+                >
+                    <Tab eventKey="CPGNew" title="Main" style={{opacity:1}}>
+                        {this.renderNewCPGInput()}
+                    </Tab>
+                </Tabs>
+            );
+        }
         return (
             <Tabs
                 activeKey={this.state.tab}

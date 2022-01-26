@@ -20,10 +20,10 @@ const Collection = () => {
             <FontAwesomeIcon icon={faCaretLeft} />
                             &nbsp;New Card
             </button>
-            <button className="navigate-reverse col-lg-2 col-md-3" 
+            <button className="navigate-reverse col-lg-2 col-md-2" 
                     onClick={() => State.get().set("ui", {status:"export"})}>
             <FontAwesomeIcon icon={faDownload} />
-                            &nbsp;Export Resource
+                            &nbsp;Export as FHIR Bundle
             </button>
             </div>
             <div className="row box">
@@ -35,13 +35,12 @@ const Collection = () => {
                             const planTitleNode = SchemaUtils.getChildOfNode(resources[i+1], "title");
                             const firstExpression: string | undefined = SchemaUtils.getChildOfNodePath(resources[i+1], ["action", "condition", "expression", "expression"])?.value;
                             const conditionExpressions: string[] = firstExpression ? [firstExpression] : [];
-                            const profile = SchemaUtils.getChildOfNode(resource, "profile");
                         return <div className="col-lg-3 col-md-4 col-sm-6" key={i}>
                             <Folder 
                             actTitle={actTitleNode?.value ? actTitleNode.value : "Untitled AD"}
                             planTitle={planTitleNode?.value ? planTitleNode.value : "Untitled PD"}
                             conditionExpressions={conditionExpressions}
-                            type={profile ? (profile as any).profile.split("-")[1] : "computable"}
+                            profile={SchemaUtils.toFhir(resource, false).meta?.profile?.[0] ?? ""}
                             wait={i*25} 
                             index={i}
                             />
