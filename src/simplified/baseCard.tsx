@@ -61,7 +61,7 @@ export const BaseCard = (props: BaseCardProps) => {
                         entry: [
                             {
                                 resource: {
-                                    resourceType: isActivity ? ACTIVITY_DEFINITION : QUESTIONNAIRE,
+                                    resourceType: resourceType,
                                     meta: {profile: [props.profile]}
                                 }
                             },
