@@ -202,11 +202,11 @@ export const SimpleForm = (props:SimpleFormProps) => {
                 }}
             >
                 <FontAwesomeIcon icon={faCaretLeft} />
-                &nbsp;Delete Resource
+                &nbsp;Delete Card
             </button>
             <button className="navigate col-lg-2 col-md-3" 
                 type="submit">
-                Save Resource&nbsp;
+                Save Card&nbsp;
                 <FontAwesomeIcon icon={faCaretRight} />
             </button>
             <h3 style={{marginTop:"20px", marginBottom:"10px"}}><b>

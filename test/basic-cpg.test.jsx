@@ -43,16 +43,16 @@ test('Create a basic CPG with a single PD that uses the hypertension library and
     // CpgDialog open on screen
     userEvent.click(await screen.findByRole('button', {name: 'Open Resource'}));
     // SelectView
-    userEvent.click(await screen.findByText('AdministerMedication'));
+    userEvent.click(await screen.findByText('Give Medication'));
     // SimpleForm
-    await screen.findByText('ActivityDefinition/Plandefinition');
+    await screen.findByText('Save Card');
     userEvent.type(screen.getByLabelText('Title'), '123');
     userEvent.type(screen.getByLabelText('Description'), '321');
     userEvent.selectOptions(screen.getByLabelText('Condition'), 'HypertensionCA.Mean BP >= 180/110');
-    fireEvent.submit(screen.getByRole('button', {name: 'Save Resource'}));
+    fireEvent.submit(screen.getByRole('button', {name: 'Save Card'}));
     // Collection
-    await screen.findByText('Saved Resources');
-    userEvent.click(screen.getByRole('button', {name: 'Export Resource'}));
+    await screen.findByText('Saved Cards');
+    userEvent.click(screen.getByRole('button', {name: 'Export as FHIR Bundle'}));
     // ExportDialog open on screen
     await screen.findByText('Exported FHIR JSON');
     expect(JSON.parse(screen.getByRole('textbox', {name: "exportedJson"}).textContent)).toStrictEqual(basicCpgExport);
