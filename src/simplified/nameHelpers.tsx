@@ -82,3 +82,12 @@ export const defaultProfileUriOfResourceType = (resourceType: string) => {
     return elseIfUndefined(getFhirSelf(friendlyNames.RESOURCES, resourceType)
         ,((object) => object.SELF.DEFAULT_PROFILE_URI));
 }
+
+export function getBorderPropsForType(resourceType: string): string | undefined {
+    switch (resourceType) {
+        case ACTIVITY_DEFINITION:
+            return "activitydefinition";
+        default:
+            return "questionnaire";
+    }
+}

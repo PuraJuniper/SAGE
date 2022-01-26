@@ -3,7 +3,7 @@ import {BaseCard} from"./baseCard";
 import { CSSTransition } from 'react-transition-group';
 import State from "../state";
 import { CloseButton } from "react-bootstrap";
-import { ACTIVITY_DEFINITION, PLAN_DEFINITION, profileToFriendlyResourceListEntry, profileToFriendlyResourceSelf } from "./nameHelpers";
+import { ACTIVITY_DEFINITION, getBorderPropsForType, PLAN_DEFINITION, profileToFriendlyResourceListEntry, profileToFriendlyResourceSelf } from "./nameHelpers";
 
 interface FolderProps {
     actTitle: string,
@@ -44,7 +44,7 @@ export const Folder = (props: FolderProps) => {
             <BaseCard
                 bsBg="sage-white"
                 bsText="sage-blue"
-                bsBorder={resourceType == ACTIVITY_DEFINITION ? "activitydefinition" : "questionnaire"}
+                bsBorder={getBorderPropsForType(resourceType)}
                 header={friendlyName} title="" link={props.link}
             />
         </div>

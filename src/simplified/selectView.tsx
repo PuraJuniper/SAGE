@@ -5,7 +5,7 @@ import {faCaretRight, faInfoCircle} from  '@fortawesome/pro-solid-svg-icons';
 import State from "../state";
 import { Container, Row, Col } from "react-bootstrap";
 import friendlyNames from "../../friendly-names.json";
-import { ACTIVITY_DEFINITION } from "./nameHelpers";
+import { ACTIVITY_DEFINITION, getBorderPropsForType } from "./nameHelpers";
 
 const SelectView = () => {    
     return (
@@ -32,7 +32,7 @@ const SelectView = () => {
                                     <BaseCard 
                                         bsBg="sage-white"
                                         bsText="sage-blue"
-                                        bsBorder={resourceType.SELF.FHIR == ACTIVITY_DEFINITION ? "activitydefinition" : "questionnaire"}
+                                        bsBorder={getBorderPropsForType(resourceType.SELF.FHIR)}
                                         header={resourceType.SELF.FRIENDLY}
                                         title={resource.FRIENDLY} 
                                         content={
