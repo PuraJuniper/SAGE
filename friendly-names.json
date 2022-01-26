@@ -107,7 +107,7 @@
       "SELF": {
         "FHIR": "Questionnaire",
         "FRIENDLY": "List of Questions",
-        "DEFAULT_PROFILE_URI": "NONE"
+        "DEFAULT_PROFILE_URI": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-shareablequestionnaire"
 
       },
       "LIST": [
