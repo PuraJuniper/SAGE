@@ -336,6 +336,10 @@ a {
   color: #2a6b92;
 }
 
+.border-activitydefinition, .border-questionnaire {
+  border-width: medium;
+}
+
 .border-activitydefinition {
   border-color: #904c77;
 }
