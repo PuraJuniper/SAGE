@@ -8,7 +8,7 @@ import {rest} from 'msw'
 import {setupServer} from 'msw/node'
 
 // import methods for testing
-import {render, fireEvent, screen, waitForElementToBeRemoved} from '@testing-library/react'
+import {render, fireEvent, screen, waitForElementToBeRemoved, within} from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 // import stuff that's required for the tested component
@@ -68,7 +68,7 @@ test.only('Create an advanced CPG with a PlanDefinition linked to an ActiviityDe
     userEvent.click(await screen.findByRole('button', {name: 'Open Resource'}));
 
     userEvent.click(await screen.findByText('Action'));
-    fireEvent.click(await screen.findByTestId('DefinitionCanonical'), undefined, { skipPointersEventsCheck: true });
+    userEvent.click(await within(await screen.findByTestId('Action-dropdown')).findByRole('button', {name: /definitioncanonical/i}));
     // screen.debug(undefined, Infinity);
     userEvent.selectOptions(await screen.findByTestId('select-DefinitionCanonical'), 'Create a new ActivityDefinition');
 

@@ -55,7 +55,7 @@ class ElementMenu extends React.Component {
 
 
 	render() {
-		return <Dropdown id="element-menu" onToggle={this.handleToggle.bind(this)}>
+		return <Dropdown data-testid={`${this.props.node.displayName}-dropdown`} onToggle={this.handleToggle.bind(this)}>
 			{this.renderToggle()}
 			{this.renderMenu()}
 		</Dropdown>;
@@ -106,7 +106,7 @@ class ElementMenu extends React.Component {
 					name == "root node" && ["Action"].includes(unused.displayName) ||
 					name == "condition" && ["Kind", "Expression"].includes(unused.displayName) || 
 					name == "expression" && ["Language", "Expression"].includes(unused.displayName)) {
-					result.push(<Dropdown.Item key={i} data-testid={unused.displayName} onSelect={this.handleAddItem.bind(this, unused)}>
+					result.push(<Dropdown.Item key={i} onSelect={this.handleAddItem.bind(this, unused)}>
 						{unused.displayName + (required || "")}
 					</Dropdown.Item>);
 				}
