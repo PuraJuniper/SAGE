@@ -9,7 +9,7 @@
 import State, { SageNodeInitializedFreezerNode } from '../state';
 import PrimitiveValidator from './primitive-validator';
 import { Bundle, Resource, Element, ElementDefinition, ElementDefinitionType, ActivityDefinition, PlanDefinition, Questionnaire, Library, ValueSet, FhirResource } from 'fhir/r4';
-import { defaultProfileUriOfResourceType, STRUCTURE_DEFINITION, VALUE_SET } from '../simplified/nameHelpers';
+import { defaultProfileUriOfResourceType, FriendlyResourceListEntry, FriendlyResourceSelf, STRUCTURE_DEFINITION, VALUE_SET } from '../simplified/nameHelpers';
 
 // Template of a SageNode for a specific element/resource
 export type SageNode = {
@@ -109,7 +109,7 @@ let nextId = 0;
 const isComplexType = (fhirType: string): boolean => (fhirType[0] === fhirType[0].toUpperCase());
 
 const isInfrastructureType = (fhirType: string): boolean => ["DomainResource", "Element", "BackboneElement"].includes(fhirType);
-const linkPrefix = "http://hl7.org/fhir/";
+const linkPrefix = "http://hl7.org/fhir";
 
 // Element names that will be skipped (will not appear in the "Add Element" dropdown)
 const unsupportedElements: string[] = [];
@@ -525,7 +525,8 @@ export const isSupportedResource = function(data: any): data is SageSupportedFhi
 // checks if the SchemaNode uses a profile and returns its URI if so. 
 // otherwise, it returns a default for that type or undefined if one doesn't exist (bad?)
 const getProfileOfSchemaDef = function(profiles: SimplifiedProfiles, schemaNode: SchemaDef, typeDef?: ElementDefinitionType) : string | undefined {
-	typeDef = typeDef || schemaNode.type[0];
+	// console.log('getProfileOfSchemaDef', schemaNode, typeDef);
+	typeDef = typeDef ?? schemaNode.type[0];
 	if (typeDef.profile) {
 		return typeDef.profile[0];
 	}
@@ -724,7 +725,7 @@ export const walkNode = (profiles: SimplifiedProfiles, valueOfNode: any, profile
 	// Check if a new profile should be used for this element
 	const newProfile = getProfileOfSchemaDef(profiles, schema, schema.type[typeIdx]);
 	const childSchemaPath = newProfile ? fhirType : trueSchemaPath;
-	const childProfile = newProfile || profileUri;
+	const childProfile = newProfile ?? profileUri;
 	// TODO: Figure out which type of the array this node corresponds to
 	const displayName = buildDisplayName(name, schema.sliceName);
 	// if (isInfrastructureType(fhirType) && (schemaPath.length === 1)) {
@@ -915,36 +916,27 @@ export const decorateFhirData = function(profiles: SimplifiedProfiles, resource:
 
 	decorated.children = createChildrenFromJson(profiles, decorated, resource);
 	decorated.children = decorated.children.sort((a, b) => a.index - b.index);
-	// console.log('end decoratefhirdata: ', decorated);
+	console.log('end decoratefhirdata: ', decorated);
 	return decorated;
 };
 
 const uvCode = "uv";
 const cpgCode = "cpg";
-const ipsCode = "ips"
+const ipsCode = "ips";
 
-export function makeLink (resource: { FHIR: any; FRIENDLY?: string; }
-	, type: { FHIR?: string; FRIENDLY?: string; ""?: any; }) {
 
-	return linkPrefix + uvCode + "/" + cpgCode + "/" + type.FHIR + "/" + cpgCode + "-" 
-	+ (resource.FHIR + "-" + type.FHIR).toLowerCase()
-}
+export function makeProfile(resource: FriendlyResourceListEntry | string): string {
 
-export function makeProfile(resource: { FHIR: any; FRIENDLY?: string; } | string): string {
-
-	var resourceAsString: string = ""
 	if (typeof(resource) !== 'string') {
-		resourceAsString = resource.FHIR;
-	} else {
-		resourceAsString = resource
+		return resource.PROFILE_URI;
 	}
 
-	return linkPrefix + uvCode + "/" + cpgCode + "/" + STRUCTURE_DEFINITION + "/" + cpgCode + "-" 
-	+ resourceAsString.toLowerCase()
+	return linkPrefix + "/" + uvCode + "/" + cpgCode + "/" + STRUCTURE_DEFINITION + "/" + cpgCode + "-" 
+	+ resource.toLowerCase()
 }
 
-export function makeValueSetURL(resource: { FHIR: any; FRIENDLY?: string; }): string {
+export function makeValueSetURL(resource: FriendlyResourceListEntry): string {
 
-	return linkPrefix+  uvCode + "/" + ipsCode + "/" + VALUE_SET + "/" + (resource.FHIR).toLowerCase()
+	return linkPrefix + "/" +  uvCode + "/" + ipsCode + "/" + VALUE_SET + "/" + (resource.FHIR).toLowerCase()
 }
 

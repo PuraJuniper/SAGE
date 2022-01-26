@@ -1,17 +1,12 @@
-import { mocked } from 'ts-jest/utils';
-
 import { Resource, PlanDefinition } from 'fhir/r4';
 
 import * as SchemaUtils from './schema-utils';
-import * as config from '../config';
 import State from '../state';
 
 import _samplePD from '../../test/sample-plandef.json';
 import _samplePDWithProfile from '../../test/sample-plandef.json';
 import _r4Profiles from '../../public/profiles/r4.json';
 import _cpgProfiles from '../../public/profiles/cpg.json';
-
-const mockedConfig = mocked(config, true);
 
 const r4: SchemaUtils.SimplifiedProfiles = (_r4Profiles as any).profiles as any;
 const cpg: SchemaUtils.SimplifiedProfiles = (_cpgProfiles as any).profiles as any;
