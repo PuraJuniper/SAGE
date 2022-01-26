@@ -5,7 +5,6 @@ import * as SchemaUtils from "../helpers/schema-utils"
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {faDownload, faCaretLeft} from  '@fortawesome/pro-solid-svg-icons';
-import { profileToFriendlyResourceListEntry } from "./nameHelpers";
 
 
 const Collection = () => {
@@ -36,13 +35,12 @@ const Collection = () => {
                             const planTitleNode = SchemaUtils.getChildOfNode(resources[i+1], "title");
                             const firstExpression: string | undefined = SchemaUtils.getChildOfNodePath(resources[i+1], ["action", "condition", "expression", "expression"])?.value;
                             const conditionExpressions: string[] = firstExpression ? [firstExpression] : [];
-                            const profile = profileToFriendlyResourceListEntry(SchemaUtils.toFhir(resource, false).meta?.profile?.[0])?.FRIENDLY;
                         return <div className="col-lg-3 col-md-4 col-sm-6" key={i}>
                             <Folder 
                             actTitle={actTitleNode?.value ? actTitleNode.value : "Untitled AD"}
                             planTitle={planTitleNode?.value ? planTitleNode.value : "Untitled PD"}
                             conditionExpressions={conditionExpressions}
-                            type={profile ?? "Unknown"}
+                            profile={SchemaUtils.toFhir(resource, false).meta?.profile?.[0] ?? ""}
                             wait={i*25} 
                             index={i}
                             />

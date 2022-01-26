@@ -66,6 +66,18 @@ export function profileToFriendlyResourceListEntry(profile?: string) {
     }
 } 
 
+export function profileToFriendlyResourceSelf(profile?: string) {
+    if (!profile) {
+        return undefined;
+    }
+    for (const resource of friendlyNames.RESOURCES) {
+        const found = resource.LIST.find(res => res.PROFILE_URI == profile);
+        if (found) {
+            return resource.SELF;
+        }
+    }
+} 
+
 export const defaultProfileUriOfResourceType = (resourceType: string) => {
     return elseIfUndefined(getFhirSelf(friendlyNames.RESOURCES, resourceType)
         ,((object) => object.SELF.DEFAULT_PROFILE_URI));
