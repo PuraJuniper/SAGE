@@ -4,11 +4,6 @@ import { Library } from "fhir/r4";
 import * as SageUtils from "./helpers/sage-utils";
 import State from "./reactions";
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-//@ts-ignore
-// import ahrqHtml from "../authoring/index.html"
-// const ahrqTemplate = { __html: ahrqHtml };
-
 // All properties should be optional to force us to verify the output
 interface AHRQOutput {
     libraryName?: string,
@@ -69,33 +64,9 @@ const AhrqFrame = () => {
 	
 	return (
 		<div>
-		{/* <iframe width="100%" height="600vh"
-			src="http://localhost:3000/authoring/build/61f03de9a217241d27fc9993"
-		/> */}
-		<iframe width="100%" height="600vh"
-			src={"http://localhost:8081/authoring/build/61f03de9a217241d27fc9993"}
-			// srcDoc={ahrqHtml}
-		/>
-		{/* <iframe
-			srcDoc={`
-			<!DOCTYPE html>
-			<html>
-			  <head>
-				<script>
-					console.log(window);
-					console.log(window.parent);
-					console.log(window.parent.document);
-					console.log(window.parent.document.dispatchEvent);
-					// window.parent.postMessage('test')
-					// window.parent.document.dispatchEvent(new CustomEvent('myCustomEvent', { detail: { foo: 'bar' } }))
-				</script>
-			  </head>
-			  <body>
-				<h1>Content inside an iframe, who knew...</h1>
-			  </body>
-			</html>
-		  `}
-		/> */}
+            <iframe width="100%" height="600vh"
+                src={"http://localhost:8081/authoring/build/61f03de9a217241d27fc9993"}
+            />
 		</div>
 		);
 }

@@ -32,6 +32,8 @@ import UserSettingsDialog from "./dialogs/user-settings-dialog";
 import AppInfo from "../package.json";
 import SelectResourceDialog from "./dialogs/select-resource-canonical-dialog";
 import { CardEditor } from "./simplified/cardEditor";
+import AhrqFrame from "./ahrqFrame";
+import StructorFrame from "./structorFrame";
 
 type RootProps = Record<string, never>;
 type RootState = {
@@ -228,6 +230,8 @@ class RootComponent extends React.Component<RootProps, RootState> {
 			: ""
 			}
 			<UserSettingsDialog show={state.ui.status === "settings"} />
+			<AhrqFrame />
+			<StructorFrame />
 		</div>;
 	}
 }
