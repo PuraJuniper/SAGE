@@ -51,7 +51,13 @@ declare module 'freezer-js' {
         splice(start: number, deleteCount: number, item: T): FreezerArray<T, E>,
         splice(start: number, deleteCount?: number): FreezerArray<T, E>,
         unshift(): FreezerArray<T, E>,
-    } & FreezerNode<T, E>[];
+        [Symbol.iterator](): Iterator<FreezerNode<T, E>>, // for..of statements use this
+        [idx: number]: FreezerNode<T, E>,
+    } & T[]; // Technically this last part should be `FreezerNode<T, E>[]` because any array function that returns some copy 
+             //  of the underlying data and is not overridden by freezer.js will return "detached" freezer.js tree nodes.
+             // Calling any freezer.js function on a "detached" node is typically (always?) unintended because those changes will 
+             //  not be reflected in the actual state tree, so we may as well not consider them freezer.js nodes to avoid any 
+             //  expectations from calling freezer.js functions on them.
 
     // From https://stackoverflow.com/a/53899815
     type OptionalPropertyOf<T> = Exclude<{

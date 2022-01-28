@@ -1,7 +1,6 @@
 /* eslint-disable react/no-string-refs */
 /*
  * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
  * DS102: Remove unnecessary code created because of implicit returns
  * DS206: Consider reworking classes to avoid initClass
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
@@ -30,7 +29,7 @@ class ResourceElement extends React.Component<ResourceElementProps, Record<strin
 
 	isValid(node: SageNodeInitializedFreezerNode) {
 		//this is hacky - need to find a better place for pre-commit validation
-		for (const editNode of Array.from(node.children || [node])) {
+		for (const editNode of node.children || [node]) {
 			let message;
 			if (node.ui?.validationErr) { return false; }
 			if ((message = PrimitiveValidator(editNode.fhirType, editNode.value, true))) {
@@ -100,7 +99,7 @@ class ResourceElement extends React.Component<ResourceElementProps, Record<strin
 	renderChildren() {
 		const showHidden = State.get().showHiddenElements;
 		const children = [];
-		for (const child of Array.from(this.props.node.children)) {
+		for (const child of this.props.node.children) {
 			if (showHidden) {
 				children.push(<ResourceElement 
 					key={child.id} node={child} 
