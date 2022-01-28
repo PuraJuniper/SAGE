@@ -36,7 +36,6 @@ export const BaseCard = (props: BaseCardProps) => {
     let headerPadding = {};
     if (props.title == "") headerPadding = {padding:"7px"};
     const resourceType = friendlyToFhir(props.header);
-    const isActivity = resourceType?.includes("Activity");
     
     return (
         <CSSTransition
@@ -48,8 +47,8 @@ export const BaseCard = (props: BaseCardProps) => {
             bg={props.bsBg}
             text={props.bsText as Color}
             border={props.bsBorder}
-            onClick={(e: any) => {
-                if (e.target.tagName !== "svg" && e.target.tagName !== "path" && props.clickable) {
+            onClick={(e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+                if (e.target instanceof Element && e.target.tagName !== "svg" && e.target.tagName !== "path" && props.clickable) {
                     setShow(false);
                     if (State.get().bundle?.resources.length) {
                         State.emit("save_changes_to_bundle_json");

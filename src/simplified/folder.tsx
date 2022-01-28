@@ -3,10 +3,11 @@ import {BaseCard} from"./baseCard";
 import { CSSTransition } from 'react-transition-group';
 import State from "../state";
 import { CloseButton } from "react-bootstrap";
-import { ACTIVITY_DEFINITION, getBorderPropsForType, PLAN_DEFINITION, profileToFriendlyResourceListEntry, profileToFriendlyResourceSelf } from "./nameHelpers";
+import {getBorderPropsForType, PLAN_DEFINITION, profileToFriendlyResourceListEntry, profileToFriendlyResourceSelf } from "./nameHelpers";
 
 interface FolderProps {
     actTitle: string,
+    actDesc: string,
     planTitle: string,
     conditionExpressions: string[],
     index: number,
@@ -52,11 +53,11 @@ export const Folder = (props: FolderProps) => {
             <BaseCard header={PLAN_DEFINITION} title={props.planTitle}
             content={
                 <span>
-                {props.actTitle} {props.conditionExpressions.length > 0 ? `WHEN ${props.conditionExpressions[0]} IS TRUE` : ""}
+                {props.actDesc} {props.conditionExpressions.length > 0 ? `WHEN ${props.conditionExpressions[0]} IS TRUE` : ""}
                 </span>
                 }/>
         </div>
-        {State.get().bundle.resources.length > 2 && 
+        {
             <div className="delete">
                 <CloseButton
                     onClick={(e) => {
