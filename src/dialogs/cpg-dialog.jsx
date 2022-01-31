@@ -20,6 +20,8 @@ class CpgDialog extends React.Component {
     constructor(props) {
         super(...arguments);
         this.state = {
+            fields: {},
+            errors: {},
             showSpinner: false,
             tab: "CPGNew",
             version:"1.0.0",
@@ -248,9 +250,19 @@ class CpgDialog extends React.Component {
     handleTabChange(key) {
         return this.setState({tab: key});
     }
-    
-    handleOpenResource(status, e) {
+
+    handleValidation() {
         if (!this.state.CPGName || !this.state.publisher) return;
+    }
+
+    handleOpenResource(status, e) {
+        if (!this.state.version || !this.state.status || !this.state.experimental||
+            !this.state.author || !this.state.editor || !this.state.reviewer ||
+            !this.state.publisher || !this.state.CPGName) {
+                
+                return;
+        }
+        this.handleValidation.bind(this);
 		e.preventDefault();
         State.get().set({
             version: this.state.version,
@@ -393,7 +405,7 @@ class CpgDialog extends React.Component {
             <Container>
                 <Row className="row">
                     <Col md="6">   
-                        <p style={{marginTop: "10px"}}>Version:</p>
+                        <p style={{marginTop: "10px"}}>Version:<span style={{color: "red"}}>*</span></p>
                         <input
                             className="form-control"
                             value={this.state.version}
@@ -409,7 +421,7 @@ class CpgDialog extends React.Component {
                         />  
                     </Col>
                     <Col md="6">
-                    <p style={{marginTop: "10px"}}>Status:</p>
+                    <p style={{marginTop: "10px"}}>Status:<span style={{color: "red"}}>*</span></p>
                     <select
 					        className="form-control input-sm" 
 					        onChange = {(e) => {
@@ -424,7 +436,7 @@ class CpgDialog extends React.Component {
                     </select>
                     </Col> 
                     <Col md="6">
-                        <p style={{marginTop: "10px"}}>Experimental:</p>
+                        <p style={{marginTop: "10px"}}>Experimental:<span style={{color: "red"}}>*</span></p>
                         <select
 					        className="form-control input-sm" 
 					        onChange = {(e) => {
@@ -439,7 +451,7 @@ class CpgDialog extends React.Component {
                 </Row>
                 <Row className="row">
                     <Col md="6">
-                    <p style={{marginTop: "10px"}}>Publisher:</p>
+                    <p style={{marginTop: "10px"}}>Publisher:<span style={{color: "red"}}>*</span></p>
                         <input
                             className="form-control"
                             value={this.state.publisher}
@@ -473,7 +485,7 @@ class CpgDialog extends React.Component {
                 </Row>
                 <Row className="row">
                 <Col md="12">                                     
-                        <p style={{marginTop: "10px"}}>CPG Name:</p>
+                        <p style={{marginTop: "10px"}}>CPG Name:<span style={{color: "red"}}>*</span></p>
                         <input
                             className="form-control"
                             value={this.state.CPGName}
@@ -483,7 +495,7 @@ class CpgDialog extends React.Component {
                 </Row>
                 <Row className="row">
                 <Col md="4">                                     
-                        <p style={{marginTop: "10px"}}>Author:</p>
+                        <p style={{marginTop: "10px"}}>Author:<span style={{color: "red"}}>*</span></p>
                         <input
                             className="form-control"
                             value={this.state.author}
@@ -491,7 +503,7 @@ class CpgDialog extends React.Component {
                         />
                     </Col>
                     <Col md="4">                                     
-                        <p style={{marginTop: "10px"}}>Editor:</p>
+                        <p style={{marginTop: "10px"}}>Editor:<span style={{color: "red"}}>*</span></p>
                         <input
                             className="form-control"
                             value={this.state.editor}
@@ -499,7 +511,7 @@ class CpgDialog extends React.Component {
                         />
                     </Col>
                     <Col md="4">                                     
-                        <p style={{marginTop: "10px"}}>Reviewer:</p>
+                        <p style={{marginTop: "10px"}}>Reviewer:<span style={{color: "red"}}>*</span></p>
                         <input
                             className="form-control"
                             value={this.state.reviewer}
@@ -526,6 +538,20 @@ class CpgDialog extends React.Component {
     }
 
     renderTabs() {
+        if (this.props.basic) {
+            // The basic Tabs will eventually be the same as in the else clause, so this duplication is temporary
+            return (
+                <Tabs
+                    activeKey={this.state.tab}
+                    onSelect={this.handleTabChange.bind(this)}
+                    animation="false"
+                >
+                    <Tab eventKey="CPGNew" title="Main" style={{opacity:1}}>
+                        {this.renderNewCPGInput()}
+                    </Tab>
+                </Tabs>
+            );
+        }
         return (
             <Tabs
                 activeKey={this.state.tab}
