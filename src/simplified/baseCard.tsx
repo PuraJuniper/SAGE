@@ -2,7 +2,8 @@ import {Card} from "react-bootstrap";
 import {useState, useEffect} from "react";
 import { CSSTransition } from 'react-transition-group';
 import State from "../state";
-import { ACTIVITY_DEFINITION, friendlyToFhir, PLAN_DEFINITION } from "./nameHelpers";
+import { Color } from "react-bootstrap/esm/types";
+import { ACTIVITY_DEFINITION, friendlyToFhir, PLAN_DEFINITION, QUESTIONNAIRE } from "./nameHelpers";
 
 
 
@@ -14,15 +15,19 @@ interface BaseCardProps {
     content?: JSX.Element,
     clickable?: boolean
     link?: string
+    bsBg?: string,
+    bsText?: Color | string,
+    bsBorder?: string,
 }
 
 export const BaseCard = (props: BaseCardProps) => {
     const [show, setShow] = useState(false);
     
     useEffect(() => {
-        setTimeout(() => {
+        const timeoutId = setTimeout(() => {
             setShow(true);
         }, props.wait);
+        return clearTimeout(timeoutId);
     }, [props.wait]);
     
     
@@ -31,7 +36,6 @@ export const BaseCard = (props: BaseCardProps) => {
     let headerPadding = {};
     if (props.title == "") headerPadding = {padding:"7px"};
     const resourceType = friendlyToFhir(props.header);
-    const isActivity = resourceType?.includes("Activity");
     
     return (
         <CSSTransition
@@ -40,10 +44,12 @@ export const BaseCard = (props: BaseCardProps) => {
         classNames="res-card"
         >
         <Card
-        onClick={(e: any) => {
-            if (e.target.tagName !== "svg" && e.target.tagName !== "path" && props.clickable) {
-                setShow(false);
-                setTimeout(() => {
+            bg={props.bsBg}
+            text={props.bsText as Color}
+            border={props.bsBorder}
+            onClick={(e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+                if (e.target instanceof Element && e.target.tagName !== "svg" && e.target.tagName !== "path" && props.clickable) {
+                    setShow(false);
                     if (State.get().bundle?.resources.length) {
                         State.emit("save_changes_to_bundle_json");
                         State.get().bundle.set("pos", State.get().bundle.resources.length-1);
@@ -53,7 +59,10 @@ export const BaseCard = (props: BaseCardProps) => {
                         resourceType: "Bundle",
                         entry: [
                             {
-                                resource: {resourceType: resourceType}
+                                resource: {
+                                    resourceType: resourceType,
+                                    meta: {profile: [props.profile]}
+                                }
                             },
                             {
                                 resource: {
@@ -75,25 +84,19 @@ export const BaseCard = (props: BaseCardProps) => {
                             }
                         ]
                     };
-                    if (isActivity) {
-                        (json.entry[0].resource as any).meta = {
-                            profile: [props.profile]
-                        };
-                    }
                     State.emit("load_json_resource", json);
-                }, 350)
-            }
-        }}
+                }
+            }}
         >
-        <Card.Header as="h6" style={headerPadding}>
-        {props.header}
-        </Card.Header>
-        <Card.Body>
-        <Card.Title as="h6">{props.title}</Card.Title>
-        <Card.Text as="div">
-        {content}
-        </Card.Text>
-        </Card.Body>
+            <Card.Header style={headerPadding}>
+                {props.header}
+            </Card.Header>
+            <Card.Body>
+                <Card.Title>{props.title}</Card.Title>
+                <Card.Text>
+                    {content}
+                </Card.Text>
+            </Card.Body>
         </Card>
         </CSSTransition>
         );

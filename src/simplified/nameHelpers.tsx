@@ -1,5 +1,9 @@
 import friendlyNames from "../../friendly-names.json";
 
+export type FriendlyResource = (typeof friendlyNames.RESOURCES) extends Array<infer T> ? T : never;
+export type FriendlyResourceSelf = FriendlyResource["SELF"];
+export type FriendlyResourceListEntry = FriendlyResource["LIST"] extends Array<infer T> ? T : never;
+
 const defaultUndefinedString = "undefined";
 
 const getType = (type: string) => {
@@ -20,36 +24,70 @@ export const DATA_ELEMENT = getType("DataElement");
 export const VALUE_SET = getType("ValueSet");
 export const STRUCTURE_DEFINITION = getType("StructureDefinition");
 
-export function getFhirSelf(resourceParent: any[], resourceType: string) {
+export function getFhirSelf(resourceParent: FriendlyResource[], resourceType: string) {
     return resourceParent.find(
         (resource) => {
-            return resource.SELF.FHIR === resourceType|| resource.FHIR === resourceType;
+            return resource.SELF.FHIR === resourceType;
         }
     );
 }
 
-function elseIfUndefined(maybeUndefinedObject: any, ifDefinedFunction: any, replacementText: string): string {
+function elseIfUndefined<T>(maybeUndefinedObject: T, ifDefinedFunction: (input: Exclude<T, undefined>) => string): string | undefined
+function elseIfUndefined<T>(maybeUndefinedObject: T, ifDefinedFunction: (input: Exclude<T, undefined>) => string, replacementText: string): string
+function elseIfUndefined<T>(maybeUndefinedObject: T, ifDefinedFunction: (input: Exclude<T, undefined>) => string, replacementText?: string): string | undefined {
     if (typeof(maybeUndefinedObject) === 'undefined') {
-        return replacementText
+        return replacementText ?? undefined;
     } else {
-        return ifDefinedFunction(maybeUndefinedObject);
+        return ifDefinedFunction(maybeUndefinedObject as Exclude<T, undefined>); // This cast is necessary for some reason. todo: figure out how to remove it
     }
 }
 
 export const fhirToFriendly = (fhirWord: string) => {
     return elseIfUndefined(getFhirSelf(friendlyNames.RESOURCES, fhirWord)
-        ,((o:string) => (o))
+        ,((o) => (o.SELF.FRIENDLY))
         , defaultUndefinedString);
 }
 
-export  const friendlyToFhir = (friendlyWord: string) => {
+export const friendlyToFhir = (friendlyWord: string) => {
     return elseIfUndefined(friendlyNames.RESOURCES.find(resource => resource.SELF.FRIENDLY == friendlyWord)
-        ,((object: { SELF: { FHIR: any; }; }) => object.SELF.FHIR)
+        ,((object) => object.SELF.FHIR)
         , defaultUndefinedString);
 }
+
+export function profileToFriendlyResourceListEntry(profile?: string) {
+    if (!profile) {
+        return undefined;
+    }
+    for (const resource of friendlyNames.RESOURCES) {
+        const out = resource.LIST.find(res => res.PROFILE_URI == profile);
+        if (out) {
+            return out;
+        }
+    }
+} 
+
+export function profileToFriendlyResourceSelf(profile?: string) {
+    if (!profile) {
+        return undefined;
+    }
+    for (const resource of friendlyNames.RESOURCES) {
+        const found = resource.LIST.find(res => res.PROFILE_URI == profile);
+        if (found) {
+            return resource.SELF;
+        }
+    }
+} 
 
 export const defaultProfileUriOfResourceType = (resourceType: string) => {
     return elseIfUndefined(getFhirSelf(friendlyNames.RESOURCES, resourceType)
-        ,((object: { SELF: { DEFAULT_PROFILE_URI: any; }; }) => object.SELF.DEFAULT_PROFILE_URI)
-        , defaultUndefinedString);
+        ,((object) => object.SELF.DEFAULT_PROFILE_URI));
+}
+
+export function getBorderPropsForType(resourceType: string): string | undefined {
+    switch (resourceType) {
+        case ACTIVITY_DEFINITION:
+            return "activitydefinition";
+        default:
+            return "questionnaire";
+    }
 }

@@ -61,7 +61,8 @@ module.exports = {
                 "**/*.test.jsx"
             ],
             env: {
-                jest: true
+                "jest": true,
+                "node": true
             },
             "extends": [
                 "eslint:recommended",
