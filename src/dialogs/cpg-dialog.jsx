@@ -11,7 +11,7 @@
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
 import React from "react";
-import {Container, Row, Col, Modal, Tabs, Tab, Button} from "react-bootstrap";
+import {Container, Row, Col, Modal, Tabs, Tab, Button, Form} from "react-bootstrap";
 import State from "../state";
 import * as SchemaUtils from "../helpers/schema-utils";
 import { PLAN_DEFINITION } from "../simplified/nameHelpers";
@@ -414,11 +414,10 @@ class CpgDialog extends React.Component {
                     </Col>    
                     <Col md="6">
                         <p style={{marginTop: "10px"}}>Date:</p>
-                        <input
-                            className="form-control"
-                            value={this.state.date}
-                            onChange={this.handleDateChange.bind(this)}
-                        />  
+                        <Form.Control type="date" 
+                        className="form-control" 
+                        value={this.state.date} 
+                        onChange={this.handleDateChange.bind(this)}/> 
                     </Col>
                     <Col md="6">
                     <p style={{marginTop: "10px"}}>Status:<span style={{color: "red"}}>*</span></p>
@@ -468,19 +467,19 @@ class CpgDialog extends React.Component {
                     </Col>   
                     <Col md="6">
                         <p style={{marginTop: "10px"}}>Approval Date:</p>
-                        <input
-                            className="form-control"
-                            value={this.state.approvalDate}
-                            onChange={this.handleapprovaldateChange.bind(this)}
-                        />  
+                        <Form.Control type="date" 
+                        className="form-control" 
+                        value={this.state.approvalDate} 
+                        onChange={this.handleapprovaldateChange.bind(this)}
+                        />
                     </Col> 
                     <Col md="6">
                         <p style={{marginTop: "10px"}}>Last Review Date:</p>
-                        <input
-                            className="form-control"
-                            value={this.state.lastReviewDate}
-                            onChange={this.handlelastreviewdateChange.bind(this)}
-                        />  
+                        <Form.Control type="date" 
+                        className="form-control" 
+                        value={this.state.lastReviewDate} 
+                        onChange={this.handlelastreviewdateChange.bind(this)}
+                        />
                     </Col> 
                 </Row>
                 <Row className="row">

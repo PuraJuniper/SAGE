@@ -108,7 +108,6 @@ class ValueEditor extends React.Component<ValueEditorProps, Record<string, never
 	}
 
 	handleKeyDown(e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) {
-		console.log(e);
 		if (e.key == "Escape") {
 			return this.props.onEditCancel(e);
 		} else if (e.key == "Enter") {
