@@ -9,8 +9,7 @@
 import State, { SageNodeInitializedFreezerNode } from '../state';
 import PrimitiveValidator from './primitive-validator';
 import { Bundle, Resource, Element, ElementDefinition, ElementDefinitionType, ActivityDefinition, PlanDefinition, Questionnaire, Library, ValueSet, FhirResource } from 'fhir/r4';
-
-import { defaultProfileUriOfResourceType } from '../config';
+import { defaultProfileUriOfResourceType, FriendlyResourceListEntry, FriendlyResourceSelf, STRUCTURE_DEFINITION, VALUE_SET } from '../simplified/nameHelpers';
 
 // Template of a SageNode for a specific element/resource
 export type SageNode = {
@@ -28,7 +27,7 @@ export type SageNode = {
 	type: ElementDefinitionType,
 	level?: number,
 	sliceName: string,
-	short: any, 
+	short: string, 
 	isRequired: boolean,
 	profile: string, // This profile must be able to resolve `schemaPath`
 	binding?: any,
@@ -110,6 +109,7 @@ let nextId = 0;
 const isComplexType = (fhirType: string): boolean => (fhirType[0] === fhirType[0].toUpperCase());
 
 const isInfrastructureType = (fhirType: string): boolean => ["DomainResource", "Element", "BackboneElement"].includes(fhirType);
+const linkPrefix = "http://hl7.org/fhir";
 
 // Element names that will be skipped (will not appear in the "Add Element" dropdown)
 const unsupportedElements: string[] = [];
@@ -507,11 +507,11 @@ export const getProfileOfResource = function(profiles: SimplifiedProfiles, resou
 	if (resource.meta?.profile && resource.meta.profile.length > 0 && profiles[resource.meta.profile[0]]) {
 		return resource.meta.profile[0];
 	}
-	const defaultProfile = defaultProfileUriOfResourceType[resource.resourceType]
+	const defaultProfile = defaultProfileUriOfResourceType(resource.resourceType);
 	if (defaultProfile && profiles[defaultProfile]) {
 		return defaultProfile;
 	}
-	const standardPath = `http://hl7.org/fhir/StructureDefinition/${resource.resourceType}`;
+	const standardPath = `${linkPrefix}/${STRUCTURE_DEFINITION}/${resource.resourceType}`;
 	if (profiles[standardPath]) {
 		return standardPath;
 	}
@@ -525,20 +525,21 @@ export const isSupportedResource = function(data: any): data is SageSupportedFhi
 // checks if the SchemaNode uses a profile and returns its URI if so. 
 // otherwise, it returns a default for that type or undefined if one doesn't exist (bad?)
 const getProfileOfSchemaDef = function(profiles: SimplifiedProfiles, schemaNode: SchemaDef, typeDef?: ElementDefinitionType) : string | undefined {
-	typeDef = typeDef || schemaNode.type[0];
+	// console.log('getProfileOfSchemaDef', schemaNode, typeDef);
+	typeDef = typeDef ?? schemaNode.type[0];
 	if (typeDef.profile) {
 		return typeDef.profile[0];
 	}
-	else if (defaultProfileUriOfResourceType[typeDef.code]) {
-		return defaultProfileUriOfResourceType[typeDef.code];
+	else if (defaultProfileUriOfResourceType(typeDef.code)) {
+		return defaultProfileUriOfResourceType(typeDef.code);
 	}
-	else if (profiles[`http://hl7.org/fhir/StructureDefinition/${typeDef.code}`]) {
+	else if (profiles[`${linkPrefix}/${STRUCTURE_DEFINITION}/${typeDef.code}`]) {
 		// skipping all types that start with a lowercase letter since they are primitives)
 		if (isInfrastructureType(typeDef.code) 
 		|| typeDef.code[0] != typeDef.code[0].toUpperCase()) {
 				return;
 			}	
-		return `http://hl7.org/fhir/StructureDefinition/${typeDef.code}`;
+		return `${linkPrefix}/${STRUCTURE_DEFINITION}/${typeDef.code}`;
 	}
 	else if (typeDef.code == 'http://hl7.org/fhirpath/System.String') { // just a primitive
 		return;
@@ -724,7 +725,7 @@ export const walkNode = (profiles: SimplifiedProfiles, valueOfNode: any, profile
 	// Check if a new profile should be used for this element
 	const newProfile = getProfileOfSchemaDef(profiles, schema, schema.type[typeIdx]);
 	const childSchemaPath = newProfile ? fhirType : trueSchemaPath;
-	const childProfile = newProfile || profileUri;
+	const childProfile = newProfile ?? profileUri;
 	// TODO: Figure out which type of the array this node corresponds to
 	const displayName = buildDisplayName(name, schema.sliceName);
 	// if (isInfrastructureType(fhirType) && (schemaPath.length === 1)) {
@@ -915,7 +916,27 @@ export const decorateFhirData = function(profiles: SimplifiedProfiles, resource:
 
 	decorated.children = createChildrenFromJson(profiles, decorated, resource);
 	decorated.children = decorated.children.sort((a, b) => a.index - b.index);
-	// console.log('end decoratefhirdata: ', decorated);
+	console.log('end decoratefhirdata: ', decorated);
 	return decorated;
 };
+
+const uvCode = "uv";
+const cpgCode = "cpg";
+const ipsCode = "ips";
+
+
+export function makeProfile(resource: FriendlyResourceListEntry | string): string {
+
+	if (typeof(resource) !== 'string') {
+		return resource.PROFILE_URI;
+	}
+
+	return linkPrefix + "/" + uvCode + "/" + cpgCode + "/" + STRUCTURE_DEFINITION + "/" + cpgCode + "-" 
+	+ resource.toLowerCase()
+}
+
+export function makeValueSetURL(resource: FriendlyResourceListEntry): string {
+
+	return linkPrefix + "/" +  uvCode + "/" + ipsCode + "/" + VALUE_SET + "/" + (resource.FHIR).toLowerCase()
+}
 

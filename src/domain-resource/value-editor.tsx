@@ -20,7 +20,7 @@ interface ValueEditorProps {
 	onEditCancel: (e?: React.SyntheticEvent) => void,
 	hasFocus: boolean,
 	required: boolean,
-	shortName: any,
+	shortName: string,
 }
 class ValueEditor extends React.Component<ValueEditorProps, Record<string, never>> {
 	ESC_KEY: number;
@@ -108,7 +108,6 @@ class ValueEditor extends React.Component<ValueEditorProps, Record<string, never
 	}
 
 	handleKeyDown(e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) {
-		console.log(e);
 		if (e.key == "Escape") {
 			return this.props.onEditCancel(e);
 		} else if (e.key == "Enter") {

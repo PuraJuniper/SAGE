@@ -38,22 +38,22 @@ afterAll(() => server.close());
 test('Create a basic CPG with a single PD that uses the hypertension library and export it', async () => {
     render(<RootComponent />);
     // Wait for profiles to load
-    await waitForElementToBeRemoved(() => screen.queryByRole('progressbar', {name: "loading-symbol"}), {timeout: 5000, interval: 1000});
+    await waitForElementToBeRemoved(() => screen.queryByRole('progressbar', {name: "loading-symbol"}), {timeout: process.env.CI ? 30000 : 5000, interval: 1000});
     // RootComponent
     userEvent.click(screen.getAllByRole('button', {name: 'Basic CPG'})[0]);
     // CpgDialog open on screen
     userEvent.click(await screen.findByRole('button', {name: 'Open Resource'}));
     // SelectView
-    userEvent.click(await screen.findByText('AdministerMedication'));
+    userEvent.click(await screen.findByText('Give Medication'));
     // SimpleForm
-    await screen.findByText('ActivityDefinition/Plandefinition');
+    await screen.findByText('Save Card');
     userEvent.type(screen.getByLabelText('Title'), '123');
     userEvent.type(screen.getByLabelText('Description'), '321');
     userEvent.selectOptions(screen.getByLabelText('Condition'), 'HypertensionCA.Mean BP >= 180/110');
-    fireEvent.submit(screen.getByRole('button', {name: 'Save Resource'}));
+    fireEvent.submit(screen.getByRole('button', {name: 'Save Card'}));
     // Collection
-    await screen.findByText('Saved Resources');
-    userEvent.click(screen.getByRole('button', {name: 'Export Resource'}));
+    await screen.findByText('Saved Cards');
+    userEvent.click(screen.getByRole('button', {name: 'Export as FHIR Bundle'}));
     // ExportDialog open on screen
     await screen.findByText('Exported FHIR JSON');
     expect(JSON.parse(screen.getByRole('textbox', {name: "exportedJson"}).textContent)).toStrictEqual(basicCpgExport);

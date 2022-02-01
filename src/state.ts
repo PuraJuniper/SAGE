@@ -119,10 +119,10 @@ const defaultStateVars: StateVars = {
 	valuesets: {},
 }
 
-const State = new Freezer<StateVars, EventDict<SageReactions>>(defaultStateVars);
+const State = new Freezer<StateVars, SageReactions>(defaultStateVars);
 
 // convenience
-export type SageFreezerNode<T> = FreezerNode<T, FE<T, EventDict<SageReactions>>>;
+export type SageFreezerNode<T> = FreezerNode<T, FE<T, SageReactions>>;
 export type StateVarsFreezerNode = SageFreezerNode<StateVars>
 export type SageNodeInitializedFreezerNode = SageFreezerNode<SageNodeInitialized>
 

@@ -16,6 +16,7 @@ import State from '../state';
 import * as SchemaUtils from '../helpers/schema-utils';
 import * as BundleUtils from '../helpers/bundle-utils';
 import { saveAs } from 'file-saver';
+import { DATA_ELEMENT, fhirToFriendly, QUESTIONNAIRE } from '../simplified/nameHelpers';
 class ExportDialog extends React.Component {
     shouldComponentUpdate(nextProps) {
         return nextProps.show !== this.props.show;
@@ -166,8 +167,8 @@ class ExportDialog extends React.Component {
                     <br/>
                     <input id="resource_id" type="text"/>
                     <select id="resource_type">
-                        <option value="Questionnaire">Questionnaire</option>
-                        <option value="DataElement">DataElement</option>
+                        <option value={QUESTIONNAIRE}>{fhirToFriendly(QUESTIONNAIRE)}</option>
+                        <option value={DATA_ELEMENT}>{fhirToFriendly(DATA_ELEMENT)}</option>
                     </select>
                     <p className="small">
                         <i>Warning: The FHIR Bundle may not contain all Resources necessary for execution unless they were explicitly added within SAGE. Please verify that all dependencies of each Library are present before attempting to execute it.</i>

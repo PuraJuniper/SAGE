@@ -15,6 +15,7 @@ import {Container, Row, Col, Modal, Tabs, Tab, Button} from "react-bootstrap";
 
 import State from "../state";
 import * as SchemaUtils from "../helpers/schema-utils";
+import { ACTIVITY_DEFINITION, LIBRARY, PLAN_DEFINITION, QUESTIONNAIRE, VALUE_SET } from "../simplified/nameHelpers";
 
 class OpenDialog extends React.Component {
     constructor(props) {
@@ -24,7 +25,7 @@ class OpenDialog extends React.Component {
             tab: "fhirNew",
             fhirText: "",
             fhirUrl: "",
-            newResourceType: "ActivityDefinition",
+            newResourceType: ACTIVITY_DEFINITION,
             newResourceBundle: true
         };
     }
@@ -296,7 +297,7 @@ class OpenDialog extends React.Component {
         }
         const resourceOptions = [];
         // for (let name of Array.from(resourceNames.sort())) {
-        for (let name of ['PlanDefinition', 'ActivityDefinition', 'Questionnaire', 'Library', 'ValueSet']) {
+        for (let name of [PLAN_DEFINITION, ACTIVITY_DEFINITION, QUESTIONNAIRE, LIBRARY, VALUE_SET]) {
             resourceOptions.push(
                 <option value={name} key={name}>
                     {name}
