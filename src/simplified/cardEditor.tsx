@@ -96,7 +96,16 @@ const insertElementsForType = (fieldList: any[][], type: string, actNode: SageNo
             fieldList.push(simpleCardField("test", actNode))
             return (
                 <>
-                    {insertTextBoxField(fieldList, "Test")}
+                    <Row className="mb-2">
+                        <Form.Group as={Col} controlId="test">
+                            <Form.Label>Test</Form.Label>
+                            <InputGroup className="mb-3">
+                                <Form.Control as="select">
+                                    <option key="" value="">None</option>
+                                </Form.Control>
+                            </InputGroup>
+                        </Form.Group>
+                    </Row>
                 </>
             )
         default:
@@ -131,7 +140,7 @@ export const CardEditor = (props: CardEditorProps) => {
     function handleSaveResource() {
         fieldList.forEach((field) => field[3](field[0], field[1], actNode, planNode));
 
-        //----Status to be added as needed
+        //----Status to be added as needed------
         // if (actNode.displayName == ACTIVITY_DEFINITION) {
         //     emitChildNodeChange(actNode, State.get().status, "status");
         // }
