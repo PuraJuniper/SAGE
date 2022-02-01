@@ -8,7 +8,7 @@ import {rest} from 'msw'
 import {setupServer} from 'msw/node'
 
 // import methods for testing
-import {render, fireEvent, screen, waitForElementToBeRemoved, within} from '@testing-library/react'
+import {render, fireEvent, screen, waitForElementToBeRemoved} from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 // import stuff that's required for the tested component
@@ -20,7 +20,6 @@ import RootComponent from '../src/RootComponent';
 
 // expected results
 import basicCpgExport from './expected/basic-cpg-hypertension-bundle.json'
-import advancedCpgExport from './expected/advanced-cpg-plan-activity-bundle.json'
 
 const server = setupServer(
     rest.get('/profiles/cpg.json', (req, res, ctx) => {
@@ -38,7 +37,7 @@ afterAll(() => server.close());
 test('Create a basic CPG with a single PD that uses the hypertension library and export it', async () => {
     render(<RootComponent />);
     // Wait for profiles to load
-    await waitForElementToBeRemoved(() => screen.queryByRole('progressbar', {name: "loading-symbol"}), {timeout: process.env.CI ? 30000 : 5000, interval: 1000});
+    await waitForElementToBeRemoved(() => screen.queryByRole('progressbar', {name: "loading-symbol"}), {timeout: process.env.CI ? 30000 : 10000, interval: 500});
     // RootComponent
     userEvent.click(screen.getAllByRole('button', {name: 'Basic CPG'})[0]);
     // CpgDialog open on screen
@@ -57,24 +56,4 @@ test('Create a basic CPG with a single PD that uses the hypertension library and
     // ExportDialog open on screen
     await screen.findByText('Exported FHIR JSON');
     expect(JSON.parse(screen.getByRole('textbox', {name: "exportedJson"}).textContent)).toStrictEqual(basicCpgExport);
-})
-
-test.only('Create an advanced CPG with a PlanDefinition linked to an ActiviityDefinition and export it', async () => {
-    render(<RootComponent />);
-    // Wait for profiles to load
-    await waitForElementToBeRemoved(() => screen.queryByRole('progressbar', {name: "loading-symbol"}), {timeout: 5000, interval: 1000});
-    
-    userEvent.click(screen.getAllByRole('button', {name: 'Advanced CPG'})[0]);
-    userEvent.click(await screen.findByRole('button', {name: 'Open Resource'}));
-
-    userEvent.click(await screen.findByText('Action'));
-    userEvent.click(await within(await screen.findByTestId('Action-dropdown')).findByRole('button', {name: /definitioncanonical/i}));
-    // screen.debug(undefined, Infinity);
-    userEvent.selectOptions(await screen.findByTestId('select-DefinitionCanonical'), 'Create a new ActivityDefinition');
-
-    await screen.findByText('ActivityDefinition');
-    userEvent.click(await screen.findByText('Export JSON'));
-
-    await screen.findByText('Exported FHIR JSON');
-    expect(JSON.parse(screen.getByRole('textbox', {name: "exportedJson"}).textContent)).toStrictEqual(advancedCpgExport);
 })
