@@ -122,7 +122,6 @@ export const parseBundle = function(bundle: Bundle, clearInternalIds?: boolean):
 					const fromId = resource.id || entry.fullUrl;
 					const toId = buildFredId();
 					resource.id = toId;
-					//resource.title = state.CPGName ? `${state.CPGName}${state.resCount}` : `Bundle${state.resCount}`;
 					idSubs.push({from: fromId, to: `${resourceType}/${toId}`});
 					entryPos++;
 				}

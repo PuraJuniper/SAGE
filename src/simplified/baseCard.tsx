@@ -55,12 +55,14 @@ export const BaseCard = (props: BaseCardProps) => {
                         State.get().bundle.set("pos", State.get().bundle.resources.length-1);
                         State.get().ui.set("openMode", "insert");
                     }
+                    const referencedResourceUrl = `http://fhir.org/guides/${State.get().publisher}/${resourceType}/${resourceType}-${State.get().CPGName}${State.get().resCount}`;
                     const json = {
                         resourceType: "Bundle",
                         entry: [
                             {
                                 resource: {
                                     resourceType: resourceType,
+                                    url: referencedResourceUrl,
                                     meta: {profile: [props.profile]}
                                 }
                             },
@@ -77,7 +79,7 @@ export const BaseCard = (props: BaseCardProps) => {
                                                     kind: "applicability",
                                                 }
                                             ],
-                                            definitionCanonical: `http://fhir.org/guides/${State.get().publisher}/${ACTIVITY_DEFINITION}/${ACTIVITY_DEFINITION}-${State.get().CPGName}${State.get().resCount}`
+                                            definitionCanonical: referencedResourceUrl
                                         }
                                     ]
                                 }
