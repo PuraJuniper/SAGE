@@ -43,7 +43,7 @@ export interface StateVars {
 			}
 		}
 	}
-	resCount?: number,
+	resCount: number,
 	errFields?: string[],
 	profiles: SimplifiedProfiles,
 	valuesets: SimplifiedValuesets,
@@ -114,6 +114,7 @@ const defaultStateVars: StateVars = {
 	simplified: {
 		libraries: {}
 	},
+	resCount: 0,
 	showHiddenElements: false,
 	profiles: {},
 	valuesets: {},

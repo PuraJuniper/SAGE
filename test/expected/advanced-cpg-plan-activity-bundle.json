@@ -19,14 +19,14 @@
                    "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-computableplandefinition"
                 ]
              },
-             "url": "http://fhir.org/guides/author/PlanDefinition/PlanDefinition-cpgname1",
+             "url": "http://fhir.org/guides/publisher/PlanDefinition/PlanDefinition-cpgname1",
              "version": "1.0.0",
              "name": "PlanDefinition-cpgname1",
              "title": null,
              "type": {},
              "status": null,
              "experimental": true,
-             "publisher": "author",
+             "publisher": "publisher",
              "description": null,
              "action": [
                 {
@@ -41,7 +41,7 @@
                          }
                       }
                    ],
-                   "definitionCanonical": "http://fhir.org/guides/author/ActivityDefinition/ActivityDefinition-cpgname2"
+                   "definitionCanonical": "http://fhir.org/guides/publisher/ActivityDefinition/ActivityDefinition-cpgname2"
                 }
              ],
              "resourceType": "PlanDefinition"
@@ -65,13 +65,13 @@
                    "url": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-knowledgeCapability"
                 }
              ],
-             "url": "http://fhir.org/guides/author/ActivityDefinition/ActivityDefinition-cpgname2",
+             "url": "http://fhir.org/guides/publisher/ActivityDefinition/ActivityDefinition-cpgname2",
              "version": "1.0.0",
              "name": "ActivityDefinition-cpgname2",
              "title": null,
              "status": null,
              "experimental": true,
-             "publisher": "author",
+             "publisher": "publisher",
              "description": null,
              "kind": null,
              "resourceType": "ActivityDefinition"

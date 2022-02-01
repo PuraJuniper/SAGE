@@ -6,7 +6,7 @@
  * DS207: Consider shorter variations of null checks
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
-import State, { SageNodeInitializedFreezerNode } from '../state';
+import State, { SageFreezerNode, SageNodeInitializedFreezerNode } from '../state';
 import PrimitiveValidator from './primitive-validator';
 import { Bundle, Resource, Element, ElementDefinition, ElementDefinitionType, ActivityDefinition, PlanDefinition, Questionnaire, Library, ValueSet, FhirResource } from 'fhir/r4';
 import { defaultProfileUriOfResourceType, FriendlyResourceListEntry, FriendlyResourceSelf, STRUCTURE_DEFINITION, VALUE_SET } from '../simplified/nameHelpers';
@@ -312,19 +312,19 @@ const getDefaultValue = (schema: SchemaDef, fhirType: string, parentName=""): {
 			}
 			break;
 		case "publisher":
-			if (State.get().author!= "") {
-				defaultValue = State.get().author;
+			if (State.get().publisher!= "") {
+				defaultValue = State.get().publisher;
 			}
 			break;
 		case "url":
-			if (State.get().author!= "" && State.get().CPGName != "") {
+			if (State.get().publisher!= "" && State.get().CPGName != "") {
 				// Ignore extensions
 				if (pathSuffix[0] == "Extension") {
 					break;
 				}
-				defaultValue = `http://fhir.org/guides/${State.get().author}/${pathSuffix[0]}/${pathSuffix[0]}-${State.get().CPGName}${State.get().resCount}`;
+				defaultValue = `http://fhir.org/guides/${State.get().publisher}/${pathSuffix[0]}/${pathSuffix[0]}-${State.get().CPGName}${State.get().resCount}`;
 				if (pathSuffix[0].endsWith("Activity")) {
-					defaultValue = `http://fhir.org/guides/${State.get().author}/ActivityDefinition/ActivityDefinition-${State.get().CPGName}${State.get().resCount}`;
+					defaultValue = `http://fhir.org/guides/${State.get().publisher}/ActivityDefinition/ActivityDefinition-${State.get().CPGName}${State.get().resCount}`;
 				}
 			}
 			break;
@@ -466,7 +466,7 @@ export const buildChildNode = function(profiles: SimplifiedProfiles, parentNode:
 	}
 };
 
-export const findFirstSageNodeByUri = function(nodes: SageNodeInitialized[], uri: string) {
+export const findFirstSageNodeByUri = function(nodes: SageFreezerNode<SageNodeInitialized[]>, uri: string) {
 	// Return the first SageNode of `nodes` that has a child "URL" SageNode with value equal to `uri`
 	let idx = 0;
 	for (const node of nodes) {
@@ -619,7 +619,7 @@ export const createChildrenFromJson = function (profiles: SimplifiedProfiles, no
 }
 
 export function buildUrlForResource(resourceType: string) {
-	return `http://fhir.org/guides/${State.get().author}/${resourceType}/${resourceType}-${State.get().CPGName}${State.get().resCount+1}`;
+	return `http://fhir.org/guides/${State.get().publisher}/${resourceType}/${resourceType}-${State.get().CPGName}${State.get().resCount+1}`;
 }
 
 /**
