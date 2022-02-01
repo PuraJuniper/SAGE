@@ -28,37 +28,6 @@ interface ExpressionOption {
     libraryUrl: string,
 }
 
-const buildConditionFromSelection = (expression?: string): PlanDefinitionActionCondition => {
-    let insertedExpression = "";
-    if (expression) {
-        insertedExpression = expression;
-    }
-    return {
-        expression: {
-            language: 'text/cql',
-            expression: insertedExpression
-        },
-        kind: 'applicability'
-    };
-}
-
-const getExpressionOptionsFromLibraries = (libraries: { library: cql.Library, url: string }[]) => {
-    const foundOptions: ExpressionOptionDict = {};
-    for (const library of libraries) {
-        for (const expressionKey of Object.keys(library.library.expressions)) {
-            const libId = library.library.source.library.identifier.id;
-            foundOptions[`${libId}.${expressionKey}`] = {
-                expressionInLibrary: expressionKey,
-                libraryIdentifier: libId,
-                libraryUrl: library.url
-            };
-        }
-    }
-    return foundOptions;
-}
-
-
-
 function insertCardName(actResourceType: any) {
     return <h3 style={{ marginTop: "20px", marginBottom: "10px" }}><b>
         {actResourceType ? actResourceType?.FRIENDLY ?? "Unknown Resource Type" : ""}
@@ -121,6 +90,20 @@ const conditionCardField = (planNode: SageNodeInitializedFreezerNode) => {
     return ["condition", condition, setCondition, conditionSaveHandler]
 }
 
+const insertElementsForType = (fieldList: any[][], type: string, actNode: SageNodeInitializedFreezerNode) => {
+    switch (type) {
+        case "MedicationRequest":
+            fieldList.push(simpleCardField("test", actNode))
+            return (
+                <>
+                    {insertTextBoxField(fieldList, "Test")}
+                </>
+            )
+        default:
+            return;
+    }
+}
+
 export const CardEditor = (props: CardEditorProps) => {
     const actNode = props.actNode;
     const planNode = props.planNode;
@@ -140,77 +123,89 @@ export const CardEditor = (props: CardEditorProps) => {
                 {insertTextBoxField(fieldList, "Title")}
                 {insertTextBoxField(fieldList, "Description")}
                 {insertConditionDropdown(fieldList)}
+                {insertElementsForType(fieldList, actResourceType!.FHIR, actNode)}
             </Form>
         </div>
     );
 
-    // All logic for saving the Simplified Form data into the underlying FHIR Resources should be performed here
     function handleSaveResource() {
         fieldList.forEach((field) => field[3](field[0], field[1], actNode, planNode));
 
-        if (actNode.displayName == ACTIVITY_DEFINITION) {
-            emitChildNodeChange(actNode, State.get().experimental, "experimental");
-            emitChildNodeChange(actNode, State.get().status, "status");
-        }
-        emitChildNodeChange(planNode, State.get().experimental, "experimental");
-        emitChildNodeChange(planNode, State.get().status, "status");
+        //----Status to be added as needed
+        // if (actNode.displayName == ACTIVITY_DEFINITION) {
+        //     emitChildNodeChange(actNode, State.get().status, "status");
+        // }
+        // emitChildNodeChange(planNode, State.get().status, "status");
+
+        // function emitChildNodeChange(node: SageNodeInitializedFreezerNode, field: any, fieldName: string) {
+        //     State.emit("value_change", SchemaUtils.getChildOfNode(node, fieldName), field, false);
+        // }
 
         State.get().set("ui", { status: "collection" });
-
-        function emitChildNodeChange(node: SageNodeInitializedFreezerNode, field: any, fieldName: string) {
-            State.emit("value_change", SchemaUtils.getChildOfNode(node, fieldName), field, false);
-        }
     }
 }
 
 function insertConditionDropdown(fieldList: any[][]) {
-    
-    const conditionField = fieldList.find((field) => field[0] ==  "condition")!;
-    const libraryField = fieldList.find((field) => field[0] ==  "library")!;
+    const conditionField = fieldList.find((field) => field[0] == "condition")!;
+    const libraryField = fieldList.find((field) => field[0] == "library")!;
     const [expressionOptions, setExpressionOptions] = useState<ExpressionOptionDict>({});
     const [FhirLibrary, setFhirLibrary] = useState<any>();
     const [showLibraryImportModal, setShowLibraryImportModal] = useState<boolean>(false);
-    
+
     // Initialization
     initializeLibraries(setExpressionOptions);
 
     return (
-    <>
-    {libraryModalElement(showLibraryImportModal, setShowLibraryImportModal, setFhirLibrary, () => handleImportLibrary(FhirLibrary))}
-    <Row className="mb-2">
-        <Form.Group as={Col} controlId="condition">
-            <Form.Label>Condition</Form.Label>
-            <InputGroup className="mb-3">
-                <Form.Control as="select"
-                    onChange={(e) => {
-                        if (e.currentTarget.value == '') {
-                            conditionField[2](buildConditionFromSelection());
-                            libraryField[2]("");
-                        }
-                        else if (e.currentTarget.value == '[[import library]]') {
-                            setShowLibraryImportModal(true);
-                            conditionField[2](buildConditionFromSelection());
-                            libraryField[2]("");
-                        }
-                        else {
-                            conditionField[2](buildConditionFromSelection(e.currentTarget.value));
-                            libraryField[2](expressionOptions[e.currentTarget.value].libraryUrl);
-                        }
-                    }}
-                    value={conditionField[1].expression?.expression}
-                >
-                    <option key="" value="">None</option>
-                    {Object.keys(expressionOptions).map((v) => {
-                        const exprOption = expressionOptions[v];
-                        return <option key={v} value={v}>{`${exprOption.expressionInLibrary} (${exprOption.libraryIdentifier})`}</option>;
-                    })}
-                    <option key="[[import library]]" value="[[import library]]">Import condition from FHIR Library...</option>
-                </Form.Control>
-            </InputGroup>
-        </Form.Group>
-    </Row>
-    </>
+        <>
+            {libraryModalElement(showLibraryImportModal, setShowLibraryImportModal, setFhirLibrary, () => handleImportLibrary(FhirLibrary))}
+            <Row className="mb-2">
+                <Form.Group as={Col} controlId="condition">
+                    <Form.Label>Condition</Form.Label>
+                    <InputGroup className="mb-3">
+                        <Form.Control as="select"
+                            onChange={(e) => {
+                                if (e.currentTarget.value == '') {
+                                    conditionField[2](buildConditionFromSelection());
+                                    libraryField[2]("");
+                                }
+                                else if (e.currentTarget.value == '[[import library]]') {
+                                    setShowLibraryImportModal(true);
+                                    conditionField[2](buildConditionFromSelection());
+                                    libraryField[2]("");
+                                }
+                                else {
+                                    conditionField[2](buildConditionFromSelection(e.currentTarget.value));
+                                    libraryField[2](expressionOptions[e.currentTarget.value].libraryUrl);
+                                }
+                            }}
+                            value={conditionField[1].expression?.expression}
+                        >
+                            <option key="" value="">None</option>
+                            {Object.keys(expressionOptions).map((v) => {
+                                const exprOption = expressionOptions[v];
+                                return <option key={v} value={v}>{`${exprOption.expressionInLibrary} (${exprOption.libraryIdentifier})`}</option>;
+                            })}
+                            <option key="[[import library]]" value="[[import library]]">Import condition from FHIR Library...</option>
+                        </Form.Control>
+                    </InputGroup>
+                </Form.Group>
+            </Row>
+        </>
     )
+}
+
+const buildConditionFromSelection = (expression?: string): PlanDefinitionActionCondition => {
+    let insertedExpression = "";
+    if (expression) {
+        insertedExpression = expression;
+    }
+    return {
+        expression: {
+            language: 'text/cql',
+            expression: insertedExpression
+        },
+        kind: 'applicability'
+    };
 }
 
 function cardPDActionConditionStateEditor(planNode: SageNodeInitializedFreezerNode): [any, any] {
@@ -263,6 +258,21 @@ function initializeLibraries(setExpressionOptions: { (value: React.SetStateActio
         },
         []
     );
+
+    const getExpressionOptionsFromLibraries = (libraries: { library: cql.Library, url: string }[]) => {
+        const foundOptions: ExpressionOptionDict = {};
+        for (const library of libraries) {
+            for (const expressionKey of Object.keys(library.library.expressions)) {
+                const libId = library.library.source.library.identifier.id;
+                foundOptions[`${libId}.${expressionKey}`] = {
+                    expressionInLibrary: expressionKey,
+                    libraryIdentifier: libId,
+                    libraryUrl: library.url
+                };
+            }
+        }
+        return foundOptions;
+    }
 
     const [libraries, setLibraries] = useState<{ library: cql.Library, url: string }[]>([]);
     useEffect(
