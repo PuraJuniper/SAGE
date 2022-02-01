@@ -20,4 +20,4 @@ jobs:
         env:
           GCP_SA_KEY: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_FRED_CA431 }}'
 
-      - run: npm run test
+      - run: npm run test-ci

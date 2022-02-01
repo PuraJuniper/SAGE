@@ -55,7 +55,7 @@ class ElementMenu extends React.Component {
 
 
 	render() {
-		return <Dropdown id="element-menu" onToggle={this.handleToggle.bind(this)}>
+		return <Dropdown data-testid={`${this.props.node.displayName}-dropdown`} onToggle={this.handleToggle.bind(this)}>
 			{this.renderToggle()}
 			{this.renderMenu()}
 		</Dropdown>;
