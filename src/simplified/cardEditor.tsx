@@ -65,19 +65,33 @@ const insertCardHeader = (state: any, actResourceType: any) => {
 }
 
 
-function insertTextBoxField(fieldList: any[][], fhirFieldName: string, friendlyFieldName: string) {
+function insertTextBoxField(fieldList: any[][], fhirFieldName: string, friendlyFieldName: string, boxSize: number = 1) {
     const [fieldName, fieldContents, setField] = fieldList.find(field => field[0] == fhirFieldName)!
+    const formControlArea = boxSize > 1 ? insertFormControlLarge(boxSize) : insertFormControlSmall()
     return (
         <Form.Group as={Row} controlId={fieldName}>
             <Form.Label column sm={2}>{friendlyFieldName}</Form.Label>
             <Col sm={10}>
-                <Form.Control
-                    type="text"
-                    defaultValue={fieldContents}
-                    onChange={(e) => setField(e.currentTarget.value)} />
+                {formControlArea}
             </Col>
         </Form.Group>
     );
+
+    function insertFormControlSmall() {
+        return <Form.Control
+            type="text"
+            defaultValue={fieldContents}
+            onChange={(e) => setField(e.currentTarget.value)} />;
+    }
+
+    function insertFormControlLarge(num: number | undefined) {
+        return <Form.Control
+            type="text"
+            as="textarea"
+            rows={num}
+            defaultValue={fieldContents}
+            onChange={(e) => setField(e.currentTarget.value)} />;
+    }
 }
 
 const insertElementsForType = (fieldList: any[][], type: string, actNode: SageNodeInitializedFreezerNode) => {
@@ -162,7 +176,7 @@ export const CardEditor = (props: CardEditorProps) => {
             <Form style={{ color: "#2a6b92" }} id="commonMetaDataForm" target="void" onSubmit={handleSaveResource}>
                 {insertCardHeader(state, actResourceType)}
                 {insertTextBoxField(fieldList, titleKey, fieldNameMap.get(titleKey)!)}
-                {insertTextBoxField(fieldList, descriptionKey, fieldNameMap.get(descriptionKey)!)}
+                {insertTextBoxField(fieldList, descriptionKey, fieldNameMap.get(descriptionKey)!, 3)}
                 {/* {insertConditionDropdown(fieldList)} */}
                 {insertElementsForType(fieldList, actResourceType!.FHIR, actNode)}
             </Form>
