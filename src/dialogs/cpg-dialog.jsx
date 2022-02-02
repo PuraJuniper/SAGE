@@ -173,24 +173,6 @@ class CpgDialog extends React.Component {
         return State.emit("set_ui", "closedialog");
     }
 
-    handleVersionChange(e) {
-        this.setState({
-            version: e.target.value,
-        });
-    }
-
-    handleDateChange(e) {
-        this.setState({
-            date: e.target.value,
-        });
-    }
-
-    handleCPGNameChange(e) {
-        this.setState({
-            CPGName: e.target.value,
-        });
-    }
-
     handleStatusChange(e) {
         this.setState({
             status: e.target.value,
@@ -200,48 +182,6 @@ class CpgDialog extends React.Component {
     handleExperimentalChange(e) {
         this.setState({
             experimental: e.target.value == "true" ? true : false,
-        });
-    }
-
-    handleCopyrightChange(e) {
-        this.setState({
-            copyright: e.target.value,
-        });
-    }
-
-    handleapprovaldateChange(e) {
-        this.setState({
-            approvalDate: e.target.value,
-        });
-    }
-
-    handlelastreviewdateChange(e) {
-        this.setState({
-            lastReviewDate: e.target.value,
-        });
-    }
-
-    handleAuthorNameChange(e) {
-        this.setState({
-            publisher: e.target.value,
-        });
-    }
-
-    handleAuthorChange(e) {
-        this.setState({
-            author: e.target.value,
-        });
-    }
-
-    handleEditorChange(e) {
-        this.setState({
-            editor: e.target.value,
-        });
-    }
-
-    handleReviewerChange(e) {
-        this.setState({
-            reviewer: e.target.value,
         });
     }
 
@@ -405,7 +345,9 @@ class CpgDialog extends React.Component {
                         <input
                             className= {(!this.state.version ? "form-control is-invalid" : "form-control")}
                             value={this.state.version}
-                            onChange={this.handleVersionChange.bind(this)}
+                            onChange = {(e) => {
+                                this.setState({ version: e.target.value });
+                            }}
                         />
                     </Col>    
                     <Col md="6">
@@ -413,7 +355,9 @@ class CpgDialog extends React.Component {
                         <input
                             className= "form-control"
                             value={this.state.date}
-                            onChange={this.handleDateChange.bind(this)}
+                            onChange = {(e) => {
+                                this.setState({ date: e.target.value });
+                            }}
                         />  
                     </Col>
                     <Col md="6">
@@ -451,7 +395,9 @@ class CpgDialog extends React.Component {
                         <input
                             className= {(!this.state.publisher ? "form-control is-invalid" : "form-control")}
                             value={this.state.publisher}
-                            onChange={this.handleAuthorNameChange.bind(this)}
+                            onChange = {(e) => {
+                                this.setState({ publisher: e.target.value });
+                            }}
                         />
                     </Col>
                     <Col md="6">
@@ -459,7 +405,9 @@ class CpgDialog extends React.Component {
                         <input
                             className="form-control"
                             value={this.state.copyright}
-                            onChange={this.handleCopyrightChange.bind(this)}
+                            onChange = {(e) => {
+                                this.setState({ copyright: e.target.value });
+                            }}
                         />  
                     </Col>   
                     <Col md="6">
@@ -467,7 +415,9 @@ class CpgDialog extends React.Component {
                         <input
                             className="form-control"
                             value={this.state.approvalDate}
-                            onChange={this.handleapprovaldateChange.bind(this)}
+                            onChange = {(e) => {
+                                this.setState({ approvalDate: e.target.value });
+                            }}
                         />  
                     </Col> 
                     <Col md="6">
@@ -475,7 +425,9 @@ class CpgDialog extends React.Component {
                         <input
                             className="form-control"
                             value={this.state.lastReviewDate}
-                            onChange={this.handlelastreviewdateChange.bind(this)}
+                            oonChange = {(e) => {
+                                this.setState({ lastReviewDate: e.target.value });
+                            }}
                         />  
                     </Col> 
                 </Row>
@@ -485,7 +437,9 @@ class CpgDialog extends React.Component {
                         <input
                             className= {(!this.state.CPGName ? "form-control is-invalid" : "form-control")}
                             value={this.state.CPGName}
-                            onChange={this.handleCPGNameChange.bind(this)}
+                            onChange = {(e) => {
+                                this.setState({ CPGName: e.target.value });
+                            }}
                         />
                     </Col>
                 </Row>
@@ -495,7 +449,9 @@ class CpgDialog extends React.Component {
                         <input
                             className= {(!this.state.author ? "form-control is-invalid" : "form-control")}
                             value={this.state.author}
-                            onChange={this.handleAuthorChange.bind(this)}
+                            onChange = {(e) => {
+                                this.setState({ author: e.target.value });
+                            }}
                         />
                     </Col>
                     <Col md="4">                                     
@@ -503,7 +459,9 @@ class CpgDialog extends React.Component {
                         <input
                             className= {(!this.state.editor ? "form-control is-invalid" : "form-control")}
                             value={this.state.editor}
-                            onChange={this.handleEditorChange.bind(this)}
+                            onChange = {(e) => {
+                                this.setState({ editor: e.target.value });
+                            }}
                         />
                     </Col>
                     <Col md="4">                                     
@@ -511,7 +469,9 @@ class CpgDialog extends React.Component {
                         <input
                             className= {(!this.state.reviewer ? "form-control is-invalid" : "form-control")}
                             value={this.state.reviewer}
-                            onChange={this.handleReviewerChange.bind(this)}
+                            onChange = {(e) => {
+                                this.setState({ reviewer: e.target.value });
+                            }}
                         />
                     </Col>
                 </Row>
