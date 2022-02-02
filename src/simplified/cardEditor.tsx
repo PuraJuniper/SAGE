@@ -97,30 +97,11 @@ function insertTextBoxField(fieldList: any[][], fhirFieldName: string, friendlyF
 const insertElementsForType = (fieldList: any[][], type: string, actNode: SageNodeInitializedFreezerNode) => {
     const fieldNameMap = new Map();
     const statusKey = "status";
+    const statusFriendlyName = "Status:";
     const statusTypes = ['active', 'on-hold', 'cancelled', 'completed', 'entered-in-error', 'stopped', 'draft', 'unknown'];
     switch (type) {
         case "MedicationRequest":
-            fieldNameMap.set(statusKey, "Status:");
-            const [statusName, statusContents, setStatus, statusSaveHandler] = simpleCardField(statusKey, actNode);
-            fieldList.push([statusName, statusContents, setStatus, statusSaveHandler])
-            return (
-                <Form.Group as={Row} controlId={statusKey}>
-                    <Form.Label column sm={2}>{fieldNameMap.get(statusKey)}</Form.Label>
-                    <Col sm={10}>
-                        <InputGroup className="mb-3">
-                            <Form.Control
-                                as="select"
-                                defaultValue={statusContents}
-                                onChange={(e) => setStatus(e.currentTarget.value)}
-                            >
-                                {statusTypes.map(sType => {
-                                    return <option key={sType} value={sType}>{sType}</option>;
-                                })}
-                            </Form.Control>
-                        </InputGroup>
-                    </Col>
-                </Form.Group>
-            );
+            return insertDropdownElement(statusKey, statusFriendlyName, statusTypes, fieldNameMap, actNode, fieldList);
         default:
             return;
     }
@@ -186,18 +167,32 @@ export const CardEditor = (props: CardEditorProps) => {
     function handleSaveResource() {
         fieldList.forEach((field) => field[3](field[0], field[1], actNode, planNode));
 
-        //----Status to be added as needed------
-        // if (actNode.displayName == ACTIVITY_DEFINITION) {
-        //     emitChildNodeChange(actNode, State.get().status, "status");
-        // }
-        // emitChildNodeChange(planNode, State.get().status, "status");
-
-        // function emitChildNodeChange(node: SageNodeInitializedFreezerNode, field: any, fieldName: string) {
-        //     State.emit("value_change", SchemaUtils.getChildOfNode(node, fieldName), field, false);
-        // }
-
         State.get().set("ui", { status: "collection" });
     }
+}
+
+function insertDropdownElement(fieldKey: string, fieldFriendlyName: string, fieldElements: string[], fieldNameMap: Map<any, any>, actNode: SageNodeInitializedFreezerNode, fieldList: any[][]) {
+    fieldNameMap.set(fieldKey, fieldFriendlyName);
+    const [fieldName, fieldContents, setField, fieldSaveHandler] = simpleCardField(fieldKey, actNode);
+    fieldList.push([fieldName, fieldContents, setField, fieldSaveHandler]);
+    return (
+        <Form.Group as={Row} controlId={fieldKey}>
+            <Form.Label column sm={2}>{fieldNameMap.get(fieldKey)}</Form.Label>
+            <Col sm={10}>
+                <InputGroup className="mb-3">
+                    <Form.Control
+                        as="select"
+                        defaultValue={fieldContents}
+                        onChange={(e) => setField(e.currentTarget.value)}
+                    >
+                        {fieldElements.map(sType => {
+                            return <option key={sType} value={sType}>{sType}</option>;
+                        })}
+                    </Form.Control>
+                </InputGroup>
+            </Col>
+        </Form.Group>
+    );
 }
 
 function insertConditionDropdown(fieldList: any[][]) {
