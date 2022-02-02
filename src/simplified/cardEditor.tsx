@@ -1,10 +1,11 @@
 import { faCaretLeft, faCaretRight } from '@fortawesome/pro-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import * as cql from "cql-execution";
-import { Library, PlanDefinitionActionCondition } from "fhir/r4";
+import { Library, PlanDefinitionActionCondition, MedicationRequest } from "fhir/r4";
 import { ExtractTypeOfFN } from "freezer-js";
 import React, { useEffect, useState } from "react";
 import { Button, Col, Form, InputGroup, Modal, Row } from 'react-bootstrap';
+import { textSpanOverlapsWith } from 'typescript';
 import hypertensionLibraryJson from "../../public/samples/hypertension-library.json";
 import * as SageUtils from "../helpers/sage-utils";
 import * as SchemaUtils from "../helpers/schema-utils";
@@ -63,6 +64,54 @@ const insertCardHeader = (state: any, actResourceType: any) => {
     );
 }
 
+
+function insertTextBoxField(fieldList: any[][], fhirFieldName: string, friendlyFieldName: string) {
+    const [fieldName, fieldContents, setField] = fieldList.find(field => field[0] == fhirFieldName)!
+    return (
+        <Form.Group as={Row} controlId={fieldName}>
+            <Form.Label column sm={2}>{friendlyFieldName}</Form.Label>
+            <Col sm={10}>
+                <Form.Control
+                    type="text"
+                    defaultValue={fieldContents}
+                    onChange={(e) => setField(e.currentTarget.value)} />
+            </Col>
+        </Form.Group>
+    );
+}
+
+const insertElementsForType = (fieldList: any[][], type: string, actNode: SageNodeInitializedFreezerNode) => {
+    const fieldNameMap = new Map();
+    const statusKey = "status";
+    const statusTypes = ['active', 'on-hold', 'cancelled', 'completed', 'entered-in-error', 'stopped', 'draft', 'unknown'];
+    switch (type) {
+        case "MedicationRequest":
+            fieldNameMap.set(statusKey, "Status:");
+            const [statusName, statusContents, setStatus, statusSaveHandler] = simpleCardField(statusKey, actNode);
+            fieldList.push([statusName, statusContents, setStatus, statusSaveHandler])
+            return (
+                <Form.Group as={Row} controlId={statusKey}>
+                    <Form.Label column sm={2}>{fieldNameMap.get(statusKey)}</Form.Label>
+                    <Col sm={10}>
+                        <InputGroup className="mb-3">
+                            <Form.Control
+                                as="select"
+                                defaultValue={statusContents}
+                                onChange={(e) => setStatus(e.currentTarget.value)}
+                            >
+                                {statusTypes.map(sType => {
+                                    return <option key={sType} value={sType}>{sType}</option>;
+                                })}
+                            </Form.Control>
+                        </InputGroup>
+                    </Col>
+                </Form.Group>
+            );
+        default:
+            return;
+    }
+}
+
 const simpleCardField = (fieldName: string, actNode: SageNodeInitializedFreezerNode) => {
     const [fieldContents, setField] = cardStringStateEditor(actNode, fieldName);
     function fieldSaveHandler(name: string, contents: any, act: any, plan: any) {
@@ -90,37 +139,20 @@ const conditionCardField = (planNode: SageNodeInitializedFreezerNode) => {
     return ["condition", condition, setCondition, conditionSaveHandler]
 }
 
-const insertElementsForType = (fieldList: any[][], type: string, actNode: SageNodeInitializedFreezerNode) => {
-    switch (type) {
-        case "MedicationRequest":
-            fieldList.push(simpleCardField("test", actNode))
-            return (
-                <>
-                    <Row className="mb-2">
-                        <Form.Group as={Col} controlId="test">
-                            <Form.Label>Test</Form.Label>
-                            <InputGroup className="mb-3">
-                                <Form.Control as="select">
-                                    <option key="" value="">None</option>
-                                </Form.Control>
-                            </InputGroup>
-                        </Form.Group>
-                    </Row>
-                </>
-            )
-        default:
-            return;
-    }
-}
-
 export const CardEditor = (props: CardEditorProps) => {
     const actNode = props.actNode;
     const planNode = props.planNode;
     const actResourceType = profileToFriendlyResourceListEntry(SchemaUtils.toFhir(actNode, false).meta?.profile?.[0]);
     const state = State.get();
+    const titleKey = "title";
+    const descriptionKey = "description";
+    const fieldNameMap = new Map([
+        [titleKey, "Card short name:"],
+        [descriptionKey, "Card description:"]
+    ]);
     const fieldList = [
-        simpleCardField("title", actNode),
-        simpleCardField("description", actNode),
+        simpleCardField(titleKey, actNode),
+        simpleCardField(descriptionKey, actNode),
         simpleCardField("library", actNode),
         conditionCardField(planNode)
     ]
@@ -129,9 +161,9 @@ export const CardEditor = (props: CardEditorProps) => {
         <div>
             <Form style={{ color: "#2a6b92" }} id="commonMetaDataForm" target="void" onSubmit={handleSaveResource}>
                 {insertCardHeader(state, actResourceType)}
-                {insertTextBoxField(fieldList, "Title")}
-                {insertTextBoxField(fieldList, "Description")}
-                {insertConditionDropdown(fieldList)}
+                {insertTextBoxField(fieldList, titleKey, fieldNameMap.get(titleKey)!)}
+                {insertTextBoxField(fieldList, descriptionKey, fieldNameMap.get(descriptionKey)!)}
+                {/* {insertConditionDropdown(fieldList)} */}
                 {insertElementsForType(fieldList, actResourceType!.FHIR, actNode)}
             </Form>
         </div>
@@ -291,19 +323,6 @@ function initializeLibraries(setExpressionOptions: { (value: React.SetStateActio
         },
         [libraries],
     );
-}
-
-function insertTextBoxField(fieldList: any[][], friendlyFieldName: string) {
-    const [fieldName, fieldContents, setField] = fieldList.find(field => field[0] == friendlyFieldName.toLowerCase())!
-    return <Row className="mb-2">
-        <Form.Group as={Col} controlId={fieldName}>
-            <Form.Label>{friendlyFieldName}</Form.Label>
-            <Form.Control
-                type="text"
-                defaultValue={fieldContents}
-                onChange={(e) => setField(e.currentTarget.value)} />
-        </Form.Group>
-    </Row>;
 }
 
 function libraryModalElement(showLibraryImportModal: boolean, setShowLibraryImportModal: React.Dispatch<React.SetStateAction<boolean>>, setFhirLibrary: React.Dispatch<any>, handleImportLibrary: () => void) {
