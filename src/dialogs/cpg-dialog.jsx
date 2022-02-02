@@ -412,7 +412,7 @@ class CpgDialog extends React.Component {
                     <Col md="6">
                         <p style={{marginTop: "10px"}}>Date:</p>
                         <input
-                            className= {(this.state.submitInvalid ? "form-control is-invalid" : "form-control")}
+                            className= "form-control"
                             value={this.state.date}
                             onChange={this.handleDateChange.bind(this)}
                         />  
