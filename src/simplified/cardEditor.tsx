@@ -95,13 +95,26 @@ function insertTextBoxField(fieldList: any[][], fhirFieldName: string, friendlyF
 }
 
 const insertElementsForType = (fieldList: any[][], type: string, actNode: SageNodeInitializedFreezerNode) => {
-    const fieldNameMap = new Map();
-    const statusKey = "status";
-    const statusFriendlyName = "Status:";
-    const statusTypes = ['active', 'on-hold', 'cancelled', 'completed', 'entered-in-error', 'stopped', 'draft', 'unknown'];
     switch (type) {
         case "MedicationRequest":
-            return insertDropdownElement(statusKey, statusFriendlyName, statusTypes, fieldNameMap, actNode, fieldList);
+            return (
+                <>
+                    {insertDropdownElement(
+                        "status",
+                        "Status:",
+                        ['active', 'on-hold', 'cancelled', 'completed', 'entered-in-error', 'stopped', 'draft', 'unknown'],
+                        actNode,
+                        fieldList
+                    )}
+                    {insertDropdownElement(
+                        "intent",
+                        "Intent:",
+                        ['proposal', 'plan', 'order', 'original-order', 'reflex-order', 'filler-order', 'instance-order', 'option'],
+                        actNode,
+                        fieldList
+                    )}
+                </>
+            )
         default:
             return;
     }
@@ -171,13 +184,13 @@ export const CardEditor = (props: CardEditorProps) => {
     }
 }
 
-function insertDropdownElement(fieldKey: string, fieldFriendlyName: string, fieldElements: string[], fieldNameMap: Map<any, any>, actNode: SageNodeInitializedFreezerNode, fieldList: any[][]) {
-    fieldNameMap.set(fieldKey, fieldFriendlyName);
+function insertDropdownElement(fieldKey: string, fieldFriendlyName: string, fieldElements: string[], actNode: SageNodeInitializedFreezerNode, fieldList: any[][]) {
+
     const [fieldName, fieldContents, setField, fieldSaveHandler] = simpleCardField(fieldKey, actNode);
     fieldList.push([fieldName, fieldContents, setField, fieldSaveHandler]);
     return (
         <Form.Group as={Row} controlId={fieldKey}>
-            <Form.Label column sm={2}>{fieldNameMap.get(fieldKey)}</Form.Label>
+            <Form.Label column sm={2}>{fieldFriendlyName}</Form.Label>
             <Col sm={10}>
                 <InputGroup className="mb-3">
                     <Form.Control
@@ -186,7 +199,7 @@ function insertDropdownElement(fieldKey: string, fieldFriendlyName: string, fiel
                         onChange={(e) => setField(e.currentTarget.value)}
                     >
                         {fieldElements.map(sType => {
-                            return <option key={sType} value={sType}>{sType}</option>;
+                            return <option key={fieldKey+"-"+sType} value={sType}>{sType}</option>;
                         })}
                     </Form.Control>
                 </InputGroup>
