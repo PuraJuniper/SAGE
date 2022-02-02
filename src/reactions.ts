@@ -10,6 +10,7 @@ import { Bundle, Library, Resource } from 'fhir/r4';
 import * as SchemaUtils from './helpers/schema-utils';
 import * as BundleUtils from './helpers/bundle-utils';
 import { SageNode, SageNodeInitialized, SimplifiedProfiles } from './helpers/schema-utils';
+import { ACTIVITY_DEFINITION, PLAN_DEFINITION, QUESTIONNAIRE } from './simplified/nameHelpers';
 
 const canMoveNode = function(node: SageNodeInitialized, parent: SageNodeInitialized) {
 	if (!["objectArray", "valueArray"].includes(parent?.nodeType)) {
@@ -391,7 +392,7 @@ State.on("show_open_insert", () => {
 	if (State.get().CPGName) {
 		// ie if the bundle is a CPG
 		State.get().ui.set("openMode", "insert");
-		const json = {resourceType: "Bundle", entry: [{resource: {resourceType: "PlanDefinition"}}]};
+		const json = {resourceType: "Bundle", entry: [{resource: {resourceType: PLAN_DEFINITION}}]};
         return State.emit("load_json_resource", json);
 	}
 	State.get().ui.pivot()
@@ -403,7 +404,7 @@ State.on("show_open_questionnaire", () => {
 	State.emit("set_bundle_pos", State.get().bundle.pos);
 	if (State.get().CPGName) {
 		State.get().ui.set("openMode", "insert");
-		const questionnaireJson = {resourceType: "Questionnaire"};
+		const questionnaireJson = {resourceType: QUESTIONNAIRE};
 		const json = {resourceType: "Bundle", entry: [{resource: questionnaireJson}]};
 		return State.emit("load_json_resource", json);
 	}
@@ -416,7 +417,7 @@ State.on("show_open_activity", () => {
 	State.emit("set_bundle_pos", State.get().bundle.pos);
        if (State.get().CPGName) {
                State.get().ui.set("openMode", "insert");
-               const activityDefJson = {resourceType: "ActivityDefinition"};
+               const activityDefJson = {resourceType: ACTIVITY_DEFINITION};
                const json = {resourceType: "Bundle", entry: [{resource: activityDefJson}]};
                return State.emit("load_json_resource", json);
        }
@@ -646,51 +647,17 @@ State.on("insert_from_code_picker", function(node, system, code, systemOID, vers
 	node.children.splice(0, node.children.length, ...codeNodes);
 });
 
-State.on("show_canonical_dialog", function(node) {
-	State.get().ui.pivot().set("selectedNode", node);
+State.on("show_canonical_dialog", function(node, resourceTypes?) {
+	State.get().ui.pivot().set("selectedNode", node).set("selectCanonicalResourceTypeFilter", resourceTypes);
 	return State.emit("set_ui", "select");
 })
 
 State.on("set_selected_canonical", function(node, pos) {
 	const state = State.get();
 	const referencedResourceJson = SchemaUtils.toFhir(state.bundle.resources[pos], false);
-	const url = referencedResourceJson.url;
-	//console.log('set_selected_canonical', node, pos, state, url);
-	for (let i = 0; i < node.children.length; i++) {
-		if (node.children[i].name ==  'definitionCanonical') {
-			const dCChild = node.children[i];
-			//console.log('dcchild', dCChild);
-			const pivotedNode = node.pivot().children.splice(i,1);
-			//console.log('dcchild', dCChild);
-			const {
-					position,
-					newNode
-			} = getFhirElementNodeAndPosition(node, dCChild)
-			if (newNode) {
-				newNode.value = url;
-				newNode.ui = {status: "ready"};
-				pivotedNode.children.splice(position, 1, newNode);
-			}
-			// const PDActionDef = State.get().profiles[node.nodePath];
-			// const actionChildren = SchemaUtils.getElementChildren(State.get().profiles, PDActionDef, null);
-		}
-
-	}
-	// const PDActionDef = 
-	// const actionChildren = SchemaUtils.getElementChildren(State.get().profiles, 'PlanDefinition.action', null);
-	// for (const child of actionChildren) {
-	// 	if (child.name == "definitionCanonical") {
-	// 		const {
-	// 				position,
-	// 				newNode
-	// 		} = getFhirElementNodeAndPosition(node, child)
-	// 		if (newNode) {
-	// 			newNode.value = url;
-	// 			newNode.ui = {status: "ready"};
-	// 			node = node.children.splice(position, 1, newNode);
-	// 		}
-	// 	}
-	// }
+	const url = referencedResourceJson.url || "";
+	// console.log('set_selected_canonical', node, pos, state, url, referencedResourceJson);
+	node.pivot().set("value", url).set("ui", {status: "ready"});
 });
 
 State.on("add_array_value", function(node) {
@@ -785,6 +752,10 @@ State.on("load_library", function(library, url, fhirLibrary) {
 		url: url
 	});
 	console.log(State.get());
+});
+
+State.on("insert_resource_into_bundle", function(resource) {
+	bundleInsert(resource, false);
 });
 
 export default State;

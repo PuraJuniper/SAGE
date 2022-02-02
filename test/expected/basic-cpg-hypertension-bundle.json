@@ -24,13 +24,13 @@
                    "url": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-knowledgeCapability"
                 }
              ],
-             "url": "http://fhir.org/guides/author/ActivityDefinition/ActivityDefinition-cpgname1",
+             "url": "http://fhir.org/guides/publisher/ActivityDefinition/ActivityDefinition-cpgname0",
              "version": "1.0.0",
              "name": "ActivityDefinition-cpgname1",
              "title": "123",
              "status": "draft",
              "experimental": true,
-             "publisher": "author",
+             "publisher": "publisher",
              "description": "321",
              "kind": "Task",
              "profile": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-administermedicationtask",
@@ -52,14 +52,14 @@
                    "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-computableplandefinition"
                 ]
              },
-             "url": "http://fhir.org/guides/author/PlanDefinition/PlanDefinition-cpgname1",
+             "url": "http://fhir.org/guides/publisher/PlanDefinition/PlanDefinition-cpgname1",
              "version": "1.0.0",
              "name": "PlanDefinition-cpgname1",
              "title": "123",
              "type": {},
              "status": "draft",
              "experimental": true,
-             "publisher": "author",
+             "publisher": "publisher",
              "description": "321",
              "library": [
                 "http://somewhere.org/fhir/uv/mycontentig/Library/HypertensionCA"
@@ -77,7 +77,7 @@
                          "kind": "applicability"
                       }
                    ],
-                   "definitionCanonical": "http://fhir.org/guides/publisher/ActivityDefinition/ActivityDefinition-cpgnameundefined"
+                   "definitionCanonical": "http://fhir.org/guides/publisher/ActivityDefinition/ActivityDefinition-cpgname0"
                 }
              ],
              "resourceType": "PlanDefinition"
