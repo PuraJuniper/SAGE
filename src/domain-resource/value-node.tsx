@@ -117,7 +117,7 @@ class ValueNode extends React.Component<ValueNodeProps, Record<string, never>> {
 			<div className="col-sm-3 fhir-data-title" title={this.props.node.short}>
 				{this.props.node.displayName}{required}{fixed}:
 			</div>
-			<div className="col-sm-9 fhir-data-content">
+			<div className="col-sm-9 fhir-data-content" onClick={this.props.onEditStart}>
 				<ValueDisplay 
 					node={this.props.node} 
 					parent={this.props.parent}
