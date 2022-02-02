@@ -19,8 +19,7 @@ class CpgDialog extends React.Component {
     constructor(props) {
         super(...arguments);
         this.state = {
-            fields: {},
-            errors: {},
+            submitInvalid: false,
             showSpinner: false,
             tab: "CPGNew",
             version:"1.0.0",
@@ -250,18 +249,15 @@ class CpgDialog extends React.Component {
         return this.setState({tab: key});
     }
 
-    handleValidation() {
-        if (!this.state.CPGName || !this.state.publisher) return;
-    }
-
     handleOpenResource(status, e) {
+        
         if (!this.state.version || !this.state.status || !this.state.experimental||
             !this.state.author || !this.state.editor || !this.state.reviewer ||
             !this.state.publisher || !this.state.CPGName) {
-                
+                this.setState({submitInvalid: true});
                 return;
         }
-        this.handleValidation.bind(this);
+
 		e.preventDefault();
         State.get().set({
             version: this.state.version,
@@ -399,22 +395,24 @@ class CpgDialog extends React.Component {
         );
     }
 
+
     renderNewCPGInput() {
+        //const submitInvalid = this.state.isInvalid;
         return (
             <Container>
                 <Row className="row">
                     <Col md="6">   
                         <p style={{marginTop: "10px"}}>Version:<span style={{color: "red"}}>*</span></p>
                         <input
-                            className="form-control"
+                            className= {(this.state.submitInvalid ? "form-control is-invalid" : "form-control")}
                             value={this.state.version}
                             onChange={this.handleVersionChange.bind(this)}
-                        />   
+                        />
                     </Col>    
                     <Col md="6">
                         <p style={{marginTop: "10px"}}>Date:</p>
                         <input
-                            className="form-control"
+                            className= {(this.state.submitInvalid ? "form-control is-invalid" : "form-control")}
                             value={this.state.date}
                             onChange={this.handleDateChange.bind(this)}
                         />  
@@ -452,7 +450,7 @@ class CpgDialog extends React.Component {
                     <Col md="6">
                     <p style={{marginTop: "10px"}}>Publisher:<span style={{color: "red"}}>*</span></p>
                         <input
-                            className="form-control"
+                            className= {(this.state.submitInvalid ? "form-control is-invalid" : "form-control")}
                             value={this.state.publisher}
                             onChange={this.handleAuthorNameChange.bind(this)}
                         />
@@ -486,7 +484,7 @@ class CpgDialog extends React.Component {
                 <Col md="12">                                     
                         <p style={{marginTop: "10px"}}>CPG Name:<span style={{color: "red"}}>*</span></p>
                         <input
-                            className="form-control"
+                            className= {(this.state.submitInvalid ? "form-control is-invalid" : "form-control")}
                             value={this.state.CPGName}
                             onChange={this.handleCPGNameChange.bind(this)}
                         />
@@ -496,7 +494,7 @@ class CpgDialog extends React.Component {
                 <Col md="4">                                     
                         <p style={{marginTop: "10px"}}>Author:<span style={{color: "red"}}>*</span></p>
                         <input
-                            className="form-control"
+                            className= {(this.state.submitInvalid ? "form-control is-invalid" : "form-control")}
                             value={this.state.author}
                             onChange={this.handleAuthorChange.bind(this)}
                         />
@@ -504,7 +502,7 @@ class CpgDialog extends React.Component {
                     <Col md="4">                                     
                         <p style={{marginTop: "10px"}}>Editor:<span style={{color: "red"}}>*</span></p>
                         <input
-                            className="form-control"
+                            className= {(this.state.submitInvalid ? "form-control is-invalid" : "form-control")}
                             value={this.state.editor}
                             onChange={this.handleEditorChange.bind(this)}
                         />
@@ -512,7 +510,7 @@ class CpgDialog extends React.Component {
                     <Col md="4">                                     
                         <p style={{marginTop: "10px"}}>Reviewer:<span style={{color: "red"}}>*</span></p>
                         <input
-                            className="form-control"
+                            className= {(this.state.submitInvalid ? "form-control is-invalid" : "form-control")}
                             value={this.state.reviewer}
                             onChange={this.handleReviewerChange.bind(this)}
                         />
