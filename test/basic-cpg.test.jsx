@@ -37,7 +37,7 @@ afterAll(() => server.close());
 test('Create a basic CPG with a single PD that uses the hypertension library and export it', async () => {
     render(<RootComponent />);
     // Wait for profiles to load
-    await waitForElementToBeRemoved(() => screen.queryByRole('progressbar', {name: "loading-symbol"}), {timeout: process.env.CI ? 30000 : 5000, interval: 1000});
+    await waitForElementToBeRemoved(() => screen.queryByRole('progressbar', {name: "loading-symbol"}), {timeout: process.env.CI ? 30000 : 10000, interval: 500});
     // RootComponent
     userEvent.click(screen.getAllByRole('button', {name: 'Basic CPG'})[0]);
     // CpgDialog open on screen
