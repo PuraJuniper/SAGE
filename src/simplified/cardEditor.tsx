@@ -83,10 +83,10 @@ function insertTextBoxField(fieldList: any[][], fieldKey: string, friendlyFieldN
     }
 
     fieldList.push([fieldName, fieldContents, setField, fieldSaveHandler]);
-    
+
     return (
-        <Form.Group as={Row} controlId={fieldName}>
-            <Form.Label column sm={2}>{friendlyFieldName}</Form.Label>
+        <Form.Group as={Col} controlId={fieldName}>
+            <Form.Label>{friendlyFieldName}</Form.Label>
             <Col sm={10}>
                 {returnVal()}
             </Col>
@@ -98,8 +98,8 @@ function insertDropdownElement(fieldKey: string, fieldFriendlyName: string, fiel
     const [fieldName, fieldContents, setField, fieldSaveHandler] = simpleCardField(fieldKey, actNode);
     fieldList.push([fieldName, fieldContents, setField, fieldSaveHandler]);
     return (
-        <Form.Group as={Row} controlId={fieldKey}>
-            <Form.Label column sm={2}>{fieldFriendlyName}</Form.Label>
+        <Form.Group as={Col} controlId={fieldKey}>
+            <Form.Label>{fieldFriendlyName}</Form.Label>
             <Col sm={10}>
                 <InputGroup className="mb-3">
                     <Form.Control
@@ -117,38 +117,45 @@ function insertDropdownElement(fieldKey: string, fieldFriendlyName: string, fiel
     );
 }
 
-const insertElementsForType = (fieldList: any[][], type: string, actNode: SageNodeInitializedFreezerNode) => {
+const generateElementsForType = (fieldList: any[][], type: string, actNode: SageNodeInitializedFreezerNode) => {
     switch (type) {
         case "MedicationRequest":
-            return (
-                <>
-                    {insertDropdownElement(
-                        "status",
-                        "Status:",
-                        ['active', 'on-hold', 'cancelled', 'completed', 'entered-in-error', 'stopped', 'draft', 'unknown'],
-                        actNode,
-                        fieldList
-                    )}
-                    {insertDropdownElement(
-                        "intent",
-                        "Intent:",
-                        ['proposal', 'plan', 'order', 'original-order', 'reflex-order', 'filler-order', 'instance-order', 'option'],
-                        actNode,
-                        fieldList
-                    )}
-                    {insertTextBoxField(
-                        fieldList,
-                        "profile",
-                        "Related artefact",
-                        actNode,
-                        1,
-                        true,
-                        true)
-                    }
-                </>
-            )
+            return ([
+                // <>
+                insertDropdownElement(
+                    "status",
+                    "Status:",
+                    ['active', 'on-hold', 'cancelled', 'completed', 'entered-in-error', 'stopped', 'draft', 'unknown'],
+                    actNode,
+                    fieldList
+                ),
+                insertDropdownElement(
+                    "intent",
+                    "Intent:",
+                    ['proposal', 'plan', 'order', 'original-order', 'reflex-order', 'filler-order', 'instance-order', 'option'],
+                    actNode,
+                    fieldList
+                ),
+                insertTextBoxField(
+                    fieldList,
+                    "profile",
+                    "Related artefact",
+                    actNode,
+                    1,
+                    true,
+                    true)
+                ,
+                insertDropdownElement(
+                    "medicationCodeableConcept",
+                    "Medication (code): ",
+                    ['proposal', 'plan', 'order', 'original-order', 'reflex-order', 'filler-order', 'instance-order', 'option'],
+                    actNode,
+                    fieldList
+                )
+                // </>
+            ]);
         default:
-            return;
+            return [];
     }
 }
 
@@ -195,14 +202,41 @@ export const CardEditor = (props: CardEditorProps) => {
         conditionCardField(planNode)
     ]
 
+    const defaultFields = [insertTextBoxField(fieldList, titleKey, fieldNameMap.get(titleKey)!, actNode),
+    insertTextBoxField(fieldList, descriptionKey, fieldNameMap.get(descriptionKey)!, actNode, 3)];
+    const allCardFields = [...defaultFields,
+    ...generateElementsForType(fieldList, actResourceType!.FHIR, actNode)]
+    const numRows = 3;
+
+    const returnVal = [...Array(numRows)].map((e, i) => {
+        const numFields = allCardFields.length;
+        if (i > numFields-1) {
+            return <></>
+        } else {
+            const nextField = allCardFields[i + numFields-1];
+            if (nextField) {
+                return (
+                    <Row className="mb-3">
+                        {allCardFields[i]}
+                        {nextField}
+                    </Row>
+                );
+            } else {
+                return (
+                    <Row className="mb-3">
+                        {allCardFields[i]}
+                    </Row>
+                );
+            }
+        }
+    }
+    )
+
     return (
         <div>
             <Form style={{ color: "#2a6b92" }} id="commonMetaDataForm" target="void" onSubmit={handleSaveResource}>
                 {insertCardHeader(state, actResourceType)}
-                {insertTextBoxField(fieldList, titleKey, fieldNameMap.get(titleKey)!, actNode)}
-                {insertTextBoxField(fieldList, descriptionKey, fieldNameMap.get(descriptionKey)!, actNode, 3)}
-                {/* {insertConditionDropdown(fieldList)} */}
-                {insertElementsForType(fieldList, actResourceType!.FHIR, actNode)}
+                {returnVal}
             </Form>
         </div>
     );
