@@ -65,9 +65,12 @@ const insertCardHeader = (state: any, actResourceType: any) => {
 }
 
 
-function insertTextBoxField(fieldList: any[][], fhirFieldName: string, friendlyFieldName: string, boxSize: number = 1) {
-    const [fieldName, fieldContents, setField] = fieldList.find(field => field[0] == fhirFieldName)!
+function insertTextBoxField(fieldList: any[][], fieldKey: string, friendlyFieldName: string, actNode: SageNodeInitializedFreezerNode, boxSize: number = 1, readOnly: boolean = false) {
+    const [fieldName, fieldContents, setField, fieldSaveHandler] = simpleCardField(fieldKey, actNode);
     const formControlArea = boxSize > 1 ? insertFormControlLarge(boxSize) : insertFormControlSmall()
+
+    fieldList.push([fieldName, fieldContents, setField, fieldSaveHandler]);
+
     return (
         <Form.Group as={Row} controlId={fieldName}>
             <Form.Label column sm={2}>{friendlyFieldName}</Form.Label>
@@ -81,7 +84,8 @@ function insertTextBoxField(fieldList: any[][], fhirFieldName: string, friendlyF
         return <Form.Control
             type="text"
             defaultValue={fieldContents}
-            onChange={(e) => setField(e.currentTarget.value)} />;
+            onChange={(e) => setField(e.currentTarget.value)}
+            readOnly={readOnly} />;
     }
 
     function insertFormControlLarge(num: number | undefined) {
@@ -92,6 +96,30 @@ function insertTextBoxField(fieldList: any[][], fhirFieldName: string, friendlyF
             defaultValue={fieldContents}
             onChange={(e) => setField(e.currentTarget.value)} />;
     }
+}
+
+function insertDropdownElement(fieldKey: string, fieldFriendlyName: string, fieldElements: string[], actNode: SageNodeInitializedFreezerNode, fieldList: any[][]) {
+
+    const [fieldName, fieldContents, setField, fieldSaveHandler] = simpleCardField(fieldKey, actNode);
+    fieldList.push([fieldName, fieldContents, setField, fieldSaveHandler]);
+    return (
+        <Form.Group as={Row} controlId={fieldKey}>
+            <Form.Label column sm={2}>{fieldFriendlyName}</Form.Label>
+            <Col sm={10}>
+                <InputGroup className="mb-3">
+                    <Form.Control
+                        as="select"
+                        defaultValue={fieldContents}
+                        onChange={(e) => setField(e.currentTarget.value)}
+                    >
+                        {fieldElements.map(sType => {
+                            return <option key={fieldKey+"-"+sType} value={sType}>{sType}</option>;
+                        })}
+                    </Form.Control>
+                </InputGroup>
+            </Col>
+        </Form.Group>
+    );
 }
 
 const insertElementsForType = (fieldList: any[][], type: string, actNode: SageNodeInitializedFreezerNode) => {
@@ -113,6 +141,14 @@ const insertElementsForType = (fieldList: any[][], type: string, actNode: SageNo
                         actNode,
                         fieldList
                     )}
+                    {insertTextBoxField(
+                        fieldList,
+                        "profile",
+                        "Related artefact",
+                        actNode,
+                        1,
+                        true)
+                }
                 </>
             )
         default:
@@ -159,8 +195,6 @@ export const CardEditor = (props: CardEditorProps) => {
         [descriptionKey, "Card description:"]
     ]);
     const fieldList = [
-        simpleCardField(titleKey, actNode),
-        simpleCardField(descriptionKey, actNode),
         simpleCardField("library", actNode),
         conditionCardField(planNode)
     ]
@@ -169,8 +203,8 @@ export const CardEditor = (props: CardEditorProps) => {
         <div>
             <Form style={{ color: "#2a6b92" }} id="commonMetaDataForm" target="void" onSubmit={handleSaveResource}>
                 {insertCardHeader(state, actResourceType)}
-                {insertTextBoxField(fieldList, titleKey, fieldNameMap.get(titleKey)!)}
-                {insertTextBoxField(fieldList, descriptionKey, fieldNameMap.get(descriptionKey)!, 3)}
+                {insertTextBoxField(fieldList, titleKey, fieldNameMap.get(titleKey)!, actNode)}
+                {insertTextBoxField(fieldList, descriptionKey, fieldNameMap.get(descriptionKey)!, actNode, 3)}
                 {/* {insertConditionDropdown(fieldList)} */}
                 {insertElementsForType(fieldList, actResourceType!.FHIR, actNode)}
             </Form>
@@ -182,30 +216,6 @@ export const CardEditor = (props: CardEditorProps) => {
 
         State.get().set("ui", { status: "collection" });
     }
-}
-
-function insertDropdownElement(fieldKey: string, fieldFriendlyName: string, fieldElements: string[], actNode: SageNodeInitializedFreezerNode, fieldList: any[][]) {
-
-    const [fieldName, fieldContents, setField, fieldSaveHandler] = simpleCardField(fieldKey, actNode);
-    fieldList.push([fieldName, fieldContents, setField, fieldSaveHandler]);
-    return (
-        <Form.Group as={Row} controlId={fieldKey}>
-            <Form.Label column sm={2}>{fieldFriendlyName}</Form.Label>
-            <Col sm={10}>
-                <InputGroup className="mb-3">
-                    <Form.Control
-                        as="select"
-                        defaultValue={fieldContents}
-                        onChange={(e) => setField(e.currentTarget.value)}
-                    >
-                        {fieldElements.map(sType => {
-                            return <option key={fieldKey+"-"+sType} value={sType}>{sType}</option>;
-                        })}
-                    </Form.Control>
-                </InputGroup>
-            </Col>
-        </Form.Group>
-    );
 }
 
 function insertConditionDropdown(fieldList: any[][]) {
