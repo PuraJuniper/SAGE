@@ -353,7 +353,7 @@ class CpgDialog extends React.Component {
                     </Col>    
                     <Col md="6">
                         <p style={{marginTop: "10px"}}>Date:</p>
-<<<<<<< HEAD
+
                         <input
                             className= "form-control"
                             value={this.state.date}
@@ -361,12 +361,7 @@ class CpgDialog extends React.Component {
                                 this.setState({ date: e.target.value });
                             }}
                         />  
-=======
-                        <Form.Control type="date" 
-                        className="form-control" 
-                        value={this.state.date} 
-                        onChange={this.handleDateChange.bind(this)}/> 
->>>>>>> fb0ed840e0e2478834684ae2705361cbe014533e
+
                     </Col>
                     <Col md="6">
                     <p style={{marginTop: "10px"}}>Status:<span style={{color: "red"}}>*</span></p>
@@ -420,7 +415,7 @@ class CpgDialog extends React.Component {
                     </Col>   
                     <Col md="6">
                         <p style={{marginTop: "10px"}}>Approval Date:</p>
-<<<<<<< HEAD
+
                         <input
                             className="form-control"
                             value={this.state.approvalDate}
@@ -438,21 +433,7 @@ class CpgDialog extends React.Component {
                                 this.setState({ lastReviewDate: e.target.value });
                             }}
                         />  
-=======
-                        <Form.Control type="date" 
-                        className="form-control" 
-                        value={this.state.approvalDate} 
-                        onChange={this.handleapprovaldateChange.bind(this)}
-                        />
-                    </Col> 
-                    <Col md="6">
-                        <p style={{marginTop: "10px"}}>Last Review Date:</p>
-                        <Form.Control type="date" 
-                        className="form-control" 
-                        value={this.state.lastReviewDate} 
-                        onChange={this.handlelastreviewdateChange.bind(this)}
-                        />
->>>>>>> fb0ed840e0e2478834684ae2705361cbe014533e
+
                     </Col> 
                 </Row>
                 <Row className="row">
