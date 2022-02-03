@@ -1,11 +1,10 @@
 import { faCaretLeft, faCaretRight } from '@fortawesome/pro-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import * as cql from "cql-execution";
-import { Library, PlanDefinitionActionCondition, MedicationRequest } from "fhir/r4";
+import { Library, PlanDefinitionActionCondition } from "fhir/r4";
 import { ExtractTypeOfFN } from "freezer-js";
-import React, { useEffect, useState } from "react";
+import React, { ElementType, useEffect, useState } from "react";
 import { Button, Col, Form, InputGroup, Modal, Row } from 'react-bootstrap';
-import { textSpanOverlapsWith } from 'typescript';
 import hypertensionLibraryJson from "../../public/samples/hypertension-library.json";
 import * as SageUtils from "../helpers/sage-utils";
 import * as SchemaUtils from "../helpers/schema-utils";
@@ -64,10 +63,8 @@ const insertCardHeader = (state: any, actResourceType: any) => {
     );
 }
 
-
-function insertTextBoxField(fieldList: any[][], fieldKey: string, friendlyFieldName: string, actNode: SageNodeInitializedFreezerNode, boxSize: number = 1, readOnly: boolean = false) {
+function insertTextBoxField(fieldList: any[][], fieldKey: string, friendlyFieldName: string, actNode: SageNodeInitializedFreezerNode, boxSize: number = 1, isReadOnly: boolean = false) {
     const [fieldName, fieldContents, setField, fieldSaveHandler] = simpleCardField(fieldKey, actNode);
-    const formControlArea = boxSize > 1 ? insertFormControlLarge(boxSize) : insertFormControlSmall()
 
     fieldList.push([fieldName, fieldContents, setField, fieldSaveHandler]);
 
@@ -75,31 +72,25 @@ function insertTextBoxField(fieldList: any[][], fieldKey: string, friendlyFieldN
         <Form.Group as={Row} controlId={fieldName}>
             <Form.Label column sm={2}>{friendlyFieldName}</Form.Label>
             <Col sm={10}>
-                {formControlArea}
+                <Form.Control
+                    {
+                    ...{
+                        ...(isReadOnly!) && { readOnly: isReadOnly },
+                        ...(boxSize!) > 1 && { as: "textarea" as ElementType<any>, rows: boxSize },
+                        ... {
+                            type: "text",
+                            defaultValue: fieldContents,
+                            onChange: (e: { currentTarget: { value: any; }; }) => setField(e.currentTarget.value)
+                        }
+                    }
+                    }
+                />
             </Col>
         </Form.Group>
     );
-
-    function insertFormControlSmall() {
-        return <Form.Control
-            type="text"
-            defaultValue={fieldContents}
-            onChange={(e) => setField(e.currentTarget.value)}
-            readOnly={readOnly} />;
-    }
-
-    function insertFormControlLarge(num: number | undefined) {
-        return <Form.Control
-            type="text"
-            as="textarea"
-            rows={num}
-            defaultValue={fieldContents}
-            onChange={(e) => setField(e.currentTarget.value)} />;
-    }
 }
 
 function insertDropdownElement(fieldKey: string, fieldFriendlyName: string, fieldElements: string[], actNode: SageNodeInitializedFreezerNode, fieldList: any[][]) {
-
     const [fieldName, fieldContents, setField, fieldSaveHandler] = simpleCardField(fieldKey, actNode);
     fieldList.push([fieldName, fieldContents, setField, fieldSaveHandler]);
     return (
@@ -113,7 +104,7 @@ function insertDropdownElement(fieldKey: string, fieldFriendlyName: string, fiel
                         onChange={(e) => setField(e.currentTarget.value)}
                     >
                         {fieldElements.map(sType => {
-                            return <option key={fieldKey+"-"+sType} value={sType}>{sType}</option>;
+                            return <option key={fieldKey + "-" + sType} value={sType}>{sType}</option>;
                         })}
                     </Form.Control>
                 </InputGroup>
@@ -148,7 +139,7 @@ const insertElementsForType = (fieldList: any[][], type: string, actNode: SageNo
                         actNode,
                         1,
                         true)
-                }
+                    }
                 </>
             )
         default:
