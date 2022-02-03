@@ -63,28 +63,32 @@ const insertCardHeader = (state: any, actResourceType: any) => {
     );
 }
 
-function insertTextBoxField(fieldList: any[][], fieldKey: string, friendlyFieldName: string, actNode: SageNodeInitializedFreezerNode, boxSize: number = 1, isReadOnly: boolean = false) {
+function insertTextBoxField(fieldList: any[][], fieldKey: string, friendlyFieldName: string, actNode: SageNodeInitializedFreezerNode, boxSize: number = 1, isReadOnly: boolean = false, isLink: boolean = false) {
     const [fieldName, fieldContents, setField, fieldSaveHandler] = simpleCardField(fieldKey, actNode);
+    function returnVal() {
+        if (isLink) {
+            return <Button variant="link" onClick={() => window.open(fieldContents)}>{fieldContents}</Button>;
+        } else {
+            return <Form.Control
+                {...{
+                    ...(isReadOnly!) && { readOnly: isReadOnly },
+                    ...(boxSize!) > 1 && { as: "textarea" as ElementType<any>, rows: boxSize },
+                    ...{
+                        type: "text",
+                        defaultValue: fieldContents,
+                        onChange: (e: { currentTarget: { value: any; }; }) => setField(e.currentTarget.value)
+                    }
+                }} />;
+        }
+    }
 
     fieldList.push([fieldName, fieldContents, setField, fieldSaveHandler]);
-
+    
     return (
         <Form.Group as={Row} controlId={fieldName}>
             <Form.Label column sm={2}>{friendlyFieldName}</Form.Label>
             <Col sm={10}>
-                <Form.Control
-                    {
-                    ...{
-                        ...(isReadOnly!) && { readOnly: isReadOnly },
-                        ...(boxSize!) > 1 && { as: "textarea" as ElementType<any>, rows: boxSize },
-                        ... {
-                            type: "text",
-                            defaultValue: fieldContents,
-                            onChange: (e: { currentTarget: { value: any; }; }) => setField(e.currentTarget.value)
-                        }
-                    }
-                    }
-                />
+                {returnVal()}
             </Col>
         </Form.Group>
     );
@@ -138,6 +142,7 @@ const insertElementsForType = (fieldList: any[][], type: string, actNode: SageNo
                         "Related artefact",
                         actNode,
                         1,
+                        true,
                         true)
                     }
                 </>
