@@ -4,6 +4,9 @@ import $ from 'jquery';
 global.$ = $;
 
 jest.setTimeout(10000);
+if (process.env.CI) {
+    jest.setTimeout(30000); // Initial loading of profiles takes a lot longer on GH Actions
+}
 
 // Mock functions
 window.scrollTo = jest.fn(); // unimplemented in jsdom

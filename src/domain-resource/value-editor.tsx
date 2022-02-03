@@ -6,8 +6,6 @@
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
 import React from "react";
-import * as cql from 'cql-execution';
-import test from "../../test/sample-library.json";
 
 import State, { SageNodeInitializedFreezerNode } from "../state";
 import PrimitiveValidator from "../helpers/primitive-validator";
@@ -22,7 +20,7 @@ interface ValueEditorProps {
 	onEditCancel: (e?: React.SyntheticEvent) => void,
 	hasFocus: boolean,
 	required: boolean,
-	shortName: any,
+	shortName: string,
 }
 class ValueEditor extends React.Component<ValueEditorProps, Record<string, never>> {
 	ESC_KEY: number;
@@ -110,7 +108,6 @@ class ValueEditor extends React.Component<ValueEditorProps, Record<string, never
 	}
 
 	handleKeyDown(e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) {
-		console.log(e);
 		if (e.key == "Escape") {
 			return this.props.onEditCancel(e);
 		} else if (e.key == "Enter") {
@@ -200,87 +197,60 @@ class ValueEditor extends React.Component<ValueEditorProps, Record<string, never
 		</span>;
 	}
 
-	handleCanonicalChange(e: React.ChangeEvent<HTMLSelectElement>) {
-		const parsedLib = new cql.Library(test);
-		for (const expressionKey of Object.keys(parsedLib.expressions)) {
-			console.log(expressionKey);
-		}
-		console.log(new cql.Library(test));
-		if (e.currentTarget.value == `http://fhir.org/guides/${State.get().author}/ActivityDefinition/ActivityDefinition-${State.get().CPGName}${State.get().resCount+1}`) {
-			this.props.onEditCommit();
-			return State.emit("show_open_activity")
-		}
-		else if (e.currentTarget.value == `http://fhir.org/guides/${State.get().author}/PlanDefinition/PlanDefinition-${State.get().CPGName}${State.get().resCount+1}`) {
-			this.props.onEditCommit();
-			return State.emit("show_open_insert")
-		}
-		else if (e.currentTarget.value == `http://fhir.org/guides/${State.get().author}/Questionnaire/Questionnaire-${State.get().CPGName}${State.get().resCount+1}`) {
-			this.props.onEditCommit();
-			return State.emit("show_open_questionnaire")
-		}
-		else if (e.currentTarget.value == "Select") {
-			return State.emit("show_canonical_dialog", this.props.parent);
-		}
-	}
-
 	buildCanonicalInput() {
-		console.log(this.props);
-		const selectedResourceUri = this.props.node.value ?? "";
-		// For the library element, restrict to Library Resources
-		if (this.props.node.name == 'library') {
-			return <span>
-				<select value={selectedResourceUri} 
-					className="form-control input-sm" 
-					onChange = {(e) => {
-						if (e.target.value == "CreateNew") {
-							// Todo
-							e.target.style.backgroundColor = "white";
-						}
-						else {
-							this.handleChange.bind(this)(e);
-						}
-					}}
-					ref="inputField"
-				>
-					<option value={selectedResourceUri} disabled>{selectedResourceUri ?? "Select:"}</option>
-					<option value='CreateNew'>Create new Library</option>
-				</select>
-			</span>
+		const targetProfiles: string[] = this.props.node.type.targetProfile;
+		const targetResourceTypes: string[] = [];
+		for (const targetProfile of targetProfiles) {
+			// This is technically incorrect since it's not always true that two FHIR resources with the same resourceType
+			//  comply with the same profile (targetProfile here)
+			const resourceType = State.get().profiles[targetProfile]?.__meta.type;
+			if (resourceType) {
+				targetResourceTypes.push(resourceType);
+			}
+			else {
+				console.log(`Warning -- Could not find definition for definitionCanonical targetProfile ${targetProfile}`)
+			}
 		}
+
+		const selectedResourceUri = this.props.node.value ?? "";
 		const nodeSchemaPath = this.props.node.schemaPath.substring(this.props.node.schemaPath.indexOf(".") + 1);
 		const val = this.props.node.value ?? "Blank";
 		const errFields = this.props.errFields;
 		let style = {};
-		const activityurl = `http://fhir.org/guides/${State.get().author}/ActivityDefinition/ActivityDefinition-${State.get().CPGName}${State.get().resCount+1}`;
-		const planurl = `http://fhir.org/guides/${State.get().author}/PlanDefinition/PlanDefinition-${State.get().CPGName}${State.get().resCount+1}`;
-		const questionurl = `http://fhir.org/guides/${State.get().author}/Questionnaire/Questionnaire-${State.get().CPGName}${State.get().resCount+1}`;
 		if (errFields && errFields.includes(nodeSchemaPath) && val == "Blank") {
 			style = {backgroundColor:"#ff9393"};
 		}
+
 		return <span>
 			<select value={selectedResourceUri} 
+				data-testid="select-DefinitionCanonical"
 					className="form-control input-sm" 
 					onChange = {(e) => {
-						if (e.target.value != "Select") {
-							this.handleChange.bind(this)(e);
+						if (e.target.value != "[[Select]]") {
 							e.target.style.backgroundColor = "white";
-						}		
-						this.handleCanonicalChange.bind(this)(e);
+							const newResource = SchemaUtils.buildNewFhirResource(e.target.value, true);
+							this.props.node.set("value", newResource.url);
+							this.props.onEditCommit();
+							State.emit("insert_resource_into_bundle", newResource);
+						}
+						else {
+							State.emit("show_canonical_dialog", this.props.node, targetResourceTypes);
+						}
 					}}
 					ref="inputField"
 					style={style}
 				>
 				<option value={selectedResourceUri} disabled>{selectedResourceUri || "Select:"}</option>
-				<option value={activityurl}>ActivityDefinition</option>
-				<option value={planurl}>PlanDefiniton</option>
-				<option value={questionurl}>Questionnaire</option>
-				<option value='Select'>Select from other resources in CPG</option>
+					{targetResourceTypes.map((v) => {
+						return <option key={v} value={v}>{`Create a new ${v}`}</option>
+					})}
+				<option value='[[Select]]'>Select an existing resource...</option>
 			</select>
 		</span>;
-		} 
+	}
 
 	buildCodeInput(value: string, items: [string, string][]) {
-		console.log("buildCodeInput", value, items);
+		// console.log("buildCodeInput", value, items);
 		const options = [];
 		// const fields = []; //valueCode
 		const statusfields = []; //status

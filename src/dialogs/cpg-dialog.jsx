@@ -11,9 +11,10 @@
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
 import React from "react";
-import {Container, Row, Col, Modal, Tabs, Tab, Button} from "react-bootstrap";
+import {Container, Row, Col, Modal, Tabs, Tab, Button, Form} from "react-bootstrap";
 import State from "../state";
 import * as SchemaUtils from "../helpers/schema-utils";
+import { PLAN_DEFINITION } from "../simplified/nameHelpers";
 
 class CpgDialog extends React.Component {
     constructor(props) {
@@ -219,7 +220,7 @@ class CpgDialog extends React.Component {
             return State.get().set("ui", {status:"cards"});
         }
         State.get().set("mode", "advanced");
-        var resourceJson = {resourceType: "PlanDefinition"};
+        var resourceJson = {resourceType: PLAN_DEFINITION};
         var json = {resourceType: "Bundle", entry: [{resource: resourceJson}]};
         const resourceProfile = SchemaUtils.getProfileOfResource(State.get().profiles, resourceJson);
 		json.entry[0].resource.meta = {
@@ -352,6 +353,7 @@ class CpgDialog extends React.Component {
                     </Col>    
                     <Col md="6">
                         <p style={{marginTop: "10px"}}>Date:</p>
+<<<<<<< HEAD
                         <input
                             className= "form-control"
                             value={this.state.date}
@@ -359,6 +361,12 @@ class CpgDialog extends React.Component {
                                 this.setState({ date: e.target.value });
                             }}
                         />  
+=======
+                        <Form.Control type="date" 
+                        className="form-control" 
+                        value={this.state.date} 
+                        onChange={this.handleDateChange.bind(this)}/> 
+>>>>>>> fb0ed840e0e2478834684ae2705361cbe014533e
                     </Col>
                     <Col md="6">
                     <p style={{marginTop: "10px"}}>Status:<span style={{color: "red"}}>*</span></p>
@@ -412,6 +420,7 @@ class CpgDialog extends React.Component {
                     </Col>   
                     <Col md="6">
                         <p style={{marginTop: "10px"}}>Approval Date:</p>
+<<<<<<< HEAD
                         <input
                             className="form-control"
                             value={this.state.approvalDate}
@@ -429,6 +438,21 @@ class CpgDialog extends React.Component {
                                 this.setState({ lastReviewDate: e.target.value });
                             }}
                         />  
+=======
+                        <Form.Control type="date" 
+                        className="form-control" 
+                        value={this.state.approvalDate} 
+                        onChange={this.handleapprovaldateChange.bind(this)}
+                        />
+                    </Col> 
+                    <Col md="6">
+                        <p style={{marginTop: "10px"}}>Last Review Date:</p>
+                        <Form.Control type="date" 
+                        className="form-control" 
+                        value={this.state.lastReviewDate} 
+                        onChange={this.handlelastreviewdateChange.bind(this)}
+                        />
+>>>>>>> fb0ed840e0e2478834684ae2705361cbe014533e
                     </Col> 
                 </Row>
                 <Row className="row">
@@ -494,6 +518,20 @@ class CpgDialog extends React.Component {
     }
 
     renderTabs() {
+        if (this.props.basic) {
+            // The basic Tabs will eventually be the same as in the else clause, so this duplication is temporary
+            return (
+                <Tabs
+                    activeKey={this.state.tab}
+                    onSelect={this.handleTabChange.bind(this)}
+                    animation="false"
+                >
+                    <Tab eventKey="CPGNew" title="Main" style={{opacity:1}}>
+                        {this.renderNewCPGInput()}
+                    </Tab>
+                </Tabs>
+            );
+        }
         return (
             <Tabs
                 activeKey={this.state.tab}

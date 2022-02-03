@@ -9,10 +9,15 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run: npm config set '//npm.fontawesome.com/:_authToken' "${{ secrets.FONTAWESOME_PRO_AUTH_TOKEN }}"
+
       - run: npm install
       - run: npm run build
-      - uses: w9jds/firebase-action@v2.0.0
+
+      - name: Deploy to firebase
+        uses: w9jds/firebase-action@v2.0.0
         with:
           args: deploy --only hosting
         env:
           GCP_SA_KEY: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_FRED_CA431 }}'
+
+      - run: npm run test-ci

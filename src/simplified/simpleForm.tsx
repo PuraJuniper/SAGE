@@ -1,6 +1,7 @@
 import React, { FormEvent, useEffect, useState } from "react";
 import { Form, Row , Col, InputGroup, DropdownButton, Dropdown, FormControl, Modal, Button} from 'react-bootstrap';
 import State, { SageNodeInitializedFreezerNode } from "../state";
+import { ExtractTypeOfFN } from "freezer-js";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {faCaretRight, faCaretLeft} from  '@fortawesome/pro-solid-svg-icons';
 import * as SchemaUtils from "../helpers/schema-utils"
@@ -9,6 +10,7 @@ import * as SageUtils from "../helpers/sage-utils";
 
 import hypertensionLibraryJson from "../../public/samples/hypertension-library.json";
 import * as cql from "cql-execution";
+import { ACTIVITY_DEFINITION, PLAN_DEFINITION, profileToFriendlyResourceListEntry } from "./nameHelpers";
 
 const hypertensionLibrary: Library = hypertensionLibraryJson as Library;
 
@@ -26,19 +28,18 @@ interface SimpleFormProps {
     planNode: SageNodeInitializedFreezerNode,
 }
 
-const buildConditionFromSelection = (expression?: string): PlanDefinitionActionCondition | undefined => {
+const buildConditionFromSelection = (expression?: string): PlanDefinitionActionCondition => {
+    let insertedExpression = "";
     if (expression) {
-        return {
-            expression: {
-                language: 'text/cql',
-                expression: expression
-            },
-            kind: 'applicability'
-        };
+        insertedExpression = expression;
     }
-    else {
-        return undefined;
-    }
+    return {
+        expression: {
+            language: 'text/cql',
+            expression: insertedExpression
+        },
+        kind: 'applicability'
+    };
 }
 
 const getExpressionOptionsFromLibraries = (libraries: {library: cql.Library, url: string}[]) => {
@@ -61,18 +62,18 @@ export const SimpleForm = (props:SimpleFormProps) => {
     // console.log(State.get().bundle?.resources?.[0]);
     const [title, setTitle] = useState<string>(SchemaUtils.getChildOfNode(props.actNode, "title")?.value || "");
     const [description, setDescription] = useState<string>(SchemaUtils.getChildOfNode(props.actNode, "description")?.value || "");
-    const [condition, setCondition] = useState<PlanDefinitionActionCondition | undefined>(() => {
+    const [condition, setCondition] = useState<PlanDefinitionActionCondition>(() => {
         return buildConditionFromSelection(SchemaUtils.getChildOfNodePath(props.planNode, ["action", "condition", "expression", "expression"])?.value)
     });
     const [selectedLibrary, setSelectedLibrary] = useState<string>(SchemaUtils.getChildOfNode(props.planNode, "library")?.value[0] || "")
     const [expressionOptions, setExpressionOptions] = useState<ExpressionOptionDict>({});
-        
+    
     // Initialization
     useEffect(
         () => {
             const initialLibraries = State.get().simplified.libraries;
             const librariesListener = initialLibraries.getListener();
-            const updateCB = function(libraries: any, prevLibraries: any) {
+            const updateCB = function(libraries: ExtractTypeOfFN<typeof initialLibraries>) {
                 setLibraries(Object.keys(libraries).map((v) => {
                     return {
                         library: libraries[v].library,
@@ -90,8 +91,8 @@ export const SimpleForm = (props:SimpleFormProps) => {
             }
         },
         []
-    )
-    
+    );
+        
     const [libraries, setLibraries] = useState<{library: cql.Library, url: string}[]>([]);
     useEffect(
         () => {
@@ -100,7 +101,7 @@ export const SimpleForm = (props:SimpleFormProps) => {
         },
         [libraries],
     );
-
+        
     // Import Library Modal
     //  Allows the user to import a new CQL Library to use as a condition
     const [showImportModal, setShowImportModal] = useState<boolean>(false);
@@ -122,12 +123,13 @@ export const SimpleForm = (props:SimpleFormProps) => {
             }
         }
     };
+
     const importModalElement = (<>
         <Modal show={showImportModal} onHide={handleCloseImportModal}
             centered
         >
             <Modal.Header closeButton>
-            <Modal.Title>Import Library</Modal.Title>
+                <Modal.Title>Import Library</Modal.Title>
             </Modal.Header>
             <Modal.Body>
                 Paste in the FHIR Library Resource that contains the condition you wish to use below:
@@ -143,27 +145,25 @@ export const SimpleForm = (props:SimpleFormProps) => {
                 <i>Please note that any dependencies of the pasted FHIR Library will not be automatically resolved or added to the final Bundle.</i>
             </Modal.Body>
             <Modal.Footer>
-            <Button variant="secondary" onClick={handleCloseImportModal}>
-                Close
-            </Button>
-            <Button variant="primary" 
-                onClick={() => {
-                    handleImportLibrary();
-                    handleCloseImportModal();
-                }}
-            >
-                Import
-            </Button>
+                <Button variant="secondary" onClick={handleCloseImportModal}>
+                    Close
+                </Button>
+                <Button variant="primary" 
+                    onClick={() => {
+                        handleImportLibrary();
+                        handleCloseImportModal();
+                    }}
+                >
+                    Import
+                </Button>
             </Modal.Footer>
         </Modal>
-    </>);
-
+        </>
+        );
+        
     // All logic for saving the Simplified Form data into the underlying FHIR Resources should be performed here
     const handleSaveResource = function() {
-        // console.log(props.actNode);
-        // console.log(title);
-        // console.log(description);
-        if (props.actNode.displayName == "ActivityDefinition") { // Questionnaires have trouble saving otherwise
+        if (props.actNode.displayName == ACTIVITY_DEFINITION) { // Questionnaires have trouble saving otherwise
             State.emit("value_change", SchemaUtils.getChildOfNode(props.actNode, "title"), title, false);
             State.emit("value_change", SchemaUtils.getChildOfNode(props.actNode, "description"), description, false);
             State.emit("value_change", SchemaUtils.getChildOfNode(props.actNode, "experimental"), State.get().experimental, false);
@@ -189,84 +189,84 @@ export const SimpleForm = (props:SimpleFormProps) => {
         }
         State.get().set("ui", {status:"collection"})
     }
-
+    
     return (
-    <div>
-        <iframe name="void" style={{display:"none"}}></iframe>
+        <div>
         {importModalElement}
         <Form style={{color:"#2a6b92"}} id="commonMetaDataForm" target="void" onSubmit={handleSaveResource}>
-            <button className="navigate-reverse col-lg-2 col-md-3" 
-                    disabled={state.bundle.resources.length <= 2}
-                    onClick={() => {
-                        State.emit("remove_from_bundle", state.bundle.pos + 1);
-                        State.emit("remove_from_bundle", state.bundle.pos); 
-                        State.get().set("ui", {status:"cards"})
-                    }}>
-                    <FontAwesomeIcon icon={faCaretLeft} />
-                    &nbsp;Delete Resource
+            <button className="navigate-reverse col-lg-2 col-md-3"
+                onClick={() => {
+                    State.emit("remove_from_bundle", state.bundle.pos + 1);
+                    State.emit("remove_from_bundle", state.bundle.pos); 
+                    State.get().set("ui", {status:"cards"})
+                }}
+            >
+                <FontAwesomeIcon icon={faCaretLeft} />
+                &nbsp;Delete Card
             </button>
             <button className="navigate col-lg-2 col-md-3" 
-                    type="submit">
-                    Save Resource&nbsp;
-                    <FontAwesomeIcon icon={faCaretRight} />
+                type="submit">
+                Save Card&nbsp;
+                <FontAwesomeIcon icon={faCaretRight} />
             </button>
-        <h3  style={{marginTop:"20px", marginBottom:"10px"}}><b>
-            {props.actNode.displayName}
-            /Plandefinition
-        </b></h3>
+            <h3 style={{marginTop:"20px", marginBottom:"10px"}}><b>
+                {props.actNode ? profileToFriendlyResourceListEntry(SchemaUtils.toFhir(props.actNode, false).meta?.profile?.[0])?.FRIENDLY ?? "Unknown Resource Type" : ""}
+            </b></h3>
             <Row className="mb-2">
                 <Form.Group as= {Col} controlId="title">
-                    <Form.Label>Title</Form.Label>
-                    <Form.Control 
-                        type="text"
-                        defaultValue={title}
-                        onChange={(e) => setTitle(e.currentTarget.value)}
-                    />
+                <Form.Label>Title</Form.Label>
+                <Form.Control 
+                    type="text"
+                    defaultValue={title}
+                    onChange={(e) => setTitle(e.currentTarget.value)}
+                />
                 </Form.Group>
             </Row>
             <Row className="mb-2">
                 <Form.Group as= {Col} controlId="description">
-                    <Form.Label>Description</Form.Label>
-                    <Form.Control 
-                        type="text"
-                        defaultValue={description}
-                        onChange={(e) => setDescription(e.currentTarget.value)}
-                    />
+                <Form.Label>Description</Form.Label>
+                <Form.Control 
+                    type="text"
+                    defaultValue={description}
+                    onChange={(e) => setDescription(e.currentTarget.value)}
+                />
                 </Form.Group>
             </Row>
             <Row className="mb-2">
                 <Form.Group as= {Col} controlId="condition">
-                    <Form.Label>Condition</Form.Label>
-                    <InputGroup className="mb-3">
-                        <Form.Control as="select" 
-                            onChange={(e) => {
-                                if (e.currentTarget.value == '') {
-                                    setCondition(buildConditionFromSelection());
-                                    setSelectedLibrary("");
-                                }
-                                else if (e.currentTarget.value == '[[import library]]') {
-                                    handleShowImportModal();
-                                    setCondition(buildConditionFromSelection());
-                                    setSelectedLibrary("");
-                                }
-                                else {
-                                    setCondition(buildConditionFromSelection(e.currentTarget.value));
-                                    setSelectedLibrary(expressionOptions[e.currentTarget.value].libraryUrl);
-                                }
-                            }}
-                            value={condition?.expression?.expression || ""}
-                        >
-                            <option key="" value="">None</option>
-                            {Object.keys(expressionOptions).map((v) => {
-                                const exprOption = expressionOptions[v];
-                                return <option key={v} value={v}>{`${exprOption.expressionInLibrary} (${exprOption.libraryIdentifier})`}</option>
-                            })}
-                            <option key="[[import library]]" value="[[import library]]">Import condition from FHIR Library...</option>
-                        </Form.Control>
-                    </InputGroup>
+                <Form.Label>Condition</Form.Label>
+                <InputGroup className="mb-3">
+                    <Form.Control as="select" 
+                        onChange={(e) => {
+                            if (e.currentTarget.value == '') {
+                                setCondition(buildConditionFromSelection());
+                                setSelectedLibrary("");
+                            }
+                            else if (e.currentTarget.value == '[[import library]]') {
+                                handleShowImportModal();
+                                setCondition(buildConditionFromSelection());
+                                setSelectedLibrary("");
+                            }
+                            else {
+                                setCondition(buildConditionFromSelection(e.currentTarget.value));
+                                setSelectedLibrary(expressionOptions[e.currentTarget.value].libraryUrl);
+                            }
+                        }}
+                        value={condition.expression?.expression}
+                    >
+                        <option key="" value="">None</option>
+                        {Object.keys(expressionOptions).map((v) => {
+                            const exprOption = expressionOptions[v];
+                            return <option key={v} value={v}>{`${exprOption.expressionInLibrary} (${exprOption.libraryIdentifier})`}</option>
+                        })}
+                        <option key="[[import library]]" value="[[import library]]">Import condition from FHIR Library...</option>
+                    </Form.Control>
+                </InputGroup>
                 </Form.Group>
             </Row>
         </Form>
-    </div>);
-    
+        </div>
+        );
+        
 }
+        
