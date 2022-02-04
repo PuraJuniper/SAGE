@@ -5,7 +5,6 @@
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
 import React from "react";
-import { UncontrolledAlert } from 'reactstrap';
 import ReactDOM from "react-dom";
 import State from "./reactions";
 import * as SchemaUtils from "./helpers/schema-utils";
@@ -33,7 +32,7 @@ import AppInfo from "../package.json";
 import SelectResourceDialog from "./dialogs/select-resource-canonical-dialog";
 import { CardEditor } from "./simplified/cardEditor";
 import AhrqFrame from "./ahrqFrame";
-import StructorFrame from "./structorFrame";
+import { Alert } from "react-bootstrap";
 
 type RootProps = Record<string, never>;
 type RootState = {
@@ -159,31 +158,31 @@ class RootComponent extends React.Component<RootProps, RootState> {
 		const error = (() => {
 			if (state.ui.status === "profile_load_error") {
 			return (
-				<UncontrolledAlert color="danger">An error occured loading the FHIR profiles.</UncontrolledAlert>
+				<Alert variant="danger">An error occured loading the FHIR profiles.</Alert>
 				);
 		} else if (state.ui.status === "resource_load_error") {
 			return (
-				<UncontrolledAlert color="danger">An error occured loading the resource.</UncontrolledAlert>
+				<Alert variant="danger">An error occured loading the resource.</Alert>
 				);
 		} else if (state.ui.status === "validation_error") {
 			return (
-				<UncontrolledAlert color="danger">Please fix errors in resource before continuing.</UncontrolledAlert>
+				<Alert variant="danger">Please fix errors in resource before continuing.</Alert>
 				);
 		} else if (state.ui.status === "id_duplicate_error") {
 			return (
-				<UncontrolledAlert color="danger">This resource has a duplicate ID.</UncontrolledAlert>
+				<Alert variant="danger">This resource has a duplicate ID.</Alert>
 				);
 		} else if (state.ui.status === "title_duplicate_error") {
 			return (
-				<UncontrolledAlert color="danger">This resource has a duplicate title.</UncontrolledAlert>
+				<Alert variant="danger">This resource has a duplicate title.</Alert>
 				);
 		} else if (state.ui.status === "url_duplicate_error") {
 			return (
-				<UncontrolledAlert color="danger">This resource has a duplicate url.</UncontrolledAlert>
+				<Alert variant="danger">This resource has a duplicate url.</Alert>
 				);
 		} else if (state.ui.status === "missing_title_error") {
 			return (
-				<UncontrolledAlert color="danger">This resource needs a title.</UncontrolledAlert>
+				<Alert variant="danger">This resource needs a title.</Alert>
 				);
 		}
 		})();
