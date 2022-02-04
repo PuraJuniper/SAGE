@@ -442,7 +442,7 @@ State.on("value_change", function(node?, value?, validationErr?, strictValidatio
 	//in case there are pre-save errors
 	//this causes conflict when the status is changed to "open" so has been left out
 	//State.get().ui.set({status: "ready"});
-	if (!node || !value) {
+	if (!node) {
 		return;
 	}
 	if (node.ui) {

@@ -73,7 +73,7 @@ export type SimplifiedProfiles = {
 }
 
 type ValuesetDef = {
-	items: [string, string][],
+	items: [string, string][], // [friendly name, value][]
 	type: string,
 }
 
@@ -326,6 +326,11 @@ const getDefaultValue = (schema: SchemaDef, fhirType: string, parentName=""): {
 				if (pathSuffix[0].endsWith("Activity")) {
 					defaultValue = `http://fhir.org/guides/${State.get().publisher}/ActivityDefinition/ActivityDefinition-${State.get().CPGName}${State.get().resCount}`;
 				}
+			}
+			break;
+		case "status":
+			if (State.get().status != '') {
+				defaultValue = State.get().status
 			}
 			break;
 		case "version":

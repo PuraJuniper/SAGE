@@ -69,25 +69,10 @@ class ValueEditor extends React.Component<ValueEditorProps, Record<string, never
                 } = this.props.node.binding;
 				const vs = State.get().valuesets[reference];
 				if (vs && vs.type === "complete") {
-					return State.emit("value_change", this.props.node, this.inputField.current?.value);
+					return State.emit("value_change", this.props.node, vs.items[0][1]);
 				}
 			}
 	}
-
-	componentDidUpdate() {
-		if ((this.props.node.fhirType === "code") &&
-			(this.props.node?.binding?.strength === "required")) {
-				//initialize to first value on insert
-				const {
-                    reference
-                } = this.props.node.binding;
-				const vs = State.get().valuesets[reference];
-				if (vs && vs.type === "complete") {
-					return State.emit("value_change", this.props.node, this.inputField.current?.value);
-				}
-			}
-	}
-
 
 	handleChange(e: React.ChangeEvent<HTMLSelectElement | HTMLTextAreaElement | HTMLInputElement>) {
 		let resources;
