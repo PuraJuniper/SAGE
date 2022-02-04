@@ -4,17 +4,21 @@
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
 import React from 'react';
-import State from './state';
+import State, { SageUiStatus } from './state';
 import {Navbar, Nav, NavItem} from 'react-bootstrap';
 
-class NavbarFred extends React.Component {
+interface NavbarFredProps {
+	hasResource?: boolean,
+	appVersion: string
+}
 
-	handleUiChange(status, e) {
-		e.preventDefault();
+class NavbarFred extends React.Component<NavbarFredProps> {
+
+	handleUiChange(status: SageUiStatus) {
 		return State.emit("set_ui", status);
 	}
 
-	handleDrag(e) {
+	handleDrag(e: React.DragEvent<HTMLElement>) {
 		let file, files;
 		e.preventDefault();
 		if ((!(files = e.dataTransfer?.files)) ||
@@ -22,11 +26,10 @@ class NavbarFred extends React.Component {
 		const reader = new FileReader();
 		reader.onload = function(e) { 
 			try {
-				const json = JSON.parse(e.target.result);
+				const json = JSON.parse(e.target?.result as string); // reader.readAsText will result in a string
 				return State.emit("load_json_resource", json);
 			} catch (error) {
-				e = error;
-				return State.emit("set_ui", "load_error");
+				return State.emit("set_ui", "resource_load_error");
 			}
 		};
 
@@ -36,9 +39,7 @@ class NavbarFred extends React.Component {
 
 	renderButtons() {	
 		const navItems = [
-			<Nav.Link key="open" onClick={(e) => {
-				this.handleUiChange.bind(this, "open")(e)}
-			}>
+			<Nav.Link key="open" onClick={this.handleUiChange.bind(this, "open")}>
 				Create Resource
 			</Nav.Link>
 		];
@@ -48,14 +49,10 @@ class NavbarFred extends React.Component {
 
 	renderExtraButtons() {
 		const navCpg = [
-			<Nav.Link key="bas-cpg" onClick={(e) => {
-				this.handleUiChange.bind(this, "basic-cpg")(e);
-				}}>
+			<Nav.Link key="bas-cpg" onClick={this.handleUiChange.bind(this, "basic-cpg")}>
 				Basic CPG
 			</Nav.Link>,
-			<Nav.Link key="adv-cpg" onClick={(e) => {
-				this.handleUiChange.bind(this, "advanced-cpg")(e);
-				}}>
+			<Nav.Link key="adv-cpg" onClick={this.handleUiChange.bind(this, "advanced-cpg")}>
 				Advanced CPG
 			</Nav.Link>,
 			this.props.hasResource && <Nav.Link 
