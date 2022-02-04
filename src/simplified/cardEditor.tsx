@@ -85,9 +85,9 @@ function insertTextBoxField(fieldList: any[][], fieldKey: string, friendlyFieldN
     fieldList.push([fieldName, fieldContents, setField, fieldSaveHandler]);
 
     return (
-        <Form.Group as={Col} controlId={fieldName}>
+        <Form.Group key={fieldName} as={Col} controlId={fieldName}>
             <Form.Label>{friendlyFieldName}</Form.Label>
-            <Col sm={10}>
+            <Col key={fieldName} sm={10}>
                 {returnVal()}
             </Col>
         </Form.Group>
@@ -98,9 +98,9 @@ function insertDropdownElement(fieldKey: string, fieldFriendlyName: string, fiel
     const [fieldName, fieldContents, setField, fieldSaveHandler] = simpleCardField(fieldKey, actNode);
     fieldList.push([fieldName, fieldContents, setField, fieldSaveHandler]);
     return (
-        <Form.Group as={Col} controlId={fieldKey}>
+        <Form.Group key={fieldName} as={Col} controlId={fieldKey}>
             <Form.Label>{fieldFriendlyName}</Form.Label>
-            <Col sm={10}>
+            <Col key={fieldName} sm={10}>
                 <InputGroup className="mb-3">
                     <Form.Control
                         as="select"
@@ -121,7 +121,6 @@ const generateElementsForType = (fieldList: any[][], type: string, actNode: Sage
     switch (type) {
         case "MedicationRequest":
             return ([
-                // <>
                 insertDropdownElement(
                     "status",
                     "Status:",
@@ -146,13 +145,12 @@ const generateElementsForType = (fieldList: any[][], type: string, actNode: Sage
                     true)
                 ,
                 insertDropdownElement(
-                    "medicationCodeableConcept",
+                    "language",
                     "Medication (code): ",
                     ['proposal', 'plan', 'order', 'original-order', 'reflex-order', 'filler-order', 'instance-order', 'option'],
                     actNode,
                     fieldList
                 )
-                // </>
             ]);
         default:
             return [];
@@ -197,9 +195,9 @@ export const CardEditor = (props: CardEditorProps) => {
         [titleKey, "Card short name:"],
         [descriptionKey, "Card description:"]
     ]);
-    const fieldList = [
-        simpleCardField("library", actNode),
-        conditionCardField(planNode)
+    const fieldList: any[][] = [
+        // simpleCardField("library", actNode),
+        // conditionCardField(planNode)
     ]
 
     const defaultFields = [insertTextBoxField(fieldList, titleKey, fieldNameMap.get(titleKey)!, actNode),
@@ -208,35 +206,35 @@ export const CardEditor = (props: CardEditorProps) => {
     ...generateElementsForType(fieldList, actResourceType!.FHIR, actNode)]
     const numRows = 3;
 
-    const returnVal = [...Array(numRows)].map((e, i) => {
-        const numFields = allCardFields.length;
-        if (i > numFields-1) {
-            return <></>
-        } else {
-            const nextField = allCardFields[i + numFields-1];
-            if (nextField) {
-                return (
-                    <Row className="mb-3">
-                        {allCardFields[i]}
-                        {nextField}
-                    </Row>
-                );
-            } else {
-                return (
-                    <Row className="mb-3">
-                        {allCardFields[i]}
-                    </Row>
-                );
-            }
-        }
-    }
-    )
+    // const returnVal = [...Array(numRows)].map((e, i) => {
+    //     const numFields = allCardFields.length;
+    //     if (i > numFields-1) {
+    //         return <></>
+    //     } else {
+    //         const nextField = allCardFields[i + numFields-1];
+    //         if (nextField) {
+    //             return (
+    //                 <Row key={"cardRow" + i} className="mb-3">
+    //                     {allCardFields[i]}
+    //                     {nextField}
+    //                 </Row>
+    //             );
+    //         } else {
+    //             return (
+    //                 <Row key={"cardRow" + i} className="mb-3">
+    //                     {allCardFields[i]}
+    //                 </Row>
+    //             );
+    //         }
+    //     }
+    // }
+    // )
 
     return (
         <div>
             <Form style={{ color: "#2a6b92" }} id="commonMetaDataForm" target="void" onSubmit={handleSaveResource}>
                 {insertCardHeader(state, actResourceType)}
-                {returnVal}
+                {allCardFields}
             </Form>
         </div>
     );
