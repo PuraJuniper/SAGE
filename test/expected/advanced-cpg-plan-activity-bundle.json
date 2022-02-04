@@ -24,7 +24,7 @@
              "name": "PlanDefinition-cpgname1",
              "title": null,
              "type": {},
-             "status": null,
+             "status": "draft",
              "experimental": true,
              "publisher": "publisher",
              "description": null,
@@ -34,7 +34,7 @@
                    "description": null,
                    "condition": [
                       {
-                         "kind": null,
+                         "kind": "applicability",
                          "expression": {
                             "language": null,
                             "expression": null
@@ -69,11 +69,11 @@
              "version": "1.0.0",
              "name": "ActivityDefinition-cpgname2",
              "title": null,
-             "status": null,
+             "status": "draft",
              "experimental": true,
              "publisher": "publisher",
              "description": null,
-             "kind": null,
+             "kind": "Appointment",
              "resourceType": "ActivityDefinition"
           }
        }
