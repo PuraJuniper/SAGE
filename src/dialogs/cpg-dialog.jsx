@@ -417,7 +417,7 @@ class CpgDialog extends React.Component {
                             className="form-control"
                             type = "date"
                             value={this.state.lastReviewDate}
-                            oonChange = {(e) => {
+                            onChange = {(e) => {
                                 this.setState({ lastReviewDate: e.target.value });
                             }}
                         />  
