@@ -124,14 +124,14 @@ const generateElementsForType = (fieldList: any[][], type: string, actNode: Sage
             return ([
                 insertDropdownElement(
                     "status",
-                    friendlyFields!.find(elem => elem.FHIR == 'status')!.FRIENDLY,
+                    friendlyFields.find(elem => elem.FHIR == 'status')?.FRIENDLY ?? "",
                     ['active', 'on-hold', 'cancelled', 'completed', 'entered-in-error', 'stopped', 'draft', 'unknown'],
                     actNode,
                     fieldList
                 ),
                 insertDropdownElement(
                     "intent",
-                    friendlyFields!.find(elem => elem.FHIR == 'intent')!.FRIENDLY,
+                    friendlyFields.find(elem => elem.FHIR == 'intent')?.FRIENDLY ?? "",
                     ['proposal', 'plan', 'order', 'original-order', 'reflex-order', 'filler-order', 'instance-order', 'option'],
                     actNode,
                     fieldList
@@ -139,7 +139,7 @@ const generateElementsForType = (fieldList: any[][], type: string, actNode: Sage
                 insertTextBoxField(
                     fieldList,
                     "relatedArtifact",
-                    friendlyFields!.find(elem => elem.FHIR == 'relatedArtifact')!.FRIENDLY,
+                    friendlyFields.find(elem => elem.FHIR == 'relatedArtifact')?.FRIENDLY ?? "",
                     actNode,
                     1,
                     true,
@@ -147,7 +147,7 @@ const generateElementsForType = (fieldList: any[][], type: string, actNode: Sage
                 ,
                 insertDropdownElement(
                     "productReference",
-                    friendlyFields!.find(elem => elem.FHIR == 'productReference')!.FRIENDLY,
+                    friendlyFields.find(elem => elem.FHIR == 'productReference')?.FRIENDLY ?? "",
                     ['proposal', 'plan', 'order', 'original-order', 'reflex-order', 'filler-order', 'instance-order', 'option'],
                     actNode,
                     fieldList

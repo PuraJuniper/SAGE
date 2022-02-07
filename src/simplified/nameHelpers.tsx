@@ -3,6 +3,7 @@ import friendlyNames from "../../friendly-names.json";
 export type FriendlyResource = (typeof friendlyNames.RESOURCES) extends Array<infer T> ? T : never;
 export type FriendlyResourceSelf = FriendlyResource["SELF"];
 export type FriendlyResourceListEntry = FriendlyResource["LIST"] extends Array<infer T> ? T : never;
+export type FriendlyResourceFormElement = FriendlyResourceListEntry["FORM_ELEMENTS"] extends Array<infer T> ? T : never;
 
 const defaultUndefinedString = "undefined";
 
@@ -114,10 +115,11 @@ export function getBorderPropsForType(resourceType: string): string | undefined 
     }
 }
 
-export function getFormElementListForResource(resource: string) {
-    return friendlyNames.RESOURCES
+export function getFormElementListForResource(resource: string) : FriendlyResourceFormElement[] {    
+    const foundResource: FriendlyResourceListEntry | undefined = friendlyNames.RESOURCES
     .map(res => res.LIST.find(resType => resType.FHIR == resource))
     .filter(def => def)
-    .pop()!
-    .FORM_ELEMENTS;
+    .pop();
+
+    return foundResource?.FORM_ELEMENTS ?? []
 }
