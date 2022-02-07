@@ -13,6 +13,7 @@ export default function AhrqCardAndToggle() {
             const success = ahrqRef.current?.openArtifactId(ahrqId) || false;
             if (success) {
                 setShowAlert(true);
+                setShow(true);
             }
             return success;
         });

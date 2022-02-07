@@ -49,7 +49,12 @@ export default function AvailableLibrariesDialog(props: AvailableLibrariesDialog
                                         {v.libraryElement}
                                         {v.ahrqId ? 
                                             <button
-                                                onClick={() => State.emit("open_ahrq_artifact", v.ahrqId)}
+                                                onClick={() => {
+                                                    const success = State.emit("open_ahrq_artifact", v.ahrqId);
+                                                    if (success) {
+                                                        props.onHide();
+                                                    }
+                                                }}
                                             >
                                                 Open in CQL Editor
                                             </button> :
