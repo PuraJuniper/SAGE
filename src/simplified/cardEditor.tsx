@@ -143,14 +143,23 @@ const generateElementsForType = (fieldList: any[][], type: string, actNode: Sage
                     actNode,
                     1,
                     true,
-                    false)
-                ,
+                    false
+                ),
                 insertDropdownElement(
                     "productReference",
                     friendlyFields!.find(elem => elem.FHIR == 'productReference')!.FRIENDLY,
                     ['proposal', 'plan', 'order', 'original-order', 'reflex-order', 'filler-order', 'instance-order', 'option'],
                     actNode,
                     fieldList
+                ),
+                insertTextBoxField(
+                    fieldList,
+                    "text",
+                    friendlyFields!.find(elem => elem.FHIR == 'text')!.FRIENDLY,
+                    actNode,
+                    4,
+                    false,
+                    false
                 )
             ]);
         default:
