@@ -26,7 +26,7 @@
              ],
              "url": "http://fhir.org/guides/publisher/ActivityDefinition/ActivityDefinition-cpgname0",
              "version": "1.0.0",
-             "name": "ActivityDefinition-cpgname1",
+             "name": "ActivityDefinition-cpgname0",
              "title": "123",
              "status": "draft",
              "experimental": true,

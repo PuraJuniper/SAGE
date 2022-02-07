@@ -4,6 +4,7 @@ import { CSSTransition } from 'react-transition-group';
 import State from "../state";
 import { Color } from "react-bootstrap/esm/types";
 import { ACTIVITY_DEFINITION, friendlyToFhir, PLAN_DEFINITION, QUESTIONNAIRE } from "./nameHelpers";
+import { incrementNextId } from "../helpers/schema-utils";
 
 
 
@@ -55,13 +56,16 @@ export const BaseCard = (props: BaseCardProps) => {
                         State.get().bundle.set("pos", State.get().bundle.resources.length-1);
                         State.get().ui.set("openMode", "insert");
                     }
-                    const referencedResourceUrl = `http://fhir.org/guides/${State.get().publisher}/${resourceType}/${resourceType}-${State.get().CPGName}${State.get().resCount}`;
+                    const nextId = incrementNextId(); // Saving some trouble by using this -- we should decide on a standard way to generate unique URLs
+                    const referencedResourceName = `${resourceType}-${State.get().CPGName}${nextId}`;
+                    const referencedResourceUrl = `http://fhir.org/guides/${State.get().publisher}/${resourceType}/${referencedResourceName}`;
                     const json = {
                         resourceType: "Bundle",
                         entry: [
                             {
                                 resource: {
                                     resourceType: resourceType,
+                                    name: referencedResourceName,
                                     url: referencedResourceUrl,
                                     meta: {profile: [props.profile]}
                                 }
