@@ -20,8 +20,7 @@ class CpgDialog extends React.Component {
     constructor(props) {
         super(...arguments);
         this.state = {
-            fields: {},
-            errors: {},
+            submitInvalid: false,
             showSpinner: false,
             tab: "CPGNew",
             version:"1.0.0",
@@ -175,94 +174,18 @@ class CpgDialog extends React.Component {
         return State.emit("set_ui", "closedialog");
     }
 
-    handleVersionChange(e) {
-        this.setState({
-            version: e.target.value,
-        });
-    }
-
-    handleDateChange(e) {
-        this.setState({
-            date: e.target.value,
-        });
-    }
-
-    handleCPGNameChange(e) {
-        this.setState({
-            CPGName: e.target.value,
-        });
-    }
-
-    handleStatusChange(e) {
-        this.setState({
-            status: e.target.value,
-        });
-    }
-
-    handleExperimentalChange(e) {
-        this.setState({
-            experimental: e.target.value == "true" ? true : false,
-        });
-    }
-
-    handleCopyrightChange(e) {
-        this.setState({
-            copyright: e.target.value,
-        });
-    }
-
-    handleapprovaldateChange(e) {
-        this.setState({
-            approvalDate: e.target.value,
-        });
-    }
-
-    handlelastreviewdateChange(e) {
-        this.setState({
-            lastReviewDate: e.target.value,
-        });
-    }
-
-    handleAuthorNameChange(e) {
-        this.setState({
-            publisher: e.target.value,
-        });
-    }
-
-    handleAuthorChange(e) {
-        this.setState({
-            author: e.target.value,
-        });
-    }
-
-    handleEditorChange(e) {
-        this.setState({
-            editor: e.target.value,
-        });
-    }
-
-    handleReviewerChange(e) {
-        this.setState({
-            reviewer: e.target.value,
-        });
-    }
-
     handleTabChange(key) {
         return this.setState({tab: key});
-    }
-
-    handleValidation() {
-        if (!this.state.CPGName || !this.state.publisher) return;
     }
 
     handleOpenResource(status, e) {
         if (!this.state.version || !this.state.status || !this.state.experimental||
             !this.state.author || !this.state.editor || !this.state.reviewer ||
             !this.state.publisher || !this.state.CPGName) {
-                
+                //this.setState({submitInvalid: true});
                 return;
         }
-        this.handleValidation.bind(this);
+
 		e.preventDefault();
         State.get().set({
             version: this.state.version,
@@ -400,6 +323,7 @@ class CpgDialog extends React.Component {
         );
     }
 
+
     renderNewCPGInput() {
         return (
             <Container>
@@ -407,24 +331,31 @@ class CpgDialog extends React.Component {
                     <Col md="6">   
                         <p style={{marginTop: "10px"}}>Version:<span style={{color: "red"}}>*</span></p>
                         <input
-                            className="form-control"
+                            className= {(!this.state.version ? "form-control is-invalid" : "form-control")}
                             value={this.state.version}
-                            onChange={this.handleVersionChange.bind(this)}
-                        />   
+                            onChange = {(e) => {
+                                this.setState({ version: e.target.value });
+                            }}
+                        />
                     </Col>    
                     <Col md="6">
                         <p style={{marginTop: "10px"}}>Date:</p>
-                        <Form.Control type="date" 
-                        className="form-control" 
-                        value={this.state.date} 
-                        onChange={this.handleDateChange.bind(this)}/> 
+                        <input
+                            className= "form-control"
+                            type="date"
+                            value={this.state.date}
+                            onChange = {(e) => {
+                                this.setState({ date: e.target.value });
+                            }}
+                        />  
+
                     </Col>
                     <Col md="6">
                     <p style={{marginTop: "10px"}}>Status:<span style={{color: "red"}}>*</span></p>
                     <select
 					        className="form-control input-sm" 
 					        onChange = {(e) => {
-						        this.handleStatusChange.bind(this)(e);
+						        this.setState({ status: e.target.value })
 					        }}
 					    ref="inputField"
 				    >
@@ -439,10 +370,10 @@ class CpgDialog extends React.Component {
                         <select
 					        className="form-control input-sm" 
 					        onChange = {(e) => {
-						        this.handleExperimentalChange.bind(this)(e);
+						        this.setState({ experimental: e.target.value == "true" ? true : false });
 					        }}
-					    ref="inputField"
-				    >
+                            ref="inputField"
+                        >
 				        <option value = {true}>Yes</option>
 				        <option value= {false}>No</option>
 			            </select>
@@ -452,9 +383,11 @@ class CpgDialog extends React.Component {
                     <Col md="6">
                     <p style={{marginTop: "10px"}}>Publisher:<span style={{color: "red"}}>*</span></p>
                         <input
-                            className="form-control"
+                            className= {(!this.state.publisher ? "form-control is-invalid" : "form-control")}
                             value={this.state.publisher}
-                            onChange={this.handleAuthorNameChange.bind(this)}
+                            onChange = {(e) => {
+                                this.setState({ publisher: e.target.value });
+                            }}
                         />
                     </Col>
                     <Col md="6">
@@ -462,33 +395,44 @@ class CpgDialog extends React.Component {
                         <input
                             className="form-control"
                             value={this.state.copyright}
-                            onChange={this.handleCopyrightChange.bind(this)}
+                            onChange = {(e) => {
+                                this.setState({ copyright: e.target.value });
+                            }}
                         />  
                     </Col>   
                     <Col md="6">
                         <p style={{marginTop: "10px"}}>Approval Date:</p>
-                        <Form.Control type="date" 
-                        className="form-control" 
-                        value={this.state.approvalDate} 
-                        onChange={this.handleapprovaldateChange.bind(this)}
-                        />
+                        <input
+                            className="form-control"
+                            type = "date"
+                            value={this.state.approvalDate}
+                            onChange = {(e) => {
+                                this.setState({ approvalDate: e.target.value });
+                            }}
+                        />  
                     </Col> 
                     <Col md="6">
                         <p style={{marginTop: "10px"}}>Last Review Date:</p>
-                        <Form.Control type="date" 
-                        className="form-control" 
-                        value={this.state.lastReviewDate} 
-                        onChange={this.handlelastreviewdateChange.bind(this)}
-                        />
+                        <input
+                            className="form-control"
+                            type = "date"
+                            value={this.state.lastReviewDate}
+                            onChange = {(e) => {
+                                this.setState({ lastReviewDate: e.target.value });
+                            }}
+                        />  
+
                     </Col> 
                 </Row>
                 <Row className="row">
                 <Col md="12">                                     
                         <p style={{marginTop: "10px"}}>CPG Name:<span style={{color: "red"}}>*</span></p>
                         <input
-                            className="form-control"
+                            className= {(!this.state.CPGName ? "form-control is-invalid" : "form-control")}
                             value={this.state.CPGName}
-                            onChange={this.handleCPGNameChange.bind(this)}
+                            onChange = {(e) => {
+                                this.setState({ CPGName: e.target.value });
+                            }}
                         />
                     </Col>
                 </Row>
@@ -496,25 +440,31 @@ class CpgDialog extends React.Component {
                 <Col md="4">                                     
                         <p style={{marginTop: "10px"}}>Author:<span style={{color: "red"}}>*</span></p>
                         <input
-                            className="form-control"
+                            className= {(!this.state.author ? "form-control is-invalid" : "form-control")}
                             value={this.state.author}
-                            onChange={this.handleAuthorChange.bind(this)}
+                            onChange = {(e) => {
+                                this.setState({ author: e.target.value });
+                            }}
                         />
                     </Col>
                     <Col md="4">                                     
                         <p style={{marginTop: "10px"}}>Editor:<span style={{color: "red"}}>*</span></p>
                         <input
-                            className="form-control"
+                            className= {(!this.state.editor ? "form-control is-invalid" : "form-control")}
                             value={this.state.editor}
-                            onChange={this.handleEditorChange.bind(this)}
+                            onChange = {(e) => {
+                                this.setState({ editor: e.target.value });
+                            }}
                         />
                     </Col>
                     <Col md="4">                                     
                         <p style={{marginTop: "10px"}}>Reviewer:<span style={{color: "red"}}>*</span></p>
                         <input
-                            className="form-control"
+                            className= {(!this.state.reviewer ? "form-control is-invalid" : "form-control")}
                             value={this.state.reviewer}
-                            onChange={this.handleReviewerChange.bind(this)}
+                            onChange = {(e) => {
+                                this.setState({ reviewer: e.target.value });
+                            }}
                         />
                     </Col>
                 </Row>

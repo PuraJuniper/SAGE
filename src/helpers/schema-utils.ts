@@ -9,7 +9,7 @@
 import State, { SageFreezerNode, SageNodeInitializedFreezerNode } from '../state';
 import PrimitiveValidator from './primitive-validator';
 import { Bundle, Resource, Element, ElementDefinition, ElementDefinitionType, ActivityDefinition, PlanDefinition, Questionnaire, Library, ValueSet, FhirResource } from 'fhir/r4';
-import { defaultProfileUriOfResourceType, FriendlyResourceListEntry, FriendlyResourceSelf, STRUCTURE_DEFINITION, VALUE_SET } from '../simplified/nameHelpers';
+import { defaultProfileUriOfResourceType, FriendlyResourceListEntry, FriendlyResourceSelf, profileToFriendlyResourceListEntry, STRUCTURE_DEFINITION, VALUE_SET } from '../simplified/nameHelpers';
 
 // Template of a SageNode for a specific element/resource
 export type SageNode = {
@@ -73,7 +73,7 @@ export type SimplifiedProfiles = {
 }
 
 type ValuesetDef = {
-	items: [string, string][],
+	items: [string, string][], // [friendly name, value][]
 	type: string,
 }
 
@@ -191,7 +191,7 @@ export const getElementChildren = function(profiles: SimplifiedProfiles, node: S
 			name,
 			displayName: buildDisplayName(name, childSchema.sliceName),
 			index: childSchema.index,
-			isRequired: childSchema.min >=1,
+			isRequired: childSchema.min >=1 || presentedInCardEditor(name, childProfile),
 			fhirType: typeDef.code,
 			type: typeDef,
 			short: childSchema.short,
@@ -326,6 +326,11 @@ const getDefaultValue = (schema: SchemaDef, fhirType: string, parentName=""): {
 				if (pathSuffix[0].endsWith("Activity")) {
 					defaultValue = `http://fhir.org/guides/${State.get().publisher}/ActivityDefinition/ActivityDefinition-${State.get().CPGName}${State.get().resCount}`;
 				}
+			}
+			break;
+		case "status":
+			if (State.get().status != '') {
+				defaultValue = State.get().status
 			}
 			break;
 		case "version":
@@ -546,6 +551,16 @@ const getProfileOfSchemaDef = function(profiles: SimplifiedProfiles, schemaNode:
 	}
 	else {
 		console.log(`No default profile found for code: ${typeDef.code}`);
+	}
+}
+
+function presentedInCardEditor(name: string, profile: string): boolean {
+	const resourceEntry = profileToFriendlyResourceListEntry(profile);
+	if (resourceEntry) {
+		const formElem = resourceEntry.FORM_ELEMENTS.find(formElem => formElem.FHIR == name)
+		return formElem ? true : false;
+	} else {
+		return false;
 	}
 }
 
