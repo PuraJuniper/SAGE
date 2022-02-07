@@ -49,8 +49,30 @@ export const fhirToFriendly = (fhirWord: string) => {
 }
 
 export const friendlyToFhir = (friendlyWord: string) => {
-    return elseIfUndefined(friendlyNames.RESOURCES.find(resource => resource.SELF.FRIENDLY == friendlyWord)
-        ,((object) => object.SELF.FHIR)
+
+    function findPossibleType() {
+        const isMainType = friendlyNames.RESOURCES.find(resource => resource.SELF.FRIENDLY == friendlyWord);
+        if (isMainType) {
+            return isMainType.SELF;
+        }
+
+        const isSubType = (friendlyNames.RESOURCES.map(mainRes => {
+            return mainRes.LIST.find(subRes => subRes.FRIENDLY == friendlyWord);
+        })).filter(unfound => unfound).pop();
+        if (isSubType) {
+            return isSubType;
+        }
+        const isFormElem = (friendlyNames.RESOURCES.map(mainRes => 
+            mainRes.LIST.map(subRes => 
+                subRes.FORM_ELEMENTS.find(formElem => formElem.FRIENDLY == friendlyWord))
+        )).filter(unfound => unfound).pop()?.filter(unfound => unfound).pop();
+
+        return isFormElem;
+
+    }
+
+    return elseIfUndefined(findPossibleType()
+        ,((object) => object.FHIR)
         , defaultUndefinedString);
 }
 

@@ -19,7 +19,6 @@ import RefWarning from "./ref-warning";
 import Footer from "./footer";
 import SelectView from "./simplified/selectView"
 import Collection from "./simplified/collection"
-import { SimpleForm } from "./simplified/simpleForm";
 
 import DomainResource from "./domain-resource/";
 import CpgDialog from "./dialogs/cpg-dialog";
@@ -32,6 +31,7 @@ import UserSettingsDialog from "./dialogs/user-settings-dialog";
 
 import AppInfo from "../package.json";
 import SelectResourceDialog from "./dialogs/select-resource-canonical-dialog";
+import { CardEditor } from "./simplified/cardEditor";
 
 type RootProps = Record<string, never>;
 type RootState = {
@@ -131,7 +131,7 @@ class RootComponent extends React.Component<RootProps, RootState> {
 		} else if (state.bundle) {
 			return (
 					state.mode === "basic" ? 
-					<SimpleForm actNode={state.bundle.resources[state.bundle.pos]} planNode={state.bundle.resources[state.bundle.pos+1]}/> : 
+					<CardEditor actNode={state.bundle.resources[state.bundle.pos]} planNode={state.bundle.resources[state.bundle.pos+1]}/> : 
 					<DomainResource node={state.bundle.resources[state.bundle.pos]} errFields={state.errFields}/>
 			);
 		} else if (!state.bundle && (state.ui.status.indexOf("error") === -1)) {

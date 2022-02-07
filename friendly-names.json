@@ -8,79 +8,14 @@
       },
       "LIST": [
         {
-          "FHIR": "AdministerMedication",
-          "FRIENDLY": "Give Medication",
-          "PROFILE_URI": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-administermedication"
-        },
-        {
-          "FHIR": "CollectInformation",
-          "FRIENDLY": "Ask for Info",
-          "PROFILE_URI": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-collectinformationactivity"
-        },
-        {
-          "FHIR": "CommunicationRequest",
-          "FRIENDLY": "Talk to me",
-          "PROFILE_URI": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-communicationactivity"
-        },
-        {
-          "FHIR": "Computable",
-          "FRIENDLY": "Can go in computer",
-          "PROFILE_URI": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-computableactivity"
-        },
-        {
-          "FHIR": "DispenseMedication",
-          "FRIENDLY": "Give Meds",
-          "PROFILE_URI": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-dispensemedicationactivity"
-        },
-        {
-          "FHIR": "DocumentMedication",
-          "FRIENDLY": "Note the meds",
-          "PROFILE_URI": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-documentmedicationactivity"
-        },
-        {
-          "FHIR": "Enrollment",
-          "FRIENDLY": "Start them on program",
-          "PROFILE_URI": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-enrollmentactivity"
-        },
-        {
-          "FHIR": "GenerateReport",
-          "FRIENDLY": "Make a Report",
-          "PROFILE_URI": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-generatereportactivity"
-        },
-        {
-          "FHIR": "ImmunizationRecommendation",
-          "FRIENDLY": "Recommend a Shot",
-          "PROFILE_URI": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-immunizationactivity"
-        },
-        {
           "FHIR": "MedicationRequest",
-          "FRIENDLY": "Write Prescription",
-          "PROFILE_URI": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-medicationrequestactivity"
-        },
-        {
-          "FHIR": "ProposeDiagnosisTask",
-          "FRIENDLY": "Suggest Diagnosis",
-          "PROFILE_URI": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-proposediagnosisactivity"
-        },
-        {
-          "FHIR": "RecordDetectedIssueTask",
-          "FRIENDLY": "Note Issue",
-          "PROFILE_URI": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-recorddetectedissueactivity"
-        },
-        {
-          "FHIR": "RecordInferenceTask",
-          "FRIENDLY": "Note Prognosis",
-          "PROFILE_URI": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-recordinferenceactivity"
-        },
-        {
-          "FHIR": "ReportFlagTask",
-          "FRIENDLY": "Notable item to flag",
-          "PROFILE_URI": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-reportflagactivity"
-        },
-        {
-          "FHIR": "ServiceRequest",
-          "FRIENDLY": "Request Help",
-          "PROFILE_URI": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-servicerequestactivity"
+          "FRIENDLY": "Order Medications",
+          "PROFILE_URI": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-medicationrequestactivity",
+          "FORM_ELEMENTS": [
+            { "FHIR": "language",
+              "FRIENDLY": "Language"
+            }
+          ]
         }
       ]
     },
@@ -114,7 +49,8 @@
         {
           "FHIR": "QuestionnaireExample",
           "FRIENDLY": "An Example Questionnaire",
-          "PROFILE_URI": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-shareablequestionnaire"
+          "PROFILE_URI": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-shareablequestionnaire",
+          "FORM_ELEMENTS": []
         }
       ]
     },
