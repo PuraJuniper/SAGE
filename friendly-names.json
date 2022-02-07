@@ -12,7 +12,7 @@
           "FRIENDLY": "Order Medications",
           "PROFILE_URI": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-medicationrequestactivity",
           "FORM_ELEMENTS": [
-            { "FHIR": "language",
+            { "FHIR": "productReference",
               "FRIENDLY": "Language"
             }
           ]

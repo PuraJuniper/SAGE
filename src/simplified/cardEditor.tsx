@@ -145,7 +145,7 @@ const generateElementsForType = (fieldList: any[][], type: string, actNode: Sage
                     true)
                 ,
                 insertDropdownElement(
-                    "language",
+                    "productReference",
                     "Medication (code): ",
                     ['proposal', 'plan', 'order', 'original-order', 'reflex-order', 'filler-order', 'instance-order', 'option'],
                     actNode,
