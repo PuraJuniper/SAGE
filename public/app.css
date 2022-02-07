@@ -328,6 +328,45 @@ a {
   background-color:#88d1ff;
 }*/
 
+/* AHRQ CQL Editor */
+.btn-ahrq {
+  background-color: #5178a4;
+  border-color: #2d435b;
+  color: #FFFFFF;
+  border-radius: initial;
+  opacity: 65%;
+}
+
+.btn-ahrq:hover {
+  opacity: initial;
+  color: #FFFFFF;
+}
+
+.btn-ahrq.active {
+  opacity: initial;
+}
+
+.bg-ahrq-blue {
+  background-color: #304760;
+}
+
+.border-ahrq {
+  border-color: #2d435b;
+}
+
+.card-body-ahrq {
+  padding: 0%;
+}
+
+.card-header-ahrq {
+  cursor: pointer
+}
+
+.card-header-ahrq:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+/* SAGE Basic View */
 .bg-sage-white {
   background-color: #ffffff;
 }

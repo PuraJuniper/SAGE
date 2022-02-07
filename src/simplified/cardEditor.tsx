@@ -339,7 +339,7 @@ function CardStateEditor<T>(node: SageNodeInitializedFreezerNode, resourceName: 
     return useState<T>(SchemaUtils.getChildOfNode(node, resourceName)?.value || "");
 }
 
-function handleImportLibrary(FhirLibrary: string) {
+function handleImportLibrary(FhirLibrary?: string) {
     if (FhirLibrary) {
         try {
             const parsedFhir = JSON.parse(FhirLibrary);

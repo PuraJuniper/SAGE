@@ -30,9 +30,10 @@ import UserSettingsDialog from "./dialogs/user-settings-dialog";
 
 import AppInfo from "../package.json";
 import SelectResourceDialog from "./dialogs/select-resource-canonical-dialog";
-import { CardEditor } from "./simplified/cardEditor";
-import AhrqFrame from "./ahrqFrame";
+import { PlanDefEditor } from "./simplified/planDefEditor";
+import AvailableLibrariesDialog from "./dialogs/available-libraries";
 import { Alert } from "react-bootstrap";
+import AhrqCardAndToggle from "./ahrqCardAndToggle";
 
 type RootProps = Record<string, never>;
 type RootState = {
@@ -132,7 +133,7 @@ class RootComponent extends React.Component<RootProps, RootState> {
 		} else if (state.bundle) {
 			return (
 					state.mode === "basic" ? 
-					<CardEditor actNode={state.bundle.resources[state.bundle.pos]} planNode={state.bundle.resources[state.bundle.pos+1]}/> : 
+					<PlanDefEditor planDefNode={state.bundle.resources[state.bundle.pos+1]} /> :
 					<DomainResource node={state.bundle.resources[state.bundle.pos]} errFields={state.errFields}/>
 			);
 		} else if (!state.bundle && (state.ui.status.indexOf("error") === -1)) {
@@ -197,7 +198,7 @@ class RootComponent extends React.Component<RootProps, RootState> {
 				hasProfiles={state.profiles !== null}
 			/>
 		:
-			<NavbarFred hasResource={state.bundle ? true : undefined} appVersion={this.appVersion} />;
+			<NavbarFred hasResource={state.bundle ? true : false} appVersion={this.appVersion} />;
 		
 		return <div>
 			{navBar}
@@ -207,6 +208,10 @@ class RootComponent extends React.Component<RootProps, RootState> {
 				{resourceContent}
 				<Footer />
 			</div>
+			<AvailableLibrariesDialog
+				show={state.dialogs.showLibraries}
+				onHide={()=>state.dialogs.set("showLibraries", false)}
+			/>
 			<OpenDialog 
 				show={state.ui.status === "open"}
 				openMode={state.ui.openMode}
@@ -229,8 +234,7 @@ class RootComponent extends React.Component<RootProps, RootState> {
 			: ""
 			}
 			<UserSettingsDialog show={state.ui.status === "settings"} />
-			<AhrqFrame />
-			<StructorFrame />
+			<AhrqCardAndToggle />
 		</div>;
 	}
 }

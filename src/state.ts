@@ -1,6 +1,7 @@
 import * as cql from 'cql-execution';
 import { Library } from 'fhir/r4';
 import Freezer, { EventDict, FE, FreezerNode } from 'freezer-js';
+import { AhrqFrameRef } from './ahrqFrame';
 import { SageNewResource, SageNode, SageNodeInitialized, SimplifiedProfiles, SimplifiedValuesets } from './helpers/schema-utils';
 
 export interface StateVars {
@@ -11,7 +12,11 @@ export interface StateVars {
 		replaceId?: number,
 		count?: number,
 		update?: {from: string, to: string}[],
-		selectedNode?: SageNodeInitialized
+		selectedNode?: SageNodeInitialized,
+	},
+	dialogs: {
+		showLibraries?: boolean,
+		showAHRQ?: boolean,
 	},
 	mode: "basic" | "advanced",
 	VSACEndpoint: string,
@@ -41,6 +46,7 @@ export interface StateVars {
 				fhirLibrary: Library,
 				library: cql.Library,
 				url: string,
+				ahrqId?: string,
 			}
 		}
 	}
@@ -52,8 +58,7 @@ export interface StateVars {
 
 export type SageUiStatus = 'ready' | 'contained' | 'open' | 'validation_error' | 'resource_load_error' | 'ref_warning' | 'codePicker' 
 	| 'change_profile' | 'missing_title_error' | 'id_duplicate_error' | 'title_duplicate_error' | 'url_duplicate_error' | 'cards' | 'collection'
-	| 'loading' | 'profile_load_error' | 'export' | 'cpg' | 'valueSet' | 'settings' | 'select' | 'basic-cpg' | 'advanced-cpg';
-
+	| 'loading' | 'profile_load_error' | 'export' | 'cpg' | 'valueSet' | 'settings' | 'select' | 'basic-cpg' | 'advanced-cpg' | 'view-libraries';
 
 export interface SageReactions {
 	"load_initial_json": (profilePath: string, resourcePath: string, isRemote: boolean) => void;
@@ -88,14 +93,16 @@ export interface SageReactions {
 	"add_object_element": (node: SageNodeInitializedFreezerNode, fhirElement: SageNode) => unknown;
 	"change_profile": (nodeToChange: SageNodeInitializedFreezerNode, newProfile: keyof SimplifiedProfiles) => unknown;
 	"load_json_into": (nodeToWriteTo: SageNodeInitializedFreezerNode, json: any) => unknown;
-	"load_library": (library: cql.Library, url: string, fhirLibrary: Library) => unknown;
+	"load_library": (library: cql.Library, url: string, fhirLibrary: Library, ahrqId?: string) => unknown;
 	"insert_resource_into_bundle": (resource: SageNewResource) => void;
+	"open_ahrq_artifact": (ahrqId: string) => boolean;
 }
 
 const defaultStateVars: StateVars = {
 	ui: { 
 		status: "loading",
 	},
+	dialogs: {},
 	mode: "advanced",
 	VSACEndpoint: "https://cts.nlm.nih.gov/fhir/r4",
 	UMLSKey: "",
