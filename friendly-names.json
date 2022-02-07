@@ -12,8 +12,17 @@
           "FRIENDLY": "Order Medications",
           "PROFILE_URI": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-medicationrequestactivity",
           "FORM_ELEMENTS": [
+            { "FHIR": "status",
+              "FRIENDLY": "Status: "
+            },
+            { "FHIR": "intent",
+              "FRIENDLY": "Intent: "
+            },
+            { "FHIR": "relatedArtifact",
+              "FRIENDLY": "Related artifact: "
+            },
             { "FHIR": "productReference",
-              "FRIENDLY": "Language"
+              "FRIENDLY": "Medication Code: "
             }
           ]
         }

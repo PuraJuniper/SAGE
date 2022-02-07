@@ -113,3 +113,11 @@ export function getBorderPropsForType(resourceType: string): string | undefined 
             return "questionnaire";
     }
 }
+
+export function getFormElementListForResource(resource: string) {
+    return friendlyNames.RESOURCES
+    .map(res => res.LIST.find(resType => resType.FHIR == resource))
+    .filter(def => def)
+    .pop()!
+    .FORM_ELEMENTS;
+}

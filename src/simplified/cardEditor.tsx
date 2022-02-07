@@ -9,7 +9,7 @@ import hypertensionLibraryJson from "../../public/samples/hypertension-library.j
 import * as SageUtils from "../helpers/sage-utils";
 import * as SchemaUtils from "../helpers/schema-utils";
 import State, { SageNodeInitializedFreezerNode } from "../state";
-import { ACTIVITY_DEFINITION, profileToFriendlyResourceListEntry } from "./nameHelpers";
+import { ACTIVITY_DEFINITION, getFormElementListForResource, profileToFriendlyResourceListEntry } from "./nameHelpers";
 
 
 const hypertensionLibrary: Library = hypertensionLibraryJson as Library;
@@ -118,35 +118,36 @@ function insertDropdownElement(fieldKey: string, fieldFriendlyName: string, fiel
 }
 
 const generateElementsForType = (fieldList: any[][], type: string, actNode: SageNodeInitializedFreezerNode) => {
+    const friendlyFields = getFormElementListForResource(type);
     switch (type) {
         case "MedicationRequest":
             return ([
                 insertDropdownElement(
                     "status",
-                    "Status:",
+                    friendlyFields!.find(elem => elem.FHIR == 'status')!.FRIENDLY,
                     ['active', 'on-hold', 'cancelled', 'completed', 'entered-in-error', 'stopped', 'draft', 'unknown'],
                     actNode,
                     fieldList
                 ),
                 insertDropdownElement(
                     "intent",
-                    "Intent:",
+                    friendlyFields!.find(elem => elem.FHIR == 'intent')!.FRIENDLY,
                     ['proposal', 'plan', 'order', 'original-order', 'reflex-order', 'filler-order', 'instance-order', 'option'],
                     actNode,
                     fieldList
                 ),
                 insertTextBoxField(
                     fieldList,
-                    "profile",
-                    "Related artefact",
+                    "relatedArtifact",
+                    friendlyFields!.find(elem => elem.FHIR == 'relatedArtifact')!.FRIENDLY,
                     actNode,
                     1,
                     true,
-                    true)
+                    false)
                 ,
                 insertDropdownElement(
                     "productReference",
-                    "Medication (code): ",
+                    friendlyFields!.find(elem => elem.FHIR == 'productReference')!.FRIENDLY,
                     ['proposal', 'plan', 'order', 'original-order', 'reflex-order', 'filler-order', 'instance-order', 'option'],
                     actNode,
                     fieldList
