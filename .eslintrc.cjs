@@ -50,7 +50,7 @@ module.exports = {
             "rules": {
                 "react/react-in-jsx-scope": 0,
                 "@typescript-eslint/no-unused-vars": 0,
-                "@typescript-eslint/no-explicit-any": [1, { "ignoreRestArgs": true }],
+                "@typescript-eslint/no-explicit-any": 0, //[1, { "ignoreRestArgs": true }],
             }
         },
         { // Jest files
