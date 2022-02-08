@@ -4,7 +4,7 @@ import * as cql from "cql-execution";
 import { Library, PlanDefinitionActionCondition } from "fhir/r4";
 import { ExtractTypeOfFN } from "freezer-js";
 import React, { ElementType, useEffect, useState } from "react";
-import { Button, Col, Form, InputGroup, Modal, Row } from 'react-bootstrap';
+import { Button, Col, Form, FormText, InputGroup, Modal, Row } from 'react-bootstrap';
 import hypertensionLibraryJson from "../../public/samples/hypertension-library.json";
 import * as SageUtils from "../helpers/sage-utils";
 import * as SchemaUtils from "../helpers/schema-utils";
@@ -63,7 +63,7 @@ const insertCardHeader = (state: any, actResourceType: any) => {
     );
 }
 
-function insertTextBoxField(fieldList: any[][], fieldKey: string, friendlyFieldName: string, actNode: SageNodeInitializedFreezerNode, boxSize: number = 1, isReadOnly: boolean = false, isLink: boolean = false) {
+function insertTextBoxField(fieldList: any[][], fieldKey: string, friendlyFieldName: string, actNode: SageNodeInitializedFreezerNode, boxSize: number = 1, isReadOnly: boolean = false, isLink: boolean = false, caption: string) {
     const [fieldName, fieldContents, setField, fieldSaveHandler] = simpleCardField(fieldKey, actNode);
     function returnVal() {
         if (isLink) {
@@ -87,6 +87,7 @@ function insertTextBoxField(fieldList: any[][], fieldKey: string, friendlyFieldN
     return (
         <Form.Group key={fieldName} as={Col} controlId={fieldName}>
             <Form.Label>{friendlyFieldName}</Form.Label>
+            <Form.Text>{caption}</Form.Text>
             <Col key={fieldName} sm={10}>
                 {returnVal()}
             </Col>
@@ -143,7 +144,8 @@ const generateElementsForType = (fieldList: any[][], type: string, actNode: Sage
                     actNode,
                     1,
                     true,
-                    false
+                    false,
+                    ""
                 ),
                 insertDropdownElement(
                     "productReference",
@@ -159,7 +161,8 @@ const generateElementsForType = (fieldList: any[][], type: string, actNode: Sage
                     actNode,
                     4,
                     false,
-                    false
+                    false,
+                    "NOTE: For advanced timing instructions, leave basic dosage sentence blank."
                 )
             ]);
         default:
@@ -210,8 +213,8 @@ export const CardEditor = (props: CardEditorProps) => {
         // conditionCardField(planNode)
     ]
 
-    const defaultFields = [insertTextBoxField(fieldList, titleKey, fieldNameMap.get(titleKey)!, actNode),
-    insertTextBoxField(fieldList, descriptionKey, fieldNameMap.get(descriptionKey)!, actNode, 3)];
+    const defaultFields = [insertTextBoxField(fieldList, titleKey, fieldNameMap.get(titleKey)!, actNode, 1, false, false, ""),
+    insertTextBoxField(fieldList, descriptionKey, fieldNameMap.get(descriptionKey)!, actNode, 3, false, false, "")];
     const allCardFields = [...defaultFields,
     ...generateElementsForType(fieldList, actResourceType!.FHIR, actNode)]
     const numRows = 3;
