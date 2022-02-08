@@ -63,7 +63,11 @@ const insertCardHeader = (state: any, actResourceType: any) => {
     );
 }
 
+<<<<<<< HEAD
 function insertTextBoxField(fieldList: any[][], fieldKey: string, friendlyFieldName: string, actNode: SageNodeInitializedFreezerNode, boxSize: number = 1, isReadOnly: boolean = false, isLink: boolean = false, caption: string) {
+=======
+function insertTextBoxField(fieldList: any[][], fieldKey: string, friendlyFieldName: string, actNode: SageNodeInitializedFreezerNode, boxSize = 1, isReadOnly = false, isLink = false) {
+>>>>>>> 53f22245862fe237246d7eff7489d746462d7da5
     const [fieldName, fieldContents, setField, fieldSaveHandler] = simpleCardField(fieldKey, actNode);
     function returnVal() {
         if (isLink) {
@@ -71,8 +75,8 @@ function insertTextBoxField(fieldList: any[][], fieldKey: string, friendlyFieldN
         } else {
             return <Form.Control
                 {...{
-                    ...(isReadOnly!) && { readOnly: isReadOnly },
-                    ...(boxSize!) > 1 && { as: "textarea" as ElementType<any>, rows: boxSize },
+                    ...(isReadOnly) && { readOnly: isReadOnly },
+                    ...(boxSize) > 1 && { as: "textarea" as ElementType<any>, rows: boxSize },
                     ...{
                         type: "text",
                         defaultValue: fieldContents,
@@ -171,7 +175,7 @@ const generateElementsForType = (fieldList: any[][], type: string, actNode: Sage
 }
 
 const simpleCardField = (fieldName: string, actNode: SageNodeInitializedFreezerNode) => {
-    const [fieldContents, setField] = cardStringStateEditor(actNode, fieldName);
+    const [fieldContents, setField] = CardStringStateEditor(actNode, fieldName);
     function fieldSaveHandler(name: string, contents: any, act: any, plan: any) {
         const fieldNode = SchemaUtils.getChildOfNodePath(plan, ["action", name]);
         if (fieldNode) {
@@ -186,7 +190,7 @@ const simpleCardField = (fieldName: string, actNode: SageNodeInitializedFreezerN
 }
 
 const conditionCardField = (planNode: SageNodeInitializedFreezerNode) => {
-    const [condition, setCondition] = cardPDActionConditionStateEditor(planNode);
+    const [condition, setCondition] = CardPDActionConditionStateEditor(planNode);
     function conditionSaveHandler(name: string, contents: any, act: any, plan: any) {
         const conditionNode = SchemaUtils.getChildOfNodePath(plan, ["action", name]);
         if (conditionNode) {
@@ -200,7 +204,7 @@ const conditionCardField = (planNode: SageNodeInitializedFreezerNode) => {
 export const CardEditor = (props: CardEditorProps) => {
     const actNode = props.actNode;
     const planNode = props.planNode;
-    const actResourceType = profileToFriendlyResourceListEntry(SchemaUtils.toFhir(actNode, false).meta?.profile?.[0]);
+    const actResourceType = profileToFriendlyResourceListEntry(SchemaUtils.toFhir(actNode, false).meta?.profile?.[0]) ?? {FHIR: ""};
     const state = State.get();
     const titleKey = "title";
     const descriptionKey = "description";
@@ -213,10 +217,15 @@ export const CardEditor = (props: CardEditorProps) => {
         // conditionCardField(planNode)
     ]
 
+<<<<<<< HEAD
     const defaultFields = [insertTextBoxField(fieldList, titleKey, fieldNameMap.get(titleKey)!, actNode, 1, false, false, ""),
     insertTextBoxField(fieldList, descriptionKey, fieldNameMap.get(descriptionKey)!, actNode, 3, false, false, "")];
+=======
+    const defaultFields = [insertTextBoxField(fieldList, titleKey, fieldNameMap.get(titleKey) ?? "", actNode),
+    insertTextBoxField(fieldList, descriptionKey, fieldNameMap.get(descriptionKey) ?? "", actNode, 3)];
+>>>>>>> 53f22245862fe237246d7eff7489d746462d7da5
     const allCardFields = [...defaultFields,
-    ...generateElementsForType(fieldList, actResourceType!.FHIR, actNode)]
+    ...generateElementsForType(fieldList, actResourceType.FHIR, actNode)]
     const numRows = 3;
 
     // const returnVal = [...Array(numRows)].map((e, i) => {
@@ -259,15 +268,15 @@ export const CardEditor = (props: CardEditorProps) => {
     }
 }
 
-function insertConditionDropdown(fieldList: any[][]) {
-    const conditionField = fieldList.find((field) => field[0] == "condition")!;
-    const libraryField = fieldList.find((field) => field[0] == "library")!;
+function ConditionDropdown(fieldList: any[][]) {
+    const conditionField = fieldList.find((field) => field[0] == "condition") ?? ["","", () => {return undefined}];
+    const libraryField = fieldList.find((field) => field[0] == "library") ?? ["","", () => {return undefined}];
     const [expressionOptions, setExpressionOptions] = useState<ExpressionOptionDict>({});
     const [FhirLibrary, setFhirLibrary] = useState<any>();
     const [showLibraryImportModal, setShowLibraryImportModal] = useState<boolean>(false);
 
     // Initialization
-    initializeLibraries(setExpressionOptions);
+    InitializeLibraries(setExpressionOptions);
 
     return (
         <>
@@ -322,13 +331,13 @@ const buildConditionFromSelection = (expression?: string): PlanDefinitionActionC
     };
 }
 
-function cardPDActionConditionStateEditor(planNode: SageNodeInitializedFreezerNode): [any, any] {
+function CardPDActionConditionStateEditor(planNode: SageNodeInitializedFreezerNode): [any, any] {
     return useState<PlanDefinitionActionCondition>(() => {
         return buildConditionFromSelection(SchemaUtils.getChildOfNodePath(planNode, ["action", "condition", "expression", "expression"])?.value);
     });
 }
 
-function cardStringStateEditor(node: SageNodeInitializedFreezerNode, resourceName: string): [any, any] {
+function CardStringStateEditor(node: SageNodeInitializedFreezerNode, resourceName: string): [any, any] {
     return useState<string>(SchemaUtils.getChildOfNode(node, resourceName)?.value || "");
 }
 
@@ -348,7 +357,7 @@ function handleImportLibrary(FhirLibrary: string) {
     }
 }
 
-function initializeLibraries(setExpressionOptions: { (value: React.SetStateAction<ExpressionOptionDict>): void; (arg0: ExpressionOptionDict): void; }) {
+function InitializeLibraries(setExpressionOptions: { (value: React.SetStateAction<ExpressionOptionDict>): void; (arg0: ExpressionOptionDict): void; }) {
     useEffect(
         () => {
             const initialLibraries = State.get().simplified.libraries;
@@ -394,7 +403,7 @@ function initializeLibraries(setExpressionOptions: { (value: React.SetStateActio
             setExpressionOptions(getExpressionOptionsFromLibraries(libraries));
             return;
         },
-        [libraries],
+        [libraries, setExpressionOptions],
     );
 }
 
