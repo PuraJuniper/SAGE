@@ -63,11 +63,8 @@ const insertCardHeader = (state: any, actResourceType: any) => {
     );
 }
 
-<<<<<<< HEAD
+
 function insertTextBoxField(fieldList: any[][], fieldKey: string, friendlyFieldName: string, actNode: SageNodeInitializedFreezerNode, boxSize: number = 1, isReadOnly: boolean = false, isLink: boolean = false, caption: string) {
-=======
-function insertTextBoxField(fieldList: any[][], fieldKey: string, friendlyFieldName: string, actNode: SageNodeInitializedFreezerNode, boxSize = 1, isReadOnly = false, isLink = false) {
->>>>>>> 53f22245862fe237246d7eff7489d746462d7da5
     const [fieldName, fieldContents, setField, fieldSaveHandler] = simpleCardField(fieldKey, actNode);
     function returnVal() {
         if (isLink) {
@@ -217,13 +214,8 @@ export const CardEditor = (props: CardEditorProps) => {
         // conditionCardField(planNode)
     ]
 
-<<<<<<< HEAD
     const defaultFields = [insertTextBoxField(fieldList, titleKey, fieldNameMap.get(titleKey)!, actNode, 1, false, false, ""),
     insertTextBoxField(fieldList, descriptionKey, fieldNameMap.get(descriptionKey)!, actNode, 3, false, false, "")];
-=======
-    const defaultFields = [insertTextBoxField(fieldList, titleKey, fieldNameMap.get(titleKey) ?? "", actNode),
-    insertTextBoxField(fieldList, descriptionKey, fieldNameMap.get(descriptionKey) ?? "", actNode, 3)];
->>>>>>> 53f22245862fe237246d7eff7489d746462d7da5
     const allCardFields = [...defaultFields,
     ...generateElementsForType(fieldList, actResourceType.FHIR, actNode)]
     const numRows = 3;
