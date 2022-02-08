@@ -46,6 +46,7 @@ const insertDeleteCardButton = (state: any) => {
             State.emit("remove_from_bundle", state.bundle.pos + 1);
             State.emit("remove_from_bundle", state.bundle.pos);
             State.get().set("ui", { status: "cards" });
+            console.log(state);
         }}
     >
         <FontAwesomeIcon icon={faCaretLeft} />
@@ -184,6 +185,103 @@ const conditionCardField = (planNode: SageNodeInitializedFreezerNode) => {
     return ["condition", condition, setCondition, conditionSaveHandler]
 }
 
+const insertNextButton = ()=> {
+        return <button className="navigate col-lg-2 col-md-3"
+        onClick = {()=>{ 
+            nextStep();
+        }}>
+        Next&nbsp;
+        <FontAwesomeIcon icon={faCaretRight} />
+    </button>;
+}
+
+const insertPreviousButton = ()=> {
+        return <button className="navigate-reverse col-lg-2 col-md-3"
+       onClick = {()=>{
+           prevStep();
+        }}>
+        <FontAwesomeIcon icon={faCaretLeft} />
+        &nbsp;Previous
+    </button>;
+}
+
+function prevStep = ()=>{
+    const state = State.get();
+    const {step} = this.state;
+    this.setState({step: step - 1})
+}
+
+function nextStep = ()=>{
+    const state = State.get();
+    const {step} = this.state;
+    this.setState({step: step + 1})
+}
+
+const insertCancelButton = <button className="navigate col-lg-2 col-md-3">
+    Cancel
+</button>;
+
+//funciton to take in the page you are currently on
+//and use that info to decide what buttons should display for Nav
+const InsertCardNav = (page: number) =>{
+    switch (page){
+        case 1: return(
+            <>
+            {insertNextButton()}
+            {insertCancelButton}
+            </>
+        );
+        case 2: return(
+            <>
+            {insertPreviousButton()}
+            {insertNextButton()}
+            {insertCancelButton}
+            </>
+        );    
+        case 3: return(
+            <>
+            {insertPreviousButton()}
+            {insertSaveButton}
+            {insertCancelButton}
+            </>
+        );
+    } 
+}
+const fillingInBasics = ()=>{
+    return (
+        <div>    
+            <div>Page 1: Filling in the basics</div>
+            <div>{InsertCardNav(1)}</div>
+        </div>
+    );
+}
+const addingConditions = ()=>{
+    return (
+        <div>
+            <div>Page 2: Adding Conditions</div>
+            <div>{InsertCardNav(2)}</div>
+        </div>
+    );
+}
+const cardPreview = ()=>{
+    return(
+        <div>
+            <div>Page 3: Card Preview</div>
+            <div>{InsertCardNav(3)}</div>
+        </div>
+    ); 
+}
+
+const pageNavHandler = () =>{
+    let state = State.get();
+    switch(state.step){
+        case 1: return fillingInBasics();
+        case 2: return addingConditions();
+        case 3: return cardPreview();
+        default: 
+    }
+}
+
 export const CardEditor = (props: CardEditorProps) => {
     const actNode = props.actNode;
     const planNode = props.planNode;
@@ -230,14 +328,22 @@ export const CardEditor = (props: CardEditorProps) => {
     // }
     // )
 
-    return (
+    /*return (
         <div>
             <Form style={{ color: "#2a6b92" }} id="commonMetaDataForm" target="void" onSubmit={handleSaveResource}>
                 {insertCardHeader(state, actResourceType)}
                 {allCardFields}
             </Form>
         </div>
-    );
+    );*/
+    return (
+        <div>
+            <Form style={{ color: "#2a6b92" }} id="commonMetaDataForm" target="void" onSubmit={handleSaveResource}>
+                {insertCardHeader(state, actResourceType)}
+                {pageNavHandler()}
+            </Form>
+        </div>
+    )
 
     function handleSaveResource() {
         fieldList.forEach((field) => field[3](field[0], field[1], actNode, planNode));

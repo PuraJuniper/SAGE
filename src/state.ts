@@ -35,6 +35,7 @@ export interface StateVars {
 		resources: SageNodeInitialized[],
 	},
 	simplified: { // Data only used by the simplified view
+		step: number,
 		libraries: {
 			[libraryIdentifier: string]: {
 				fhirLibrary: Library,
@@ -112,6 +113,7 @@ const defaultStateVars: StateVars = {
 	publisher: "",
 	canonicalUris: [], // URIs to reference in canonical elements
 	simplified: {
+		step: 1,
 		libraries: {}
 	},
 	resCount: 0,
