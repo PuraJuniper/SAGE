@@ -1,5 +1,6 @@
 import { faCaretLeft, faCaretRight } from '@fortawesome/pro-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import userEvent from '@testing-library/user-event';
 import * as cql from "cql-execution";
 import { Library, PlanDefinitionActionCondition } from "fhir/r4";
 import { ExtractTypeOfFN } from "freezer-js";
@@ -163,13 +164,13 @@ const conditionCardField = (planNode: SageNodeInitializedFreezerNode) => {
     return ["condition", condition, setCondition, conditionSaveHandler]
 }
 
-const insertSaveButton = <button className="navigate col-lg-2 col-md-3"
+const insertSaveButton = <button id = 'save' className="navigate col-lg-2 col-md-3"
     type="submit">
     Save Card
 </button>;
 
 const insertDeleteCardButton = (state: any) => {
-    return <button className="navigate-reverse col-lg-2 col-md-3"
+    return <button className="navigate col-lg-2 col-md-3"
         onClick={() => {
             State.emit("remove_from_bundle", state.bundle.pos + 1);
             State.emit("remove_from_bundle", state.bundle.pos);
@@ -209,9 +210,6 @@ const nextStep = (step: number)=>{
     if(step == 2) State.get().set('simplified', {step: 3, 'libraries': {}});
 }
 
-
-//funciton to take in the page you are currently on
-//and use that info to decide what buttons should display for Nav
 const InsertCardNav = (state: any, step: number) =>{
     switch (step){
         case 1: return(
@@ -328,16 +326,21 @@ export const CardEditor = (props: CardEditorProps) => {
     );*/
     return (
         <div>
-            <div>{insertCardHeader(actResourceType)}</div>
+            <div style={{color: "#2a6b92" }}>{insertCardHeader(actResourceType)}</div>
             <Form style={{ color: "#2a6b92" }} id="commonMetaDataForm" target="void" onSubmit={handleSaveResource}>
+            {pageNavHandler(state, state.simplified.step)}
             </Form>
-            <div>{pageNavHandler(state, state.simplified.step)}</div>
         </div>
     )
-    function handleSaveResource() {   
-        //fieldList.forEach((field) => field[3](field[0], field[1], actNode, planNode));
-
-        //State.get().set("ui", { status: "collection" });
+    function handleSaveResource() { 
+        event?.preventDefault(); 
+        const saveBtn = document.querySelector('#save');
+        if (saveBtn){
+            saveBtn.addEventListener('click', () => {
+                fieldList.forEach((field) => field[3](field[0], field[1], actNode, planNode));
+                State.get().set("ui", { status: "collection" });
+            })  
+        }
     }
 }
 
