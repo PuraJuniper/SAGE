@@ -12,6 +12,12 @@
           "FRIENDLY": "Order Medications",
           "PROFILE_URI": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-medicationrequestactivity",
           "FORM_ELEMENTS": [
+            { "FHIR": "title",
+              "FRIENDLY": "Card short name: "
+            },
+            { "FHIR": "description",
+              "FRIENDLY": "Card description: "
+            },
             { "FHIR": "status",
               "FRIENDLY": "Status: "
             },

@@ -6,6 +6,18 @@ export class MedicationRequestForm extends CardForm {
     resourceType: FriendlyResourceListEntry;
     friendlyFields: FriendlyResourceFormElement[];
     textBoxFields: Map<string, textBoxProps> = new Map<string, textBoxProps>([
+        ['title', {
+            boxSize: 1,
+            isReadOnly: false,
+            isLink: false,
+            caption: ""
+        }],
+        ['description', {
+            boxSize: 3,
+            isReadOnly: false,
+            isLink: false,
+            caption: ""
+        }],
         ['relatedArtifact', {
             boxSize: 1,
             isReadOnly: true,
