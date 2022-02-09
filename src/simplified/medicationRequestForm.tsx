@@ -1,12 +1,11 @@
 import { Row } from "react-bootstrap";
-import { CardColumns } from "reactstrap";
 import { SageNodeInitializedFreezerNode } from "../state";
 import { CardForm, cardLayout, textBoxProps } from "./cardForm";
 import { FriendlyResourceFormElement, FriendlyResourceListEntry, getFormElementListForResource } from "./nameHelpers";
 
 export class MedicationRequestForm extends CardForm {
-    resourceType: FriendlyResourceListEntry;
     friendlyFields: FriendlyResourceFormElement[];
+    allElements: JSX.Element[];
     textBoxFields: Map<string, textBoxProps> = new Map<string, textBoxProps>([
         ['title', {
             boxSize: 1,
@@ -59,11 +58,10 @@ export class MedicationRequestForm extends CardForm {
         };
 
     constructor(state: any, sageNode: SageNodeInitializedFreezerNode, fieldList: any[][], resourceType: FriendlyResourceListEntry) {
-        super(state, sageNode, fieldList);
-        this.resourceType = resourceType;
+        super(state, sageNode, fieldList, resourceType);
         this.friendlyFields = getFormElementListForResource(this.resourceType.FHIR);
+        this.allElements = this.createAllElements();
     }
-
 
     createAllElements(): JSX.Element[] {
         const createDropdownElementList = (): JSX.Element[] => {
@@ -92,9 +90,8 @@ export class MedicationRequestForm extends CardForm {
 
         return (
             [
-                ...this.createCardHeader(),
+                this.cardHeader,
                 ...sortedFieldElems,
-                // this.pageNavHandler(this.state, this.state.simplified.step)
             ]);
-    }
+    }   
 }

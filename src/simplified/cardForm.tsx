@@ -26,29 +26,21 @@ export abstract class CardForm {
     sageNode: SageNodeInitializedFreezerNode;
     fieldHandlers: any[][];
     state: any;
+    resourceType: FriendlyResourceListEntry;
+    cardHeader: JSX.Element;
     placeHolderElem: JSX.Element =
         <Form.Group key='placeholder-formGroup' as={Col} >
         </Form.Group>;
-    abstract cardFieldLayout: cardLayout;
-    abstract resourceType: FriendlyResourceListEntry;
-    abstract textBoxFields: Map<string, textBoxProps>;
-    abstract createAllElements(): JSX.Element[]
-    abstract friendlyFields: FriendlyResourceFormElement[]
 
-    constructor(state: any, sageNode: SageNodeInitializedFreezerNode, fieldHandlers: any[][]) {
-        this.state = state;
-        this.sageNode = sageNode;
-        this.fieldHandlers = fieldHandlers;
-    }
-
-    createSaveButton: JSX.Element = <button key="butSave" className="navigate col-lg-2 col-md-3"
+    saveButton: JSX.Element =
+        <button key="butSave" className="navigate col-lg-2 col-md-3"
             type="submit">
             Save Card&nbsp;
             <FontAwesomeIcon key="butSaveIcon" icon={faCaretRight} />
         </button>;
 
-    createDeleteCardButton = (): JSX.Element => {
-        return <button key="butDel" type='button' className="navigate col-lg-2 col-md-3"
+    deleteCardButton: JSX.Element =
+        <button key="butDel" type='button' className="navigate col-lg-2 col-md-3"
             onClick={() => {
                 State.emit("remove_from_bundle", this.state.bundle.pos + 1);
                 State.emit("remove_from_bundle", this.state.bundle.pos);
@@ -57,7 +49,27 @@ export abstract class CardForm {
             }}>
             Cancel
         </button>;
-}
+
+    abstract cardFieldLayout: cardLayout;
+    abstract textBoxFields: Map<string, textBoxProps>;
+    abstract allElements: JSX.Element[]
+    abstract friendlyFields: FriendlyResourceFormElement[]
+
+    constructor(state: any,  sageNode: SageNodeInitializedFreezerNode, fieldHandlers: any[][], resourceType: FriendlyResourceListEntry,) {
+        this.state = state;
+        this.resourceType = resourceType;
+        this.sageNode = sageNode;
+        this.fieldHandlers = fieldHandlers;
+        this.cardHeader = function (): JSX.Element {
+            const createCardName = (): JSX.Element => {
+                return <h3 key="cardName" style={{ marginTop: "20px", marginBottom: "10px" }}><b>
+                    {resourceType ? resourceType?.FRIENDLY ?? "Unknown Resource Type" : ""}
+                </b></h3>;
+            }
+            return (createCardName());
+        }();
+    }
+
 
     insertNextButton = (step: number) => {
         return <button type='button' className="navigate col-lg-2 col-md-3"
@@ -93,79 +105,65 @@ export abstract class CardForm {
         State.get().set('simplified', { step: 1, 'libraries': {} });
     }
 
-    InsertCardNav = (state: any, step: number) => {
+    InsertCardNav = (step: number) => {
         switch (step) {
             case 1: return (
                 <>
                     {this.insertNextButton(step)}
-                    {this.createSaveButton}
-                    {this.createDeleteCardButton()}
+                    {this.saveButton}
+                    {this.deleteCardButton}
                 </>
             );
             case 2: return (
                 <>
                     {this.insertPreviousButton(step)}
                     {this.insertNextButton(step)}
-                    {this.createSaveButton}
-                    {this.createDeleteCardButton()}
+                    {this.saveButton}
+                    {this.deleteCardButton}
                 </>
             );
             case 3: return (
                 <>
                     {this.insertPreviousButton(step)}
-                    {this.createSaveButton}
-                    {this.createDeleteCardButton()}
+                    {this.saveButton}
+                    {this.deleteCardButton}
                 </>
             );
         }
     }
-    fillingInBasics = (state: any, step: number) => {
+    fillingInBasics = (step: number) => {
         return (
             <div>
                 <div>Page 1: Filling in the basics</div>
-                {this.createAllElements()}
-                <div>{this.InsertCardNav(state, step)}</div>
+                {this.allElements}
+                <div>{this.InsertCardNav(step)}</div>
             </div>
         );
     }
-    addingConditions = (state: any, step: number) => {
+    addingConditions = (step: number) => {
         return (
             <div>
                 <div>Page 2: Adding Conditions</div>
-                <div>{this.InsertCardNav(state, step)}</div>
+                <div>{this.InsertCardNav(step)}</div>
             </div>
         );
     }
-    cardPreview = (state: any, step: number) => {
+    cardPreview = (step: number) => {
         return (
             <div>
                 <div>Page 3: Card Preview</div>
-                <div>{this.InsertCardNav(state, step)}</div>
+                <div>{this.InsertCardNav(step)}</div>
             </div>
         );
     }
 
-    pageNavHandler = (state: any, step: number) => {
+    pageNavHandler = (step: number) => {
         switch (step) {
-            case 1: return this.fillingInBasics(state, step);
-            case 2: return this.addingConditions(state, step);
-            case 3: return this.cardPreview(state, step);
-            default: return this.fillingInBasics(state, step);
+            case 1: return this.fillingInBasics(step);
+            case 2: return this.addingConditions(step);
+            case 3: return this.cardPreview(step);
+            default: return this.fillingInBasics(step);
         }
-    }
-
-    createCardHeader() {
-
-        const createCardName = (): JSX.Element => {
-            return <h3 key="cardName" style={{ marginTop: "20px", marginBottom: "10px" }}><b>
-                {this.resourceType ? this.resourceType?.FRIENDLY ?? "Unknown Resource Type" : ""}
-            </b></h3>;
-        }
-        return (
-            [
-                createCardName()
-            ]
-        );
     }
 
     createTextBoxElement(fieldKey: string, friendlyFieldName: string, textProps: textBoxProps): JSX.Element {
