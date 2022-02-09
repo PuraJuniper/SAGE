@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 import * as cql from "cql-execution";
 import { Library, PlanDefinitionActionCondition } from "fhir/r4";
 import { ExtractTypeOfFN } from "freezer-js";
+import { event } from 'jquery';
 import React, { ElementType, useEffect, useState } from "react";
 import { Button, Col, Form, InputGroup, Modal, Row } from 'react-bootstrap';
 import hypertensionLibraryJson from "../../public/samples/hypertension-library.json";
@@ -170,18 +171,19 @@ const insertSaveButton = <button id = 'save' className="navigate col-lg-2 col-md
 </button>;
 
 const insertDeleteCardButton = (state: any) => {
-    return <button className="navigate col-lg-2 col-md-3"
+    return <button type = 'button' className="navigate col-lg-2 col-md-3"
         onClick={() => {
             State.emit("remove_from_bundle", state.bundle.pos + 1);
             State.emit("remove_from_bundle", state.bundle.pos);
             State.get().set("ui", { status: "cards" });
+            resetForm();
         }}>
         Cancel
     </button>;
 }
 
 const insertNextButton = (step: number)=> {
-        return <button className="navigate col-lg-2 col-md-3"
+        return <button type = 'button' className="navigate col-lg-2 col-md-3"
         onClick = {()=>{ 
             nextStep(step);
         }}>
@@ -191,7 +193,7 @@ const insertNextButton = (step: number)=> {
 }
 
 const insertPreviousButton = (step: number)=> {
-        return <button className="navigate-reverse col-lg-2 col-md-3"
+        return <button type = 'button' className="navigate-reverse col-lg-2 col-md-3"
        onClick = {()=>{
            prevStep(step);
         }}>
@@ -208,6 +210,10 @@ const prevStep = (step: number)=>{
 const nextStep = (step: number)=>{
     if(step == 1) State.get().set("simplified", {step: 2,'libraries': {}});
     if(step == 2) State.get().set('simplified', {step: 3, 'libraries': {}});
+}
+
+const resetForm = ()=>{
+    State.get().set('simplified', {step: 1,'libraries': {}});
 }
 
 const InsertCardNav = (state: any, step: number) =>{
@@ -333,14 +339,9 @@ export const CardEditor = (props: CardEditorProps) => {
         </div>
     )
     function handleSaveResource() { 
-        event?.preventDefault(); 
-        const saveBtn = document.querySelector('#save');
-        if (saveBtn){
-            saveBtn.addEventListener('click', () => {
-                fieldList.forEach((field) => field[3](field[0], field[1], actNode, planNode));
-                State.get().set("ui", { status: "collection" });
-            })  
-        }
+        fieldList.forEach((field) => field[3](field[0], field[1], actNode, planNode));
+        State.get().set("ui", { status: "collection" });
+        resetForm();
     }
 }
 
