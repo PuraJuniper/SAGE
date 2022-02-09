@@ -82,7 +82,7 @@ export const CardEditor = (props: CardEditorProps) => {
 
 return (
     <div>
-        <Form style={{ color: "#2a6b92" }} id="commonMetaDataForm" target="void" onSubmit={handleSaveResource}>
+        <Form key={actResourceType.FHIR + "-form"} style={{ color: "#2a6b92" }} id="commonMetaDataForm" target="void" onSubmit={handleSaveResource}>
             {allCardFields()}
         </Form>
     </div>

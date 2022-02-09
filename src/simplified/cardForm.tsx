@@ -56,16 +56,16 @@ export abstract class CardForm {
         </button>;
         
         const createCardName = (): JSX.Element => {
-            return <h3 style={{ marginTop: "20px", marginBottom: "10px" }}><b>
+            return <h3 key="cardName" style={{ marginTop: "20px", marginBottom: "10px" }}><b>
                 {this.resourceType ? this.resourceType?.FRIENDLY ?? "Unknown Resource Type" : ""}
             </b></h3>;
         }
         return (
-            <>
-                {createDeleteCardButton()}
-                {createSaveButton}
-                {createCardName()}
-            </>
+            [
+                createDeleteCardButton(),
+                createSaveButton,
+                createCardName()
+            ]
         );
     }
 
@@ -73,9 +73,9 @@ export abstract class CardForm {
         const [fieldName, fieldContents, setField, fieldSaveHandler] = simpleCardField(fieldKey, this.sageNode);
         function returnVal() {
             if (textProps.isLink) {
-                return <Button variant="link" onClick={() => window.open(fieldContents)}>{fieldContents}</Button>;
+                return <Button key={fieldName + "-button"} variant="link" onClick={() => window.open(fieldContents)}>{fieldContents}</Button>;
             } else {
-                return <Form.Control
+                return <Form.Control key={fieldName + "-formControl"}
                     {...{
                         ...(textProps.isReadOnly) && { readOnly: textProps.isReadOnly },
                         ...(textProps.boxSize) > 1 && { as: "textarea" as ElementType<any>, rows: textProps.boxSize },
@@ -91,10 +91,10 @@ export abstract class CardForm {
         this.fieldHandlers.push([fieldName, fieldContents, setField, fieldSaveHandler]);
 
         return (
-            <Form.Group key={fieldName} as={Col} controlId={fieldName}>
-                <Form.Label>{friendlyFieldName}</Form.Label>
-                <Form.Text>{textProps.caption}</Form.Text>
-                <Col key={fieldName} sm={10}>
+            <Form.Group key={fieldName + "-formGroup"} as={Col} controlId={fieldName}>
+                <Form.Label key={fieldName + "-formLabel"}>{friendlyFieldName}</Form.Label>
+                <Form.Text key={fieldName + "-formText"}>{textProps.caption}</Form.Text>
+                <Col key={fieldName + "-col"} sm={10}>
                     {returnVal()}
                 </Col>
             </Form.Group>
@@ -105,11 +105,12 @@ export abstract class CardForm {
         const [fieldName, fieldContents, setField, fieldSaveHandler] = simpleCardField(fieldKey, this.sageNode);
         this.fieldHandlers.push([fieldName, fieldContents, setField, fieldSaveHandler]);
         return (
-            <Form.Group key={fieldName} as={Col} controlId={fieldKey}>
-                <Form.Label>{fieldFriendlyName}</Form.Label>
-                <Col key={fieldName} sm={10}>
-                    <InputGroup className="mb-3">
+            <Form.Group key={fieldName + "-fromGroup"} as={Col} controlId={fieldKey}>
+                <Form.Label key={fieldName + "-label"}>{fieldFriendlyName}</Form.Label>
+                <Col key={fieldName + "-col"} sm={10}>
+                    <InputGroup key={fieldName + "-inputGroup"} className="mb-3">
                         <Form.Control
+                            key={fieldName + "formControl"}
                             as="select"
                             defaultValue={fieldContents}
                             onChange={(e) => setField(e.currentTarget.value)}

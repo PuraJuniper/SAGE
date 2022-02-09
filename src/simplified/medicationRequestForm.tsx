@@ -48,7 +48,7 @@ export class MedicationRequestForm extends CardForm {
     
         return (
             [
-                this.createCardHeader(),
+                ...this.createCardHeader(),
                 ...this.createTextBoxElementList(),
                 ...createDropdownElementList()
             ]);
