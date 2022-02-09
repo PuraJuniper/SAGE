@@ -7,12 +7,14 @@ import State, { SageNodeInitializedFreezerNode } from '../state';
 import { simpleCardField } from './cardEditor';
 import { FriendlyResourceFormElement, FriendlyResourceListEntry } from './nameHelpers';
 
-
+export type cardRow = string[];
+export type cardLayout = {
+    cardColumns: cardRow[];
+}
 export enum ElemType {
     TextBox,
     Dropdown
 }
-
 export type textBoxProps = {
     boxSize: number;
     isReadOnly: boolean;
@@ -24,9 +26,13 @@ export abstract class CardForm {
     sageNode: SageNodeInitializedFreezerNode;
     fieldHandlers: any[][];
     state: any;
+    placeHolderElem: JSX.Element =
+        <Form.Group key='placeholder-formGroup' as={Col} >
+        </Form.Group>;
+    abstract cardFieldLayout: cardLayout;
     abstract resourceType: FriendlyResourceListEntry;
     abstract textBoxFields: Map<string, textBoxProps>;
-    abstract createAllElements() : JSX.Element[]
+    abstract createAllElements(): JSX.Element[]
     abstract friendlyFields: FriendlyResourceFormElement[]
 
     constructor(state: any, sageNode: SageNodeInitializedFreezerNode, fieldHandlers: any[][]) {
@@ -48,13 +54,13 @@ export abstract class CardForm {
                 &nbsp;Delete Card
             </button>;
         }
-    
+
         const createSaveButton: JSX.Element = <button key="butSave" className="navigate col-lg-2 col-md-3"
             type="submit">
             Save Card&nbsp;
             <FontAwesomeIcon key="butSaveIcon" icon={faCaretRight} />
         </button>;
-        
+
         const createCardName = (): JSX.Element => {
             return <h3 key="cardName" style={{ marginTop: "20px", marginBottom: "10px" }}><b>
                 {this.resourceType ? this.resourceType?.FRIENDLY ?? "Unknown Resource Type" : ""}
@@ -126,7 +132,7 @@ export abstract class CardForm {
     }
 
     createTextBoxElementList(): JSX.Element[] {
-        const defaultBoxProps: textBoxProps  ={ boxSize:1, isReadOnly:false, isLink: false, caption: ""}
+        const defaultBoxProps: textBoxProps = { boxSize: 1, isReadOnly: false, isLink: false, caption: "" }
         return this.friendlyFields
             .filter(ff => this.textBoxFields.has(ff.FHIR))
             .map(ff => {

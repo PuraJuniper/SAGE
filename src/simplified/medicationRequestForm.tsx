@@ -1,5 +1,7 @@
+import { Row } from "react-bootstrap";
+import { CardColumns } from "reactstrap";
 import { SageNodeInitializedFreezerNode } from "../state";
-import { CardForm, textBoxProps } from "./cardForm";
+import { CardForm, cardLayout, textBoxProps } from "./cardForm";
 import { FriendlyResourceFormElement, FriendlyResourceListEntry, getFormElementListForResource } from "./nameHelpers";
 
 export class MedicationRequestForm extends CardForm {
@@ -32,7 +34,6 @@ export class MedicationRequestForm extends CardForm {
 
         }]
     ]);
-
     dropdownFields: Map<string, string[]> = new Map<string, string[]>([
         ['status',
             ['active', 'on-hold', 'cancelled', 'completed', 'entered-in-error', 'stopped', 'draft', 'unknown']],
@@ -42,6 +43,21 @@ export class MedicationRequestForm extends CardForm {
             ['proposal', 'plan', 'order', 'original-order', 'reflex-order', 'filler-order', 'instance-order', 'option']]
     ]);
 
+    cardFieldLayout: cardLayout =
+        {
+            cardColumns: [
+                ['placeholder', 'productReference'],
+                ['title', 'placeholder'],
+                ['description', 'placeholder'],
+                ['status', 'placeholder'],
+                ['intent', 'placeholder'],
+                ['relatedArtifact', 'placeholder'],
+                ['placeholder'],
+                ['placeholder','text']
+            ]
+
+        };
+
     constructor(state: any, sageNode: SageNodeInitializedFreezerNode, fieldList: any[][], resourceType: FriendlyResourceListEntry) {
         super(state, sageNode, fieldList);
         this.resourceType = resourceType;
@@ -50,19 +66,34 @@ export class MedicationRequestForm extends CardForm {
 
 
     createAllElements(): JSX.Element[] {
-       const createDropdownElementList = (): JSX.Element[] => {
+        const createDropdownElementList = (): JSX.Element[] => {
             return this.friendlyFields
                 .filter(ff => this.dropdownFields.has(ff.FHIR))
                 .map(ff => {
                     return this.createDropdownElement(ff.FHIR, ff.FRIENDLY, this.dropdownFields.get(ff.FHIR) ?? [])
                 });
         }
-    
+
+        const allMedicationRequestFields = [
+            this.placeHolderElem,
+            ...this.createTextBoxElementList(),
+            ...createDropdownElementList()
+        ];
+
+        const sortedFieldElems = this.cardFieldLayout.cardColumns.map((cr, i: number) => {
+            return (
+                <Row key={"row-" + i} className="mb-3">
+                    {cr.map(field =>
+                        allMedicationRequestFields.find(elem =>
+                            elem.key?.toString().startsWith(field + "-")))}
+                </Row>
+            )
+        })
+
         return (
             [
                 ...this.createCardHeader(),
-                ...this.createTextBoxElementList(),
-                ...createDropdownElementList()
+                ...sortedFieldElems
             ]);
     }
 }
