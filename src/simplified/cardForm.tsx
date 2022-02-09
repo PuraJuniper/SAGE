@@ -1,5 +1,5 @@
 
-import { faCaretLeft, faCaretRight } from '@fortawesome/pro-solid-svg-icons';
+import { faCaretLeft, faCaretRight, IconDefinition } from '@fortawesome/pro-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { ElementType } from 'react';
 import { Button, Col, Form, InputGroup } from 'react-bootstrap';
@@ -55,7 +55,7 @@ export abstract class CardForm {
     abstract allElements: JSX.Element[]
     abstract friendlyFields: FriendlyResourceFormElement[]
 
-    constructor(state: any,  sageNode: SageNodeInitializedFreezerNode, fieldHandlers: any[][], resourceType: FriendlyResourceListEntry,) {
+    constructor(state: any, sageNode: SageNodeInitializedFreezerNode, fieldHandlers: any[][], resourceType: FriendlyResourceListEntry,) {
         this.state = state;
         this.resourceType = resourceType;
         this.sageNode = sageNode;
@@ -70,61 +70,59 @@ export abstract class CardForm {
         }();
     }
 
-
-    insertNextButton = (step: number) => {
-        return <button type='button' className="navigate col-lg-2 col-md-3"
-            onClick={() => {
-                this.nextStep(step);
-            }}>
-            Next&nbsp;
-            <FontAwesomeIcon icon={faCaretRight} />
-        </button>;
+    insertNavButton = (step: number, stepChanger: (step: number) => void, buttonText: string, buttonSide: string) => {
+        let buttonElem: JSX.Element;
+        let navigation = "";
+        switch (buttonSide) {
+            case "right":
+                buttonElem = <> {buttonText} <FontAwesomeIcon icon={faCaretRight} /> </>;
+                navigation = "navigate";
+                break;
+            case "left":
+                buttonElem = <> <FontAwesomeIcon icon={faCaretLeft} /> {buttonText} </>;
+                navigation = "navigate-reverse"
+                break;
+            default:
+                buttonElem = <></>;
+        }
+        return (
+            <button type='button' className={navigation + " col-lg-2 col-md-3"}
+                onClick={() => { stepChanger(step); }}>
+                {buttonElem}
+            </button>);
     }
 
-    insertPreviousButton = (step: number) => {
-        return <button type='button' className="navigate-reverse col-lg-2 col-md-3"
-            onClick={() => {
-                this.prevStep(step);
-            }}>
-            <FontAwesomeIcon icon={faCaretLeft} />
-            &nbsp;Previous
-        </button>;
+    changeStep = (changeToStep: number) => {
+        State.get().set('simplified', { step: changeToStep, 'libraries': {} })
     }
 
-    prevStep = (step: number) => {
-        if (step == 2) State.get().set('simplified', { step: 1, 'libraries': {} });
-        if (step == 3) State.get().set('simplified', { step: 2, 'libraries': {} });
+    incrementStep = (step: number, direction: string) => {
+        if (direction == "prev") {  this.changeStep(step - 1) }
+        if (direction == "next") {  this.changeStep(step + 1) }
     }
 
-    nextStep = (step: number) => {
-        if (step == 1) State.get().set("simplified", { step: 2, 'libraries': {} });
-        if (step == 2) State.get().set('simplified', { step: 3, 'libraries': {} });
-    }
-
-    resetForm = () => {
-        State.get().set('simplified', { step: 1, 'libraries': {} });
-    }
+    resetForm = () => { this.changeStep(1) }
 
     InsertCardNav = (step: number) => {
         switch (step) {
             case 1: return (
                 <>
-                    {this.insertNextButton(step)}
+                    {this.insertNavButton(step, (x) => this.incrementStep(x, "next"), "Next ", "right")}
                     {this.saveButton}
                     {this.deleteCardButton}
                 </>
             );
             case 2: return (
                 <>
-                    {this.insertPreviousButton(step)}
-                    {this.insertNextButton(step)}
+                    {this.insertNavButton(step, (x) => this.incrementStep(x, "prev"), " Previous", "left")}
+                    {this.insertNavButton(step, (x) => this.incrementStep(x, "next"), "Next ", "right")}
                     {this.saveButton}
                     {this.deleteCardButton}
                 </>
             );
             case 3: return (
                 <>
-                    {this.insertPreviousButton(step)}
+                    {this.insertNavButton(step, (x) => this.incrementStep(x, "prev"), " Previous", "left")}
                     {this.saveButton}
                     {this.deleteCardButton}
                 </>
