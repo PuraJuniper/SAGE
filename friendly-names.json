@@ -23,6 +23,9 @@
             },
             { "FHIR": "productReference",
               "FRIENDLY": "Medication Code: "
+            },
+            { "FHIR": "text",
+              "FRIENDLY": "Free text dosage instructions: "
             }
           ]
         }

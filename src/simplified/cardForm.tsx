@@ -17,6 +17,7 @@ export type textBoxProps = {
     boxSize: number;
     isReadOnly: boolean;
     isLink: boolean;
+    caption: string;
 }
 
 export abstract class CardForm {
@@ -92,6 +93,7 @@ export abstract class CardForm {
         return (
             <Form.Group key={fieldName} as={Col} controlId={fieldName}>
                 <Form.Label>{friendlyFieldName}</Form.Label>
+                <Form.Text>{textProps.caption}</Form.Text>
                 <Col key={fieldName} sm={10}>
                     {returnVal()}
                 </Col>
@@ -123,7 +125,7 @@ export abstract class CardForm {
     }
 
     createTextBoxElementList(): JSX.Element[] {
-        const defaultBoxProps: textBoxProps  ={ boxSize:1, isReadOnly:false, isLink: false}
+        const defaultBoxProps: textBoxProps  ={ boxSize:1, isReadOnly:false, isLink: false, caption: ""}
         return this.friendlyFields
             .filter(ff => this.textBoxFields.has(ff.FHIR))
             .map(ff => {

@@ -9,7 +9,15 @@ export class MedicationRequestForm extends CardForm {
         ['relatedArtifact', {
             boxSize: 1,
             isReadOnly: true,
-            isLink: false
+            isLink: false,
+            caption: ""
+        }],
+        ['text', {
+            boxSize: 4,
+            isReadOnly: false,
+            isLink: false,
+            caption: "NOTE: For advanced timing instructions, leave basic dosage sentence blank."
+
         }]
     ]);
 
