@@ -34,31 +34,9 @@ function insertCardName(actResourceType: any) {
     </b></h3>;
 }
 
-const insertSaveButton = <button className="navigate col-lg-2 col-md-3"
-    type="submit">
-    Save Card&nbsp;
-    <FontAwesomeIcon icon={faCaretRight} />
-</button>;
-
-const insertDeleteCardButton = (state: any) => {
-    return <button className="navigate-reverse col-lg-2 col-md-3"
-        onClick={() => {
-            State.emit("remove_from_bundle", state.bundle.pos + 1);
-            State.emit("remove_from_bundle", state.bundle.pos);
-            State.get().set("ui", { status: "cards" });
-            console.log(state);
-        }}
-    >
-        <FontAwesomeIcon icon={faCaretLeft} />
-        &nbsp;Delete Card
-    </button>;
-}
-
-const insertCardHeader = (state: any, actResourceType: any) => {
+const insertCardHeader = (actResourceType: any) => {
     return (
         <>
-            {insertDeleteCardButton(state)}
-            {insertSaveButton}
             {insertCardName(actResourceType)}
         </>
     );
@@ -185,99 +163,111 @@ const conditionCardField = (planNode: SageNodeInitializedFreezerNode) => {
     return ["condition", condition, setCondition, conditionSaveHandler]
 }
 
-const insertNextButton = ()=> {
+const insertSaveButton = <button className="navigate col-lg-2 col-md-3"
+    type="submit">
+    Save Card
+</button>;
+
+const insertDeleteCardButton = (state: any) => {
+    return <button className="navigate-reverse col-lg-2 col-md-3"
+        onClick={() => {
+            State.emit("remove_from_bundle", state.bundle.pos + 1);
+            State.emit("remove_from_bundle", state.bundle.pos);
+            State.get().set("ui", { status: "cards" });
+        }}>
+        Cancel
+    </button>;
+}
+
+const insertNextButton = (step: number)=> {
         return <button className="navigate col-lg-2 col-md-3"
         onClick = {()=>{ 
-            nextStep();
+            nextStep(step);
         }}>
         Next&nbsp;
         <FontAwesomeIcon icon={faCaretRight} />
     </button>;
 }
 
-const insertPreviousButton = ()=> {
+const insertPreviousButton = (step: number)=> {
         return <button className="navigate-reverse col-lg-2 col-md-3"
        onClick = {()=>{
-           prevStep();
+           prevStep(step);
         }}>
         <FontAwesomeIcon icon={faCaretLeft} />
         &nbsp;Previous
     </button>;
 }
 
-function prevStep = ()=>{
-    const state = State.get();
-    const {step} = this.state;
-    this.setState({step: step - 1})
+const prevStep = (step: number)=>{
+    if(step == 2) State.get().set('simplified', {step: 1,'libraries': {}});
+    if(step == 3) State.get().set('simplified', {step: 2,'libraries': {}});
 }
 
-function nextStep = ()=>{
-    const state = State.get();
-    const {step} = this.state;
-    this.setState({step: step + 1})
+const nextStep = (step: number)=>{
+    if(step == 1) State.get().set("simplified", {step: 2,'libraries': {}});
+    if(step == 2) State.get().set('simplified', {step: 3, 'libraries': {}});
 }
 
-const insertCancelButton = <button className="navigate col-lg-2 col-md-3">
-    Cancel
-</button>;
 
 //funciton to take in the page you are currently on
 //and use that info to decide what buttons should display for Nav
-const InsertCardNav = (page: number) =>{
-    switch (page){
+const InsertCardNav = (state: any, step: number) =>{
+    switch (step){
         case 1: return(
             <>
-            {insertNextButton()}
-            {insertCancelButton}
+            {insertNextButton(step)}
+            {insertSaveButton}
+            {insertDeleteCardButton(state)}
             </>
         );
         case 2: return(
             <>
-            {insertPreviousButton()}
-            {insertNextButton()}
-            {insertCancelButton}
+            {insertPreviousButton(step)}
+            {insertNextButton(step)}
+            {insertSaveButton}
+            {insertDeleteCardButton(state)}
             </>
         );    
         case 3: return(
             <>
-            {insertPreviousButton()}
+            {insertPreviousButton(step)}
             {insertSaveButton}
-            {insertCancelButton}
+            {insertDeleteCardButton(state)}
             </>
         );
     } 
 }
-const fillingInBasics = ()=>{
+const fillingInBasics = (state: any, step: number)=>{
     return (
         <div>    
             <div>Page 1: Filling in the basics</div>
-            <div>{InsertCardNav(1)}</div>
+            <div>{InsertCardNav(state, step)}</div>
         </div>
     );
 }
-const addingConditions = ()=>{
+const addingConditions = (state: any, step: number)=>{
     return (
         <div>
             <div>Page 2: Adding Conditions</div>
-            <div>{InsertCardNav(2)}</div>
+            <div>{InsertCardNav(state, step)}</div>
         </div>
     );
 }
-const cardPreview = ()=>{
+const cardPreview = (state: any, step: number)=>{
     return(
         <div>
             <div>Page 3: Card Preview</div>
-            <div>{InsertCardNav(3)}</div>
+            <div>{InsertCardNav(state, step)}</div>
         </div>
     ); 
 }
 
-const pageNavHandler = () =>{
-    let state = State.get();
-    switch(state.step){
-        case 1: return fillingInBasics();
-        case 2: return addingConditions();
-        case 3: return cardPreview();
+const pageNavHandler = (state: any, step: number) =>{
+    switch(step){
+        case 1: return fillingInBasics(state, step);
+        case 2: return addingConditions(state, step);
+        case 3: return cardPreview(state, step);
         default: 
     }
 }
@@ -338,17 +328,16 @@ export const CardEditor = (props: CardEditorProps) => {
     );*/
     return (
         <div>
+            <div>{insertCardHeader(actResourceType)}</div>
             <Form style={{ color: "#2a6b92" }} id="commonMetaDataForm" target="void" onSubmit={handleSaveResource}>
-                {insertCardHeader(state, actResourceType)}
-                {pageNavHandler()}
             </Form>
+            <div>{pageNavHandler(state, state.simplified.step)}</div>
         </div>
     )
+    function handleSaveResource() {   
+        //fieldList.forEach((field) => field[3](field[0], field[1], actNode, planNode));
 
-    function handleSaveResource() {
-        fieldList.forEach((field) => field[3](field[0], field[1], actNode, planNode));
-
-        State.get().set("ui", { status: "collection" });
+        //State.get().set("ui", { status: "collection" });
     }
 }
 
