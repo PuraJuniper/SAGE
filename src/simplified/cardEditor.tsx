@@ -1,15 +1,15 @@
-import { faCaretLeft, faCaretRight } from '@fortawesome/pro-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import * as cql from "cql-execution";
 import { Library, PlanDefinitionActionCondition } from "fhir/r4";
 import { ExtractTypeOfFN } from "freezer-js";
-import React, { ElementType, useEffect, useState } from "react";
+
+import React, { useEffect, useState } from "react";
 import { Button, Col, Form, FormText, InputGroup, Modal, Row } from 'react-bootstrap';
 import hypertensionLibraryJson from "../../public/samples/hypertension-library.json";
 import * as SageUtils from "../helpers/sage-utils";
 import * as SchemaUtils from "../helpers/schema-utils";
 import State, { SageNodeInitializedFreezerNode } from "../state";
-import { ACTIVITY_DEFINITION, getFormElementListForResource, profileToFriendlyResourceListEntry } from "./nameHelpers";
+import { MedicationRequestForm } from './medicationRequestForm';
+import { ACTIVITY_DEFINITION, FriendlyResourceListEntry, profileToFriendlyResourceListEntry } from "./nameHelpers";
 
 
 const hypertensionLibrary: Library = hypertensionLibraryJson as Library;
@@ -17,7 +17,6 @@ const hypertensionLibrary: Library = hypertensionLibraryJson as Library;
 interface ExpressionOptionDict {
     [expression: string]: ExpressionOption // The key is exactly what's written in the Condition's "expression" element
 }
-
 interface CardEditorProps {
     actNode: SageNodeInitializedFreezerNode,
     planNode: SageNodeInitializedFreezerNode,
@@ -28,150 +27,8 @@ interface ExpressionOption {
     libraryUrl: string,
 }
 
-function insertCardName(actResourceType: any) {
-    return <h3 style={{ marginTop: "20px", marginBottom: "10px" }}><b>
-        {actResourceType ? actResourceType?.FRIENDLY ?? "Unknown Resource Type" : ""}
-    </b></h3>;
-}
 
-const insertSaveButton = <button className="navigate col-lg-2 col-md-3"
-    type="submit">
-    Save Card&nbsp;
-    <FontAwesomeIcon icon={faCaretRight} />
-</button>;
-
-const insertDeleteCardButton = (state: any) => {
-    return <button className="navigate-reverse col-lg-2 col-md-3"
-        onClick={() => {
-            State.emit("remove_from_bundle", state.bundle.pos + 1);
-            State.emit("remove_from_bundle", state.bundle.pos);
-            State.get().set("ui", { status: "cards" });
-        }}
-    >
-        <FontAwesomeIcon icon={faCaretLeft} />
-        &nbsp;Delete Card
-    </button>;
-}
-
-const insertCardHeader = (state: any, actResourceType: any) => {
-    return (
-        <>
-            {insertDeleteCardButton(state)}
-            {insertSaveButton}
-            {insertCardName(actResourceType)}
-        </>
-    );
-}
-
-
-function insertTextBoxField(fieldList: any[][], fieldKey: string, friendlyFieldName: string, actNode: SageNodeInitializedFreezerNode, boxSize: number = 1, isReadOnly: boolean = false, isLink: boolean = false, caption: string) {
-    const [fieldName, fieldContents, setField, fieldSaveHandler] = simpleCardField(fieldKey, actNode);
-    function returnVal() {
-        if (isLink) {
-            return <Button variant="link" onClick={() => window.open(fieldContents)}>{fieldContents}</Button>;
-        } else {
-            return <Form.Control
-                {...{
-                    ...(isReadOnly) && { readOnly: isReadOnly },
-                    ...(boxSize) > 1 && { as: "textarea" as ElementType<any>, rows: boxSize },
-                    ...{
-                        type: "text",
-                        defaultValue: fieldContents,
-                        onChange: (e: { currentTarget: { value: any; }; }) => setField(e.currentTarget.value)
-                    }
-                }} />;
-        }
-    }
-
-    fieldList.push([fieldName, fieldContents, setField, fieldSaveHandler]);
-
-    return (
-        <Form.Group key={fieldName} as={Col} controlId={fieldName}>
-            <Form.Label>{friendlyFieldName}</Form.Label>
-            <Form.Text>{caption}</Form.Text>
-            <Col key={fieldName} sm={10}>
-                {returnVal()}
-            </Col>
-        </Form.Group>
-    );
-}
-
-function insertDropdownElement(fieldKey: string, fieldFriendlyName: string, fieldElements: string[], actNode: SageNodeInitializedFreezerNode, fieldList: any[][]) {
-    const [fieldName, fieldContents, setField, fieldSaveHandler] = simpleCardField(fieldKey, actNode);
-    fieldList.push([fieldName, fieldContents, setField, fieldSaveHandler]);
-    return (
-        <Form.Group key={fieldName} as={Col} controlId={fieldKey}>
-            <Form.Label>{fieldFriendlyName}</Form.Label>
-            <Col key={fieldName} sm={10}>
-                <InputGroup className="mb-3">
-                    <Form.Control
-                        as="select"
-                        defaultValue={fieldContents}
-                        onChange={(e) => setField(e.currentTarget.value)}
-                    >
-                        {fieldElements.map(sType => {
-                            return <option key={fieldKey + "-" + sType} value={sType}>{sType}</option>;
-                        })}
-                    </Form.Control>
-                </InputGroup>
-            </Col>
-        </Form.Group>
-    );
-}
-
-const generateElementsForType = (fieldList: any[][], type: string, actNode: SageNodeInitializedFreezerNode) => {
-    const friendlyFields = getFormElementListForResource(type);
-    switch (type) {
-        case "MedicationRequest":
-            return ([
-                insertDropdownElement(
-                    "status",
-                    friendlyFields!.find(elem => elem.FHIR == 'status')!.FRIENDLY,
-                    ['active', 'on-hold', 'cancelled', 'completed', 'entered-in-error', 'stopped', 'draft', 'unknown'],
-                    actNode,
-                    fieldList
-                ),
-                insertDropdownElement(
-                    "intent",
-                    friendlyFields!.find(elem => elem.FHIR == 'intent')!.FRIENDLY,
-                    ['proposal', 'plan', 'order', 'original-order', 'reflex-order', 'filler-order', 'instance-order', 'option'],
-                    actNode,
-                    fieldList
-                ),
-                insertTextBoxField(
-                    fieldList,
-                    "relatedArtifact",
-                    friendlyFields!.find(elem => elem.FHIR == 'relatedArtifact')!.FRIENDLY,
-                    actNode,
-                    1,
-                    true,
-                    false,
-                    ""
-                ),
-                insertDropdownElement(
-                    "productReference",
-                    friendlyFields!.find(elem => elem.FHIR == 'productReference')!.FRIENDLY,
-                    ['proposal', 'plan', 'order', 'original-order', 'reflex-order', 'filler-order', 'instance-order', 'option'],
-                    actNode,
-                    fieldList
-                ),
-                insertTextBoxField(
-                    fieldList,
-                    "text",
-                    friendlyFields!.find(elem => elem.FHIR == 'text')!.FRIENDLY,
-                    actNode,
-                    4,
-                    false,
-                    false,
-                    "NOTE: For advanced timing instructions, leave basic dosage sentence blank."
-                )
-            ]);
-        default:
-            return [];
-    }
-}
-
-const simpleCardField = (fieldName: string, actNode: SageNodeInitializedFreezerNode) => {
+export const simpleCardField = (fieldName: string, actNode: SageNodeInitializedFreezerNode) => {
     const [fieldContents, setField] = CardStringStateEditor(actNode, fieldName);
     function fieldSaveHandler(name: string, contents: any, act: any, plan: any) {
         const fieldNode = SchemaUtils.getChildOfNodePath(plan, ["action", name]);
@@ -201,7 +58,8 @@ const conditionCardField = (planNode: SageNodeInitializedFreezerNode) => {
 export const CardEditor = (props: CardEditorProps) => {
     const actNode = props.actNode;
     const planNode = props.planNode;
-    const actResourceType = profileToFriendlyResourceListEntry(SchemaUtils.toFhir(actNode, false).meta?.profile?.[0]) ?? {FHIR: ""};
+    const actResourceType: FriendlyResourceListEntry
+        = profileToFriendlyResourceListEntry(SchemaUtils.toFhir(actNode, false).meta?.profile?.[0]);
     const state = State.get();
     const titleKey = "title";
     const descriptionKey = "description";
@@ -209,60 +67,36 @@ export const CardEditor = (props: CardEditorProps) => {
         [titleKey, "Card short name:"],
         [descriptionKey, "Card description:"]
     ]);
-    const fieldList: any[][] = [
-        // simpleCardField("library", actNode),
-        // conditionCardField(planNode)
-    ]
+    const fieldList: any[][] = [];
 
-    const defaultFields = [insertTextBoxField(fieldList, titleKey, fieldNameMap.get(titleKey)!, actNode, 1, false, false, ""),
-    insertTextBoxField(fieldList, descriptionKey, fieldNameMap.get(descriptionKey)!, actNode, 3, false, false, "")];
-    const allCardFields = [...defaultFields,
-    ...generateElementsForType(fieldList, actResourceType.FHIR, actNode)]
-    const numRows = 3;
-
-    // const returnVal = [...Array(numRows)].map((e, i) => {
-    //     const numFields = allCardFields.length;
-    //     if (i > numFields-1) {
-    //         return <></>
-    //     } else {
-    //         const nextField = allCardFields[i + numFields-1];
-    //         if (nextField) {
-    //             return (
-    //                 <Row key={"cardRow" + i} className="mb-3">
-    //                     {allCardFields[i]}
-    //                     {nextField}
-    //                 </Row>
-    //             );
-    //         } else {
-    //             return (
-    //                 <Row key={"cardRow" + i} className="mb-3">
-    //                     {allCardFields[i]}
-    //                 </Row>
-    //             );
-    //         }
-    //     }
-    // }
-    // )
-
-    return (
-        <div>
-            <Form style={{ color: "#2a6b92" }} id="commonMetaDataForm" target="void" onSubmit={handleSaveResource}>
-                {insertCardHeader(state, actResourceType)}
-                {allCardFields}
-            </Form>
-        </div>
-    );
-
-    function handleSaveResource() {
-        fieldList.forEach((field) => field[3](field[0], field[1], actNode, planNode));
-
-        State.get().set("ui", { status: "collection" });
+    function allCardFields(): JSX.Element[] {
+         switch(actResourceType.FHIR) {
+            case "MedicationRequest": {
+                return (new MedicationRequestForm(state, actNode, fieldList, actResourceType)).createAllElements();
+            }
+            default: {
+                return [];
+            }
+        }
     }
+
+return (
+    <div>
+        <Form style={{ color: "#2a6b92" }} id="commonMetaDataForm" target="void" onSubmit={handleSaveResource}>
+            {allCardFields()}
+        </Form>
+    </div>
+);
+
+function handleSaveResource() {
+    fieldList.forEach((field) => field[3](field[0], field[1], actNode, planNode));
+    State.get().set("ui", { status: "collection" });
+}
 }
 
 function ConditionDropdown(fieldList: any[][]) {
-    const conditionField = fieldList.find((field) => field[0] == "condition") ?? ["","", () => {return undefined}];
-    const libraryField = fieldList.find((field) => field[0] == "library") ?? ["","", () => {return undefined}];
+    const conditionField = fieldList.find((field) => field[0] == "condition") ?? ["", "", () => { return undefined }];
+    const libraryField = fieldList.find((field) => field[0] == "library") ?? ["", "", () => { return undefined }];
     const [expressionOptions, setExpressionOptions] = useState<ExpressionOptionDict>({});
     const [FhirLibrary, setFhirLibrary] = useState<any>();
     const [showLibraryImportModal, setShowLibraryImportModal] = useState<boolean>(false);
