@@ -191,7 +191,7 @@ export const getElementChildren = function(profiles: SimplifiedProfiles, node: S
 			name,
 			displayName: buildDisplayName(name, childSchema.sliceName),
 			index: childSchema.index,
-			isRequired: childSchema.min >=1 || presentedInCardEditor(name, childProfile),
+			isRequired: childSchema.min >=1 || presentedInCardEditor(name, node.profile),
 			fhirType: typeDef.code,
 			type: typeDef,
 			short: childSchema.short,
