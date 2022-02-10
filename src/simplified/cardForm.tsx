@@ -6,6 +6,8 @@ import { Button, Col, Form, InputGroup } from 'react-bootstrap';
 import State, { SageNodeInitializedFreezerNode } from '../state';
 import { simpleCardField } from './cardEditor';
 import { FriendlyResourceFormElement, FriendlyResourceListEntry } from './nameHelpers';
+import React from "react";
+
 
 export type cardRow = string[];
 export type cardLayout = {
@@ -21,8 +23,10 @@ export type textBoxProps = {
     isLink: boolean;
     caption: string;
 }
-
-export abstract class CardForm {
+interface IState{
+    State: any;
+}
+export abstract class CardForm extends React.Component<IState>{
     sageNode: SageNodeInitializedFreezerNode;
     fieldHandlers: any[][];
     state: any;
@@ -55,7 +59,8 @@ export abstract class CardForm {
     abstract allElements: JSX.Element[]
     abstract friendlyFields: FriendlyResourceFormElement[]
 
-    constructor(state: any, sageNode: SageNodeInitializedFreezerNode, fieldHandlers: any[][], resourceType: FriendlyResourceListEntry,) {
+    constructor(state: IState, sageNode: SageNodeInitializedFreezerNode, fieldHandlers: any[][], resourceType: FriendlyResourceListEntry,) {
+        super(state);
         this.state = state;
         this.resourceType = resourceType;
         this.sageNode = sageNode;
