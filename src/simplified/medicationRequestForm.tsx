@@ -1,7 +1,6 @@
 import { Row } from "react-bootstrap";
-import { SageNodeInitializedFreezerNode } from "../state";
-import { CardForm, cardLayout, textBoxProps } from "./cardForm";
-import { FriendlyResourceFormElement, FriendlyResourceListEntry, getFormElementListForResource } from "./nameHelpers";
+import { CardForm, CardFormProps, cardLayout, textBoxProps } from "./cardForm";
+import { FriendlyResourceFormElement, getFormElementListForResource } from "./nameHelpers";
 
 export class MedicationRequestForm extends CardForm {
     friendlyFields: FriendlyResourceFormElement[];
@@ -52,14 +51,14 @@ export class MedicationRequestForm extends CardForm {
                 ['intent', 'placeholder'],
                 ['relatedArtifact', 'placeholder'],
                 ['placeholder'],
-                ['placeholder','text']
+                ['placeholder', 'text']
             ]
 
         };
 
-    constructor(state: any, sageNode: SageNodeInitializedFreezerNode, fieldList: any[][], resourceType: FriendlyResourceListEntry) {
-        super(state, sageNode, fieldList, resourceType);
-        this.friendlyFields = getFormElementListForResource(this.resourceType.FHIR);
+    constructor(props: CardFormProps) {
+        super(props);
+        this.friendlyFields = getFormElementListForResource(props.resourceType.FHIR);
         this.allElements = this.createAllElements();
     }
 
@@ -93,5 +92,5 @@ export class MedicationRequestForm extends CardForm {
                 this.cardHeader,
                 ...sortedFieldElems,
             ]);
-    }   
+    }
 }

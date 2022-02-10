@@ -1,18 +1,16 @@
-import { faCaretLeft, faCaretRight } from "@fortawesome/pro-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import * as cql from "cql-execution";
 import { Library, PlanDefinitionActionCondition } from "fhir/r4";
 import { ExtractTypeOfFN } from "freezer-js";
-
 import React, { useEffect, useState } from "react";
-import { Button, Col, Form, FormText, InputGroup, Modal, Row } from 'react-bootstrap';
+import { Button, Col, Form, InputGroup, Modal, Row } from 'react-bootstrap';
 import hypertensionLibraryJson from "../../public/samples/hypertension-library.json";
 import * as SageUtils from "../helpers/sage-utils";
 import * as SchemaUtils from "../helpers/schema-utils";
 import State, { SageNodeInitializedFreezerNode } from "../state";
-import { CardForm } from "./cardForm";
+import { CardForm, CardFormProps } from "./cardForm";
 import { MedicationRequestForm } from './medicationRequestForm';
 import { ACTIVITY_DEFINITION, FriendlyResourceListEntry, profileToFriendlyResourceListEntry } from "./nameHelpers";
+
 
 
 const hypertensionLibrary: Library = hypertensionLibraryJson as Library;
@@ -72,31 +70,36 @@ export const CardEditor = (props: CardEditorProps) => {
     const fieldList: any[][] = [];
 
     const cardForm = function (): CardForm {
+        const cardFormProps: CardFormProps = {
+            sageNode: actNode,
+            fieldHandlers: fieldList,
+            resourceType: actResourceType
+        }
         switch (actResourceType.FHIR) {
             case "MedicationRequest": {
-                return new MedicationRequestForm(state, actNode, fieldList, actResourceType);
+                return new MedicationRequestForm(cardFormProps);
             }
             default: {
                 //TODO: replace with errorpage
-                return new MedicationRequestForm(state, actNode, fieldList, actResourceType);
+                return new MedicationRequestForm(cardFormProps);
             }
         }
     }();
 
-return (
-    <div>
-        <Form key={actResourceType.FHIR + "-form"} style={{ color: "#2a6b92" }} id="commonMetaDataForm" target="void" onSubmit={handleSaveResource}>         
-            {cardForm.pageNavHandler()}
-        </Form>
-        
-    </div>
-);
+    return (
+        <div>
+            <Form key={actResourceType.FHIR + "-form"} style={{ color: "#2a6b92" }} id="commonMetaDataForm" target="void" onSubmit={handleSaveResource}>
+                {cardForm.render()}
+            </Form>
 
-function handleSaveResource() { 
-    fieldList.forEach((field) => field[3](field[0], field[1], actNode, planNode));
-    State.get().set("ui", { status: "collection" });
-    cardForm.resetForm();
-}
+        </div>
+    );
+
+    function handleSaveResource() {
+        fieldList.forEach((field) => field[3](field[0], field[1], actNode, planNode));
+        State.get().set("ui", { status: "collection" });
+        cardForm.resetForm();
+    }
 }
 
 function ConditionDropdown(fieldList: any[][]) {

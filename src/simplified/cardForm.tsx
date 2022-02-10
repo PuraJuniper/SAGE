@@ -1,12 +1,11 @@
 
-import { faCaretLeft, faCaretRight, IconDefinition } from '@fortawesome/pro-solid-svg-icons';
+import { faCaretLeft, faCaretRight } from '@fortawesome/pro-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { ElementType } from 'react';
+import React, { ElementType } from "react";
 import { Button, Col, Form, InputGroup } from 'react-bootstrap';
 import State, { SageNodeInitializedFreezerNode } from '../state';
 import { simpleCardField } from './cardEditor';
 import { FriendlyResourceFormElement, FriendlyResourceListEntry } from './nameHelpers';
-import React from "react";
 
 
 export type cardRow = string[];
@@ -23,14 +22,17 @@ export type textBoxProps = {
     isLink: boolean;
     caption: string;
 }
-interface IState{
-    State: any;
+export interface CardFormState {
+    step: number;
 }
-export abstract class CardForm extends React.Component<IState>{
-    sageNode: SageNodeInitializedFreezerNode;
-    fieldHandlers: any[][];
-    state: any;
-    resourceType: FriendlyResourceListEntry;
+
+export interface CardFormProps {
+    sageNode: SageNodeInitializedFreezerNode,
+    fieldHandlers: any[][],
+    resourceType: FriendlyResourceListEntry
+}
+export abstract class CardForm extends React.Component<CardFormProps, CardFormState>{
+    sageState = State.get();
     cardHeader: JSX.Element;
     placeHolderElem: JSX.Element =
         <Form.Group key='placeholder-formGroup' as={Col} >
@@ -46,9 +48,9 @@ export abstract class CardForm extends React.Component<IState>{
     deleteCardButton: JSX.Element =
         <button key="butDel" type='button' className="navigate col-lg-2 col-md-3"
             onClick={() => {
-                State.emit("remove_from_bundle", this.state.bundle.pos + 1);
-                State.emit("remove_from_bundle", this.state.bundle.pos);
-                State.get().set("ui", { status: "cards" });
+                State.emit("remove_from_bundle", this.sageState.bundle.pos + 1);
+                State.emit("remove_from_bundle", this.sageState.bundle.pos);
+                this.sageState.set("ui", { status: "cards" });
                 this.resetForm();
             }}>
             Cancel
@@ -59,119 +61,64 @@ export abstract class CardForm extends React.Component<IState>{
     abstract allElements: JSX.Element[]
     abstract friendlyFields: FriendlyResourceFormElement[]
 
-    constructor(state: IState, sageNode: SageNodeInitializedFreezerNode, fieldHandlers: any[][], resourceType: FriendlyResourceListEntry,) {
-        super(state);
-        this.state = state;
-        this.resourceType = resourceType;
-        this.sageNode = sageNode;
-        this.fieldHandlers = fieldHandlers;
+    constructor(props: CardFormProps) {
+        super(props);
+        this.state = {
+            step: 1
+        };  
         this.cardHeader = function (): JSX.Element {
             const createCardName = (): JSX.Element => {
                 return <h3 key="cardName" style={{ marginTop: "20px", marginBottom: "10px" }}><b>
-                    {resourceType ? resourceType?.FRIENDLY ?? "Unknown Resource Type" : ""}
+                    {props.resourceType ? props.resourceType?.FRIENDLY ?? "Unknown Resource Type" : ""}
                 </b></h3>;
             }
             return (createCardName());
         }();
     }
 
-
-    insertNavButton = (step: number, stepChanger: (step: number) => void, buttonText: string, buttonSide: string) => {
-        let buttonElem: JSX.Element;
-        let navigation = "";
-        switch (buttonSide) {
-            case "right":
-                buttonElem = <> {buttonText} <FontAwesomeIcon icon={faCaretRight} /> </>;
-                navigation = "navigate";
-                break;
-            case "left":
-                buttonElem = <> <FontAwesomeIcon icon={faCaretLeft} /> {buttonText} </>;
-                navigation = "navigate-reverse"
-                break;
-            default:
-                buttonElem = <></>;
-        }
+    leftNavButton = () => {
         return (
-            <button type='button' className={navigation + " col-lg-2 col-md-3"}
-                onClick={() => { stepChanger(step); }}>
-                {buttonElem}
+            <button type='button' className={"navigate-reverse col-lg-2 col-md-3"}
+                onClick={() => this.setState({ step: this.state.step - 1 }) }>
+                {<> <FontAwesomeIcon icon={faCaretLeft} /> {" Previous"} </>}
             </button>);
     }
 
-    changeStep = (changeToStep: number) => {
-        State.get().set('simplified', { step: changeToStep, 'libraries': {} })
+    rightNavButton = () => {
+        return (
+            <button type='button' className={"navigate col-lg-2 col-md-3"}
+                onClick={() => this.setState({ step: this.state.step + 1 }) }>
+                {<> {"Next "} <FontAwesomeIcon icon={faCaretRight} /></>}
+            </button>);
     }
 
-    incrementStep = (step: number, direction: string) => {
-        if (direction == "prev") {  this.changeStep(step - 1) }
-        if (direction == "next") {  this.changeStep(step + 1) }
-    }
+    pageTitles = new Map([
+        [1, "Page 1: Filling in the basics"],
+        [2, "Page 2: Adding Conditions"],
+        [3, "Page 3: Card Preview"]
+    ])
 
-    resetForm = () => { this.changeStep(1) }
+    resetForm = () => {  this.setState({ step: 1 }) }
 
-    InsertCardNav = (step: number) => {
-        switch (step) {
-            case 1: return (
-                <>
-                    {this.insertNavButton(step, (x) => this.incrementStep(x, "next"), "Next ", "right")}
-                    {this.saveButton}
-                    {this.deleteCardButton}
-                </>
-            );
-            case 2: return (
-                <>
-                    {this.insertNavButton(step, (x) => this.incrementStep(x, "prev"), " Previous", "left")}
-                    {this.insertNavButton(step, (x) => this.incrementStep(x, "next"), "Next ", "right")}
-                    {this.saveButton}
-                    {this.deleteCardButton}
-                </>
-            );
-            case 3: return (
-                <>
-                    {this.insertNavButton(step, (x) => this.incrementStep(x, "prev"), " Previous", "left")}
-                    {this.saveButton}
-                    {this.deleteCardButton}
-                </>
+    render() {
+            return (
+                <div>
+                    <div>{this.pageTitles.get(this.state.step)}</div>
+                    {this.state.step == 1 ? this.allElements : null}
+                    {this.state.step == 2 ? <></> : null}
+                    {this.state.step == 3 ? <></> : null}
+                    <div><>
+                        {this.state.step > 2 ? this.leftNavButton() : null}
+                        {this.state.step < 2 ? this.rightNavButton(): null}
+                        {this.saveButton}
+                        {this.deleteCardButton}
+                    </></div>
+                </div>
             );
         }
-    }
-    fillingInBasics = (step: number) => {
-        return (
-            <div>
-                <div>Page 1: Filling in the basics</div>
-                {this.allElements}
-                <div>{this.InsertCardNav(step)}</div>
-            </div>
-        );
-    }
-    addingConditions = (step: number) => {
-        return (
-            <div>
-                <div>Page 2: Adding Conditions</div>
-                <div>{this.InsertCardNav(step)}</div>
-            </div>
-        );
-    }
-    cardPreview = (step: number) => {
-        return (
-            <div>
-                <div>Page 3: Card Preview</div>
-                <div>{this.InsertCardNav(step)}</div>
-            </div>
-        );
-    }
-
-    pageNavHandler = () => {
-        switch (this.state.simplified.step) {
-            case 1: return this.fillingInBasics(this.state.simplified.step);
-            case 2: return this.addingConditions(this.state.simplified.step);
-            case 3: return this.cardPreview(this.state.simplified.step);
-            default: return this.fillingInBasics(this.state.simplified.step);
-        }
-    }
 
     createTextBoxElement(fieldKey: string, friendlyFieldName: string, textProps: textBoxProps): JSX.Element {
-        const [fieldName, fieldContents, setField, fieldSaveHandler] = simpleCardField(fieldKey, this.sageNode);
+        const [fieldName, fieldContents, setField, fieldSaveHandler] = simpleCardField(fieldKey, this.props.sageNode);
         function returnVal() {
             if (textProps.isLink) {
                 return <Button key={fieldName + "-button"} variant="link" onClick={() => window.open(fieldContents)}>{fieldContents}</Button>;
@@ -189,7 +136,7 @@ export abstract class CardForm extends React.Component<IState>{
             }
         }
 
-        this.fieldHandlers.push([fieldName, fieldContents, setField, fieldSaveHandler]);
+        this.props.fieldHandlers.push([fieldName, fieldContents, setField, fieldSaveHandler]);
 
         return (
             <Form.Group key={fieldName + "-formGroup"} as={Col} controlId={fieldName}>
@@ -203,8 +150,8 @@ export abstract class CardForm extends React.Component<IState>{
     }
 
     createDropdownElement(fieldKey: string, fieldFriendlyName: string, fieldElements: string[]): JSX.Element {
-        const [fieldName, fieldContents, setField, fieldSaveHandler] = simpleCardField(fieldKey, this.sageNode);
-        this.fieldHandlers.push([fieldName, fieldContents, setField, fieldSaveHandler]);
+        const [fieldName, fieldContents, setField, fieldSaveHandler] = simpleCardField(fieldKey, this.props.sageNode);
+        this.props.fieldHandlers.push([fieldName, fieldContents, setField, fieldSaveHandler]);
         return (
             <Form.Group key={fieldName + "-fromGroup"} as={Col} controlId={fieldKey}>
                 <Form.Label key={fieldName + "-label"}>{fieldFriendlyName}</Form.Label>
