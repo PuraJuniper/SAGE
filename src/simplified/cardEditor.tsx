@@ -7,7 +7,7 @@ import hypertensionLibraryJson from "../../public/samples/hypertension-library.j
 import * as SageUtils from "../helpers/sage-utils";
 import * as SchemaUtils from "../helpers/schema-utils";
 import State, { SageNodeInitializedFreezerNode } from "../state";
-import { CardForm, CardFormProps } from "./cardForm";
+import { OuterCardForm, CardFormProps } from "./cardForm";
 import { MedicationRequestForm } from './medicationRequestForm';
 import { ACTIVITY_DEFINITION, FriendlyResourceListEntry, profileToFriendlyResourceListEntry } from "./nameHelpers";
 
@@ -69,27 +69,30 @@ export const CardEditor = (props: CardEditorProps) => {
     ]);
     const fieldList: any[][] = [];
 
-    const cardForm = function (): CardForm {
-        const cardFormProps: CardFormProps = {
-            sageNode: actNode,
-            fieldHandlers: fieldList,
-            resourceType: actResourceType
-        }
-        switch (actResourceType.FHIR) {
-            case "MedicationRequest": {
-                return new MedicationRequestForm(cardFormProps);
-            }
-            default: {
-                //TODO: replace with errorpage
-                return new MedicationRequestForm(cardFormProps);
-            }
-        }
-    }();
+    // const cardForm = function (): CardForm {
+    //     switch (actResourceType.FHIR) {
+    //         case "MedicationRequest": {
+    //             return <MedicationRequestForm 
+    //                 sageNode={actNode}
+    //                 fieldHandlers={fieldList}
+    //                 resourceType={actResourceType}
+    //             />;
+    //         }
+    //         default: {
+    //             //TODO: replace with errorpage
+    //             return new MedicationRequestForm(cardFormProps);
+    //         }
+    //     }
+    // }();
 
     return (
         <div>
             <Form key={actResourceType.FHIR + "-form"} style={{ color: "#2a6b92" }} id="commonMetaDataForm" target="void" onSubmit={handleSaveResource}>
-                {cardForm.render()}
+                <OuterCardForm 
+                    sageNode= {actNode}
+                    fieldHandlers= {fieldList}
+                    resourceType= {actResourceType}
+                />
             </Form>
 
         </div>
@@ -98,7 +101,6 @@ export const CardEditor = (props: CardEditorProps) => {
     function handleSaveResource() {
         fieldList.forEach((field) => field[3](field[0], field[1], actNode, planNode));
         State.get().set("ui", { status: "collection" });
-        cardForm.resetForm();
     }
 }
 
