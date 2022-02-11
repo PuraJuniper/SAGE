@@ -4,8 +4,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React from "react";
 import { Col, Form } from 'react-bootstrap';
 import State, { SageNodeInitializedFreezerNode } from '../state';
-import { MedicationRequestForm } from './medicationRequestForm';
 import { FriendlyResourceListEntry } from './nameHelpers';
+
+import { pageOne } from './medicationRequestForm';
 
 
 export type cardRow = string[];
@@ -29,7 +30,8 @@ export interface CardFormState {
 export type CardFormProps = {
     sageNode: SageNodeInitializedFreezerNode,
     fieldHandlers: any[][],
-    resourceType: FriendlyResourceListEntry
+    resourceType: FriendlyResourceListEntry,
+    elementList: JSX.Element[]
 }
 export class OuterCardForm extends React.Component<CardFormProps, CardFormState>{
     sageState: any;
@@ -109,10 +111,7 @@ export class OuterCardForm extends React.Component<CardFormProps, CardFormState>
                 (() => {
                 switch (this.props.resourceType.FHIR) {
                         case "MedicationRequest":
-                            return <MedicationRequestForm
-                                sageNode={this.props.sageNode}
-                                fieldHandlers={this.props.fieldHandlers}
-                                resourceType={this.props.resourceType}/>
+                            return pageOne(this.props.elementList)
 
                         default: 
                             return <></>
