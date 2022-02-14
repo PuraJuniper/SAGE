@@ -3,6 +3,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React from "react";
 import State, { SageNodeInitializedFreezerNode } from '../state';
 import { FriendlyResourceListEntry } from './nameHelpers';
+import { Card } from "react-bootstrap";
+
 
 import { pageOne, pageThree } from './medicationRequestForm';
 
@@ -112,18 +114,23 @@ export class OuterCardForm extends React.Component<CardFormProps, CardFormState>
                 })()
 
                 : null}</div>
+
                 {this.state.step == 2 ? <></> : null}
-                {this.state.step == 3 ?(() => {
-                switch (this.props.resourceType.FHIR) {
+                
+                <div>{this.state.step == 3 ?
+                (() => {
+                    switch (this.props.resourceType.FHIR) {
                         case "MedicationRequest":
-                            return pageThree(this.props.displayList)
-
-                        default: 
-                            return <></>
-                    }
-                })()
-
-                : null}
+                            return <Card>
+                                    <Card.Title>{this.props.resourceType.FRIENDLY}</Card.Title>
+                                    <Card.Body>{pageThree(this.props.displayList)}</Card.Body>
+                                </Card>
+                                       
+                                default: 
+                                    return <></>
+                            }
+                        })()
+                : null}</div>
                 <div><>
                     {this.state.step > 1 ? this.leftNavButton() : null}
                     {this.state.step <= 2 ? this.rightNavButton() : null}
