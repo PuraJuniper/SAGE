@@ -1,11 +1,13 @@
 
 import { faCaretLeft, faCaretRight, IconDefinition } from '@fortawesome/pro-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { ElementType } from 'react';
-import { Button, Col, Form, InputGroup } from 'react-bootstrap';
+import React from "react";
+import { Col, Form } from 'react-bootstrap';
 import State, { SageNodeInitializedFreezerNode } from '../state';
-import { simpleCardField } from './cardEditor';
-import { FriendlyResourceFormElement, FriendlyResourceListEntry } from './nameHelpers';
+import { FriendlyResourceListEntry } from './nameHelpers';
+
+import { pageOne } from './medicationRequestForm';
+
 
 export type cardRow = string[];
 export type cardLayout = {
@@ -13,7 +15,7 @@ export type cardLayout = {
 }
 export enum ElemType {
     TextBox,
-    Dropdown
+    Dropdown 
 }
 export type textBoxProps = {
     boxSize: number;
@@ -21,212 +23,105 @@ export type textBoxProps = {
     isLink: boolean;
     caption: string;
 }
+export interface CardFormState {
+    step: number;
+}
 
-export abstract class CardForm {
-    sageNode: SageNodeInitializedFreezerNode;
-    fieldHandlers: any[][];
-    state: any;
-    resourceType: FriendlyResourceListEntry;
+export type CardFormProps = {
+    sageNode: SageNodeInitializedFreezerNode,
+    fieldHandlers: any[][],
+    resourceType: FriendlyResourceListEntry,
+    elementList: JSX.Element[]
+}
+export class OuterCardForm extends React.Component<CardFormProps, CardFormState>{
+    sageState: any;
     cardHeader: JSX.Element;
-    placeHolderElem: JSX.Element =
-        <Form.Group key='placeholder-formGroup' as={Col} >
-        </Form.Group>;
+    saveButton: JSX.Element;
+    deleteCardButton: JSX.Element;
+    pageTitles: Map<number, string>;
 
-    saveButton: JSX.Element =
-        <button key="butSave" className="navigate col-lg-2 col-md-3"
-            type="submit">
-            Save Card&nbsp;
-            <FontAwesomeIcon key="butSaveIcon" icon={faCaretRight} />
-        </button>;
+    constructor(props: CardFormProps) {
+        super(props);
+        this.cardHeader =
+            <h3 key="cardName" style={{ marginTop: "20px", marginBottom: "10px" }}><b>
+                {this.props.resourceType ? this.props.resourceType?.FRIENDLY ?? "Unknown Resource Type" : ""}
+            </b></h3>;
 
-    deleteCardButton: JSX.Element =
-        <button key="butDel" type='button' className="navigate col-lg-2 col-md-3"
-            onClick={() => {
-                State.emit("remove_from_bundle", this.state.bundle.pos + 1);
-                State.emit("remove_from_bundle", this.state.bundle.pos);
-                State.get().set("ui", { status: "cards" });
-                this.resetForm();
-            }}>
-            Cancel
-        </button>;
+        this.saveButton =
+            <button key="butSave" className="navigate col-lg-2 col-md-3"
+                type="submit">
+                Save Card&nbsp;
+                <FontAwesomeIcon key="butSaveIcon" icon={faCaretRight} />
+            </button>;
 
-    abstract cardFieldLayout: cardLayout;
-    abstract textBoxFields: Map<string, textBoxProps>;
-    abstract allElements: JSX.Element[]
-    abstract friendlyFields: FriendlyResourceFormElement[]
+        this.deleteCardButton =
+            <button key="butDel" type='button' className="navigate col-lg-2 col-md-3"
+                onClick={() => {
+                    State.emit("remove_from_bundle", State.get().bundle.pos + 1);
+                    State.emit("remove_from_bundle", State.get().bundle.pos);
+                    State.get().set("ui", { status: "cards" });
+                    this.resetForm();
+                }}>
+                Cancel
+            </button>;
 
-    constructor(state: any, sageNode: SageNodeInitializedFreezerNode, fieldHandlers: any[][], resourceType: FriendlyResourceListEntry,) {
-        this.state = state;
-        this.resourceType = resourceType;
-        this.sageNode = sageNode;
-        this.fieldHandlers = fieldHandlers;
-        this.cardHeader = function (): JSX.Element {
-            const createCardName = (): JSX.Element => {
-                return <h3 key="cardName" style={{ marginTop: "20px", marginBottom: "10px" }}><b>
-                    {resourceType ? resourceType?.FRIENDLY ?? "Unknown Resource Type" : ""}
-                </b></h3>;
-            }
-            return (createCardName());
-        }();
+
+        this.state = {
+            step: 1
+        };
+
+        this.pageTitles = new Map([
+            [1, "Page 1: Filling in the basics"],
+            [2, "Page 2: Adding Conditions"],
+            [3, "Page 3: Card Preview"]
+        ])
+
     }
 
-    insertNavButton = (step: number, stepChanger: (step: number) => void, buttonText: string, buttonSide: string) => {
-        let buttonElem: JSX.Element;
-        let navigation = "";
-        switch (buttonSide) {
-            case "right":
-                buttonElem = <> {buttonText} <FontAwesomeIcon icon={faCaretRight} /> </>;
-                navigation = "navigate";
-                break;
-            case "left":
-                buttonElem = <> <FontAwesomeIcon icon={faCaretLeft} /> {buttonText} </>;
-                navigation = "navigate-reverse"
-                break;
-            default:
-                buttonElem = <></>;
-        }
+    leftNavButton = () => {
         return (
-            <button type='button' className={navigation + " col-lg-2 col-md-3"}
-                onClick={() => { stepChanger(step); }}>
-                {buttonElem}
+            <button type='button' className={"navigate-reverse col-lg-2 col-md-3"}
+                onClick={() => this.setState({ step: this.state.step - 1 })}>
+                {<> <FontAwesomeIcon icon={faCaretLeft} /> {" Previous"} </>}
             </button>);
     }
 
-    changeStep = (changeToStep: number) => {
-        State.get().set('simplified', { step: changeToStep, 'libraries': {} })
+    rightNavButton = () => {
+        return (
+            <button type='button' className={"navigate col-lg-2 col-md-3"}
+                onClick={() => this.setState({ step: this.state.step + 1 })}>
+                {<> {"Next "} <FontAwesomeIcon icon={faCaretRight} /></>}
+            </button>);
     }
 
-    incrementStep = (step: number, direction: string) => {
-        if (direction == "prev") {  this.changeStep(step - 1) }
-        if (direction == "next") {  this.changeStep(step + 1) }
-    }
+    resetForm = () => { this.setState({ step: 1 }) }
 
-    resetForm = () => { this.changeStep(1) }
+    render() {
 
-    InsertCardNav = (step: number) => {
-        switch (step) {
-            case 1: return (
-                <>
-                    {this.insertNavButton(step, (x) => this.incrementStep(x, "next"), "Next ", "right")}
-                    {this.saveButton}
-                    {this.deleteCardButton}
-                </>
-            );
-            case 2: return (
-                <>
-                    {this.insertNavButton(step, (x) => this.incrementStep(x, "prev"), " Previous", "left")}
-                    {this.insertNavButton(step, (x) => this.incrementStep(x, "next"), "Next ", "right")}
-                    {this.saveButton}
-                    {this.deleteCardButton}
-                </>
-            );
-            case 3: return (
-                <>
-                    {this.insertNavButton(step, (x) => this.incrementStep(x, "prev"), " Previous", "left")}
-                    {this.saveButton}
-                    {this.deleteCardButton}
-                </>
-            );
-        }
-    }
-    fillingInBasics = (step: number) => {
         return (
             <div>
-                <div>Page 1: Filling in the basics</div>
-                {this.allElements}
-                <div>{this.InsertCardNav(step)}</div>
+                <div>{this.pageTitles.get(this.state.step)}</div>
+                <div>{this.state.step == 1 ? 
+                (() => {
+                switch (this.props.resourceType.FHIR) {
+                        case "MedicationRequest":
+                            return pageOne(this.props.elementList)
+
+                        default: 
+                            return <></>
+                    }
+                })()
+
+                : null}</div>
+                {this.state.step == 2 ? <></> : null}
+                {this.state.step == 3 ? <></> : null}
+                <div><>
+                    {this.state.step > 1 ? this.leftNavButton() : null}
+                    {this.state.step <= 2 ? this.rightNavButton() : null}
+                    {this.saveButton}
+                    {this.deleteCardButton}
+                </></div>
             </div>
         );
-    }
-    addingConditions = (step: number) => {
-        return (
-            <div>
-                <div>Page 2: Adding Conditions</div>
-                <div>{this.InsertCardNav(step)}</div>
-            </div>
-        );
-    }
-    cardPreview = (step: number) => {
-        return (
-            <div>
-                <div>Page 3: Card Preview</div>
-                <div>{this.InsertCardNav(step)}</div>
-            </div>
-        );
-    }
-
-    pageNavHandler = (step: number) => {
-        switch (step) {
-            case 1: return this.fillingInBasics(step);
-            case 2: return this.addingConditions(step);
-            case 3: return this.cardPreview(step);
-            default: return this.fillingInBasics(step);
-        }
-    }
-
-    createTextBoxElement(fieldKey: string, friendlyFieldName: string, textProps: textBoxProps): JSX.Element {
-        const [fieldName, fieldContents, setField, fieldSaveHandler] = simpleCardField(fieldKey, this.sageNode);
-        function returnVal() {
-            if (textProps.isLink) {
-                return <Button key={fieldName + "-button"} variant="link" onClick={() => window.open(fieldContents)}>{fieldContents}</Button>;
-            } else {
-                return <Form.Control key={fieldName + "-formControl"}
-                    {...{
-                        ...(textProps.isReadOnly) && { readOnly: textProps.isReadOnly },
-                        ...(textProps.boxSize) > 1 && { as: "textarea" as ElementType<any>, rows: textProps.boxSize },
-                        ...{
-                            type: "text",
-                            defaultValue: fieldContents,
-                            onChange: (e: { currentTarget: { value: any; }; }) => setField(e.currentTarget.value)
-                        }
-                    }} />;
-            }
-        }
-
-        this.fieldHandlers.push([fieldName, fieldContents, setField, fieldSaveHandler]);
-
-        return (
-            <Form.Group key={fieldName + "-formGroup"} as={Col} controlId={fieldName}>
-                <Form.Label key={fieldName + "-formLabel"}>{friendlyFieldName}</Form.Label>
-                <Form.Text key={fieldName + "-formText"}>{textProps.caption}</Form.Text>
-                <Col key={fieldName + "-col"} sm={10}>
-                    {returnVal()}
-                </Col>
-            </Form.Group>
-        );
-    }
-
-    createDropdownElement(fieldKey: string, fieldFriendlyName: string, fieldElements: string[]): JSX.Element {
-        const [fieldName, fieldContents, setField, fieldSaveHandler] = simpleCardField(fieldKey, this.sageNode);
-        this.fieldHandlers.push([fieldName, fieldContents, setField, fieldSaveHandler]);
-        return (
-            <Form.Group key={fieldName + "-fromGroup"} as={Col} controlId={fieldKey}>
-                <Form.Label key={fieldName + "-label"}>{fieldFriendlyName}</Form.Label>
-                <Col key={fieldName + "-col"} sm={10}>
-                    <InputGroup key={fieldName + "-inputGroup"} className="mb-3">
-                        <Form.Control
-                            key={fieldName + "formControl"}
-                            as="select"
-                            defaultValue={fieldContents}
-                            onChange={(e) => setField(e.currentTarget.value)}
-                        >
-                            {fieldElements.map(sType => {
-                                return <option key={fieldKey + "-" + sType} value={sType}>{sType}</option>;
-                            })}
-                        </Form.Control>
-                    </InputGroup>
-                </Col>
-            </Form.Group>
-        );
-    }
-
-    createTextBoxElementList(): JSX.Element[] {
-        const defaultBoxProps: textBoxProps = { boxSize: 1, isReadOnly: false, isLink: false, caption: "" }
-        return this.friendlyFields
-            .filter(ff => this.textBoxFields.has(ff.FHIR))
-            .map(ff => {
-                return this.createTextBoxElement(ff.FHIR, ff.FRIENDLY,
-                    this.textBoxFields.get(ff.FHIR) ?? defaultBoxProps)
-            });
-    }
+    }  
 }

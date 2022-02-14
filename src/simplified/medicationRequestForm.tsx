@@ -1,12 +1,10 @@
-import { Row } from "react-bootstrap";
-import { SageNodeInitializedFreezerNode } from "../state";
-import { CardForm, cardLayout, textBoxProps } from "./cardForm";
-import { FriendlyResourceFormElement, FriendlyResourceListEntry, getFormElementListForResource } from "./nameHelpers";
+import React, { ElementType } from "react";
+import { Button, Col, Form, InputGroup, Row } from "react-bootstrap";
+// import { simpleCardField } from "./cardEditor";
+import { CardFormProps, CardFormState, cardLayout, textBoxProps } from "./cardForm";
+import { FriendlyResourceFormElement, getFormElementListForResource } from "./nameHelpers";
 
-export class MedicationRequestForm extends CardForm {
-    friendlyFields: FriendlyResourceFormElement[];
-    allElements: JSX.Element[];
-    textBoxFields: Map<string, textBoxProps> = new Map<string, textBoxProps>([
+    export const textBoxFields: Map<string, textBoxProps>= new Map<string, textBoxProps>([
         ['title', {
             boxSize: 1,
             isReadOnly: false,
@@ -33,7 +31,8 @@ export class MedicationRequestForm extends CardForm {
 
         }]
     ]);
-    dropdownFields: Map<string, string[]> = new Map<string, string[]>([
+
+    export const dropdownFields: Map<string, string[]>= new Map<string, string[]>([
         ['status',
             ['active', 'on-hold', 'cancelled', 'completed', 'entered-in-error', 'stopped', 'draft', 'unknown']],
         ['intent',
@@ -42,56 +41,41 @@ export class MedicationRequestForm extends CardForm {
             ['proposal', 'plan', 'order', 'original-order', 'reflex-order', 'filler-order', 'instance-order', 'option']]
     ]);
 
-    cardFieldLayout: cardLayout =
-        {
-            cardColumns: [
-                ['placeholder', 'productReference'],
-                ['title', 'placeholder'],
-                ['description', 'placeholder'],
-                ['status', 'placeholder'],
-                ['intent', 'placeholder'],
-                ['relatedArtifact', 'placeholder'],
-                ['placeholder'],
-                ['placeholder','text']
-            ]
+    export const cardFieldLayout: cardLayout=
+    {
+        cardColumns: [
+            ['placeholder', 'productReference'],
+            ['title', 'placeholder'],
+            ['description', 'placeholder'],
+            ['status', 'placeholder'],
+            ['intent', 'placeholder'],
+            ['relatedArtifact', 'placeholder'],
+            ['placeholder'],
+            ['placeholder', 'text']
+        ]
 
-        };
+    };
 
-    constructor(state: any, sageNode: SageNodeInitializedFreezerNode, fieldList: any[][], resourceType: FriendlyResourceListEntry) {
-        super(state, sageNode, fieldList, resourceType);
-        this.friendlyFields = getFormElementListForResource(this.resourceType.FHIR);
-        this.allElements = this.createAllElements();
-    }
+    export const placeHolderElem: JSX.Element = 
+    <Form.Group key='placeholder-formGroup' as={Col} >
+    </Form.Group>;
+        
 
-    createAllElements(): JSX.Element[] {
-        const createDropdownElementList = (): JSX.Element[] => {
-            return this.friendlyFields
-                .filter(ff => this.dropdownFields.has(ff.FHIR))
-                .map(ff => {
-                    return this.createDropdownElement(ff.FHIR, ff.FRIENDLY, this.dropdownFields.get(ff.FHIR) ?? [])
-                });
-        }
-
-        const allMedicationRequestFields = [
-            this.placeHolderElem,
-            ...this.createTextBoxElementList(),
-            ...createDropdownElementList()
-        ];
-
-        const sortedFieldElems = this.cardFieldLayout.cardColumns.map((cr, i: number) => {
-            return (
-                <Row key={"row-" + i} className="mb-3">
-                    {cr.map(field =>
-                        allMedicationRequestFields.find(elem =>
-                            elem.key?.toString().startsWith(field + "-")))}
-                </Row>
-            )
-        })
-
+    export const pageOne = (fieldElements: JSX.Element[]): JSX.Element[] => {
         return (
             [
-                this.cardHeader,
-                ...sortedFieldElems,
-            ]);
-    }   
-}
+                ...cardFieldLayout.cardColumns.map((cr, i: number) => {
+                    return (
+                        <Row key={"row-" + i} className="mb-3">
+                            {cr.map(field =>
+                                [
+                                    placeHolderElem,
+                                    ...fieldElements
+                                ].find(elem =>
+                                    elem.key?.toString().startsWith(field + "-")))}
+                        </Row>
+                    )
+                }),
+            ]
+        );
+    }
