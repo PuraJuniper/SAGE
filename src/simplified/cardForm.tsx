@@ -1,5 +1,5 @@
 
-import { faCaretLeft, faCaretRight } from '@fortawesome/pro-solid-svg-icons';
+import { faCaretLeft, faCaretRight, IconDefinition } from '@fortawesome/pro-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React from "react";
 import { Col, Form } from 'react-bootstrap';
@@ -97,6 +97,7 @@ export class OuterCardForm extends React.Component<CardFormProps, CardFormState>
     resetForm = () => { this.setState({ step: 1 }) }
 
     render() {
+
         return (
             <div>
                 <div>{this.pageTitles.get(this.state.step)}</div>
@@ -122,7 +123,5 @@ export class OuterCardForm extends React.Component<CardFormProps, CardFormState>
                 </></div>
             </div>
         );
-    }
-
-   
+    }  
 }
