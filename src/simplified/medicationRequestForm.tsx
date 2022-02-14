@@ -1,8 +1,6 @@
-import React, { ElementType } from "react";
-import { Button, Col, Form, InputGroup, Row } from "react-bootstrap";
-// import { simpleCardField } from "./cardEditor";
-import { CardFormProps, CardFormState, cardLayout, textBoxProps } from "./cardForm";
-import { FriendlyResourceFormElement, getFormElementListForResource } from "./nameHelpers";
+import React from "react";
+import { Col, Form, Row } from "react-bootstrap";
+import { cardLayout, textBoxProps } from "./cardForm";
 
     export const textBoxFields: Map<string, textBoxProps>= new Map<string, textBoxProps>([
         ['title', {
