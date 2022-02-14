@@ -33,6 +33,8 @@ export interface ICardForm {
     dropdownFields: Map<string, string[]>;
     cardFieldLayout: cardLayout;
     pageOne: (fieldElements: JSX.Element[]) => JSX.Element[];
+    pageTwo: (fieldElements: JSX.Element[]) => JSX.Element[];
+    pageThree: (fieldElements: JSX.Element[]) => JSX.Element[];
 }
 
 const simpleCardField = (fieldName: string, actNode: SageNodeInitializedFreezerNode) => {
@@ -370,4 +372,3 @@ function libraryModalElement(showLibraryImportModal: boolean, setShowLibraryImpo
         </Modal>
     </>;
 }
-

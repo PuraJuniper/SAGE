@@ -11,7 +11,7 @@ export type cardLayout = {
 }
 export enum ElemType {
     TextBox,
-    Dropdown 
+    Dropdown
 }
 export type textBoxProps = {
     boxSize: number;
@@ -99,9 +99,9 @@ export class OuterCardForm extends React.Component<CardFormProps, CardFormState>
         return (
             <div>
                 <div>{this.pageTitles.get(this.state.step)}</div>
-                <div>{this.state.step == 1 ? this.innerCardForm.pageOne(this.props.elementList): null}</div>
-                {this.state.step == 2 ? <></> : null}
-                {this.state.step == 3 ? <></> : null}
+                <div>{this.state.step == 1 ? this.innerCardForm.pageOne(this.props.elementList) : null}</div>
+                {this.state.step == 2 ? this.innerCardForm.pageTwo([]) : null}
+                {this.state.step == 3 ? this.innerCardForm.pageThree([]) : null}
                 <div><>
                     {this.state.step > 1 ? this.leftNavButton() : null}
                     {this.state.step <= 2 ? this.rightNavButton() : null}
@@ -110,5 +110,5 @@ export class OuterCardForm extends React.Component<CardFormProps, CardFormState>
                 </></div>
             </div>
         );
-    }  
+    }
 }

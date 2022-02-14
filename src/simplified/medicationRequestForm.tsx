@@ -2,7 +2,7 @@ import React from "react";
 import { Col, Form, Row } from "react-bootstrap";
 import { ICardForm } from "./cardEditor";
 import { FriendlyResourceListEntry } from "./nameHelpers";
-import { cardLayout, textBoxProps } from "./outerCardForm";
+import { textBoxProps } from "./outerCardForm";
 
 export class MedicationRequestForm implements ICardForm {
 
@@ -49,25 +49,25 @@ export class MedicationRequestForm implements ICardForm {
             ['proposal', 'plan', 'order', 'original-order', 'reflex-order', 'filler-order', 'instance-order', 'option']]
     ]);
 
-    cardFieldLayout = 
-    {
-        cardColumns: [
-            ['placeholder', 'productReference'],
-            ['title', 'placeholder'],
-            ['description', 'placeholder'],
-            ['status', 'placeholder'],
-            ['intent', 'placeholder'],
-            ['relatedArtifact', 'placeholder'],
-            ['placeholder'],
-            ['placeholder', 'text']
-        ]
+    cardFieldLayout =
+        {
+            cardColumns: [
+                ['placeholder', 'productReference'],
+                ['title', 'placeholder'],
+                ['description', 'placeholder'],
+                ['status', 'placeholder'],
+                ['intent', 'placeholder'],
+                ['relatedArtifact', 'placeholder'],
+                ['placeholder'],
+                ['placeholder', 'text']
+            ]
 
-    };
-        
+        };
+
     pageOne = (fieldElements: JSX.Element[]): JSX.Element[] => {
         const placeHolderElem =
-        <Form.Group key='placeholder-formGroup' as={Col} >
-        </Form.Group>;
+            <Form.Group key='placeholder-formGroup' as={Col} >
+            </Form.Group>;
         return (
             [
                 ...this.cardFieldLayout.cardColumns.map((cr, i: number) => {
@@ -82,6 +82,23 @@ export class MedicationRequestForm implements ICardForm {
                         </Row>
                     )
                 }),
+            ]
+        );
+    }
+
+    pageTwo = (fieldElements: JSX.Element[]) => {
+        return (
+            [
+                <div key="page2">To be implemented</div>
+            ]
+        );
+    }
+
+
+    pageThree = (fieldElements: JSX.Element[]) => {
+        return (
+            [
+                <div key="page2">To be implemented</div>
             ]
         );
     }
