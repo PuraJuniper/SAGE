@@ -1,10 +1,18 @@
-import React, { ElementType } from "react";
-import { Button, Col, Form, InputGroup, Row } from "react-bootstrap";
-// import { simpleCardField } from "./cardEditor";
-import { CardFormProps, CardFormState, cardLayout, textBoxProps } from "./cardForm";
-import { FriendlyResourceFormElement, getFormElementListForResource } from "./nameHelpers";
+import React from "react";
+import { Col, Form, Row } from "react-bootstrap";
+import { ICardForm } from "./cardEditor";
+import { FriendlyResourceListEntry } from "./nameHelpers";
+import { cardLayout, textBoxProps } from "./outerCardForm";
 
-    export const textBoxFields: Map<string, textBoxProps>= new Map<string, textBoxProps>([
+export class MedicationRequestForm implements ICardForm {
+
+    resourceType;
+
+    constructor(resourceType: FriendlyResourceListEntry) {
+        this.resourceType = resourceType;
+    }
+
+    textBoxFields = new Map<string, textBoxProps>([
         ['title', {
             boxSize: 1,
             isReadOnly: false,
@@ -32,7 +40,7 @@ import { FriendlyResourceFormElement, getFormElementListForResource } from "./na
         }]
     ]);
 
-    export const dropdownFields: Map<string, string[]>= new Map<string, string[]>([
+    dropdownFields = new Map<string, string[]>([
         ['status',
             ['active', 'on-hold', 'cancelled', 'completed', 'entered-in-error', 'stopped', 'draft', 'unknown']],
         ['intent',
@@ -41,7 +49,7 @@ import { FriendlyResourceFormElement, getFormElementListForResource } from "./na
             ['proposal', 'plan', 'order', 'original-order', 'reflex-order', 'filler-order', 'instance-order', 'option']]
     ]);
 
-    export const cardFieldLayout: cardLayout=
+    cardFieldLayout = 
     {
         cardColumns: [
             ['placeholder', 'productReference'],
@@ -55,16 +63,14 @@ import { FriendlyResourceFormElement, getFormElementListForResource } from "./na
         ]
 
     };
-
-    export const placeHolderElem: JSX.Element = 
-    <Form.Group key='placeholder-formGroup' as={Col} >
-    </Form.Group>;
         
-
-    export const pageOne = (fieldElements: JSX.Element[]): JSX.Element[] => {
+    pageOne = (fieldElements: JSX.Element[]): JSX.Element[] => {
+        const placeHolderElem =
+        <Form.Group key='placeholder-formGroup' as={Col} >
+        </Form.Group>;
         return (
             [
-                ...cardFieldLayout.cardColumns.map((cr, i: number) => {
+                ...this.cardFieldLayout.cardColumns.map((cr, i: number) => {
                     return (
                         <Row key={"row-" + i} className="mb-3">
                             {cr.map(field =>
@@ -79,3 +85,4 @@ import { FriendlyResourceFormElement, getFormElementListForResource } from "./na
             ]
         );
     }
+}
