@@ -98,6 +98,26 @@ const createDropdownElement = (fieldKey: string, fieldFriendlyName: string, fiel
         </Form.Group>
     );
 }
+    // this function will idealy just read in all the elements from previous pages and 
+    //create an element that looks like "{fieldFriendlyName}: {value}"
+    const createDisplayElement = (fieldKey: string, friendlyFieldName: string, textProps: textBoxProps, node: SageNodeInitializedFreezerNode): JSX.Element => {
+        const [fieldName, fieldContents, setField, fieldSaveHandler] = simpleCardField(fieldKey, node);
+        return (
+            <Form.Group key={fieldName + "-fromGroup"} as={Col} controlId={fieldKey}>
+                <Form.Label key={fieldName + "-label"}>{friendlyFieldName} {node.value}</Form.Label>
+            </Form.Group>
+        );
+    }
+    //this should loop through allMedicationRequestFields and create an array 
+    //of displayElements to be mapped later
+    const createDisplayElementList = (resourceType: FriendlyResourceListEntry, node: SageNodeInitializedFreezerNode): JSX.Element[] => {
+        const friendlyFields = getFormElementListForResource(resourceType.FHIR);
+        const defaultBoxProps: textBoxProps = { boxSize: 1, isReadOnly: false, isLink: false, caption: "" }
+        return friendlyFields
+            .map(ff => {
+                return createDisplayElement(ff.FHIR, ff.FRIENDLY,textBoxFields.get(ff.FHIR) ?? defaultBoxProps, node)
+            });
+    }
 
 const createTextBoxElementList = (friendlyFields: FriendlyResourceFormElement[], fieldHandlers: any, node: SageNodeInitializedFreezerNode): JSX.Element[] => {
     const defaultBoxProps: textBoxProps = { boxSize: 1, isReadOnly: false, isLink: false, caption: "" }
@@ -164,6 +184,7 @@ export const CardEditor = (props: CardEditorProps) => {
                     fieldHandlers={fieldHandlers}
                     resourceType={actResourceType}
                     elementList={fieldElementListForType(actResourceType, fieldHandlers, actNode)}
+                    displayList = {createDisplayElementList(actResourceType, actNode)}
                 />
             </Form>
 

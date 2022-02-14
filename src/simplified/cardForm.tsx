@@ -4,7 +4,7 @@ import React from "react";
 import State, { SageNodeInitializedFreezerNode } from '../state';
 import { FriendlyResourceListEntry } from './nameHelpers';
 
-import { pageOne } from './medicationRequestForm';
+import { pageOne, pageThree } from './medicationRequestForm';
 
 
 export type cardRow = string[];
@@ -29,7 +29,8 @@ export type CardFormProps = {
     sageNode: SageNodeInitializedFreezerNode,
     fieldHandlers: any[][],
     resourceType: FriendlyResourceListEntry,
-    elementList: JSX.Element[]
+    elementList: JSX.Element[],
+    displayList: JSX.Element[],
 }
 export class OuterCardForm extends React.Component<CardFormProps, CardFormState>{
     sageState: any;
@@ -112,7 +113,17 @@ export class OuterCardForm extends React.Component<CardFormProps, CardFormState>
 
                 : null}</div>
                 {this.state.step == 2 ? <></> : null}
-                {this.state.step == 3 ? <></> : null}
+                {this.state.step == 3 ?(() => {
+                switch (this.props.resourceType.FHIR) {
+                        case "MedicationRequest":
+                            return pageThree(this.props.displayList)
+
+                        default: 
+                            return <></>
+                    }
+                })()
+
+                : null}
                 <div><>
                     {this.state.step > 1 ? this.leftNavButton() : null}
                     {this.state.step <= 2 ? this.rightNavButton() : null}

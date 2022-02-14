@@ -53,6 +53,18 @@ import { cardLayout, textBoxProps } from "./cardForm";
         ]
 
     };
+                  
+    export const cardDisplayLayout: cardLayout =
+    {
+        cardColumns: [
+            ['title'],
+            ['description'],
+            ['relatedArtifact'],
+            ['productReference'],
+            ['text']
+        ]
+
+    };
 
     export const placeHolderElem: JSX.Element = 
     <Form.Group key='placeholder-formGroup' as={Col} >
@@ -63,6 +75,26 @@ import { cardLayout, textBoxProps } from "./cardForm";
         return (
             [
                 ...cardFieldLayout.cardColumns.map((cr, i: number) => {
+                    return (
+                        <Row key={"row-" + i} className="mb-3">
+                            {cr.map(field =>
+                                [
+                                    placeHolderElem,
+                                    ...fieldElements
+                                ].find(elem =>
+                                    elem.key?.toString().startsWith(field + "-")))}
+                        </Row>
+                    )
+                }),
+            ]
+        );
+    }
+
+    export const pageThree = (fieldElements: JSX.Element[]): JSX.Element[]=>{
+
+        return (
+            [
+                ...cardDisplayLayout.cardColumns.map((cr, i: number) => {
                     return (
                         <Row key={"row-" + i} className="mb-3">
                             {cr.map(field =>
