@@ -140,15 +140,20 @@ const conditionCardField = (planNode: SageNodeInitializedFreezerNode) => {
 export const CardEditor = (props: CardEditorProps) => {
     const actNode = props.actNode;
     const planNode = props.planNode;
-    const actResourceType: FriendlyResourceListEntry
-        = profileToFriendlyResourceListEntry(SchemaUtils.toFhir(actNode, false).meta?.profile?.[0]);
-    const state = State.get();
-    const titleKey = "title";
-    const descriptionKey = "description";
-    const fieldNameMap = new Map([
-        [titleKey, "Card short name:"],
-        [descriptionKey, "Card description:"]
-    ]);
+    function getResourceType(): FriendlyResourceListEntry {
+        const resourceProfile = (): string => {
+            if (actNode) {
+                const fhirResource = SchemaUtils.toFhir(actNode, false);
+                const meta = fhirResource ? fhirResource.meta : undefined;
+                const profile = meta ? meta.profile : undefined;
+                return profile ? profile[0] : "";
+            } else {
+                return "";
+            }
+        };
+            return profileToFriendlyResourceListEntry(resourceProfile());
+    }
+    const actResourceType = getResourceType();
     const fieldHandlers: any[][] = [];
 
     return (

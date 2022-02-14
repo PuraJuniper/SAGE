@@ -42,8 +42,6 @@ export class OuterCardForm extends React.Component<CardFormProps, CardFormState>
 
     constructor(props: CardFormProps) {
         super(props);
-
-        this.sageState = State.get();
         this.cardHeader =
             <h3 key="cardName" style={{ marginTop: "20px", marginBottom: "10px" }}><b>
                 {this.props.resourceType ? this.props.resourceType?.FRIENDLY ?? "Unknown Resource Type" : ""}
@@ -59,9 +57,9 @@ export class OuterCardForm extends React.Component<CardFormProps, CardFormState>
         this.deleteCardButton =
             <button key="butDel" type='button' className="navigate col-lg-2 col-md-3"
                 onClick={() => {
-                    State.emit("remove_from_bundle", this.sageState.bundle.pos + 1);
-                    State.emit("remove_from_bundle", this.sageState.bundle.pos);
-                    this.sageState.set("ui", { status: "cards" });
+                    State.emit("remove_from_bundle", State.get().bundle.pos + 1);
+                    State.emit("remove_from_bundle", State.get().bundle.pos);
+                    State.get().set("ui", { status: "cards" });
                     this.resetForm();
                 }}>
                 Cancel
@@ -80,7 +78,6 @@ export class OuterCardForm extends React.Component<CardFormProps, CardFormState>
 
     }
 
-
     leftNavButton = () => {
         return (
             <button type='button' className={"navigate-reverse col-lg-2 col-md-3"}
@@ -98,10 +95,6 @@ export class OuterCardForm extends React.Component<CardFormProps, CardFormState>
     }
 
     resetForm = () => { this.setState({ step: 1 }) }
-
-    componentDidMount() {
-        console.log('Component did mount!');
-    }
 
     render() {
         return (
@@ -122,8 +115,8 @@ export class OuterCardForm extends React.Component<CardFormProps, CardFormState>
                 {this.state.step == 2 ? <></> : null}
                 {this.state.step == 3 ? <></> : null}
                 <div><>
-                    {this.state.step > 2 ? this.leftNavButton() : null}
-                    {this.state.step < 2 ? this.rightNavButton() : null}
+                    {this.state.step > 1 ? this.leftNavButton() : null}
+                    {this.state.step <= 2 ? this.rightNavButton() : null}
                     {this.saveButton}
                     {this.deleteCardButton}
                 </></div>
