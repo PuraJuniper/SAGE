@@ -115,7 +115,7 @@ export class OuterCardForm extends React.Component<CardFormProps, CardFormState>
                 <div>{this.state.step == 1 ? this.innerCardForm.pageOne(this.props.elementList) : null}</div>
                 {this.state.step == 2 ? this.innerCardForm.pageTwo([]) : null}
                 {this.state.step == 3 ? 
-                <Card>
+                <Card style={{ padding: "20px", margin: "10px", borderWidth: "2px", borderColor:'rgb(42, 107, 146)', borderRadius: '40px'}}>
                     <Card.Title>{this.props.resourceType.FRIENDLY}</Card.Title>
                     <Card.Body>{this.innerCardForm.pageThree(this.props.displayList)}</Card.Body>
                 </Card>  : null}
