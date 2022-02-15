@@ -7,9 +7,9 @@ import hypertensionLibraryJson from "../../public/samples/hypertension-library.j
 import * as SageUtils from "../helpers/sage-utils";
 import * as SchemaUtils from "../helpers/schema-utils";
 import State, { SageNodeInitializedFreezerNode } from "../state";
-import { OuterCardForm, CardFormProps, textBoxProps } from "./cardForm";
-import { textBoxFields, dropdownFields } from './medicationRequestForm';
+import { OuterCardForm, CardFormProps, textBoxProps, cardLayout } from "./outerCardForm";
 import { ACTIVITY_DEFINITION, FriendlyResourceFormElement, FriendlyResourceListEntry, getFormElementListForResource, profileToFriendlyResourceListEntry } from "./nameHelpers";
+import { MedicationRequestForm } from "./medicationRequestForm";
 
 
 
@@ -26,6 +26,15 @@ interface ExpressionOption {
     expressionInLibrary: string,
     libraryIdentifier: string,
     libraryUrl: string,
+}
+export interface ICardForm {
+    resourceType: FriendlyResourceListEntry;
+    textBoxFields: Map<string, textBoxProps>;
+    dropdownFields: Map<string, string[]>;
+    cardFieldLayout: cardLayout;
+    pageOne: (fieldElements: JSX.Element[]) => JSX.Element[];
+    pageTwo: (fieldElements: JSX.Element[]) => JSX.Element[];
+    pageThree: (fieldElements: JSX.Element[]) => JSX.Element[];
 }
 
 const simpleCardField = (fieldName: string, actNode: SageNodeInitializedFreezerNode) => {
@@ -110,38 +119,38 @@ const createDropdownElement = (fieldKey: string, fieldFriendlyName: string, fiel
     }
     //this should loop through allMedicationRequestFields and create an array 
     //of displayElements to be mapped later
-    const createDisplayElementList = (resourceType: FriendlyResourceListEntry, node: SageNodeInitializedFreezerNode): JSX.Element[] => {
+    const createDisplayElementList = (innerCardForm: ICardForm, resourceType: FriendlyResourceListEntry, node: SageNodeInitializedFreezerNode): JSX.Element[] => {
         const friendlyFields = getFormElementListForResource(resourceType.FHIR);
         const defaultBoxProps: textBoxProps = { boxSize: 1, isReadOnly: false, isLink: false, caption: "" }
         return friendlyFields
             .map(ff => {
-                return createDisplayElement(ff.FHIR, ff.FRIENDLY,textBoxFields.get(ff.FHIR) ?? defaultBoxProps, node)
+                return createDisplayElement(ff.FHIR, ff.FRIENDLY, innerCardForm.textBoxFields.get(ff.FHIR) ?? defaultBoxProps, node)
             });
     }
 
-const createTextBoxElementList = (friendlyFields: FriendlyResourceFormElement[], fieldHandlers: any, node: SageNodeInitializedFreezerNode): JSX.Element[] => {
+const createTextBoxElementList = (innerCardForm: ICardForm, friendlyFields: FriendlyResourceFormElement[], fieldHandlers: any, node: SageNodeInitializedFreezerNode): JSX.Element[] => {
     const defaultBoxProps: textBoxProps = { boxSize: 1, isReadOnly: false, isLink: false, caption: "" }
     return friendlyFields
-        .filter(ff => textBoxFields.has(ff.FHIR))
+        .filter(ff => innerCardForm.textBoxFields.has(ff.FHIR))
         .map(ff => {
             return createTextBoxElement(ff.FHIR, ff.FRIENDLY,
-                textBoxFields.get(ff.FHIR) ?? defaultBoxProps, fieldHandlers, node)
+                innerCardForm.textBoxFields.get(ff.FHIR) ?? defaultBoxProps, fieldHandlers, node)
         });
 }
 
-const createDropdownElementList = (friendlyFields: FriendlyResourceFormElement[], fieldHandlers: any, node: SageNodeInitializedFreezerNode): JSX.Element[] => {
+const createDropdownElementList = (innerCardForm: ICardForm, friendlyFields: FriendlyResourceFormElement[], fieldHandlers: any, node: SageNodeInitializedFreezerNode): JSX.Element[] => {
     return friendlyFields
-        .filter(ff => dropdownFields.has(ff.FHIR))
+        .filter(ff => innerCardForm.dropdownFields.has(ff.FHIR))
         .map(ff => {
-            return createDropdownElement(ff.FHIR, ff.FRIENDLY, dropdownFields.get(ff.FHIR) ?? [], fieldHandlers, node)
+            return createDropdownElement(ff.FHIR, ff.FRIENDLY, innerCardForm.dropdownFields.get(ff.FHIR) ?? [], fieldHandlers, node)
         })
 }
 
-const fieldElementListForType = (resourceType: FriendlyResourceListEntry, fieldHandlers: any, node: SageNodeInitializedFreezerNode): JSX.Element[] => {
-    const friendlyFields = getFormElementListForResource(resourceType.FHIR);
+const fieldElementListForType = (innerCardForm: ICardForm, fieldHandlers: any, node: SageNodeInitializedFreezerNode): JSX.Element[] => {
+    const friendlyFields = getFormElementListForResource(innerCardForm.resourceType.FHIR);
     return [
-        ...createTextBoxElementList(friendlyFields, fieldHandlers, node),
-        ...createDropdownElementList(friendlyFields, fieldHandlers, node)
+        ...createTextBoxElementList(innerCardForm, friendlyFields, fieldHandlers, node),
+        ...createDropdownElementList(innerCardForm, friendlyFields, fieldHandlers, node)
     ]
 }
 
@@ -175,6 +184,17 @@ export const CardEditor = (props: CardEditorProps) => {
     }
     const actResourceType = getResourceType();
     const fieldHandlers: any[][] = [];
+    const getInnerCardForm: () => ICardForm = () => {
+        switch (actResourceType.FHIR) {
+                case "MedicationRequest":
+                    return new MedicationRequestForm(actResourceType)
+
+                default: 
+                    return new MedicationRequestForm(actResourceType)
+            }
+        }
+
+    const innerCardForm = getInnerCardForm();
 
     return (
         <div>
@@ -183,8 +203,9 @@ export const CardEditor = (props: CardEditorProps) => {
                     sageNode={actNode}
                     fieldHandlers={fieldHandlers}
                     resourceType={actResourceType}
-                    elementList={fieldElementListForType(actResourceType, fieldHandlers, actNode)}
-                    displayList = {createDisplayElementList(actResourceType, actNode)}
+                    elementList={fieldElementListForType(innerCardForm, fieldHandlers, actNode)}
+                    displayList = {createDisplayElementList(innerCardForm, actResourceType, actNode)}
+                    innerCardForm={innerCardForm}
                 />
             </Form>
 
@@ -372,4 +393,3 @@ function libraryModalElement(showLibraryImportModal: boolean, setShowLibraryImpo
         </Modal>
     </>;
 }
-

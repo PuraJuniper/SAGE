@@ -1,8 +1,18 @@
 import React from "react";
 import { Col, Form, Row } from "react-bootstrap";
-import { cardLayout, textBoxProps } from "./cardForm";
+import { ICardForm } from "./cardEditor";
+import { FriendlyResourceListEntry } from "./nameHelpers";
+import { textBoxProps } from "./outerCardForm";
 
-    export const textBoxFields: Map<string, textBoxProps>= new Map<string, textBoxProps>([
+export class MedicationRequestForm implements ICardForm {
+
+    resourceType;
+
+    constructor(resourceType: FriendlyResourceListEntry) {
+        this.resourceType = resourceType;
+    }
+
+    textBoxFields = new Map<string, textBoxProps>([
         ['title', {
             boxSize: 1,
             isReadOnly: false,
@@ -30,7 +40,7 @@ import { cardLayout, textBoxProps } from "./cardForm";
         }]
     ]);
 
-    export const dropdownFields: Map<string, string[]>= new Map<string, string[]>([
+    dropdownFields = new Map<string, string[]>([
         ['status',
             ['active', 'on-hold', 'cancelled', 'completed', 'entered-in-error', 'stopped', 'draft', 'unknown']],
         ['intent',
@@ -39,22 +49,22 @@ import { cardLayout, textBoxProps } from "./cardForm";
             ['proposal', 'plan', 'order', 'original-order', 'reflex-order', 'filler-order', 'instance-order', 'option']]
     ]);
 
-    export const cardFieldLayout: cardLayout=
-    {
-        cardColumns: [
-            ['placeholder', 'productReference'],
-            ['title', 'placeholder'],
-            ['description', 'placeholder'],
-            ['status', 'placeholder'],
-            ['intent', 'placeholder'],
-            ['relatedArtifact', 'placeholder'],
-            ['placeholder'],
-            ['placeholder', 'text']
-        ]
+    cardFieldLayout =
+        {
+            cardColumns: [
+                ['placeholder', 'productReference'],
+                ['title', 'placeholder'],
+                ['description', 'placeholder'],
+                ['status', 'placeholder'],
+                ['intent', 'placeholder'],
+                ['relatedArtifact', 'placeholder'],
+                ['placeholder'],
+                ['placeholder', 'text']
+            ]
 
     };
                   
-    export const cardDisplayLayout: cardLayout =
+    cardDisplayLayout =
     {
         cardColumns: [
             ['title'],
@@ -66,15 +76,14 @@ import { cardLayout, textBoxProps } from "./cardForm";
 
     };
 
-    export const placeHolderElem: JSX.Element = 
-    <Form.Group key='placeholder-formGroup' as={Col} >
-    </Form.Group>;
-        
 
-    export const pageOne = (fieldElements: JSX.Element[]): JSX.Element[] => {
+    pageOne = (fieldElements: JSX.Element[]): JSX.Element[] => {
+        const placeHolderElem =
+            <Form.Group key='placeholder-formGroup' as={Col} >
+            </Form.Group>;
         return (
             [
-                ...cardFieldLayout.cardColumns.map((cr, i: number) => {
+                ...this.cardFieldLayout.cardColumns.map((cr, i: number) => {
                     return (
                         <Row key={"row-" + i} className="mb-3">
                             {cr.map(field =>
@@ -90,11 +99,23 @@ import { cardLayout, textBoxProps } from "./cardForm";
         );
     }
 
-    export const pageThree = (fieldElements: JSX.Element[]): JSX.Element[]=>{
-
+ 
+    pageTwo = (fieldElements: JSX.Element[]) => {
         return (
             [
-                ...cardDisplayLayout.cardColumns.map((cr, i: number) => {
+                <div key="page2">To be implemented</div>
+            ]
+        );
+    }
+
+
+    pageThree = (fieldElements: JSX.Element[]): JSX.Element[] => {
+        const placeHolderElem =
+            <Form.Group key='placeholder-formGroup' as={Col} >
+            </Form.Group>;
+        return (
+            [
+                ...this.cardDisplayLayout.cardColumns.map((cr, i: number) => {
                     return (
                         <Row key={"row-" + i} className="mb-3">
                             {cr.map(field =>
@@ -109,3 +130,4 @@ import { cardLayout, textBoxProps } from "./cardForm";
             ]
         );
     }
+}
