@@ -2,7 +2,7 @@ import { faCaretLeft, faCaretRight } from '@fortawesome/pro-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React from "react";
 import State, { SageNodeInitializedFreezerNode } from '../state';
-import { ICardForm } from './cardEditor';
+import { ICardForm, CardEditor } from './cardEditor';
 import { FriendlyResourceListEntry } from './nameHelpers';
 import { Card } from "react-bootstrap";
 
@@ -32,7 +32,9 @@ export type CardFormProps = {
     resourceType: FriendlyResourceListEntry,
     elementList: JSX.Element[],
     displayList: JSX.Element[],
-    innerCardForm: ICardForm
+    innerCardForm: ICardForm,
+    handleSaveResource: ()=> void,
+    handleSaveCard: ()=> void,
 }
 export class OuterCardForm extends React.Component<CardFormProps, CardFormState>{
     sageState: any;
@@ -52,7 +54,10 @@ export class OuterCardForm extends React.Component<CardFormProps, CardFormState>
 
         this.saveButton =
             <button key="butSave" className="navigate col-lg-2 col-md-3"
-                type="submit">
+                type="button"
+                onClick={() => {
+                    this.props.handleSaveCard();
+                }}>
                 Save Card&nbsp;
                 <FontAwesomeIcon key="butSaveIcon" icon={faCaretRight} />
             </button>;
@@ -92,29 +97,16 @@ export class OuterCardForm extends React.Component<CardFormProps, CardFormState>
     rightNavButton = () => {
         return (
             <button type='button' className={"navigate col-lg-2 col-md-3"}
-                onClick={() => this.setState({ step: this.state.step + 1 })}>
+                onClick={() => {
+                    this.props.handleSaveResource();
+                    this.setState({ step: this.state.step + 1 })
+                }}>
                 {<> {"Next "} <FontAwesomeIcon icon={faCaretRight} /></>}
             </button>);
     }
 
     resetForm = () => { this.setState({ step: 1 }) }
 
-    /*
-    <div>{this.state.step == 3 ?
-        (() => {
-            switch (this.props.resourceType.FHIR) {
-                case "MedicationRequest":
-                    return <Card>
-                            <Card.Title>{this.props.resourceType.FRIENDLY}</Card.Title>
-                            <Card.Body>{pageThree(this.props.displayList)}</Card.Body>
-                        </Card>
-                               
-                        default: 
-                            return <></>
-                    }
-                })()
-        : null}</div>
-        */
 
     render() {
         return (
@@ -122,7 +114,11 @@ export class OuterCardForm extends React.Component<CardFormProps, CardFormState>
                 <div>{this.pageTitles.get(this.state.step)}</div>
                 <div>{this.state.step == 1 ? this.innerCardForm.pageOne(this.props.elementList) : null}</div>
                 {this.state.step == 2 ? this.innerCardForm.pageTwo([]) : null}
-                {this.state.step == 3 ? this.innerCardForm.pageThree(this.props.displayList) : null}
+                {this.state.step == 3 ? 
+                <Card>
+                    <Card.Title>{this.props.resourceType.FRIENDLY}</Card.Title>
+                    <Card.Body>{this.innerCardForm.pageThree(this.props.displayList)}</Card.Body>
+                </Card>  : null}
                 <div><>
                     {this.state.step > 1 ? this.leftNavButton() : null}
                     {this.state.step <= 2 ? this.rightNavButton() : null}
