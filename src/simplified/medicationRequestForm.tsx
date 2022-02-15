@@ -1,12 +1,18 @@
-import { Row } from "react-bootstrap";
-import { SageNodeInitializedFreezerNode } from "../state";
-import { CardForm, cardLayout, textBoxProps } from "./cardForm";
-import { FriendlyResourceFormElement, FriendlyResourceListEntry, getFormElementListForResource } from "./nameHelpers";
+import React from "react";
+import { Col, Form, Row } from "react-bootstrap";
+import { ICardForm } from "./cardEditor";
+import { FriendlyResourceListEntry } from "./nameHelpers";
+import { textBoxProps } from "./outerCardForm";
 
-export class MedicationRequestForm extends CardForm {
-    friendlyFields: FriendlyResourceFormElement[];
-    allElements: JSX.Element[];
-    textBoxFields: Map<string, textBoxProps> = new Map<string, textBoxProps>([
+export class MedicationRequestForm implements ICardForm {
+
+    resourceType;
+
+    constructor(resourceType: FriendlyResourceListEntry) {
+        this.resourceType = resourceType;
+    }
+
+    textBoxFields = new Map<string, textBoxProps>([
         ['title', {
             boxSize: 1,
             isReadOnly: false,
@@ -33,7 +39,8 @@ export class MedicationRequestForm extends CardForm {
 
         }]
     ]);
-    dropdownFields: Map<string, string[]> = new Map<string, string[]>([
+
+    dropdownFields = new Map<string, string[]>([
         ['status',
             ['active', 'on-hold', 'cancelled', 'completed', 'entered-in-error', 'stopped', 'draft', 'unknown']],
         ['intent',
@@ -42,7 +49,7 @@ export class MedicationRequestForm extends CardForm {
             ['proposal', 'plan', 'order', 'original-order', 'reflex-order', 'filler-order', 'instance-order', 'option']]
     ]);
 
-    cardFieldLayout: cardLayout =
+    cardFieldLayout =
         {
             cardColumns: [
                 ['placeholder', 'productReference'],
@@ -52,46 +59,47 @@ export class MedicationRequestForm extends CardForm {
                 ['intent', 'placeholder'],
                 ['relatedArtifact', 'placeholder'],
                 ['placeholder'],
-                ['placeholder','text']
+                ['placeholder', 'text']
             ]
 
         };
 
-    constructor(state: any, sageNode: SageNodeInitializedFreezerNode, fieldList: any[][], resourceType: FriendlyResourceListEntry) {
-        super(state, sageNode, fieldList, resourceType);
-        this.friendlyFields = getFormElementListForResource(this.resourceType.FHIR);
-        this.allElements = this.createAllElements();
-    }
-
-    createAllElements(): JSX.Element[] {
-        const createDropdownElementList = (): JSX.Element[] => {
-            return this.friendlyFields
-                .filter(ff => this.dropdownFields.has(ff.FHIR))
-                .map(ff => {
-                    return this.createDropdownElement(ff.FHIR, ff.FRIENDLY, this.dropdownFields.get(ff.FHIR) ?? [])
-                });
-        }
-
-        const allMedicationRequestFields = [
-            this.placeHolderElem,
-            ...this.createTextBoxElementList(),
-            ...createDropdownElementList()
-        ];
-
-        const sortedFieldElems = this.cardFieldLayout.cardColumns.map((cr, i: number) => {
-            return (
-                <Row key={"row-" + i} className="mb-3">
-                    {cr.map(field =>
-                        allMedicationRequestFields.find(elem =>
-                            elem.key?.toString().startsWith(field + "-")))}
-                </Row>
-            )
-        })
-
+    pageOne = (fieldElements: JSX.Element[]): JSX.Element[] => {
+        const placeHolderElem =
+            <Form.Group key='placeholder-formGroup' as={Col} >
+            </Form.Group>;
         return (
             [
-                this.cardHeader,
-                ...sortedFieldElems,
-            ]);
-    }   
+                ...this.cardFieldLayout.cardColumns.map((cr, i: number) => {
+                    return (
+                        <Row key={"row-" + i} className="mb-3">
+                            {cr.map(field =>
+                                [
+                                    placeHolderElem,
+                                    ...fieldElements
+                                ].find(elem =>
+                                    elem.key?.toString().startsWith(field + "-")))}
+                        </Row>
+                    )
+                }),
+            ]
+        );
+    }
+
+    pageTwo = (fieldElements: JSX.Element[]) => {
+        return (
+            [
+                <div key="page2">To be implemented</div>
+            ]
+        );
+    }
+
+
+    pageThree = (fieldElements: JSX.Element[]) => {
+        return (
+            [
+                <div key="page2">To be implemented</div>
+            ]
+        );
+    }
 }
