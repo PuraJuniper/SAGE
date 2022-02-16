@@ -1,5 +1,6 @@
 import { faCaretLeft, faCaretRight } from '@fortawesome/pro-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { PlanDefinitionActionCondition } from 'fhir/r4';
 import React from "react";
 import State, { SageNodeInitializedFreezerNode } from '../state';
 import { ICardForm } from './cardEditor';
@@ -27,6 +28,7 @@ export type CardFormProps = {
     sageNode: SageNodeInitializedFreezerNode,
     fieldHandlers: any[][],
     resourceType: FriendlyResourceListEntry,
+    pdConditions: PlanDefinitionActionCondition[],
     elementList: JSX.Element[]
     innerCardForm: ICardForm,
 }
@@ -96,11 +98,14 @@ export class OuterCardForm extends React.Component<CardFormProps, CardFormState>
     resetForm = () => { this.setState({ step: 1 }) }
 
     render() {
+        const PageOne = this.innerCardForm.pageOne; // https://reactjs.org/docs/jsx-in-depth.html#choosing-the-type-at-runtime
+        const PageTwo = this.innerCardForm.pageTwo;
+        
         return (
             <div>
                 <div>{this.pageTitles.get(this.state.step)}</div>
-                <div>{this.state.step == 1 ? this.innerCardForm.pageOne(this.props.elementList) : null}</div>
-                {this.state.step == 2 ? this.innerCardForm.pageTwo([]) : null}
+                <div>{this.state.step == 1 ? <PageOne fieldElements={this.props.elementList} /> : null}</div>
+                {this.state.step == 2 ? <PageTwo conditions={this.props.pdConditions}/> : null}
                 {this.state.step == 3 ? this.innerCardForm.pageThree([]) : null}
                 <div><>
                     {this.state.step > 1 ? this.leftNavButton() : null}
