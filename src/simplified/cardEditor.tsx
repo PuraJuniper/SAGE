@@ -27,14 +27,25 @@ interface ExpressionOption {
     libraryIdentifier: string,
     libraryUrl: string,
 }
+
+export interface pageOneProps {
+    fieldElements: JSX.Element[],
+}
+
+export interface pageTwoProps {
+    conditions: PlanDefinitionActionCondition[],
+}
+export interface pageThreeProps {
+    displayElements: JSX.Element[],
+}
 export interface ICardForm {
     resourceType: FriendlyResourceListEntry;
     textBoxFields: Map<string, textBoxProps>;
     dropdownFields: Map<string, string[]>;
     cardFieldLayout: cardLayout;
-    pageOne: (fieldElements: JSX.Element[]) => JSX.Element[];
-    pageTwo: (fieldElements: JSX.Element[]) => JSX.Element[];
-    pageThree: (fieldElements: JSX.Element[]) => JSX.Element[];
+    pageOne: React.FunctionComponent<pageOneProps> | React.ComponentClass<pageOneProps>;
+    pageTwo: React.FunctionComponent<pageTwoProps> | React.ComponentClass<pageTwoProps>;
+    pageThree: React.FunctionComponent<pageThreeProps> | React.ComponentClass<pageThreeProps>;
 }
 
 const simpleCardField = (fieldName: string, actNode: SageNodeInitializedFreezerNode) => {
@@ -195,12 +206,16 @@ export const CardEditor = (props: CardEditorProps) => {
 
     const innerCardForm = getInnerCardForm();
 
+    // Read existing conditions
+    const pdConditions: PlanDefinitionActionCondition[] = [];
+
     return (
         <div>
             <Form key={actResourceType.FHIR + "-form"} style={{ color: "#2a6b92" }} id="commonMetaDataForm" target="void" onSubmit={handleSaveResource}>
                 <OuterCardForm
                     sageNode={actNode}
                     fieldHandlers={fieldHandlers}
+                    pdConditions={pdConditions}
                     resourceType={actResourceType}
                     elementList={fieldElementListForType(innerCardForm, fieldHandlers, actNode)}
                     displayList = {createDisplayElementList(innerCardForm, actResourceType, actNode)}

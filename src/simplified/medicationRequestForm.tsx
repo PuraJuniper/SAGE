@@ -77,57 +77,54 @@ export class MedicationRequestForm implements ICardForm {
     };
 
 
-    pageOne = (fieldElements: JSX.Element[]): JSX.Element[] => {
+    pageOne: ICardForm['pageOne'] = (props) => {
         const placeHolderElem =
             <Form.Group key='placeholder-formGroup' as={Col} >
             </Form.Group>;
         return (
-            [
+            <div>{
                 ...this.cardFieldLayout.cardColumns.map((cr, i: number) => {
                     return (
                         <Row key={"row-" + i} className="mb-3">
                             {cr.map(field =>
                                 [
                                     placeHolderElem,
-                                    ...fieldElements
+                                    ...props.fieldElements
                                 ].find(elem =>
                                     elem.key?.toString().startsWith(field + "-")))}
                         </Row>
                     )
-                }),
-            ]
+                })
+            }</div>
         );
     }
 
- 
-    pageTwo = (fieldElements: JSX.Element[]) => {
+    pageTwo: ICardForm['pageTwo'] = (props) => {
         return (
-            [
-                <div key="page2">To be implemented</div>
-            ]
+            <div key="page2">{props.conditions}</div>
         );
     }
 
-
-    pageThree = (fieldElements: JSX.Element[]): JSX.Element[] => {
+    pageThree: ICardForm['pageThree'] = (props) => {
         const placeHolderElem =
             <Form.Group key='placeholder-formGroup' as={Col} >
             </Form.Group>;
         return (
-            [
+            <div> {
                 ...this.cardDisplayLayout.cardColumns.map((cr, i: number) => {
                     return (
                         <Row key={"row-" + i} className="mb-3">
                             {cr.map(field =>
                                 [
                                     placeHolderElem,
-                                    ...fieldElements
+                                    ...props.displayElements
                                 ].find(elem =>
                                     elem.key?.toString().startsWith(field + "-")))}
                         </Row>
                     )
-                }),
-            ]
+                })
+            }</div>
         );
     }
+
 }

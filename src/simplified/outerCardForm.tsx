@@ -1,5 +1,6 @@
 import { faCaretLeft, faCaretRight } from '@fortawesome/pro-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { PlanDefinitionActionCondition } from 'fhir/r4';
 import React from "react";
 import State, { SageNodeInitializedFreezerNode } from '../state';
 import { ICardForm, CardEditor } from './cardEditor';
@@ -32,6 +33,7 @@ export type CardFormProps = {
     resourceType: FriendlyResourceListEntry,
     elementList: JSX.Element[],
     displayList: JSX.Element[],
+    pdConditions: PlanDefinitionActionCondition[],
     innerCardForm: ICardForm,
     handleSaveResource: ()=> void,
     handleSaveCard: ()=> void,
@@ -109,16 +111,20 @@ export class OuterCardForm extends React.Component<CardFormProps, CardFormState>
 
 
     render() {
+        const PageOne = this.innerCardForm.pageOne; // https://reactjs.org/docs/jsx-in-depth.html#choosing-the-type-at-runtime
+        const PageTwo = this.innerCardForm.pageTwo;
+        const PageThree = this.innerCardForm.pageThree;
+
+        
         return (
             <div>
                 <div>{this.pageTitles.get(this.state.step)}</div>
-                <div>{this.state.step == 1 ? this.innerCardForm.pageOne(this.props.elementList) : null}</div>
-                {this.state.step == 2 ? this.innerCardForm.pageTwo([]) : null}
-                {this.state.step == 3 ? 
-                <Card style={{ padding: "20px", margin: "10px", borderWidth: "2px", borderColor:'rgb(42, 107, 146)', borderRadius: '40px'}}>
-                    <Card.Title>{this.props.resourceType.FRIENDLY}</Card.Title>
-                    <Card.Body>{this.innerCardForm.pageThree(this.props.displayList)}</Card.Body>
-                </Card>  : null}
+                <div>{this.state.step == 1 ? <PageOne fieldElements={this.props.elementList} /> : null}</div>
+                {this.state.step == 2 ? <PageTwo conditions={this.props.pdConditions}/> : null}
+                {this.state.step == 3 ? <Card style={{ padding: "20px", margin: "10px", borderWidth: "2px", borderColor:'rgb(42, 107, 146)', borderRadius: '40px'}}>
+                                        <Card.Title>{this.props.resourceType.FRIENDLY}</Card.Title>
+                                        <Card.Body><PageThree displayElements={this.props.displayList}/></Card.Body>
+                                        </Card> : null}
                 <div><>
                     {this.state.step > 1 ? this.leftNavButton() : null}
                     {this.state.step <= 2 ? this.rightNavButton() : null}
@@ -129,3 +135,10 @@ export class OuterCardForm extends React.Component<CardFormProps, CardFormState>
         );
     }
 }
+/* 
+{this.state.step == 3 ? 
+    <Card style={{ padding: "20px", margin: "10px", borderWidth: "2px", borderColor:'rgb(42, 107, 146)', borderRadius: '40px'}}>
+        <Card.Title>{this.props.resourceType.FRIENDLY}</Card.Title>
+        <Card.Body><PageThree displayElements={this.props.displayList}/></Card.Body>
+    </Card>  : null}
+                 */
