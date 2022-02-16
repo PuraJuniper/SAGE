@@ -110,6 +110,7 @@ const createDropdownElement = (fieldKey: string, fieldFriendlyName: string, fiel
 
 const createDisplayElement = (fieldKey: string, friendlyFieldName: string, textProps: textBoxProps, node: SageNodeInitializedFreezerNode): JSX.Element => {
     const [fieldName, fieldContents, setField, fieldSaveHandler] = simpleCardField(fieldKey, node);
+    console.log('display element',node);
     return (
         <Form.Group key={fieldName + "-fromGroup"} as={Col} controlId={fieldKey}>
             <Form.Label key={fieldName + "-label"}>{friendlyFieldName} {node.value}</Form.Label>
@@ -214,6 +215,9 @@ export const CardEditor = (props: CardEditorProps) => {
 
     function handleSaveResource() {
         fieldHandlers.forEach((field) => field[3](field[0], field[1], actNode, planNode));
+        console.log('handle save act node', actNode);
+        console.log('handle save plan node', planNode);
+
     }
     function handleSaveCard() {
         fieldHandlers.forEach((field) => field[3](field[0], field[1], actNode, planNode));
