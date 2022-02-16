@@ -135,10 +135,3 @@ export class OuterCardForm extends React.Component<CardFormProps, CardFormState>
         );
     }
 }
-/* 
-{this.state.step == 3 ? 
-    <Card style={{ padding: "20px", margin: "10px", borderWidth: "2px", borderColor:'rgb(42, 107, 146)', borderRadius: '40px'}}>
-        <Card.Title>{this.props.resourceType.FRIENDLY}</Card.Title>
-        <Card.Body><PageThree displayElements={this.props.displayList}/></Card.Body>
-    </Card>  : null}
-                 */
