@@ -1,9 +1,10 @@
-import { Resource } from "fhir/r4";
-import React from "react";
-import { Col, Form, Row } from "react-bootstrap";
+import React, { useState } from "react";
+import { Col, Form, ListGroup, Row, Button } from "react-bootstrap";
 import { ICardForm } from "./cardEditor";
 import { FriendlyResourceProps } from "./nameHelpers";
 import { textBoxProps } from "./outerCardForm";
+import { CqlWizardModal } from "./cql-wizard/CqlWizardModal"
+import { Expression, Resource } from "fhir/r4";
 
 export class MedicationRequestForm implements ICardForm {
 
@@ -125,7 +126,7 @@ export class MedicationRequestForm implements ICardForm {
             <Form.Group key='freeTextplaceholder-formGroup' as={Col} style={{'margin': 0, 'flex': '0 0 35%'}}>
             </Form.Group>;
         return (
-            <div>{
+            <>{
                 ...this.cardFieldLayout.cardColumns.map((cr, i: number) => {
                     return (
                         <Row key={"row-" + i} style={{'marginLeft': -100}}>
@@ -139,13 +140,57 @@ export class MedicationRequestForm implements ICardForm {
                         </Row>
                     )
                 })
-            }</div>
+            }</>
         );
     }
 
     pageTwo: ICardForm['pageTwo'] = (props) => {
+        const [showWiz, setShowWiz] = useState(false);
+        const [selectedExpr, setSelectedExpr] = useState<Expression | null>(null);
+
+        function handleEditExpression(expr?: Expression) {
+            if (!expr) {
+                return;
+            }
+            setSelectedExpr(expr);
+            setShowWiz(true);
+        }
+
+        function handleCreateExpression() {
+            setSelectedExpr(null);
+            setShowWiz(true);
+        }
+
+        function handleClose() {
+            setShowWiz(false);
+        }
+
+        function handleSaveAndClose(expr: Expression) {
+            console.log(expr);
+            handleClose();
+        }
+
         return (
-            <div key="page2">{props.conditions}</div>
+            <>
+                <CqlWizardModal show={showWiz} expression={selectedExpr} onClose={handleClose} onSaveAndClose={handleSaveAndClose}/>
+                <ListGroup>
+                    {props.conditions.map((v) => {
+                        return v.expression?.expression ?
+                            <ListGroup.Item
+                                key={v.expression.expression} action
+                                onClick={() => handleEditExpression(v.expression)}
+                            >
+                                {v}
+                            </ListGroup.Item> :
+                            undefined
+                    })}
+                    <Button
+                        onClick={() => handleCreateExpression()}
+                    >
+                        New Expression..
+                    </Button>
+                </ListGroup>
+            </>
         );
     }
 

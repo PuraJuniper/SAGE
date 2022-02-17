@@ -42,11 +42,9 @@ export class OuterCardForm extends React.Component<CardFormProps, CardFormState>
     saveButton: JSX.Element;
     deleteCardButton: JSX.Element;
     pageTitles: Map<number, string>;
-    innerCardForm: ICardForm;
 
     constructor(props: CardFormProps) {
         super(props);
-        this.innerCardForm = props.innerCardForm;
         this.cardHeader =
             <h3 key="cardName" style={{ marginTop: "20px", marginBottom: "10px" }}><b>
                 {this.props.resourceType ? this.props.resourceType?.FRIENDLY ?? "Unknown Resource Type" : ""}
@@ -104,10 +102,9 @@ export class OuterCardForm extends React.Component<CardFormProps, CardFormState>
 
 
     render() {
-        const PageOne = this.innerCardForm.pageOne; // https://reactjs.org/docs/jsx-in-depth.html#choosing-the-type-at-runtime
-        const PageTwo = this.innerCardForm.pageTwo;
-        const PageThree = this.innerCardForm.pageThree;
-
+        const PageOne = this.props.innerCardForm.pageOne; // https://reactjs.org/docs/jsx-in-depth.html#choosing-the-type-at-runtime
+        const PageTwo = this.props.innerCardForm.pageTwo;
+        const PageThree = this.props.innerCardForm.pageThree;
         
         return (
             <div>

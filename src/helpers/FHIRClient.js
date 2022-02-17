@@ -100,16 +100,18 @@ function searchForValueSets(search) {
 }
 
 function getCode(code, system) {
-  // return new Promise((resolve, reject) => {
-  //   resolve({
-  //     "system": "http://snomed.info/sct",
-  //     "systemName": "SNOMEDCT",
-  //     "systemOID": "2.16.840.1.113883.6.96",
-  //     "version": "http://snomed.info/sct/731000124108/version/2021-09",
-  //     "code": "29857009",
-  //     "display": "Chest pain (finding)"
-  //   });
-  // });
+  return new Promise((resolve, reject) => {
+    (new Promise((resolve) => setTimeout(resolve, 500))).then(() => {
+      resolve({
+        "system": "http://snomed.info/sct",
+        "systemName": "SNOMEDCT",
+        "systemOID": "2.16.840.1.113883.6.96",
+        "version": "http://snomed.info/sct/731000124108/version/2021-09",
+        "code": code,
+        "display": "Chest pain (finding)"
+      });
+    });
+  });
   const username = USERNAME;
   const password = State.get().UMLSKey;
   const options = {
