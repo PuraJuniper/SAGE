@@ -36,7 +36,6 @@ export type CardFormProps = {
     pdConditions: PlanDefinitionActionCondition[],
     innerCardForm: ICardForm,
     handleSaveResource: ()=> void,
-    handleSaveCard: ()=> void,
 }
 export class OuterCardForm extends React.Component<CardFormProps, CardFormState>{
     sageState: any;
@@ -57,9 +56,7 @@ export class OuterCardForm extends React.Component<CardFormProps, CardFormState>
         this.saveButton =
             <button key="butSave" className="navigate col-lg-2 col-md-3"
                 type="button"
-                onClick={() => {
-                    this.props.handleSaveCard();
-                }}>
+                onClick={()=> this.props.handleSaveResource()}>
                 Save Card&nbsp;
                 <FontAwesomeIcon key="butSaveIcon" icon={faCaretRight} />
             </button>;
@@ -99,10 +96,7 @@ export class OuterCardForm extends React.Component<CardFormProps, CardFormState>
     rightNavButton = () => {
         return (
             <button type='button' className={"navigate col-lg-2 col-md-3"}
-                onClick={() => {
-                    this.props.handleSaveResource();
-                    this.setState({ step: this.state.step + 1 })
-                }}>
+                onClick={() => this.setState({ step: this.state.step + 1 })}>
                 {<> {"Next "} <FontAwesomeIcon icon={faCaretRight} /></>}
             </button>);
     }

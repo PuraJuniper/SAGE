@@ -120,30 +120,27 @@ const createDropdownElement = (fieldKey: string, fieldFriendlyName: string, fiel
     );
 }
 
-const createDisplayElement = (fieldHandlers: any, fieldKey: string, fieldFriendlyName: string, node: SageNodeInitializedFreezerNode, i: number): JSX.Element => {
-    const [fieldName, fieldContents, setField, fieldSaveHandler] = simpleCardField(fieldKey, node);
+const createDisplayElement = (fieldHandlers: any, friendlyFields: any, i: number): JSX.Element => {
+    let friendly;
+    for (let j = 0; j < friendlyFields.length; j++) {
+        if (friendlyFields[j].FHIR === fieldHandlers[i][0]) friendly = friendlyFields[j].FRIENDLY
+    }
     return (
-            <Form.Group key={fieldHandlers[i][0] + "-fromGroup"} as={Col} controlId={fieldHandlers[i][0]}>
-            <Form.Label key={fieldHandlers[i][0] + "-label"}>{fieldFriendlyName} {fieldHandlers[i][1]}</Form.Label>
-            </Form.Group>
-    )
+        <Form.Group key={fieldHandlers[i][0] + "-fromGroup"} as={Col} controlId={fieldHandlers[i][0]}>
+        <Form.Label key={fieldHandlers[i][0] + "-label"}>{friendly} {fieldHandlers[i][1]}</Form.Label>
+        </Form.Group>
+)
 }
 
-const createDisplayElementList = (fieldHandlers: any, innerCardForm: ICardForm, resourceType: FriendlyResourceListEntry, node: SageNodeInitializedFreezerNode): JSX.Element[] => {
+const createDisplayElementList = (fieldHandlers: any, resourceType: FriendlyResourceListEntry): JSX.Element[] => {
     const friendlyFields = getFormElementListForResource(resourceType.FHIR);
-    const defaultBoxProps: textBoxProps = { boxSize: 1, isReadOnly: false, isLink: false, caption: "" }
     const list: JSX.Element[] = [];
 
     for (let i = 0; i < fieldHandlers.length; i++) {
-        friendlyFields.map(ff => {
-            list[i] =  createDisplayElement(fieldHandlers, ff.FHIR, ff.FRIENDLY, node, i)
-        });
-        }
+        list[i] =  createDisplayElement(fieldHandlers,friendlyFields, i);
+    }
 
-        console.log('display element list', list);
-        //console.log('fieldHandlers', fieldHandlers)
-
-        return list;
+    return list;
 }
 
 const createTextBoxElementList = (innerCardForm: ICardForm, friendlyFields: FriendlyResourceFormElement[], fieldHandlers: any, node: SageNodeInitializedFreezerNode): JSX.Element[] => {
@@ -226,10 +223,9 @@ export const CardEditor = (props: CardEditorProps) => {
                     pdConditions={pdConditions}
                     resourceType={actResourceType}
                     elementList={fieldElementListForType(innerCardForm, fieldHandlers, actNode)}
-                    displayList = {createDisplayElementList(fieldHandlers, innerCardForm, actResourceType, actNode)}
+                    displayList = {createDisplayElementList(fieldHandlers, actResourceType)}
                     innerCardForm={innerCardForm}
                     handleSaveResource = {handleSaveResource}
-                    handleSaveCard = {handleSaveCard}
                 />
             </Form>
 
@@ -238,14 +234,9 @@ export const CardEditor = (props: CardEditorProps) => {
 
     function handleSaveResource() {
         fieldHandlers.forEach((field) => field[3](field[0], field[1], actNode, planNode));
-        console.log('handle save act node', actNode.value);
-        console.log('handle save plan node', planNode.value);
-
-    }
-    function handleSaveCard() {
-        fieldHandlers.forEach((field) => field[3](field[0], field[1], actNode, planNode));
         State.get().set("ui", { status: "collection" });
     }
+
 }
 
 function ConditionDropdown(fieldList: any[][]) {

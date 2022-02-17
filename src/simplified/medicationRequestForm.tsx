@@ -81,7 +81,6 @@ export class MedicationRequestForm implements ICardForm {
         const placeHolderElem =
             <Form.Group key='placeholder-formGroup' as={Col} >
             </Form.Group>;
-            console.log('field element list', props.fieldElements);
         return (
             <div>{
                 ...this.cardFieldLayout.cardColumns.map((cr, i: number) => {
