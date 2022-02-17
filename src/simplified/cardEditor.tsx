@@ -179,7 +179,7 @@ const createDropdownElementList = (innerCardForm: ICardForm, friendlyFields: Fri
 //createCombinedElementList is here
 const createCombinedElementList = (innerCardForm: ICardForm, friendlyFields: FriendlyResourceFormElement[], fieldHandlers: any, node: SageNodeInitializedFreezerNode): JSX.Element[] => {
     return friendlyFields
-        .filter(ff => innerCardForm.dropdownFields.has(ff.FHIR))
+        .filter(ff => innerCardForm.combinedFields.has(ff.FHIR))
         .map(ff => {
             return createCombinedElement(ff.FHIR, ff.FRIENDLY, innerCardForm.combinedFields.get(ff.FHIR) ?? [], fieldHandlers, node)
         })
@@ -189,7 +189,8 @@ const fieldElementListForType = (innerCardForm: ICardForm, fieldHandlers: any, n
     const friendlyFields = getFormElementListForResource(innerCardForm.resourceType.FHIR);
     return [
         ...createTextBoxElementList(innerCardForm, friendlyFields, fieldHandlers, node),
-        ...createDropdownElementList(innerCardForm, friendlyFields, fieldHandlers, node)
+        ...createDropdownElementList(innerCardForm, friendlyFields, fieldHandlers, node),
+        ...createCombinedElementList(innerCardForm, friendlyFields, fieldHandlers, node)
     ]
 }
 

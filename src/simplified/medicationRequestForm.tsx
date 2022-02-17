@@ -53,7 +53,7 @@ export class MedicationRequestForm implements ICardForm {
         ['periodUnit',
             ['s', 'min', 'h', 'd', 'wk', 'mon']]
     ]);
-    
+
     cardFieldLayout =
         {
             cardColumns: [
@@ -63,7 +63,7 @@ export class MedicationRequestForm implements ICardForm {
                 ['status', 'placeholder'],
                 ['intent', 'placeholder'],
                 ['relatedArtifact', 'placeholder'],
-                ['placeholder'],
+                ['placeholder', 'periodUnit'],
                 ['placeholder', 'text']
             ]
 
