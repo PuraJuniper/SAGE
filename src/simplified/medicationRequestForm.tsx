@@ -50,8 +50,10 @@ export class MedicationRequestForm implements ICardForm {
     ]);
 
     combinedFields = new Map<string, string[]>([
+        ['period',
+            ['1', '2', '3', '4', '5', '6']],
         ['periodUnit',
-            ['s', 'min', 'h', 'd', 'wk', 'mon']]
+            ['s', 'min', 'h', 'd', 'wk', 'mon']],
     ]);
 
     cardFieldLayout =
@@ -63,7 +65,7 @@ export class MedicationRequestForm implements ICardForm {
                 ['status', 'placeholder'],
                 ['intent', 'placeholder'],
                 ['relatedArtifact', 'placeholder'],
-                ['placeholder', 'periodUnit'],
+                ['placeholder', 'period', 'periodUnit'],
                 ['placeholder', 'text']
             ]
 

@@ -34,9 +34,13 @@
               "FRIENDLY": "Free text dosage instructions: "
             },
             { "FHIR": "periodUnit",
-              "FRIENDLY": "Free text dosage instructions: "
+              "FRIENDLY": "Period Unit"
+            },
+            { "FHIR": "period",
+              "FRIENDLY": "Period"
             }
           ]
+          
         }
       ]
     },

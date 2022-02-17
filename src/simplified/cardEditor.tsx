@@ -140,7 +140,7 @@ const createCombinedElement = (fieldKey: string, fieldFriendlyName: string, fiel
     return (
         <Form.Group key={fieldName + "-fromGroup"} as={Col} controlId={fieldKey}>
             <Form.Label key={fieldName + "-label"}>{fieldFriendlyName}</Form.Label>
-            <Col key={fieldName + "-col"} sm={10}>
+            <Col key={fieldName + "-col"} sm={5}>
                 <InputGroup key={fieldName + "-inputGroup"} className="mb-3">
                     <Form.Control
                         key={fieldName + "formControl"}
