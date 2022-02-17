@@ -49,6 +49,11 @@ export class MedicationRequestForm implements ICardForm {
             ['proposal', 'plan', 'order', 'original-order', 'reflex-order', 'filler-order', 'instance-order', 'option']]
     ]);
 
+    combinedFields = new Map<string, string[]>([
+        ['periodUnit',
+            ['s', 'min', 'h', 'd', 'wk', 'mon']]
+    ]);
+    
     cardFieldLayout =
         {
             cardColumns: [
@@ -63,6 +68,8 @@ export class MedicationRequestForm implements ICardForm {
             ]
 
         };
+    
+    
 
     pageOne: ICardForm['pageOne'] = (props) => {
         const placeHolderElem =

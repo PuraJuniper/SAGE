@@ -40,6 +40,7 @@ export interface ICardForm {
     resourceType: FriendlyResourceListEntry;
     textBoxFields: Map<string, textBoxProps>;
     dropdownFields: Map<string, string[]>;
+    combinedFields: Map<string, string[]>;
     cardFieldLayout: cardLayout;
     pageOne: React.FunctionComponent<pageOneProps> | React.ComponentClass<pageOneProps>;
     pageTwo: React.FunctionComponent<pageTwoProps> | React.ComponentClass<pageTwoProps>;
@@ -47,6 +48,21 @@ export interface ICardForm {
 }
 
 const simpleCardField = (fieldName: string, actNode: SageNodeInitializedFreezerNode) => {
+    const [fieldContents, setField] = CardStringStateEditor(actNode, fieldName);
+    function fieldSaveHandler(name: string, contents: any, act: any, plan: any) {
+        const fieldNode = SchemaUtils.getChildOfNodePath(plan, ["action", name]);
+        if (fieldNode) {
+            State.emit("value_change", fieldNode, name, false);
+        }
+        if (act.displayName == ACTIVITY_DEFINITION) {
+            State.emit("value_change", SchemaUtils.getChildOfNode(act, name), contents, false);
+        }
+        State.emit("value_change", SchemaUtils.getChildOfNode(plan, name), contents, false);
+    }
+    return [fieldName, fieldContents, setField, fieldSaveHandler]
+}
+
+const complexCardField = (fieldName: string, actNode: SageNodeInitializedFreezerNode) => {
     const [fieldContents, setField] = CardStringStateEditor(actNode, fieldName);
     function fieldSaveHandler(name: string, contents: any, act: any, plan: any) {
         const fieldNode = SchemaUtils.getChildOfNodePath(plan, ["action", name]);
@@ -117,6 +133,31 @@ const createDropdownElement = (fieldKey: string, fieldFriendlyName: string, fiel
     );
 }
 
+//createCombinedElement here
+const createCombinedElement = (fieldKey: string, fieldFriendlyName: string, fieldElements: string[], fieldHandlers: any[][], node: SageNodeInitializedFreezerNode): JSX.Element => {
+    const [fieldName, fieldContents, setField, fieldSaveHandler] = complexCardField(fieldKey, node);
+    fieldHandlers.push([fieldName, fieldContents, setField, fieldSaveHandler]);
+    return (
+        <Form.Group key={fieldName + "-fromGroup"} as={Col} controlId={fieldKey}>
+            <Form.Label key={fieldName + "-label"}>{fieldFriendlyName}</Form.Label>
+            <Col key={fieldName + "-col"} sm={10}>
+                <InputGroup key={fieldName + "-inputGroup"} className="mb-3">
+                    <Form.Control
+                        key={fieldName + "formControl"}
+                        as="select"
+                        defaultValue={fieldContents}
+                        onChange={(e) => setField(e.currentTarget.value)}
+                    >
+                        {fieldElements.map(sType => {
+                            return <option key={fieldKey + "-" + sType} value={sType}>{sType}</option>;
+                        })}
+                    </Form.Control>
+                </InputGroup>
+            </Col>
+        </Form.Group>
+    );
+}
+
 const createTextBoxElementList = (innerCardForm: ICardForm, friendlyFields: FriendlyResourceFormElement[], fieldHandlers: any, node: SageNodeInitializedFreezerNode): JSX.Element[] => {
     const defaultBoxProps: textBoxProps = { boxSize: 1, isReadOnly: false, isLink: false, caption: "" }
     return friendlyFields
@@ -132,6 +173,15 @@ const createDropdownElementList = (innerCardForm: ICardForm, friendlyFields: Fri
         .filter(ff => innerCardForm.dropdownFields.has(ff.FHIR))
         .map(ff => {
             return createDropdownElement(ff.FHIR, ff.FRIENDLY, innerCardForm.dropdownFields.get(ff.FHIR) ?? [], fieldHandlers, node)
+        })
+}
+
+//createCombinedElementList is here
+const createCombinedElementList = (innerCardForm: ICardForm, friendlyFields: FriendlyResourceFormElement[], fieldHandlers: any, node: SageNodeInitializedFreezerNode): JSX.Element[] => {
+    return friendlyFields
+        .filter(ff => innerCardForm.dropdownFields.has(ff.FHIR))
+        .map(ff => {
+            return createCombinedElement(ff.FHIR, ff.FRIENDLY, innerCardForm.combinedFields.get(ff.FHIR) ?? [], fieldHandlers, node)
         })
 }
 
