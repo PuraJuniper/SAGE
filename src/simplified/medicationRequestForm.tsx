@@ -49,23 +49,30 @@ export class MedicationRequestForm implements ICardForm {
             ['proposal', 'plan', 'order', 'original-order', 'reflex-order', 'filler-order', 'instance-order', 'option']]
     ]);
 
-    combinedFields = new Map<string, string[]>([
+    combinedFields = new Map<string, any>([
         ['period',
             ['1', '2', '3', '4', '5', '6']],
         ['periodUnit',
             ['s', 'min', 'h', 'd', 'wk', 'mon']],
+        ['frequency', {
+            boxSize: 1,
+            isReadOnly: false,
+            isLink: false,
+            caption: "huh"
+
+        }]
     ]);
 
     cardFieldLayout =
         {
             cardColumns: [
                 ['placeholder', 'productReference'],
-                ['title', 'placeholder'],
+                ['title', 'period'],
                 ['description', 'placeholder'],
-                ['status', 'placeholder'],
+                ['status', 'frequency'],
                 ['intent', 'placeholder'],
                 ['relatedArtifact', 'placeholder'],
-                ['placeholder', 'period', 'periodUnit'],
+                ['placeholder', 'placeholder'],
                 ['placeholder', 'text']
             ]
 

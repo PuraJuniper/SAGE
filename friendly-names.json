@@ -38,6 +38,9 @@
             },
             { "FHIR": "period",
               "FRIENDLY": "Period"
+            },
+            { "FHIR": "frequency",
+              "FRIENDLY": "Frequency"
             }
           ]
           
