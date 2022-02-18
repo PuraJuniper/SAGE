@@ -10,7 +10,6 @@ import State, { SageNodeInitializedFreezerNode } from "../state";
 import { OuterCardForm, CardFormProps, textBoxProps, cardLayout } from "./outerCardForm";
 import { ACTIVITY_DEFINITION, FriendlyResourceFormElement, FriendlyResourceListEntry, getFormElementListForResource, profileToFriendlyResourceListEntry } from "./nameHelpers";
 import { MedicationRequestForm } from "./medicationRequestForm";
-import { JsxElement } from "typescript";
 
 
 
@@ -216,7 +215,7 @@ export const CardEditor = (props: CardEditorProps) => {
 
     return (
         <div>
-            <Form key={actResourceType.FHIR + "-form"} style={{ color: "#2a6b92" }} id="commonMetaDataForm" target="void" onSubmit={handleSaveResource}>
+            <div key={actResourceType.FHIR + "-form"} style={{ color: "#2a6b92" }} id="commonMetaDataForm">
                 <OuterCardForm
                     sageNode={actNode}
                     fieldHandlers={fieldHandlers}
@@ -227,8 +226,7 @@ export const CardEditor = (props: CardEditorProps) => {
                     innerCardForm={innerCardForm}
                     handleSaveResource = {handleSaveResource}
                 />
-            </Form>
-
+            </div>
         </div>
     );
 
