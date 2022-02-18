@@ -221,7 +221,7 @@ export const getElementChildren = function(profiles: SimplifiedProfiles, node: S
 
 	const defs = profiles[node.profile] || {};
 	if (!defs) {
-		//console.log(`No definition found for profile ${node.profile}`);
+		console.log(`No definition found for profile ${node.profile}`);
 	}
 	for (const path in defs) {
 		const schema = defs[path];
@@ -550,7 +550,7 @@ const getProfileOfSchemaDef = function(profiles: SimplifiedProfiles, schemaNode:
 		return;
 	}
 	else {
-		//console.log(`No default profile found for code: ${typeDef.code}`);
+		console.log(`No default profile found for code: ${typeDef.code}`);
 	}
 }
 
@@ -591,7 +591,7 @@ export function getChildOfNode (node: SageNodeInitialized, childName: string): S
 			return getChildOfNode(nodesOfArray[0], childName);
 		}
 		else {
-			//console.log(`Node named "${node.name}" is an empty objectArray, so cannot not traverse to ${childName}. Empty Node follows:`, node);
+			console.log(`Node named "${node.name}" is an empty objectArray, so cannot not traverse to ${childName}. Empty Node follows:`, node);
 			return;
 		}
 	}
@@ -600,7 +600,7 @@ export function getChildOfNode (node: SageNodeInitialized, childName: string): S
 			return child
 		}
 	}
-	//console.log(`Couldnt find child named "${childName}" for:`, node);
+	console.log(`Couldnt find child named "${childName}" for:`, node);
 	return;
 }
 
@@ -622,7 +622,7 @@ export const createChildrenFromJson = function (profiles: SimplifiedProfiles, no
 			}
 			else {
 				if (childPath.split('.').pop() != 'resourceType') { // resourceType is not in the schema for some reason
-					//console.log(`Could not find definition for ${childPath}`);
+					console.log(`Could not find definition for ${childPath}`);
 				}
 			}
 			// add else to check if childPath exists in another profile
@@ -715,7 +715,7 @@ export const walkNode = (profiles: SimplifiedProfiles, valueOfNode: any, profile
 					}
 				}
 				if (!fhirType) {
-					//console.log(`Error: expected to find FHIR type ${expectedType} as a possible type for ${trueSchemaPath}`);
+					console.log(`Error: expected to find FHIR type ${expectedType} as a possible type for ${trueSchemaPath}`);
 					return;
 				}
 				// //allow for complex type multi-types
@@ -727,7 +727,7 @@ export const walkNode = (profiles: SimplifiedProfiles, valueOfNode: any, profile
 		}
 	}
 	if (!schema) {
-		//console.log(`Error reading element of type ${schemaPath} with value ${valueOfNode}`);
+		console.log(`Error reading element of type ${schemaPath} with value ${valueOfNode}`);
 		return;
 	}
 
@@ -863,7 +863,7 @@ export const walkNode = (profiles: SimplifiedProfiles, valueOfNode: any, profile
 
 		//check if value has a cardinality of > 1 and isn't in an array
 		if (decorated.range?.[1] && (decorated.range[1] !== "1") && !inArray) {
-			//console.log('what is this?', decorated);
+			console.log('what is this?', decorated);
 			// decorated.fhirType = null;
 		}
 		
@@ -888,7 +888,7 @@ export const decorateFhirData = function(profiles: SimplifiedProfiles, resource:
 	// console.log('decorateFhirData', profiles, resource);
 	const resourceProfile = getProfileOfResource(profiles, resource);
 	if (!resourceProfile) {
-		//console.log(`No suitable profile exists in SAGE for ${resource.resourceType} -- skipping`);
+		console.log(`No suitable profile exists in SAGE for ${resource.resourceType} -- skipping`);
 		return;
 	}
 	nextId = 0;
@@ -931,7 +931,7 @@ export const decorateFhirData = function(profiles: SimplifiedProfiles, resource:
 
 	decorated.children = createChildrenFromJson(profiles, decorated, resource);
 	decorated.children = decorated.children.sort((a, b) => a.index - b.index);
-	//console.log('end decoratefhirdata: ', decorated);
+	console.log('end decoratefhirdata: ', decorated);
 	return decorated;
 };
 

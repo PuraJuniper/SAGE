@@ -142,10 +142,10 @@ State.on("set_profiles", json => State.get().set({
 const checkBundle = (json: Resource | Bundle) => (json.resourceType === "Bundle") && (json as Bundle).entry;
 
 const decorateResource = function(json: Resource, profiles: SchemaUtils.SimplifiedProfiles) : SageNodeInitialized | undefined {
-	//console.log('decorating resource: ', json);
+	console.log('decorating resource: ', json);
 	// TODO: this shouldn't be necessary if args are properly typed
 	if (!SchemaUtils.isSupportedResource(json)) {
-		//console.log("decorateResource called on non-resource: ", json);
+		console.log("decorateResource called on non-resource: ", json);
 		return;
 	}
 	const decoratedNode = SchemaUtils.decorateFhirData(profiles, json);
@@ -167,7 +167,7 @@ const decorateResource = function(json: Resource, profiles: SchemaUtils.Simplifi
 		return decoratedNode;
 	}
 	else {
-		//console.log("Could not load json:", json);
+		console.log("Could not load json:", json);
 	}
 };
 
@@ -191,7 +191,7 @@ const openBundle = function(json: Bundle) {
 	const resources = BundleUtils.parseBundle(json);
 	const resourceNodes: SageNodeInitialized[] = []
 	for (const resource of resources) {
-		//console.log('opening resource:', resource);
+		console.log('opening resource:', resource);
 		const decorated = decorateResource(resource, State.get().profiles);
 		if (decorated) {
 			resourceNodes.push(decorated);
@@ -208,13 +208,13 @@ const openBundle = function(json: Bundle) {
 const bundleInsert = function(json: Resource | Bundle, isBundle?: boolean) {
 	let decorated;
 	let state = State.get();
-	//console.log('bundleinsert start:', json);
-	//console.log('bundleinsert start:', state);
+	console.log('bundleinsert start:', json);
+	console.log('bundleinsert start:', state);
 
 	//stop if errors
 	const [resource, errCount] = 
 		SchemaUtils.toFhir(State.get().bundle.resources[State.get().bundle.pos], true);
-	//console.log('bundleinsert:', resource, errCount);
+	console.log('bundleinsert:', resource, errCount);
 	if (!resource.title) { 
 		//return state.ui.set("status", "missing_title_error");
 	} 
@@ -242,7 +242,7 @@ const bundleInsert = function(json: Resource | Bundle, isBundle?: boolean) {
 
 	const nodesToInsert: SageNodeInitialized[] = []
 	for (const resource of resources) {
-		//console.log('opening resource:', resource);
+		console.log('opening resource:', resource);
 		const decorated = decorateResource(resource, State.get().profiles);
 		if (decorated) {
 			nodesToInsert.push(decorated);
@@ -489,7 +489,7 @@ const showReferenceWarning = function(node: SageNodeInitialized, parent: SageNod
 	const resourceType = getResourceType(parent);
 	const prevRef = `${resourceType}/${prevId}`;
 	const newRef = `${resourceType}/${currentId}`;
-	//console.log("showReferenceWarning", prevRef, newRef);
+	console.log("showReferenceWarning", prevRef, newRef);
 	// const changeCount = 
 	// 	BundleUtils.countRefs(State.get().bundle.resources, prevRef);
 	// if (changeCount > 0) {
@@ -541,7 +541,7 @@ State.on("delete_node", function(node, parent) {
 				targetNode = parentNode;
 			}
 			else {
-				//console.log("ERROR in 'delete_node': parent of nodeType 'objectArray' has no parent. Args follow: (node, parent)", node, parent);
+				console.log("ERROR in 'delete_node': parent of nodeType 'objectArray' has no parent. Args follow: (node, parent)", node, parent);
 				return;
 			}
 	} else {
@@ -617,7 +617,7 @@ State.on("show_value_set", function(node) {
 State.on("insert_from_code_picker", function(node, system, code, systemOID, version, display) {
 
 	if (node.displayName != "Coding") {
-		//console.log("insert_from_code_picker event emitted with an unexpected FHIR type -- returning");
+		console.log("insert_from_code_picker event emitted with an unexpected FHIR type -- returning");
 		return;
 	}
 
@@ -736,9 +736,9 @@ State.on("change_profile", function(nodeToChange, newProfile) {
 });
 
 State.on("load_json_into", function(nodeToWriteTo, json) {
-	//console.log('loading ', json, ' into ', nodeToWriteTo);
+	console.log('loading ', json, ' into ', nodeToWriteTo);
 	const newChildren = SchemaUtils.createChildrenFromJson(State.get().profiles, nodeToWriteTo, json);
-	//console.log(newChildren);
+	console.log(newChildren);
 	nodeToWriteTo.set({
 		children: newChildren
 	});
@@ -751,7 +751,7 @@ State.on("load_library", function(library, url, fhirLibrary) {
 		library: library,
 		url: url
 	});
-	//console.log(State.get());
+	console.log(State.get());
 });
 
 State.on("insert_resource_into_bundle", function(resource) {
