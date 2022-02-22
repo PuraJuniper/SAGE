@@ -762,7 +762,6 @@ State.on("load_library", function(library, url, fhirLibrary) {
 		library: library,
 		url: url,
 	});
-	console.log(State.get());
 });
 
 State.on("insert_resource_into_bundle", function(resource) {

@@ -12,14 +12,13 @@ interface PlanDefEditorProps {
 
 export const PlanDefEditor = (props: PlanDefEditorProps) => {
     const referencedNodeURI = SchemaUtils.getChildOfNodePath(props.planDefNode, ["action", "definitionCanonical"])?.value;
-    console.log(referencedNodeURI);
+    
     function getEditorForURI(referencedURI: string): JSX.Element {
         const {
             node: linkedResourceNode,
             pos: linkedResourcePos
         } = SchemaUtils.findFirstSageNodeByUri(State.get().bundle.resources, referencedURI);
-        console.log(linkedResourceNode?.schemaPath);
-        console.log(State.get().bundle)
+        
         switch (linkedResourceNode?.schemaPath) {
             case undefined:
                 return (

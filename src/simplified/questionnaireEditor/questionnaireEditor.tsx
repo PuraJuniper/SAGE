@@ -25,7 +25,7 @@ export const QuestionnaireEditor = (props: QuestionnaireEditorProps) => {
         console.log(newQuestionnaire);
         const qSageNode = decorateFhirData(State.get().profiles, newQuestionnaire);
         if (!qSageNode) {
-            console.log("Could not convert load exported Questionnaire from Structor into SAGE")
+            console.log("Could not convert exported Questionnaire from Structor into SAGE")
             return false;
         }
         props.questionnareNode.set(qSageNode);
