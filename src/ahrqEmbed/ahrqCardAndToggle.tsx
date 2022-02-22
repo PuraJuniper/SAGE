@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Card, Button } from "react-bootstrap";
 import AhrqFrame, { AhrqFrameRef } from "./ahrqFrame";
-import State from "./state";
+import State from "../state";
 
 export default function AhrqCardAndToggle() {
     const [show, setShow] = useState<boolean>(false);

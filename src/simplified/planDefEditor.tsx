@@ -4,7 +4,7 @@ import { ACTIVITY_DEFINITION, QUESTIONNAIRE } from "./nameHelpers";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {faCaretRight} from  '@fortawesome/pro-solid-svg-icons';
 import { CardEditor } from "./cardEditor";
-import { QuestionnaireEditor } from "./questionnaireEditor";
+import { QuestionnaireEditor } from "./questionnaireEditor/questionnaireEditor";
 
 interface PlanDefEditorProps {
     planDefNode: SageNodeInitializedFreezerNode

@@ -1,7 +1,6 @@
 import * as cql from 'cql-execution';
 import { Library } from 'fhir/r4';
 import Freezer, { EventDict, FE, FreezerNode } from 'freezer-js';
-import { AhrqFrameRef } from './ahrqFrame';
 import { SageNewResource, SageNode, SageNodeInitialized, SimplifiedProfiles, SimplifiedValuesets } from './helpers/schema-utils';
 
 export interface StateVars {

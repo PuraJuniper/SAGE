@@ -1,10 +1,10 @@
 import { Questionnaire } from "fhir/r4";
-import { decorateFhirData, toFhir } from "../helpers/schema-utils";
-import { SageNodeInitializedFreezerNode } from "../state";
-import StructorFrame, { StructorFrameRef } from "../structorFrame";
+import { decorateFhirData, toFhir } from "../../helpers/schema-utils";
+import { SageNodeInitializedFreezerNode } from "../../state";
+import StructorFrame, { StructorFrameRef } from "./structorFrame";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {faCaretRight, faCaretLeft} from  '@fortawesome/pro-solid-svg-icons';
-import State from "../state";
+import State from "../../state";
 import { useRef } from "react";
 
 interface QuestionnaireEditorProps {

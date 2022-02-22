@@ -33,7 +33,7 @@ import SelectResourceDialog from "./dialogs/select-resource-canonical-dialog";
 import { PlanDefEditor } from "./simplified/planDefEditor";
 import AvailableLibrariesDialog from "./dialogs/available-libraries";
 import { Alert } from "react-bootstrap";
-import AhrqCardAndToggle from "./ahrqCardAndToggle";
+import AhrqCardAndToggle from "./ahrqEmbed/ahrqCardAndToggle";
 
 type RootProps = Record<string, never>;
 type RootState = {

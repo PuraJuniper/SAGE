@@ -1,8 +1,8 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
 import JSZip from "jszip";
 import { Library } from "fhir/r4";
-import * as SageUtils from "./helpers/sage-utils";
-import State from "./reactions";
+import * as SageUtils from "../helpers/sage-utils";
+import State from "../reactions";
 
 interface AHRQOutput {
     libraryName: string,
