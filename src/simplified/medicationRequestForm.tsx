@@ -49,7 +49,7 @@ export class MedicationRequestForm implements ICardForm {
             ['proposal', 'plan', 'order', 'original-order', 'reflex-order', 'filler-order', 'instance-order', 'option']]
     ]);
 
-    combinedFields = new Map<string, any>([
+    specialFields = new Map<string, any>([
         ['period',
             ['1', '2', '3', '4', '5', '6']],
         ['periodUnit',

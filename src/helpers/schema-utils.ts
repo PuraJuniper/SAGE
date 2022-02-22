@@ -557,7 +557,7 @@ const getProfileOfSchemaDef = function(profiles: SimplifiedProfiles, schemaNode:
 function presentedInCardEditor(name: string, profile: string): boolean {
 	const resourceEntry = profileToFriendlyResourceListEntry(profile);
 	if (resourceEntry) {
-		const formElem = resourceEntry.FORM_ELEMENTS.find(formElem => formElem.FHIR == name)
+		const formElem = resourceEntry.FORM_ELEMENTS.find(formElem => formElem.SELF.FHIR == name)
 		return formElem ? true : false;
 	} else {
 		return false;

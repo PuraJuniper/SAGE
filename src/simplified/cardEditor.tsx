@@ -40,7 +40,7 @@ export interface ICardForm {
     resourceType: FriendlyResourceListEntry;
     textBoxFields: Map<string, textBoxProps>;
     dropdownFields: Map<string, string[]>;
-    combinedFields: Map<string, any>;
+    specialFields: Map<string, any>;
     cardFieldLayout: cardLayout;
     pageOne: React.FunctionComponent<pageOneProps> | React.ComponentClass<pageOneProps>;
     pageTwo: React.FunctionComponent<pageTwoProps> | React.ComponentClass<pageTwoProps>;
@@ -48,7 +48,7 @@ export interface ICardForm {
 }
 
 const simpleCardField = (fieldName: string, actNode: SageNodeInitializedFreezerNode) => {
-    const [fieldContents, setField] = CardStringStateEditor(actNode, fieldName);
+    const [fieldContents, setField] = CardStateEditor<string>(actNode, fieldName);
     function fieldSaveHandler(name: string, contents: any, act: any, plan: any) {
         const fieldNode = SchemaUtils.getChildOfNodePath(plan, ["action", name]);
         if (fieldNode) {
@@ -63,7 +63,7 @@ const simpleCardField = (fieldName: string, actNode: SageNodeInitializedFreezerN
 }
 
 const complexCardField = (fieldName: string, actNode: SageNodeInitializedFreezerNode) => {
-    const [fieldContents, setField] = CardStringStateEditor(actNode, fieldName);
+    const [fieldContents, setField] = CardStateEditor<string>(actNode, fieldName);
     function fieldSaveHandler(name: string, contents: any, act: any, plan: any) {
         const fieldNode = SchemaUtils.getChildOfNodePath(plan, ["action", name]);
         if (fieldNode) {
@@ -183,29 +183,27 @@ const createCombinedElement = (fieldKey: string, fieldFriendlyName: string, text
 const createTextBoxElementList = (innerCardForm: ICardForm, friendlyFields: FriendlyResourceFormElement[], fieldHandlers: any, node: SageNodeInitializedFreezerNode): JSX.Element[] => {
     const defaultBoxProps: textBoxProps = { boxSize: 1, isReadOnly: false, isLink: false, caption: "" }
     return friendlyFields
-        .filter(ff => innerCardForm.textBoxFields.has(ff.FHIR))
+        .filter(ff => innerCardForm.textBoxFields.has(ff.SELF.FHIR))
         .map(ff => {
-            return createTextBoxElement(ff.FHIR, ff.FRIENDLY,
-                innerCardForm.textBoxFields.get(ff.FHIR) ?? defaultBoxProps, fieldHandlers, node)
+            return createTextBoxElement(ff.SELF.FHIR, ff.SELF.FRIENDLY,
+                innerCardForm.textBoxFields.get(ff.SELF.FHIR) ?? defaultBoxProps, fieldHandlers, node)
         });
 }
 
 const createDropdownElementList = (innerCardForm: ICardForm, friendlyFields: FriendlyResourceFormElement[], fieldHandlers: any, node: SageNodeInitializedFreezerNode): JSX.Element[] => {
     return friendlyFields
-        .filter(ff => innerCardForm.dropdownFields.has(ff.FHIR))
+        .filter(ff => innerCardForm.dropdownFields.has(ff.SELF.FHIR))
         .map(ff => {
-            return createDropdownElement(ff.FHIR, ff.FRIENDLY, innerCardForm.dropdownFields.get(ff.FHIR) ?? [], fieldHandlers, node)
+            return createDropdownElement(ff.SELF.FHIR, ff.SELF.FRIENDLY, innerCardForm.dropdownFields.get(ff.SELF.FHIR) ?? [], fieldHandlers, node)
         })
 }
 
-//createCombinedElementList is here
-const createCombinedElementList = (innerCardForm: ICardForm, friendlyFields: FriendlyResourceFormElement[], fieldHandlers: any, node: SageNodeInitializedFreezerNode): JSX.Element[] => {
+const createSpecialElementList = (innerCardForm: ICardForm, friendlyFields: FriendlyResourceFormElement[], fieldHandlers: any, node: SageNodeInitializedFreezerNode): JSX.Element[] => {
     const defaultBoxProps: textBoxProps = { boxSize: 1, isReadOnly: false, isLink: false, caption: "" }
     return friendlyFields
-        .filter(ff => innerCardForm.combinedFields.has(ff.FHIR))
-        .filter(ff => innerCardForm.textBoxFields.has(ff.FHIR))
+        .filter(ff => innerCardForm.specialFields.has(ff.SELF.FHIR))
         .map(ff => {
-            return createCombinedElement(ff.FHIR, ff.FRIENDLY, innerCardForm.textBoxFields.get(ff.FHIR) ?? defaultBoxProps, innerCardForm.combinedFields.get(ff.FHIR) ?? [], fieldHandlers, node)
+            return createCombinedElement(ff.SELF.FHIR, ff.SELF.FRIENDLY, innerCardForm.textBoxFields.get(ff.SELF.FHIR) ?? defaultBoxProps, innerCardForm.specialFields.get(ff.SELF.FHIR) ?? [], fieldHandlers, node)
         })
 }
 
@@ -214,7 +212,7 @@ const fieldElementListForType = (innerCardForm: ICardForm, fieldHandlers: any, n
     return [
         ...createTextBoxElementList(innerCardForm, friendlyFields, fieldHandlers, node),
         ...createDropdownElementList(innerCardForm, friendlyFields, fieldHandlers, node),
-        ...createCombinedElementList(innerCardForm, friendlyFields, fieldHandlers, node)
+        ...createSpecialElementList(innerCardForm, friendlyFields, fieldHandlers, node)
     ]
 }
 
@@ -354,8 +352,8 @@ function CardPDActionConditionStateEditor(planNode: SageNodeInitializedFreezerNo
     });
 }
 
-function CardStringStateEditor(node: SageNodeInitializedFreezerNode, resourceName: string): [any, any] {
-    return useState<string>(SchemaUtils.getChildOfNode(node, resourceName)?.value || "");
+function CardStateEditor<T>(node: SageNodeInitializedFreezerNode, resourceName: string): [any, any] {
+    return useState<T>(SchemaUtils.getChildOfNode(node, resourceName)?.value || "");
 }
 
 function handleImportLibrary(FhirLibrary: string) {

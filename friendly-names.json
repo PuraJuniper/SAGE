@@ -12,38 +12,56 @@
           "FRIENDLY": "Order Medications",
           "PROFILE_URI": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-medicationrequestactivity",
           "FORM_ELEMENTS": [
-            { "FHIR": "title",
-              "FRIENDLY": "Card short name: "
+            {
+              "SELF": { "FHIR": "title", "FRIENDLY": "Card short name: " },
+              "LIST": []
             },
-            { "FHIR": "description",
-              "FRIENDLY": "Card description: "
+            {
+              "SELF": {
+                "FHIR": "description",
+                "FRIENDLY": "Card description: "
+              },
+              "LIST": []
             },
-            { "FHIR": "status",
-              "FRIENDLY": "Status: "
+            {
+              "SELF": { "FHIR": "status", "FRIENDLY": "Status: " },
+              "LIST": []
             },
-            { "FHIR": "intent",
-              "FRIENDLY": "Intent: "
+            {
+              "SELF": { "FHIR": "intent", "FRIENDLY": "Intent: " },
+              "LIST": []
             },
-            { "FHIR": "relatedArtifact",
-              "FRIENDLY": "Related artifact: "
+            {
+              "SELF": {
+                "FHIR": "relatedArtifact",
+                "FRIENDLY": "Related artifact: "
+              },
+              "LIST": []
             },
-            { "FHIR": "productReference",
-              "FRIENDLY": "Medication Code: "
+            {
+              "SELF": {
+                "FHIR": "productReference",
+                "FRIENDLY": "Medication Code: "
+              },
+              "LIST": []
             },
-            { "FHIR": "text",
-              "FRIENDLY": "Free text dosage instructions: "
+            {
+              "SELF": {
+                "FHIR": "text",
+                "FRIENDLY": "Free text dosage instructions: "
+              },
+              "LIST": []
             },
-            { "FHIR": "periodUnit",
-              "FRIENDLY": "Period Unit"
-            },
-            { "FHIR": "period",
-              "FRIENDLY": "Period"
-            },
-            { "FHIR": "frequency",
-              "FRIENDLY": "Frequency"
+            {
+              "SELF": { "FHIR": "dosage", "FRIENDLY": "Dosage: " },
+              "LIST": [
+                {
+                  "SELF": { "FHIR": "dosage", "FRIENDLY": "Dosage: " },
+                  "LIST": []
+                }
+              ]
             }
           ]
-          
         }
       ]
     },
@@ -53,25 +71,21 @@
         "FRIENDLY": "Plan",
         "DEFAULT_PROFILE_URI": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-computableplandefinition"
       },
-      "LIST": [
-      ]
+      "LIST": []
     },
     {
       "SELF": {
         "FHIR": "Library",
         "FRIENDLY": "Place for Books",
         "DEFAULT_PROFILE_URI": "NONE"
-
       },
-      "LIST": [
-      ]
+      "LIST": []
     },
     {
       "SELF": {
         "FHIR": "Questionnaire",
         "FRIENDLY": "List of Questions",
         "DEFAULT_PROFILE_URI": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-shareablequestionnaire"
-
       },
       "LIST": [
         {
@@ -87,30 +101,24 @@
         "FHIR": "DataElement",
         "FRIENDLY": "Piece of Data",
         "DEFAULT_PROFILE_URI": "NONE"
-
       },
-      "LIST": [
-      ]
+      "LIST": []
     },
     {
       "SELF": {
         "FHIR": "ValueSet",
         "FRIENDLY": "Set of Values",
         "DEFAULT_PROFILE_URI": "NONE"
-
       },
-      "LIST": [
-      ]
+      "LIST": []
     },
     {
       "SELF": {
         "FHIR": "StructureDefinition",
         "FRIENDLY": "A Defined Structure",
         "DEFAULT_PROFILE_URI": "NONE"
-
       },
-      "LIST": [
-      ]
+      "LIST": []
     }
   ]
 }

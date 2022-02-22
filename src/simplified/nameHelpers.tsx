@@ -65,8 +65,8 @@ export const friendlyToFhir = (friendlyWord: string) => {
         }
         const isFormElem = (friendlyNames.RESOURCES.map(mainRes =>
             mainRes.LIST.map(subRes =>
-                subRes.FORM_ELEMENTS.find(formElem => formElem.FRIENDLY == friendlyWord))
-        )).filter(unfound => unfound).pop()?.filter(unfound => unfound).pop();
+                subRes.FORM_ELEMENTS.find(formElem => formElem.SELF.FRIENDLY == friendlyWord))
+        )).filter(unfound => unfound).pop()?.filter(unfound => unfound).pop()?.SELF;
 
         return isFormElem;
 
