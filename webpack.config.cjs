@@ -3,8 +3,6 @@ module.exports = (env) => {
 	if (!('development' in env) && !('build' in env)) {
 		env.development = true;
 	}
-	console.log(`Webpack config is using env:`);
-	console.log(env)
 
 	let config = {
 		devServer: {
@@ -15,11 +13,11 @@ module.exports = (env) => {
 				progress: true,
 			},
 			proxy: {
-				'/authoring': 'http://localhost:9000',
+				// '/authoring': 'http://localhost:9000',
 				'/structor': 'http://localhost:9001',
-				'/iframe': 'http://localhost:9001', // for structor
+				'/iframe': 'http://localhost:9001', // also for structor
 			},
-			port: 8081
+			port: 8080
 		},
 		entry: {
 			bundle: './src/index.tsx',
@@ -61,6 +59,5 @@ module.exports = (env) => {
 		}
 	};
 	
-	console.log(`Webpack mode set to: ${config.mode}`);
 	return config;
 }

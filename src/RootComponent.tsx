@@ -31,9 +31,7 @@ import UserSettingsDialog from "./dialogs/user-settings-dialog";
 import AppInfo from "../package.json";
 import SelectResourceDialog from "./dialogs/select-resource-canonical-dialog";
 import { PlanDefEditor } from "./simplified/planDefEditor";
-import AvailableLibrariesDialog from "./dialogs/available-libraries";
 import { Alert } from "react-bootstrap";
-import AhrqCardAndToggle from "./ahrqEmbed/ahrqCardAndToggle";
 
 type RootProps = Record<string, never>;
 type RootState = {
@@ -208,10 +206,6 @@ class RootComponent extends React.Component<RootProps, RootState> {
 				{resourceContent}
 				<Footer />
 			</div>
-			<AvailableLibrariesDialog
-				show={state.dialogs.showLibraries}
-				onHide={()=>state.dialogs.set("showLibraries", false)}
-			/>
 			<OpenDialog 
 				show={state.ui.status === "open"}
 				openMode={state.ui.openMode}
@@ -234,7 +228,6 @@ class RootComponent extends React.Component<RootProps, RootState> {
 			: ""
 			}
 			<UserSettingsDialog show={state.ui.status === "settings"} />
-			<AhrqCardAndToggle />
 		</div>;
 	}
 }

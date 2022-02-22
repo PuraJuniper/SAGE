@@ -13,10 +13,6 @@ export interface StateVars {
 		update?: {from: string, to: string}[],
 		selectedNode?: SageNodeInitialized,
 	},
-	dialogs: {
-		showLibraries?: boolean,
-		showAHRQ?: boolean,
-	},
 	mode: "basic" | "advanced",
 	VSACEndpoint: string,
 	UMLSKey: string,
@@ -45,7 +41,6 @@ export interface StateVars {
 				fhirLibrary: Library,
 				library: cql.Library,
 				url: string,
-				ahrqId?: string,
 			}
 		}
 	}
@@ -92,16 +87,14 @@ export interface SageReactions {
 	"add_object_element": (node: SageNodeInitializedFreezerNode, fhirElement: SageNode) => unknown;
 	"change_profile": (nodeToChange: SageNodeInitializedFreezerNode, newProfile: keyof SimplifiedProfiles) => unknown;
 	"load_json_into": (nodeToWriteTo: SageNodeInitializedFreezerNode, json: any) => unknown;
-	"load_library": (library: cql.Library, url: string, fhirLibrary: Library, ahrqId?: string) => unknown;
+	"load_library": (library: cql.Library, url: string, fhirLibrary: Library) => unknown;
 	"insert_resource_into_bundle": (resource: SageNewResource) => void;
-	"open_ahrq_artifact": (ahrqId: string) => boolean;
 }
 
 const defaultStateVars: StateVars = {
 	ui: { 
 		status: "loading",
 	},
-	dialogs: {},
 	mode: "advanced",
 	VSACEndpoint: "https://cts.nlm.nih.gov/fhir/r4",
 	UMLSKey: "",

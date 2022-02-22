@@ -62,9 +62,6 @@ class NavbarFred extends React.Component<NavbarFredProps> {
 			</Nav.Link>,
 			<Nav.Link key="settings" onClick={this.handleUiChange.bind(this, "settings")}>
 				User Settings
-			</Nav.Link>,
-			<Nav.Link key="libraries" onClick={()=> State.get().dialogs.set("showLibraries", true)}>
-				View/Edit Libraries
 			</Nav.Link>
 		];
 		return navCpg;

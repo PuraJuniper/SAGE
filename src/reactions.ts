@@ -755,13 +755,12 @@ State.on("load_json_into", function(nodeToWriteTo, json) {
 	});
 });
 
-State.on("load_library", function(library, url, fhirLibrary, ahrqId) {
+State.on("load_library", function(library, url, fhirLibrary) {
 	const libraryIdentifier = `${library.source.library.identifier.id}v${library.source.library.identifier.version}`
 	State.get().simplified.libraries.set(libraryIdentifier, {
 		fhirLibrary: fhirLibrary,
 		library: library,
 		url: url,
-		ahrqId: ahrqId,
 	});
 	console.log(State.get());
 });
