@@ -46,18 +46,31 @@
               "LIST": []
             },
             {
-              "SELF": {
-                "FHIR": "text",
-                "FRIENDLY": "Free text dosage instructions: "
-              },
-              "LIST": []
-            },
-            {
               "SELF": { "FHIR": "dosage", "FRIENDLY": "Dosage: " },
               "LIST": [
                 {
-                  "SELF": { "FHIR": "dosage", "FRIENDLY": "Dosage: " },
+                  "SELF": {
+                    "FHIR": "text",
+                    "FRIENDLY": "Free text dosage instructions: "
+                  },
                   "LIST": []
+                },
+                {
+                  "SELF": { "FHIR": "timing", "FRIENDLY": "Timing: " },
+                  "LIST": [
+                    {
+                      "SELF": { "FHIR": "frequency", "FRIENDLY": " dose(s)" },
+                      "LIST": []
+                    },
+                    {
+                      "SELF": { "FHIR": "period", "FRIENDLY": "per: " },
+                      "LIST": []
+                    },
+                    {
+                      "SELF": { "FHIR": "periodUnit", "FRIENDLY": "Unit (day,week,month, etc.)" },
+                      "LIST": []
+                    }
+                  ]
                 }
               ]
             }

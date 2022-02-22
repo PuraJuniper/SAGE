@@ -40,7 +40,7 @@ export interface ICardForm {
     resourceType: FriendlyResourceListEntry;
     textBoxFields: Map<string, textBoxProps>;
     dropdownFields: Map<string, string[]>;
-    specialFields: Map<string, any>;
+    groupedFields: Map<string, any>;
     cardFieldLayout: cardLayout;
     pageOne: React.FunctionComponent<pageOneProps> | React.ComponentClass<pageOneProps>;
     pageTwo: React.FunctionComponent<pageTwoProps> | React.ComponentClass<pageTwoProps>;
@@ -62,8 +62,8 @@ const simpleCardField = (fieldName: string, actNode: SageNodeInitializedFreezerN
     return [fieldName, fieldContents, setField, fieldSaveHandler]
 }
 
-const complexCardField = (fieldName: string, actNode: SageNodeInitializedFreezerNode) => {
-    const [fieldContents, setField] = CardStateEditor<string>(actNode, fieldName);
+const resourceCardField = (fieldName: string, actNode: SageNodeInitializedFreezerNode) => {
+    const [fieldContents, setField] = CardStateEditor<SageNodeInitializedFreezerNode>(actNode, fieldName);
     function fieldSaveHandler(name: string, contents: any, act: any, plan: any) {
         const fieldNode = SchemaUtils.getChildOfNodePath(plan, ["action", name]);
         if (fieldNode) {
@@ -133,13 +133,10 @@ const createDropdownElement = (fieldKey: string, fieldFriendlyName: string, fiel
     );
 }
 
-//createCombinedElement here
-const createCombinedElement = (fieldKey: string, fieldFriendlyName: string, textProps: textBoxProps, fieldElements: string[], fieldHandlers: any[][], node: SageNodeInitializedFreezerNode): JSX.Element => {
-    const [fieldName, fieldContents, setField, fieldSaveHandler] = complexCardField(fieldKey, node);
+const createResourceElement = (fieldKey: string, fieldFriendlyName: string, textProps: textBoxProps, fieldElements: string[], fieldHandlers: any[][], node: SageNodeInitializedFreezerNode): JSX.Element => {
+    const [fieldName, fieldContents, setField, fieldSaveHandler] = resourceCardField(fieldKey, node);
     function returnVal() {
-        if (textProps.isLink) {
-            return <Button key={fieldName + "-button"} variant="link" onClick={() => window.open(fieldContents)}>{fieldContents}</Button>;
-        } else {
+
             return <Form.Control key={fieldName + "-formControl"}
                 {...{
                     ...(textProps.isReadOnly) && { readOnly: textProps.isReadOnly },
@@ -151,7 +148,6 @@ const createCombinedElement = (fieldKey: string, fieldFriendlyName: string, text
                     }
                 }} />;
         }
-    }
     fieldHandlers.push([fieldName, fieldContents, setField, fieldSaveHandler]);
     return (
         <Form.Group key={fieldName + "-fromGroup"} as={Col} controlId={fieldKey}>
@@ -198,12 +194,12 @@ const createDropdownElementList = (innerCardForm: ICardForm, friendlyFields: Fri
         })
 }
 
-const createSpecialElementList = (innerCardForm: ICardForm, friendlyFields: FriendlyResourceFormElement[], fieldHandlers: any, node: SageNodeInitializedFreezerNode): JSX.Element[] => {
+const createResourceElementList = (innerCardForm: ICardForm, friendlyFields: FriendlyResourceFormElement[], fieldHandlers: any, node: SageNodeInitializedFreezerNode): JSX.Element[] => {
     const defaultBoxProps: textBoxProps = { boxSize: 1, isReadOnly: false, isLink: false, caption: "" }
     return friendlyFields
-        .filter(ff => innerCardForm.specialFields.has(ff.SELF.FHIR))
+        .filter(ff => innerCardForm.groupedFields.has(ff.SELF.FHIR))
         .map(ff => {
-            return createCombinedElement(ff.SELF.FHIR, ff.SELF.FRIENDLY, innerCardForm.textBoxFields.get(ff.SELF.FHIR) ?? defaultBoxProps, innerCardForm.specialFields.get(ff.SELF.FHIR) ?? [], fieldHandlers, node)
+            return createResourceElement(ff.SELF.FHIR, ff.SELF.FRIENDLY, defaultBoxProps, innerCardForm.groupedFields.get(ff.SELF.FHIR) ?? [], fieldHandlers, node)
         })
 }
 
@@ -212,7 +208,7 @@ const fieldElementListForType = (innerCardForm: ICardForm, fieldHandlers: any, n
     return [
         ...createTextBoxElementList(innerCardForm, friendlyFields, fieldHandlers, node),
         ...createDropdownElementList(innerCardForm, friendlyFields, fieldHandlers, node),
-        ...createSpecialElementList(innerCardForm, friendlyFields, fieldHandlers, node)
+        ...createResourceElementList(innerCardForm, friendlyFields, fieldHandlers, node)
     ]
 }
 

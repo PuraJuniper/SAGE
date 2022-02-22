@@ -1,3 +1,4 @@
+import { Resource } from "fhir/r4";
 import React from "react";
 import { Col, Form, Row } from "react-bootstrap";
 import { ICardForm } from "./cardEditor";
@@ -49,18 +50,21 @@ export class MedicationRequestForm implements ICardForm {
             ['proposal', 'plan', 'order', 'original-order', 'reflex-order', 'filler-order', 'instance-order', 'option']]
     ]);
 
-    specialFields = new Map<string, any>([
-        ['period',
-            ['1', '2', '3', '4', '5', '6']],
-        ['periodUnit',
-            ['s', 'min', 'h', 'd', 'wk', 'mon']],
-        ['frequency', {
-            boxSize: 1,
-            isReadOnly: false,
-            isLink: false,
-            caption: "huh"
+    groupedFields = new Map<string, string[]>([
+        ['dosage',
+            ['text', 'timing', 'frequency', 'period', 'periodUnit']] 
+        //     ,
+        // ['period',
+        //     ['1', '2', '3', '4', '5', '6']],
+        // ['periodUnit',
+        //     ['s', 'min', 'h', 'd', 'wk', 'mon']],
+        // ['frequency', {
+        //     boxSize: 1,
+        //     isReadOnly: false,
+        //     isLink: false,
+        //     caption: "huh"
 
-        }]
+        // }]
     ]);
 
     cardFieldLayout =
@@ -77,8 +81,8 @@ export class MedicationRequestForm implements ICardForm {
             ]
 
         };
-    
-    
+
+
 
     pageOne: ICardForm['pageOne'] = (props) => {
         const placeHolderElem =
