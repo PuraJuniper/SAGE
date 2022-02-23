@@ -530,7 +530,7 @@ export const isSupportedResource = function (data: any): data is SageSupportedFh
 // checks if the SchemaNode uses a profile and returns its URI if so. 
 // otherwise, it returns a default for that type or undefined if one doesn't exist (bad?)
 const getProfileOfSchemaDef = function (profiles: SimplifiedProfiles, schemaNode: SchemaDef, typeDef?: ElementDefinitionType): string | undefined {
-	// console.log('getProfileOfSchemaDef', schemaNode, typeDef);
+
 	typeDef = typeDef ?? schemaNode.type[0];
 	if (typeDef.profile) {
 		return typeDef.profile[0];
@@ -548,6 +548,9 @@ const getProfileOfSchemaDef = function (profiles: SimplifiedProfiles, schemaNode
 	}
 	else if (typeDef.code == 'http://hl7.org/fhirpath/System.String') { // just a primitive
 		return;
+	}
+	else if ((typeDef as unknown as string).length == 1) {
+		return (schemaNode.type as unknown as string)
 	}
 	else {
 		console.log(`No default profile found for code: ${typeDef.code}`);
@@ -587,7 +590,6 @@ export function getChildOfNodePath(node: SageNodeInitialized, childNamePath: str
 		return getChildOfNode(node, childNamePath[0]);
 	}
 	else {
-		// It would be nice to type-check this case away
 		return;
 	}
 }
@@ -615,14 +617,18 @@ export function getChildOfNode(node: SageNodeInitialized, childName: string): Sa
 }
 
 export const createChildrenFromJson = function (profiles: SimplifiedProfiles, nodeToWriteTo: SageNodeInitialized, fhirJson: any) {
+	console.log(nodeToWriteTo, fhirJson)
 	const nodeProfileSchema = profiles[nodeToWriteTo.profile];
+
+	console.log(nodeProfileSchema)
 	const nodePath = nodeToWriteTo.schemaPath
 	const newChildren = ((() => {
-		const result1 = [];
+		const result1: SageNodeInitialized[] = [];
 
-		for (const k in fhirJson) {
-			const v = (fhirJson as any)[k];
-			const childPath = `${nodePath}.${k}`;
+		for (const k in nodeProfileSchema) {
+			const v = (nodeProfileSchema as any)[k];
+			const childPath = `${k}`;
+			console.log(childPath);
 			const childDef = nodeProfileSchema[childPath];
 			if (childDef) {
 				const walkRes = walkNode(profiles, v, nodeToWriteTo.profile, childPath, (nodeToWriteTo.level || 0) + 1);
@@ -637,7 +643,6 @@ export const createChildrenFromJson = function (profiles: SimplifiedProfiles, no
 			}
 			// add else to check if childPath exists in another profile
 		}
-
 		return result1;
 	})());
 	return newChildren;
@@ -696,46 +701,47 @@ export const walkNode = (profiles: SimplifiedProfiles, valueOfNode: any, profile
 		//root node
 		level = 0;
 	}
-
+``
 	const name = schemaPath.split('.').pop() as string; // we know pop() will return a string here
 	let trueSchemaPath = schemaPath;
-	let schema = profiles[profileUri]?.[trueSchemaPath];
-	let typeIdx = 0; // Assuming 0
-	let fhirType = schema?.type[typeIdx]?.code;
-	let type = schema?.type[typeIdx];
-	//is it a multi-type?
-	if (!schema) {
-		const elementName = schemaPath.split('.').pop() as string;
-		const nameParts = elementName.split(/(?=[A-Z])/);
-		let testSchemaPath = schemaPath.split(".").slice(0, schemaPath.split(".").length - 1).join(".") + ".";
-		for (i = 0; i < nameParts.length; i++) {
-			let testSchema;
-			const namePart = nameParts[i];
-			testSchemaPath += `${namePart}`;
-			if ((testSchema = profiles[profileUri]?.[`${testSchemaPath}[x]`])) {
-				schema = testSchema;
-				trueSchemaPath = `${testSchemaPath}[x]`;
-				const expectedType = nameParts.slice(i + 1).join("");
-				for (let j = 0; j < schema.type.length; j++) {
-					const curType = schema.type[j];
-					if (curType.code.toLowerCase() == expectedType.toLowerCase()) { // toLowerCase to deal with primitives being lowercase
-						fhirType = curType.code;
-						type = curType;
-						typeIdx = j;
-					}
-				}
-				if (!fhirType) {
-					console.log(`Error: expected to find FHIR type ${expectedType} as a possible type for ${trueSchemaPath}`);
-					return;
-				}
-				// //allow for complex type multi-types
-				// if (!profiles[fhirType]) { 
-				// 	fhirType = fhirType[0].toLowerCase() + fhirType.slice(1);
-				// }
-				// displayName = buildDisplayName(schemaPath, fhirType);
-			}
-		}
-	}
+	const schema = profiles[profileUri]?.[trueSchemaPath];
+	console.log(schema)
+	// let typeIdx = 0; // Assuming 0
+	const fhirType = (schema?.type as unknown as string);
+	const type = (schema?.type as unknown as string);
+	//is it a multi-type? //TODO
+	// if (!schema) {
+	// 	const elementName = schemaPath.split('.').pop() as string;
+	// 	const nameParts = elementName.split(/(?=[A-Z])/);
+	// 	let testSchemaPath = schemaPath.split(".").slice(0, schemaPath.split(".").length - 1).join(".") + ".";
+	// 	for (i = 0; i < nameParts.length; i++) {
+	// 		let testSchema;
+	// 		const namePart = nameParts[i];
+	// 		testSchemaPath += `${namePart}`;
+	// 		if ((testSchema = profiles[profileUri]?.[`${testSchemaPath}[x]`])) {
+	// 			schema = testSchema;
+	// 			trueSchemaPath = `${testSchemaPath}[x]`;
+	// 			const expectedType = nameParts.slice(i + 1).join("");
+	// 			for (let j = 0; j < schema.type.length; j++) {
+	// 				const curType = schema.type[j];
+	// 				if (curType.code.toLowerCase() == expectedType.toLowerCase()) { // toLowerCase to deal with primitives being lowercase
+	// 					fhirType = curType.code;
+	// 					type = curType;
+	// 					typeIdx = j;
+	// 				}
+	// 			}
+	// 			if (!fhirType) {
+	// 				console.log(`Error: expected to find FHIR type ${expectedType} as a possible type for ${trueSchemaPath}`);
+	// 				return;
+	// 			}
+	// 			// //allow for complex type multi-types
+	// 			// if (!profiles[fhirType]) { 
+	// 			// 	fhirType = fhirType[0].toLowerCase() + fhirType.slice(1);
+	// 			// }
+	// 			// displayName = buildDisplayName(schemaPath, fhirType);
+	// 		}
+	// 	}
+	// }
 	if (!schema) {
 		console.log(`Error reading element of type ${schemaPath} with value ${valueOfNode}`);
 		return;
@@ -748,7 +754,8 @@ export const walkNode = (profiles: SimplifiedProfiles, valueOfNode: any, profile
 	}
 
 	// Check if a new profile should be used for this element
-	const newProfile = getProfileOfSchemaDef(profiles, schema, schema.type[typeIdx]);
+	const newProfile = getProfileOfSchemaDef(profiles, schema, schema.type[0]);
+
 	const childSchemaPath = newProfile ? fhirType : trueSchemaPath;
 	const childProfile = newProfile ?? profileUri;
 	// TODO: Figure out which type of the array this node corresponds to
@@ -771,12 +778,12 @@ export const walkNode = (profiles: SimplifiedProfiles, valueOfNode: any, profile
 		id: nextId++,
 		index: schema?.index || 0,
 		name,
-		nodeType: schema.type[typeIdx].code[0] != schema.type[typeIdx].code[0].toUpperCase() ? "value" : "object", // naive way of checking if valueOfNode should be a primitive
+		nodeType: newProfile != newProfile?.toUpperCase() ? "value" : "object", // naive way of checking if valueOfNode should be a primitive
 		displayName,
 		nodePath: trueSchemaPath,
 		schemaPath: childSchemaPath,
 		fhirType,
-		type,
+		type: (type as unknown as ElementDefinitionType),
 		level,
 		short: schema?.short,
 		sliceName: schema?.sliceName,
@@ -851,7 +858,6 @@ export const walkNode = (profiles: SimplifiedProfiles, valueOfNode: any, profile
 					result1.push(walkRes);
 				}
 			}
-
 			return result1;
 		})());
 		decorated.children = decorated.children.sort((a, b) => a.index - b.index);
@@ -890,7 +896,6 @@ export const walkNode = (profiles: SimplifiedProfiles, valueOfNode: any, profile
 			decorated.ui = { validationErr: error, status: "editing" };
 		}
 	}
-
 	return decorated;
 };
 

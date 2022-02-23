@@ -62,21 +62,6 @@ const simpleCardField = (fieldName: string, actNode: SageNodeInitializedFreezerN
     return [fieldName, fieldContents, setField, fieldSaveHandler]
 }
 
-// const resourceCardField = (fieldName: string, actNode: SageNodeInitializedFreezerNode) => {
-//     const [fieldContents, setField] = CardStateEditor<SageNodeInitializedFreezerNode>(actNode, fieldName);
-//     function fieldSaveHandler(name: string, contents: any, act: any, plan: any) {
-//         const fieldNode = SchemaUtils.getChildOfNodePath(plan, ["action", name]);
-//         if (fieldNode) {
-//             State.emit("value_change", fieldNode, name, false);
-//         }
-//         if (act.displayName == ACTIVITY_DEFINITION) {
-//             State.emit("value_change", SchemaUtils.getChildOfNode(act, name), contents, false);
-//         }
-//         State.emit("value_change", SchemaUtils.getChildOfNode(plan, name), contents, false);
-//     }
-//     return [fieldName, fieldContents, setField, fieldSaveHandler]
-// }
-
 const createTextBoxElement = (fieldKey: string, friendlyFieldName: string, textProps: textBoxProps, fieldHandlers: any[][], node: SageNodeInitializedFreezerNode): JSX.Element => {
     const [fieldName, fieldContents, setField, fieldSaveHandler] = simpleCardField(fieldKey, node);
     function returnVal() {
@@ -132,50 +117,6 @@ const createDropdownElement = (fieldKey: string, fieldFriendlyName: string, fiel
         </Form.Group>
     );
 }
-
-// const createResourceElement = (friendlyField: FriendlyResourceFormElement, fieldHandlers: any[][], node: SageNodeInitializedFreezerNode): JSX.Element => {
-
-// const [fieldName, fieldContents, setField, fieldSaveHandler] = resourceCardField(fieldKey, node);
-// function returnVal() {
-
-//         return <Form.Control key={fieldName + "-formControl"}
-//             {...{
-//                 ...(textProps.isReadOnly) && { readOnly: textProps.isReadOnly },
-//                 ...(textProps.boxSize) > 1 && { as: "textarea" as ElementType<any>, rows: textProps.boxSize },
-//                 ...{
-//                     type: "text",
-//                     defaultValue: fieldContents,
-//                     onChange: (e: { currentTarget: { value: any; }; }) => setField(e.currentTarget.value)
-//                 }
-//             }} />;
-//     }
-// fieldHandlers.push([fieldName, fieldContents, setField, fieldSaveHandler]);
-// return (
-//     <Form.Group key={fieldName + "-fromGroup"} as={Col} controlId={fieldKey}>
-//         <Form.Label key={fieldName + "-label"}>{fieldFriendlyName}</Form.Label>
-//         <Col key={fieldName + "-col"} sm={3}>
-//             <Form.Text key={fieldName + "-formText"}>{textProps.caption}</Form.Text>
-//             {returnVal()}
-//             <InputGroup key={fieldName + "-inputGroup"} className="mb-3">
-//                 <Form.Control
-//                     key={fieldName + "formControl"}
-//                     as="select"
-//                     defaultValue={fieldContents}
-//                     onChange={(e) => setField(e.currentTarget.value)}
-//                 >
-//                     {fieldElements.map(sType => {
-//                         return <option key={fieldKey + "-" + sType} value={sType}>{sType}</option>;
-//                     })}
-//                 </Form.Control>     
-//             </InputGroup>
-//         </Col>
-//     </Form.Group>
-
-// <Form.Group key={fieldName + "-formGroup"} as={Col} controlId={fieldName}>
-//     <Form.Label key={fieldName + "-formLabel"}>{friendlyFieldName}</Form.Label>
-// </Form.Group>
-// );
-// }
 
 const createTextBoxElementList = (innerCardForm: ICardForm, friendlyFields: FriendlyResourceFormElement[], fieldHandlers: any, node: SageNodeInitializedFreezerNode): JSX.Element[] => {
     const defaultBoxProps: textBoxProps = { boxSize: 1, isReadOnly: false, isLink: false, caption: "" }
