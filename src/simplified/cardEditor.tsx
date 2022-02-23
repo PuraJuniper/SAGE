@@ -63,11 +63,20 @@ const simpleCardField = (fieldName: string, actNode: SageNodeInitializedFreezerN
 
 const createTextBoxElement = (fieldKey: string, friendlyFieldName: string, textProps: textBoxProps, fieldHandlers: any[][], node: SageNodeInitializedFreezerNode): JSX.Element => {
     const [fieldName, fieldContents, setField, fieldSaveHandler] = simpleCardField(fieldKey, node);
+    function validURL(urlInput: string) {
+        const pattern = new RegExp('^(https?:\\/\\/)?'+ // protocol
+          '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+ // domain name
+          '((\\d{1,3}\\.){3}\\d{1,3}))'+ // OR ip (v4) address
+          '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+ // port and path
+          '(\\?[;&a-z\\d%_.~+=-]*)?'+ // query string
+          '(\\#[-a-z\\d_]*)?$','i'); // fragment locator
+        return !!pattern.test(urlInput);
+    }
     function returnVal() {
         if (textProps.isLink) {
             return <Button key={fieldName + "-button"} variant="link" onClick={() => window.open(fieldContents)}>{fieldContents}</Button>;
         } else {
-            return <Form.Control key={fieldName + "-formControl"} className= {(fieldName == "relatedArtifact") ? (!validURL(fieldContents) ? "is-invalid" : "was-validated") : "tea"}
+            return <Form.Control key={fieldName + "-formControl"} className= {(fieldName == "relatedArtifact") ? (!validURL(fieldContents) ? "is-invalid" : "") : ""}
                 {...{
                     ...(textProps.isReadOnly) && { readOnly: textProps.isReadOnly },
                     ...(textProps.boxSize) > 1 && { as: "textarea" as ElementType<any>, rows: textProps.boxSize },
@@ -79,24 +88,11 @@ const createTextBoxElement = (fieldKey: string, friendlyFieldName: string, textP
                 }} />;
         }
     }
-
     fieldHandlers.push([fieldName, fieldContents, setField, fieldSaveHandler]);
-    function validURL(urlInput: string) {
-        const pattern = new RegExp('^(https?:\\/\\/)?'+ // protocol
-          '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+ // domain name
-          '((\\d{1,3}\\.){3}\\d{1,3}))'+ // OR ip (v4) address
-          '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+ // port and path
-          '(\\?[;&a-z\\d%_.~+=-]*)?'+ // query string
-          '(\\#[-a-z\\d_]*)?$','i'); // fragment locator
-        return !!pattern.test(urlInput);
-    }
-
     return (
-
         <Form.Group key={fieldName + "-formGroup"} as={Col} controlId={fieldName}>
             <Form.Label key={fieldName + "-formLabel"}>{friendlyFieldName}</Form.Label>
             <Form.Text 
-                className= {(fieldName == "relatedArtifact") ? (!validURL(fieldContents) ? "is-invalid" : "was-validated") : "tea"}
                 key={fieldName + "-formText"}
             >
                 {textProps.caption}
