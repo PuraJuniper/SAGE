@@ -195,35 +195,50 @@ const conditionCardField = (planNode: SageNodeInitializedFreezerNode) => {
     return ["condition", condition, setCondition, conditionSaveHandler]
 }
 
+/**
+ * Returns a new inner card form instance for the given resource type
+ */
+function actTypeToICardForm(actResourceType: FriendlyResourceProps) {
+    switch (actResourceType.FHIR) {
+        case "MedicationRequest":
+            return new MedicationRequestForm(actResourceType)
+
+        default: 
+            return new MedicationRequestForm(actResourceType)
+    }
+}
+
+/**
+ * Returns the resource type of the given SageNode
+ */
+ function getResourceType(actNode: SageNodeInitializedFreezerNode): FriendlyResourceProps {
+    const resourceProfile = (): string => {
+        const fhirResource = SchemaUtils.toFhir(actNode, false);
+        const meta = fhirResource ? fhirResource.meta : undefined;
+        const profile = meta ? meta.profile : undefined;
+        return profile ? profile[0] : "";
+    };
+    return formElemtoResourceProp(profileToFriendlyResourceListEntry(resourceProfile()));
+}
+
 export const CardEditor = (props: CardEditorProps) => {
     const actNode = props.actNode;
     const planNode = props.planNode;
-    function getResourceType(): FriendlyResourceProps {
-        const resourceProfile = (): string => {
-            if (actNode) {
-                const fhirResource = SchemaUtils.toFhir(actNode, false);
-                const meta = fhirResource ? fhirResource.meta : undefined;
-                const profile = meta ? meta.profile : undefined;
-                return profile ? profile[0] : "";
-            } else {
-                return "";
-            }
-        };
-        return formElemtoResourceProp(profileToFriendlyResourceListEntry(resourceProfile()));
-    }
-    const actResourceType = getResourceType();
     const fieldHandlers: any[][] = [];
-    const getInnerCardForm: () => ICardForm = () => {
-        switch (actResourceType.FHIR) {
-            case "MedicationRequest":
-                return new MedicationRequestForm(actResourceType)
 
-            default:
-                return new MedicationRequestForm(actResourceType)
-        }
-    }
-
-    const innerCardForm = getInnerCardForm();
+    /**
+     * Derive the resource type and ICardForm based on props.actNode to pass down to the OuterCardForm
+     * Note: setState and useEffect are used here because a new Object and ICardForm instance is created 
+     *  by each getResourceType() and actTypeToICardForm() call respectively, so we must only derive them
+     *  conditionally to avoid causing OuterCardForm to re-render unconditionally
+     */
+    const [actResourceType, setActResourceType] = useState<FriendlyResourceProps>(() => getResourceType(actNode));
+    const [innerCardForm, setInnerCardForm] = useState<ICardForm>(() => actTypeToICardForm(actResourceType));
+    useEffect(() => {
+        const newActResourceType = getResourceType(actNode);
+        setActResourceType(newActResourceType);
+        setInnerCardForm(actTypeToICardForm(newActResourceType));
+    }, [actNode])
 
     // Read existing conditions
     const pdConditions: PlanDefinitionActionCondition[] = [];
