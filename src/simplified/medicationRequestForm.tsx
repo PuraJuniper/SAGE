@@ -2,14 +2,14 @@ import { Resource } from "fhir/r4";
 import React from "react";
 import { Col, Form, Row } from "react-bootstrap";
 import { ICardForm } from "./cardEditor";
-import { FriendlyResourceListEntry } from "./nameHelpers";
+import { FriendlyResourceProps } from "./nameHelpers";
 import { textBoxProps } from "./outerCardForm";
 
 export class MedicationRequestForm implements ICardForm {
 
     resourceType;
 
-    constructor(resourceType: FriendlyResourceListEntry) {
+    constructor(resourceType: FriendlyResourceProps) {
         this.resourceType = resourceType;
     }
 
@@ -38,6 +38,18 @@ export class MedicationRequestForm implements ICardForm {
             isLink: false,
             caption: "NOTE: For advanced timing instructions, leave basic dosage sentence blank."
 
+        }],
+        ['frequency', {
+            boxSize: 1,
+            isReadOnly: true,
+            isLink: false,
+            caption: ""
+        }],
+        ['period', {
+            boxSize: 1,
+            isReadOnly: true,
+            isLink: false,
+            caption: ""
         }]
     ]);
 
@@ -47,25 +59,12 @@ export class MedicationRequestForm implements ICardForm {
         ['intent',
             ['proposal', 'plan', 'order', 'original-order', 'reflex-order', 'filler-order', 'instance-order', 'option']],
         ['productReference',
-            ['proposal', 'plan', 'order', 'original-order', 'reflex-order', 'filler-order', 'instance-order', 'option']]
+            ['proposal', 'plan', 'order', 'original-order', 'reflex-order', 'filler-order', 'instance-order', 'option']],
+        ['periodUnit',
+            ['s', 'min', 'h', 'd', 'wk', 'mo', 'a']]
     ]);
 
-    groupedFields = new Map<string, string[]>([
-        ['dosage',
-            ['text', 'timing', 'frequency', 'period', 'periodUnit']] 
-        //     ,
-        // ['period',
-        //     ['1', '2', '3', '4', '5', '6']],
-        // ['periodUnit',
-        //     ['s', 'min', 'h', 'd', 'wk', 'mon']],
-        // ['frequency', {
-        //     boxSize: 1,
-        //     isReadOnly: false,
-        //     isLink: false,
-        //     caption: "huh"
-
-        // }]
-    ]);
+    resourceFields = ['dosage'];
 
     cardFieldLayout =
         {
@@ -76,8 +75,8 @@ export class MedicationRequestForm implements ICardForm {
                 ['status', 'frequency'],
                 ['intent', 'placeholder'],
                 ['relatedArtifact', 'placeholder'],
-                ['placeholder', 'placeholder'],
-                ['placeholder', 'text']
+                ['period', 'frequency'],
+                ['periodUnit', 'text']
             ]
 
         };

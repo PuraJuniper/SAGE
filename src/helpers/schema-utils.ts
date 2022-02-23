@@ -9,7 +9,7 @@
 import State, { SageFreezerNode, SageNodeInitializedFreezerNode } from '../state';
 import PrimitiveValidator from './primitive-validator';
 import { Bundle, Resource, Element, ElementDefinition, ElementDefinitionType, ActivityDefinition, PlanDefinition, Questionnaire, Library, ValueSet, FhirResource } from 'fhir/r4';
-import { defaultProfileUriOfResourceType, FriendlyResourceListEntry, FriendlyResourceSelf, profileToFriendlyResourceListEntry, STRUCTURE_DEFINITION, VALUE_SET } from '../simplified/nameHelpers';
+import { defaultProfileUriOfResourceType, FriendlyResourceFormElement, FriendlyResourceProps, profileToFriendlyResourceListEntry, STRUCTURE_DEFINITION, VALUE_SET } from '../simplified/nameHelpers';
 
 // Template of a SageNode for a specific element/resource
 export type SageNode = {
@@ -22,12 +22,12 @@ export type SageNode = {
 	// Path containing the definition in `profile` i.e. "PlanDefinition.action.description" or (for a top-level definition) "Extension"
 	schemaPath: string,
 	// Path relative to the nearest top-level definition i.e. "PlanDefinition.action.description" or "PlanDefinition.Extension" (often the same as schemaPath)
-	nodePath: string, 
+	nodePath: string,
 	fhirType: string,
 	type: ElementDefinitionType,
 	level?: number,
 	sliceName: string,
-	short: string, 
+	short: string,
 	isRequired: boolean,
 	profile: string, // This profile must be able to resolve `schemaPath`
 	binding?: any,
@@ -119,28 +119,28 @@ export function toFhir(decorated: SageNodeInitialized, validate: boolean): [Sage
 	// console.log('toFhir', decorated, validate);
 	let errCount = 0;
 	const errFields: string[] = [];
-	const _walkNode = function(node: SageNodeInitialized, parent?: any) {
+	const _walkNode = function (node: SageNodeInitialized, parent?: any) {
 		if (parent == null) { parent = {}; }
 		for (const child of Array.from(node.children)) {
 			const value = (() => {
 				if (["object", "arrayObject"].includes(child.nodeType)) {
-				return _walkNode(child, {});
-			} else if (["valueArray", "objectArray"].includes(child.nodeType)) {
-				return _walkNode(child, []);
-			} else {
-				let err;
-				if (validate && child?.ui?.validationErr) {
-					err = child?.ui?.validationErr;
-				} else if (validate && child.fhirType) {
-					err = PrimitiveValidator(child.fhirType, child.value, true);
+					return _walkNode(child, {});
+				} else if (["valueArray", "objectArray"].includes(child.nodeType)) {
+					return _walkNode(child, []);
+				} else {
+					let err;
+					if (validate && child?.ui?.validationErr) {
+						err = child?.ui?.validationErr;
+					} else if (validate && child.fhirType) {
+						err = PrimitiveValidator(child.fhirType, child.value, true);
+					}
+
+					if (err) {
+						errFields.push(child.schemaPath.substring(child.schemaPath.indexOf(".") + 1));
+						errCount++;
+					}
+					return child.value;
 				}
-				
-				if (err) {
-					errFields.push(child.schemaPath.substring(child.schemaPath.indexOf(".") + 1));
-					errCount++; 
-				}
-				return child.value;
-			}
 			})();
 
 			if (parent instanceof Array) {
@@ -175,10 +175,10 @@ export const getNextId = () => {
 
 // Build array of possible children from the schema for `node`
 //  optionally excluding some paths (useful for building the dropdown of available elements to add)
-export const getElementChildren = function(profiles: SimplifiedProfiles, node: SageNode, nodePathsToExclude: string[]) : SageNode[] {
+export const getElementChildren = function (profiles: SimplifiedProfiles, node: SageNode, nodePathsToExclude: string[]): SageNode[] {
 	// console.log('getelementchildren', node, nodePathsToExclude);
 	if (nodePathsToExclude == null) { nodePathsToExclude = []; }
-	const _buildChild = (name: string, childSchema: SchemaDef, typeDef: ElementDefinitionType) : SageNode => {
+	const _buildChild = (name: string, childSchema: SchemaDef, typeDef: ElementDefinitionType): SageNode => {
 		// if a new profile should be set for this child, we also reset the schema path accordingly
 		const newProfile = getProfileOfSchemaDef(profiles, childSchema, typeDef);
 		const childProfile = newProfile ? newProfile : node.profile;
@@ -191,19 +191,19 @@ export const getElementChildren = function(profiles: SimplifiedProfiles, node: S
 			name,
 			displayName: buildDisplayName(name, childSchema.sliceName),
 			index: childSchema.index,
-			isRequired: childSchema.min >=1 || presentedInCardEditor(name, node.profile),
+			isRequired: childSchema.min >= 1 || presentedInCardEditor(name, node.profile),
 			fhirType: typeDef.code,
 			type: typeDef,
 			short: childSchema.short,
 			range: [childSchema.min, childSchema.max],
 			nodeType: isComplexType(typeDef.code) ?
 				childSchema.max !== "1" ? "objectArray" : "object"
-			:
+				:
 				childSchema.max !== "1" ? "valueArray" : "value",
 		};
 	};
 
-	const _buildMultiTypePermutations = function(schema: SchemaDef) : SageNode[] {
+	const _buildMultiTypePermutations = function (schema: SchemaDef): SageNode[] {
 		const permutations: SageNode[] = [];
 		for (const type of Array.from(schema.type)) {
 			const capType = type.code[0].toUpperCase() + type.code.slice(1);
@@ -230,9 +230,9 @@ export const getElementChildren = function(profiles: SimplifiedProfiles, node: S
 		//  one level below
 		if (nodePathsToExclude.includes(path) ||
 			(path.indexOf(schemaPath) === -1) ||
-			(path.split(".").length !== (level+1))) {
-				continue; 
-			}
+			(path.split(".").length !== (level + 1))) {
+			continue;
+		}
 
 		// if (schema?.nameReference) {
 		// 	schemaPath = schemaPath.split(".").shift() + "." + schema.nameReference;
@@ -253,16 +253,16 @@ export const getElementChildren = function(profiles: SimplifiedProfiles, node: S
 };
 
 // getElementChildren excluding any elements that are at maximum cardinality
-export const getAvailableElementChildren = function(profiles: SimplifiedProfiles, node: SageNodeInitialized) {
+export const getAvailableElementChildren = function (profiles: SimplifiedProfiles, node: SageNodeInitialized) {
 	const usedElements = [];
 	// console.log(node);
 	// console.log(node.children[0]);
-	for (const child of Array.from(node.children)) { 
-		if (!child.range || (child.range[1] === "1") 
+	for (const child of Array.from(node.children)) {
+		if (!child.range || (child.range[1] === "1")
 			// These two nodeTypes have an "Add Item" option in their menus, so they're ignored here
 			|| child.nodeType == "objectArray" || (child.nodeType === "valueArray")
 			|| ((child.range[1] !== "*") && (parseInt(child.range[1]) < (child?.children?.length || 0))
-		)) {
+			)) {
 			usedElements.push(child.nodePath);
 		}
 	}
@@ -270,7 +270,7 @@ export const getAvailableElementChildren = function(profiles: SimplifiedProfiles
 	return getElementChildren(profiles, node, usedElements);
 }
 
-const getDefaultValue = (schema: SchemaDef, fhirType: string, parentName=""): {
+const getDefaultValue = (schema: SchemaDef, fhirType: string, parentName = ""): {
 	isFixed: boolean,
 	defaultValue: string | boolean | null,
 } => {
@@ -285,26 +285,26 @@ const getDefaultValue = (schema: SchemaDef, fhirType: string, parentName=""): {
 	// // Hard-coding meta.profile
 	// if (schema.path == 'Meta.profile') {}
 	let defaultValue = null;
-	switch(fhirType) {
+	switch (fhirType) {
 		case "boolean":
 			defaultValue = fhirType === "boolean" ? true : null;
 			break;
 	}
-	
+
 	// Attempt to auto-populate URLs, Names, and Publishers, if possible
 	const pathSuffix = schema.path.split('.');
-	switch (pathSuffix[pathSuffix.length-1]) {
+	switch (pathSuffix[pathSuffix.length - 1]) {
 		case "name":
 			if (State.get().CPGName != "") {
 				//filter editor and reviewer
-				if (pathSuffix[0] == "ContactDetail") {	
+				if (pathSuffix[0] == "ContactDetail") {
 					if (parentName == "author") {
 						defaultValue = State.get().author;
 					} else if (parentName == "editor") {
 						defaultValue = State.get().editor;
 					} else if (parentName == "reviewer") {
 						defaultValue = State.get().reviewer
-					}	
+					}
 				}
 				else {
 					defaultValue = `${pathSuffix[0]}-${State.get().CPGName}${State.get().resCount}`;
@@ -312,12 +312,12 @@ const getDefaultValue = (schema: SchemaDef, fhirType: string, parentName=""): {
 			}
 			break;
 		case "publisher":
-			if (State.get().publisher!= "") {
+			if (State.get().publisher != "") {
 				defaultValue = State.get().publisher;
 			}
 			break;
 		case "url":
-			if (State.get().publisher!= "" && State.get().CPGName != "") {
+			if (State.get().publisher != "" && State.get().CPGName != "") {
 				// Ignore extensions
 				if (pathSuffix[0] == "Extension") {
 					break;
@@ -359,14 +359,14 @@ const getDefaultValue = (schema: SchemaDef, fhirType: string, parentName=""): {
 			}
 			break;
 	}
-	
+
 	return {
 		isFixed: false,
 		defaultValue,
 	}
 }
 
-export const buildChildNode = function(profiles: SimplifiedProfiles, parentNode: SageNodeInitialized, childNode: SageNode, fhirType: string): SageNodeInitialized {
+export const buildChildNode = function (profiles: SimplifiedProfiles, parentNode: SageNodeInitialized, childNode: SageNode, fhirType: string): SageNodeInitialized {
 	// Add required children of `parentNode2`
 	const _addRequiredChildren = (parentNode2: SageNodeInitialized, fhirType: string) => {
 
@@ -385,7 +385,7 @@ export const buildChildNode = function(profiles: SimplifiedProfiles, parentNode:
 		return reqChildren;
 	};
 
-	
+
 
 	let name = childNode.name;
 
@@ -407,7 +407,7 @@ export const buildChildNode = function(profiles: SimplifiedProfiles, parentNode:
 			index: schema.index,
 			profile: parentNode.profile,
 			nodePath: childNode.nodePath,
-			schemaPath: childNode.schemaPath, 
+			schemaPath: childNode.schemaPath,
 			sliceName: childNode.sliceName,
 			fhirType: childNode.fhirType,
 			type: childNode.type,
@@ -415,7 +415,7 @@ export const buildChildNode = function(profiles: SimplifiedProfiles, parentNode:
 			nodeType: isComplexType(fhirType) ? "objectArray" : "valueArray",
 			short: schema.short,
 			nodeCreator: "user",
-			isRequired: schema.min >=1,
+			isRequired: schema.min >= 1 || presentedInCardEditor(name, parentNode.profile),
 			range: [schema.min, schema.max],
 			children: [],
 		};
@@ -431,22 +431,22 @@ export const buildChildNode = function(profiles: SimplifiedProfiles, parentNode:
 			defaultValue
 		} = getDefaultValue(schema, fhirType, parentNode.name);
 		const resultNodeType = isComplexType(fhirType) && (parentNode.nodeType === "objectArray") ?
-				"arrayObject"
+			"arrayObject"
 			: isComplexType(fhirType) ?
 				"object"
-			:
+				:
 				"value";
 		const result: SageNodeInitialized = {
 			id: nextId++,
 			name,
 			index: schema.index,
 			nodePath: childNode.nodePath,
-			schemaPath: childNode.schemaPath, 
+			schemaPath: childNode.schemaPath,
 			sliceName: childNode.sliceName,
 			fhirType: childNode.fhirType,
 			type: childNode.type,
 			displayName: buildDisplayName(name, childNode.sliceName),
-			isRequired: schema.min >=1,
+			isRequired: schema.min >= 1 || presentedInCardEditor(name, parentNode.profile),
 			short: schema.short,
 			nodeCreator: "user",
 			isFixed,
@@ -471,7 +471,7 @@ export const buildChildNode = function(profiles: SimplifiedProfiles, parentNode:
 	}
 };
 
-export const findFirstSageNodeByUri = function(nodes: SageFreezerNode<SageNodeInitialized[]>, uri: string) {
+export const findFirstSageNodeByUri = function (nodes: SageFreezerNode<SageNodeInitialized[]>, uri: string) {
 	// Return the first SageNode of `nodes` that has a child "URL" SageNode with value equal to `uri`
 	let idx = 0;
 	for (const node of nodes) {
@@ -490,8 +490,8 @@ export const findFirstSageNodeByUri = function(nodes: SageFreezerNode<SageNodeIn
 	}
 }
 
-export const buildDisplayName = function(name: string, sliceName?: string) {
-	const _fixCamelCase = function(text: string, lowerCase?: boolean) {
+export const buildDisplayName = function (name: string, sliceName?: string) {
+	const _fixCamelCase = function (text: string, lowerCase?: boolean) {
 		//function has an issue with consecutive capital letters (eg. ID)
 		//and not convinced splitting camelcase words has value
 		//so bypassing for now and just capitalizing first letter
@@ -508,7 +508,7 @@ export const buildDisplayName = function(name: string, sliceName?: string) {
 
 // checks if we have a default profile for this resource (without a profile, how do we know what fields exist?)
 // and returns it if it exists in `profiles`
-export const getProfileOfResource = function(profiles: SimplifiedProfiles, resource: Resource) : string | undefined {
+export const getProfileOfResource = function (profiles: SimplifiedProfiles, resource: Resource): string | undefined {
 	if (resource.meta?.profile && resource.meta.profile.length > 0 && profiles[resource.meta.profile[0]]) {
 		return resource.meta.profile[0];
 	}
@@ -523,13 +523,13 @@ export const getProfileOfResource = function(profiles: SimplifiedProfiles, resou
 };
 
 // checks if the given object is a Resource
-export const isSupportedResource = function(data: any): data is SageSupportedFhirResource {
+export const isSupportedResource = function (data: any): data is SageSupportedFhirResource {
 	return (data as SageSupportedFhirResource).resourceType !== undefined;
 }
 
 // checks if the SchemaNode uses a profile and returns its URI if so. 
 // otherwise, it returns a default for that type or undefined if one doesn't exist (bad?)
-const getProfileOfSchemaDef = function(profiles: SimplifiedProfiles, schemaNode: SchemaDef, typeDef?: ElementDefinitionType) : string | undefined {
+const getProfileOfSchemaDef = function (profiles: SimplifiedProfiles, schemaNode: SchemaDef, typeDef?: ElementDefinitionType): string | undefined {
 	// console.log('getProfileOfSchemaDef', schemaNode, typeDef);
 	typeDef = typeDef ?? schemaNode.type[0];
 	if (typeDef.profile) {
@@ -540,10 +540,10 @@ const getProfileOfSchemaDef = function(profiles: SimplifiedProfiles, schemaNode:
 	}
 	else if (profiles[`${linkPrefix}/${STRUCTURE_DEFINITION}/${typeDef.code}`]) {
 		// skipping all types that start with a lowercase letter since they are primitives)
-		if (isInfrastructureType(typeDef.code) 
-		|| typeDef.code[0] != typeDef.code[0].toUpperCase()) {
-				return;
-			}	
+		if (isInfrastructureType(typeDef.code)
+			|| typeDef.code[0] != typeDef.code[0].toUpperCase()) {
+			return;
+		}
 		return `${linkPrefix}/${STRUCTURE_DEFINITION}/${typeDef.code}`;
 	}
 	else if (typeDef.code == 'http://hl7.org/fhirpath/System.String') { // just a primitive
@@ -556,17 +556,27 @@ const getProfileOfSchemaDef = function(profiles: SimplifiedProfiles, schemaNode:
 
 function presentedInCardEditor(name: string, profile: string): boolean {
 	const resourceEntry = profileToFriendlyResourceListEntry(profile);
-	if (resourceEntry) {
-		const formElem = resourceEntry.FORM_ELEMENTS.find(formElem => formElem.SELF.FHIR == name)
+	function getFormListItem(name: string, frfe: FriendlyResourceFormElement): FriendlyResourceFormElement | undefined {
+		return (frfe.SELF.FHIR == name) ? frfe :
+			frfe.LIST ?
+				frfe.LIST.length > 0 ?
+					frfe.LIST.find(fListItem => getFormListItem(name, fListItem))
+					: undefined
+				: undefined
+	}
+	if (resourceEntry.FORM_ELEMENTS) {
+		const formElem: FriendlyResourceFormElement | undefined = resourceEntry.FORM_ELEMENTS
+			.map(formElem => getFormListItem(name, formElem))
+			.find(formElem => formElem)
 		return formElem ? true : false;
 	} else {
 		return false;
 	}
 }
 
-export function getChildOfNodePath (node: SageNodeInitializedFreezerNode, childNamePath: string[]) : SageNodeInitializedFreezerNode | undefined;
-export function getChildOfNodePath (node: SageNodeInitialized, childNamePath: string[]) : SageNodeInitialized | undefined;
-export function getChildOfNodePath (node: SageNodeInitialized, childNamePath: string[]) : SageNodeInitialized | undefined {
+export function getChildOfNodePath(node: SageNodeInitializedFreezerNode, childNamePath: string[]): SageNodeInitializedFreezerNode | undefined;
+export function getChildOfNodePath(node: SageNodeInitialized, childNamePath: string[]): SageNodeInitialized | undefined;
+export function getChildOfNodePath(node: SageNodeInitialized, childNamePath: string[]): SageNodeInitialized | undefined {
 	if (childNamePath.length > 1) {
 		const nextChild = getChildOfNode(node, childNamePath[0]);
 		if (nextChild) {
@@ -582,9 +592,9 @@ export function getChildOfNodePath (node: SageNodeInitialized, childNamePath: st
 	}
 }
 
-export function getChildOfNode (node: SageNodeInitializedFreezerNode, childName: string) : SageNodeInitializedFreezerNode | undefined;
-export function getChildOfNode (node: SageNodeInitialized, childName: string) : SageNodeInitialized | undefined;
-export function getChildOfNode (node: SageNodeInitialized, childName: string): SageNodeInitialized | undefined {
+export function getChildOfNode(node: SageNodeInitializedFreezerNode, childName: string): SageNodeInitializedFreezerNode | undefined;
+export function getChildOfNode(node: SageNodeInitialized, childName: string): SageNodeInitialized | undefined;
+export function getChildOfNode(node: SageNodeInitialized, childName: string): SageNodeInitialized | undefined {
 	if (node.nodeType == "objectArray") {
 		const nodesOfArray = getChildrenFromObjectArrayNode(node);
 		if (nodesOfArray.length > 0) {
@@ -609,13 +619,13 @@ export const createChildrenFromJson = function (profiles: SimplifiedProfiles, no
 	const nodePath = nodeToWriteTo.schemaPath
 	const newChildren = ((() => {
 		const result1 = [];
-		
+
 		for (const k in fhirJson) {
 			const v = (fhirJson as any)[k];
 			const childPath = `${nodePath}.${k}`;
 			const childDef = nodeProfileSchema[childPath];
 			if (childDef) {
-				const walkRes = walkNode(profiles, v, nodeToWriteTo.profile, childPath, (nodeToWriteTo.level || 0)+1);
+				const walkRes = walkNode(profiles, v, nodeToWriteTo.profile, childPath, (nodeToWriteTo.level || 0) + 1);
 				if (walkRes) {
 					result1.push(walkRes);
 				}
@@ -627,14 +637,14 @@ export const createChildrenFromJson = function (profiles: SimplifiedProfiles, no
 			}
 			// add else to check if childPath exists in another profile
 		}
-	
+
 		return result1;
 	})());
 	return newChildren;
 }
 
 export function buildUrlForResource(resourceType: string) {
-	return `http://fhir.org/guides/${State.get().publisher}/${resourceType}/${resourceType}-${State.get().CPGName}${State.get().resCount+1}`;
+	return `http://fhir.org/guides/${State.get().publisher}/${resourceType}/${resourceType}-${State.get().CPGName}${State.get().resCount + 1}`;
 }
 
 /**
@@ -651,9 +661,9 @@ export function buildNewFhirResource(resourceType: string, withUrl?: boolean): S
 	return newResource;
 }
 
-export function getChildrenFromObjectArrayNode (node: SageNodeInitializedFreezerNode) : SageNodeInitializedFreezerNode[];
-export function getChildrenFromObjectArrayNode (node: SageNodeInitialized) : SageNodeInitialized[];
-export function getChildrenFromObjectArrayNode (node: SageNodeInitialized) : SageNodeInitialized[] {
+export function getChildrenFromObjectArrayNode(node: SageNodeInitializedFreezerNode): SageNodeInitializedFreezerNode[];
+export function getChildrenFromObjectArrayNode(node: SageNodeInitialized): SageNodeInitialized[];
+export function getChildrenFromObjectArrayNode(node: SageNodeInitialized): SageNodeInitialized[] {
 	if (node.nodeType != "objectArray") {
 		return [];
 	}
@@ -664,7 +674,7 @@ export function getChildrenFromObjectArrayNode (node: SageNodeInitialized) : Sag
 	return retArr;
 }
 
-export const getArrayFromObjectArrayNode = function (node: SageNodeInitialized) : any[] {
+export const getArrayFromObjectArrayNode = function (node: SageNodeInitialized): any[] {
 	if (node.nodeType != "objectArray") {
 		return [];
 	}
@@ -675,7 +685,7 @@ export const getArrayFromObjectArrayNode = function (node: SageNodeInitialized) 
 	return retArr;
 }
 
-export const walkNode = (profiles: SimplifiedProfiles, valueOfNode: any, profileUri: string, schemaPath: string, level: number | null, inArray?: boolean) : SageNodeInitialized | undefined => {
+export const walkNode = (profiles: SimplifiedProfiles, valueOfNode: any, profileUri: string, schemaPath: string, level: number | null, inArray?: boolean): SageNodeInitialized | undefined => {
 	// TODO: dataNode could be a Resource in a `contained` element
 	// if ('resourceType' in dataNode) {
 	// 	const resourceType = dataNode.resourceType;
@@ -697,7 +707,7 @@ export const walkNode = (profiles: SimplifiedProfiles, valueOfNode: any, profile
 	if (!schema) {
 		const elementName = schemaPath.split('.').pop() as string;
 		const nameParts = elementName.split(/(?=[A-Z])/);
-		let testSchemaPath = schemaPath.split(".").slice(0,schemaPath.split(".").length-1).join(".") + ".";
+		let testSchemaPath = schemaPath.split(".").slice(0, schemaPath.split(".").length - 1).join(".") + ".";
 		for (i = 0; i < nameParts.length; i++) {
 			let testSchema;
 			const namePart = nameParts[i];
@@ -705,8 +715,8 @@ export const walkNode = (profiles: SimplifiedProfiles, valueOfNode: any, profile
 			if ((testSchema = profiles[profileUri]?.[`${testSchemaPath}[x]`])) {
 				schema = testSchema;
 				trueSchemaPath = `${testSchemaPath}[x]`;
-				const expectedType = nameParts.slice(i+1).join("");
-				for (let j=0;j<schema.type.length;j++) {
+				const expectedType = nameParts.slice(i + 1).join("");
+				for (let j = 0; j < schema.type.length; j++) {
 					const curType = schema.type[j];
 					if (curType.code.toLowerCase() == expectedType.toLowerCase()) { // toLowerCase to deal with primitives being lowercase
 						fhirType = curType.code;
@@ -754,13 +764,13 @@ export const walkNode = (profiles: SimplifiedProfiles, valueOfNode: any, profile
 	// 	fhirType = refSchema?.type?.[0]?.code;
 	// }
 
-	
-	
 
-	const decorated : SageNodeInitialized = {
+
+
+	const decorated: SageNodeInitialized = {
 		id: nextId++,
 		index: schema?.index || 0,
-		name, 
+		name,
 		nodeType: schema.type[typeIdx].code[0] != schema.type[typeIdx].code[0].toUpperCase() ? "value" : "object", // naive way of checking if valueOfNode should be a primitive
 		displayName,
 		nodePath: trueSchemaPath,
@@ -770,7 +780,7 @@ export const walkNode = (profiles: SimplifiedProfiles, valueOfNode: any, profile
 		level,
 		short: schema?.short,
 		sliceName: schema?.sliceName,
-		isRequired: schema?.min >=1,
+		isRequired: schema?.min >= 1 || presentedInCardEditor(name, profileUri),
 		binding: schema?.binding,
 		profile: childProfile,
 		children: [],
@@ -782,7 +792,7 @@ export const walkNode = (profiles: SimplifiedProfiles, valueOfNode: any, profile
 	} = getDefaultValue(schema, fhirType);
 	decorated.isFixed = isFixed;
 	decorated.defaultValue = defaultValue;
-	
+
 	if (schema?.min !== undefined) {
 		decorated.range = [schema?.min, schema?.max];
 	}
@@ -807,44 +817,44 @@ export const walkNode = (profiles: SimplifiedProfiles, valueOfNode: any, profile
 	if (valueOfNode instanceof Array && decorated.range && (decorated.range[1] !== "1")) {
 		decorated.children = ((() => {
 			const result = [];
-			
+
 			for (i = 0; i < valueOfNode.length; i++) {
 				v = valueOfNode[i];
-				const childResult = walkNode(profiles, v, childProfile, childSchemaPath, level+1, true);
+				const childResult = walkNode(profiles, v, childProfile, childSchemaPath, level + 1, true);
 				if (childResult) {
 					result.push(childResult);
 				}
 			}
-		
+
 			return result;
 		})());
 		decorated.nodeType = fhirType && isComplexType(fhirType) ?
 			"objectArray"
-		//unknown object arrays
-		: !fhirType && (typeof valueOfNode?.[0] === "object") ?
-			"objectArray"
-		:
-			"valueArray";
+			//unknown object arrays
+			: !fhirType && (typeof valueOfNode?.[0] === "object") ?
+				"objectArray"
+				:
+				"valueArray";
 
-	} else if ((decorated.nodeType == 'object') && 
+	} else if ((decorated.nodeType == 'object') &&
 		!(valueOfNode instanceof Array) &&
 		!(valueOfNode instanceof Date)) {
-			decorated.nodeType = schema && (schema.max !== "1") ? "arrayObject" : "object";
-			decorated.children = ((() => {
-				const result1 = [];
-				
-				for (const k in valueOfNode) {
-					v = (valueOfNode as any)[k];
-					const childPath = `${childSchemaPath}.${k}`;
-					const walkRes = walkNode(profiles, v, childProfile, childPath, level+1);
-					if (walkRes != null && walkRes != undefined) {
-						result1.push(walkRes);
-					}
+		decorated.nodeType = schema && (schema.max !== "1") ? "arrayObject" : "object";
+		decorated.children = ((() => {
+			const result1 = [];
+
+			for (const k in valueOfNode) {
+				v = (valueOfNode as any)[k];
+				const childPath = `${childSchemaPath}.${k}`;
+				const walkRes = walkNode(profiles, v, childProfile, childPath, level + 1);
+				if (walkRes != null && walkRes != undefined) {
+					result1.push(walkRes);
 				}
-			
-				return result1;
-			})());
-			decorated.children = decorated.children.sort((a, b) => a.index - b.index);
+			}
+
+			return result1;
+		})());
+		decorated.children = decorated.children.sort((a, b) => a.index - b.index);
 
 	} else {
 		//some servers return decimals as numbers instead of strings
@@ -866,7 +876,7 @@ export const walkNode = (profiles: SimplifiedProfiles, valueOfNode: any, profile
 			console.log('what is this?', decorated);
 			// decorated.fhirType = null;
 		}
-		
+
 		//check if value has a cardinality of 1 and is in an array
 		if (valueOfNode instanceof Array && (decorated.range?.[1] === "1")) {
 			// TODO: figure out what this is for
@@ -877,14 +887,14 @@ export const walkNode = (profiles: SimplifiedProfiles, valueOfNode: any, profile
 			status: "editing"
 		};
 		if (fhirType && (error = PrimitiveValidator(fhirType, valueOfNode))) {
-			decorated.ui = {validationErr: error, status: "editing"};
+			decorated.ui = { validationErr: error, status: "editing" };
 		}
 	}
 
 	return decorated;
 };
 
-export const decorateFhirData = function(profiles: SimplifiedProfiles, resource: SageSupportedFhirResource) : SageNodeInitialized | undefined {
+export const decorateFhirData = function (profiles: SimplifiedProfiles, resource: SageSupportedFhirResource): SageNodeInitialized | undefined {
 	// console.log('decorateFhirData', profiles, resource);
 	const resourceProfile = getProfileOfResource(profiles, resource);
 	if (!resourceProfile) {
@@ -892,12 +902,12 @@ export const decorateFhirData = function(profiles: SimplifiedProfiles, resource:
 		return;
 	}
 	nextId = 0;
-	
+
 	// Create root node first
 	const rootProfileSchema = profiles[resourceProfile]; // This is the schema of the profile
 	const rootPath = resource.resourceType; // This path gives you the schema of the Resource itself
 	const type = rootProfileSchema[rootPath].type[0];
-	const decorated : SageNodeInitialized = {
+	const decorated: SageNodeInitialized = {
 		id: nextId++,
 		index: rootProfileSchema[rootPath].index,
 		name: "root node",
@@ -940,18 +950,18 @@ const cpgCode = "cpg";
 const ipsCode = "ips";
 
 
-export function makeProfile(resource: FriendlyResourceListEntry | string): string {
+export function makeProfile(resource: FriendlyResourceProps | string): string {
 
-	if (typeof(resource) !== 'string') {
-		return resource.PROFILE_URI;
+	if (typeof (resource) !== 'string' && resource.DEFAULT_PROFILE_URI ) {
+		return resource.DEFAULT_PROFILE_URI;
 	}
 
-	return linkPrefix + "/" + uvCode + "/" + cpgCode + "/" + STRUCTURE_DEFINITION + "/" + cpgCode + "-" 
-	+ resource.toLowerCase()
+	return linkPrefix + "/" + uvCode + "/" + cpgCode + "/" + STRUCTURE_DEFINITION + "/" + cpgCode + "-"
+		+ (resource as string).toLowerCase()
 }
 
-export function makeValueSetURL(resource: FriendlyResourceListEntry): string {
+export function makeValueSetURL(resource: FriendlyResourceProps): string {
 
-	return linkPrefix + "/" +  uvCode + "/" + ipsCode + "/" + VALUE_SET + "/" + (resource.FHIR).toLowerCase()
+	return linkPrefix + "/" + uvCode + "/" + ipsCode + "/" + VALUE_SET + "/" + (resource.FHIR).toLowerCase()
 }
 

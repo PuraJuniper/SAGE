@@ -4,7 +4,7 @@ import { PlanDefinitionActionCondition } from 'fhir/r4';
 import React from "react";
 import State, { SageNodeInitializedFreezerNode } from '../state';
 import { ICardForm } from './cardEditor';
-import { FriendlyResourceListEntry } from './nameHelpers';
+import { FriendlyResourceProps } from './nameHelpers';
 
 export type cardRow = string[];
 export type cardLayout = {
@@ -27,7 +27,7 @@ export interface CardFormState {
 export type CardFormProps = {
     sageNode: SageNodeInitializedFreezerNode,
     fieldHandlers: any[][],
-    resourceType: FriendlyResourceListEntry,
+    resourceType: FriendlyResourceProps,
     pdConditions: PlanDefinitionActionCondition[],
     elementList: JSX.Element[]
     innerCardForm: ICardForm,
