@@ -67,7 +67,7 @@ const createTextBoxElement = (fieldKey: string, friendlyFieldName: string, textP
         if (textProps.isLink) {
             return <Button key={fieldName + "-button"} variant="link" onClick={() => window.open(fieldContents)}>{fieldContents}</Button>;
         } else {
-            return <Form.Control key={fieldName + "-formControl"}
+            return <Form.Control key={fieldName + "-formControl"} className= {(fieldName == "relatedArtifact") ? (!validURL(fieldContents) ? "is-invalid" : "was-validated") : "tea"}
                 {...{
                     ...(textProps.isReadOnly) && { readOnly: textProps.isReadOnly },
                     ...(textProps.boxSize) > 1 && { as: "textarea" as ElementType<any>, rows: textProps.boxSize },
@@ -81,11 +81,26 @@ const createTextBoxElement = (fieldKey: string, friendlyFieldName: string, textP
     }
 
     fieldHandlers.push([fieldName, fieldContents, setField, fieldSaveHandler]);
+    function validURL(urlInput: string) {
+        const pattern = new RegExp('^(https?:\\/\\/)?'+ // protocol
+          '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+ // domain name
+          '((\\d{1,3}\\.){3}\\d{1,3}))'+ // OR ip (v4) address
+          '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+ // port and path
+          '(\\?[;&a-z\\d%_.~+=-]*)?'+ // query string
+          '(\\#[-a-z\\d_]*)?$','i'); // fragment locator
+        return !!pattern.test(urlInput);
+    }
 
     return (
+
         <Form.Group key={fieldName + "-formGroup"} as={Col} controlId={fieldName}>
             <Form.Label key={fieldName + "-formLabel"}>{friendlyFieldName}</Form.Label>
-            <Form.Text key={fieldName + "-formText"}>{textProps.caption}</Form.Text>
+            <Form.Text 
+                className= {(fieldName == "relatedArtifact") ? (!validURL(fieldContents) ? "is-invalid" : "was-validated") : "tea"}
+                key={fieldName + "-formText"}
+            >
+                {textProps.caption}
+            </Form.Text>
             <Col key={fieldName + "-col"} sm={10}>
                 {returnVal()}
             </Col>
@@ -96,39 +111,6 @@ const createTextBoxElement = (fieldKey: string, friendlyFieldName: string, textP
 const createDropdownElement = (fieldKey: string, fieldFriendlyName: string, fieldElements: string[], fieldHandlers: any[][], node: SageNodeInitializedFreezerNode): JSX.Element => {
     const [fieldName, fieldContents, setField, fieldSaveHandler] = simpleCardField(fieldKey, node);
     fieldHandlers.push([fieldName, fieldContents, setField, fieldSaveHandler]);
-    return (
-        <Form.Group key={fieldName + "-fromGroup"} as={Col} controlId={fieldKey}>
-            <Form.Label key={fieldName + "-label"}>{fieldFriendlyName}</Form.Label>
-            <Col key={fieldName + "-col"} sm={10}>
-                <InputGroup key={fieldName + "-inputGroup"} className="mb-3">
-                    <Form.Control
-                        key={fieldName + "formControl"}
-                        as="select"
-                        defaultValue={fieldContents}
-                        onChange={(e) => setField(e.currentTarget.value)}
-                    >
-                        {fieldElements.map(sType => {
-                            return <option key={fieldKey + "-" + sType} value={sType}>{sType}</option>;
-                        })}
-                    </Form.Control>
-                </InputGroup>
-            </Col>
-        </Form.Group>
-    );
-}
-
-const createAttachedElement = (fieldKey: string, fieldFriendlyName: string, fieldElements: string[], fieldHandlers: any[][], node: SageNodeInitializedFreezerNode): JSX.Element => {
-    const [fieldName, fieldContents, setField, fieldSaveHandler] = simpleCardField(fieldKey, node);
-    fieldHandlers.push([fieldName, fieldContents, setField, fieldSaveHandler]);
-    function useFileUpload() {
-        const [fileSelected, setFileSelected] = React.useState<File>()
-        const uploadFile = function (e: React.MouseEvent<HTMLSpanElement, MouseEvent>) {
-            if (fileSelected) {
-                const formData = new FormData();
-                formData.append("image", fileSelected, fileSelected.name);
-            }
-        };
-    }
     return (
         <Form.Group key={fieldName + "-fromGroup"} as={Col} controlId={fieldKey}>
             <Form.Label key={fieldName + "-label"}>{fieldFriendlyName}</Form.Label>

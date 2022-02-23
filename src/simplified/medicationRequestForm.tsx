@@ -27,7 +27,7 @@ export class MedicationRequestForm implements ICardForm {
         }],
         ['relatedArtifact', {
             boxSize: 1,
-            isReadOnly: true,
+            isReadOnly: false,
             isLink: false,
             caption: ""
         }],
