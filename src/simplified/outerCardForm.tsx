@@ -3,8 +3,10 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { PlanDefinitionActionCondition } from 'fhir/r4';
 import React from "react";
 import State, { SageNodeInitializedFreezerNode } from '../state';
-import { ICardForm } from './cardEditor';
+
+import { ICardForm, CardEditor } from './cardEditor';
 import { FriendlyResourceProps } from './nameHelpers';
+import { Card } from "react-bootstrap";
 
 export type cardRow = string[];
 export type cardLayout = {
@@ -28,9 +30,11 @@ export type CardFormProps = {
     sageNode: SageNodeInitializedFreezerNode,
     fieldHandlers: any[][],
     resourceType: FriendlyResourceProps,
+    elementList: JSX.Element[],
+    displayList: JSX.Element[],
     pdConditions: PlanDefinitionActionCondition[],
-    elementList: JSX.Element[]
     innerCardForm: ICardForm,
+    handleSaveResource: ()=> void,
 }
 export class OuterCardForm extends React.Component<CardFormProps, CardFormState>{
     sageState: any;
@@ -50,7 +54,8 @@ export class OuterCardForm extends React.Component<CardFormProps, CardFormState>
 
         this.saveButton =
             <button key="butSave" className="navigate col-lg-2 col-md-3"
-                type="submit">
+                type="button"
+                onClick={()=> this.props.handleSaveResource()}>
                 Save Card&nbsp;
                 <FontAwesomeIcon key="butSaveIcon" icon={faCaretRight} />
             </button>;
@@ -97,16 +102,22 @@ export class OuterCardForm extends React.Component<CardFormProps, CardFormState>
 
     resetForm = () => { this.setState({ step: 1 }) }
 
+
     render() {
         const PageOne = this.innerCardForm.pageOne; // https://reactjs.org/docs/jsx-in-depth.html#choosing-the-type-at-runtime
         const PageTwo = this.innerCardForm.pageTwo;
+        const PageThree = this.innerCardForm.pageThree;
+
         
         return (
             <div>
                 <div>{this.pageTitles.get(this.state.step)}</div>
                 <div>{this.state.step == 1 ? <PageOne fieldElements={this.props.elementList} /> : null}</div>
                 {this.state.step == 2 ? <PageTwo conditions={this.props.pdConditions}/> : null}
-                {this.state.step == 3 ? this.innerCardForm.pageThree([]) : null}
+                {this.state.step == 3 ? <Card style={{ padding: "20px", margin: "10px", borderWidth: "2px", borderColor:'rgb(42, 107, 146)', borderRadius: '40px'}}>
+                                        <Card.Title>{this.props.resourceType.FRIENDLY}</Card.Title>
+                                        <Card.Body><PageThree displayElements={this.props.displayList}/></Card.Body>
+                                        </Card> : null}
                 <div><>
                     {this.state.step > 1 ? this.leftNavButton() : null}
                     {this.state.step <= 2 ? this.rightNavButton() : null}

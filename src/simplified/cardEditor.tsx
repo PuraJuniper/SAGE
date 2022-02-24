@@ -7,7 +7,7 @@ import hypertensionLibraryJson from "../../public/samples/hypertension-library.j
 import * as SageUtils from "../helpers/sage-utils";
 import * as SchemaUtils from "../helpers/schema-utils";
 import State, { SageNodeInitializedFreezerNode } from "../state";
-import { OuterCardForm, CardFormProps, textBoxProps, cardLayout } from "./outerCardForm";
+import { OuterCardForm, textBoxProps, cardLayout } from "./outerCardForm";
 import { ACTIVITY_DEFINITION, FriendlyResourceFormElement, FriendlyResourceProps, getFormElementListForResource, profileToFriendlyResourceListEntry } from "./nameHelpers";
 import { MedicationRequestForm } from "./medicationRequestForm";
 
@@ -35,7 +35,9 @@ export interface pageOneProps {
 export interface pageTwoProps {
     conditions: PlanDefinitionActionCondition[],
 }
-
+export interface pageThreeProps {
+    displayElements: JSX.Element[],
+}
 export interface ICardForm {
     resourceType: FriendlyResourceProps;
     textBoxFields: Map<string, textBoxProps>;
@@ -44,7 +46,7 @@ export interface ICardForm {
     cardFieldLayout: cardLayout;
     pageOne: React.FunctionComponent<pageOneProps> | React.ComponentClass<pageOneProps>;
     pageTwo: React.FunctionComponent<pageTwoProps> | React.ComponentClass<pageTwoProps>;
-    pageThree: (fieldElements: JSX.Element[]) => JSX.Element[];
+    pageThree: React.FunctionComponent<pageThreeProps> | React.ComponentClass<pageThreeProps>;
 }
 
 const simpleCardField = (fieldName: string, actNode: SageNodeInitializedFreezerNode) => {
@@ -116,6 +118,29 @@ const createDropdownElement = (fieldKey: string, fieldFriendlyName: string, fiel
             </Col>
         </Form.Group>
     );
+}
+
+const createDisplayElement = (fieldHandlers: any, friendlyFields: any, i: number): JSX.Element => {
+    let friendly;
+    for (let j = 0; j < friendlyFields.length; j++) {
+        if (friendlyFields[j].FHIR === fieldHandlers[i][0]) friendly = friendlyFields[j].FRIENDLY
+    }
+    return (
+        <Form.Group key={fieldHandlers[i][0] + "-fromGroup"} as={Col} controlId={fieldHandlers[i][0]}>
+        <Form.Label key={fieldHandlers[i][0] + "-label"}>{friendly} {fieldHandlers[i][1]}</Form.Label>
+        </Form.Group>
+)
+}
+
+const createDisplayElementList = (fieldHandlers: any, resourceType: FriendlyResourceProps): JSX.Element[] => {
+    const friendlyFields = getFormElementListForResource(resourceType.FHIR);
+    const list: JSX.Element[] = [];
+
+    for (let i = 0; i < fieldHandlers.length; i++) {
+        list[i] =  createDisplayElement(fieldHandlers,friendlyFields, i);
+    }
+
+    return list;
 }
 
 const createTextBoxElementList = (innerCardForm: ICardForm, friendlyFields: FriendlyResourceFormElement[], fieldHandlers: any, node: SageNodeInitializedFreezerNode): JSX.Element[] => {
@@ -204,17 +229,18 @@ export const CardEditor = (props: CardEditorProps) => {
 
     return (
         <div>
-            <Form key={actResourceType.FHIR + "-form"} style={{ color: "#2a6b92" }} id="commonMetaDataForm" target="void" onSubmit={handleSaveResource}>
+            <div key={actResourceType.FHIR + "-form"} style={{ color: "#2a6b92" }} id="commonMetaDataForm">
                 <OuterCardForm
                     sageNode={actNode}
                     fieldHandlers={fieldHandlers}
                     pdConditions={pdConditions}
                     resourceType={actResourceType}
                     elementList={fieldElementListForType(innerCardForm, getFormElementListForResource(innerCardForm.resourceType.FHIR), fieldHandlers, actNode)}
+                    displayList = {createDisplayElementList(fieldHandlers, actResourceType)}
                     innerCardForm={innerCardForm}
+                    handleSaveResource = {handleSaveResource}
                 />
-            </Form>
-
+            </div>
         </div>
     );
 
@@ -222,6 +248,7 @@ export const CardEditor = (props: CardEditorProps) => {
         fieldHandlers.forEach((field) => field[3](field[0], field[1], actNode, planNode));
         State.get().set("ui", { status: "collection" });
     }
+
 }
 
 function ConditionDropdown(fieldList: any[][]) {
