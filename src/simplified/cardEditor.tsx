@@ -72,11 +72,12 @@ const createTextBoxElement = (fieldKey: string, friendlyFieldName: string, textP
           '(\\#[-a-z\\d_]*)?$','i'); // fragment locator
         return !!pattern.test(urlInput);
     }
+
     function returnVal() {
         if (textProps.isLink) {
             return <Button key={fieldName + "-button"} variant="link" onClick={() => window.open(fieldContents)}>{fieldContents}</Button>;
         } else {
-            return <Form.Control key={fieldName + "-formControl"} className= {(fieldName == "relatedArtifact") ? ((validURL(fieldContents) || (fieldContents === {})) ? "" : "is-invalid") : ""}
+            return <Form.Control key={fieldName + "-formControl"} className= {(fieldName == "relatedArtifact") ? (((fieldContents == "")||validURL(fieldContents)) ? "" : "is-invalid") : ""}
                 {...{
                     ...(textProps.isReadOnly) && { readOnly: textProps.isReadOnly },
                     ...(textProps.boxSize) > 1 && { as: "textarea" as ElementType<any>, rows: textProps.boxSize },
