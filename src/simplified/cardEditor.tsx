@@ -200,10 +200,7 @@ export const CardEditor = (props: CardEditorProps) => {
     function getResourceType(): FriendlyResourceProps {
         const resourceProfile = (): string => {
             if (actNode) {
-                const fhirResource = SchemaUtils.toFhir(actNode, false);
-                const meta = fhirResource ? fhirResource.meta : undefined;
-                const profile = meta ? meta.profile : undefined;
-                return profile ? profile[0] : "";
+                return actNode.profile;
             } else {
                 return "";
             }

@@ -530,7 +530,6 @@ export const isSupportedResource = function (data: any): data is SageSupportedFh
 // checks if the SchemaNode uses a profile and returns its URI if so. 
 // otherwise, it returns a default for that type or undefined if one doesn't exist (bad?)
 const getProfileOfSchemaDef = function (profiles: SimplifiedProfiles, schemaNode: SchemaDef, typeDef?: ElementDefinitionType): string | undefined {
-
 	typeDef = typeDef ?? schemaNode.type[0];
 	if (typeDef.profile) {
 		return typeDef.profile[0];
@@ -541,7 +540,8 @@ const getProfileOfSchemaDef = function (profiles: SimplifiedProfiles, schemaNode
 	else if (profiles[`${linkPrefix}/${STRUCTURE_DEFINITION}/${typeDef.code}`]) {
 		// skipping all types that start with a lowercase letter since they are primitives)
 		if (isInfrastructureType(typeDef.code)
-			|| typeDef.code[0] != typeDef.code[0].toUpperCase()) {
+			// || typeDef.code[0] != typeDef.code[0].toUpperCase()
+			) {
 			return;
 		}
 		return `${linkPrefix}/${STRUCTURE_DEFINITION}/${typeDef.code}`;
@@ -549,9 +549,9 @@ const getProfileOfSchemaDef = function (profiles: SimplifiedProfiles, schemaNode
 	else if (typeDef.code == 'http://hl7.org/fhirpath/System.String') { // just a primitive
 		return;
 	}
-	else if ((typeDef as unknown as string).length == 1) {
-		return (schemaNode.type as unknown as string)
-	}
+	// else if ((typeDef as unknown as string).length == 1) {
+	// 	return (schemaNode.type as unknown as string)
+	// }
 	else {
 		console.log(`No default profile found for code: ${typeDef.code}`);
 	}
@@ -616,32 +616,34 @@ export function getChildOfNode(node: SageNodeInitialized, childName: string): Sa
 	return;
 }
 
-export const createChildrenFromJson = function (profiles: SimplifiedProfiles, nodeToWriteTo: SageNodeInitialized, fhirJson: any) {
-	console.log(nodeToWriteTo, fhirJson)
+export const createChildrenFromJson = function (profiles: SimplifiedProfiles, nodeToWriteTo: SageNodeInitialized, fhirJson: SageSupportedFhirResource) {
 	const nodeProfileSchema = profiles[nodeToWriteTo.profile];
-
-	console.log(nodeProfileSchema)
 	const nodePath = nodeToWriteTo.schemaPath
 	const newChildren = ((() => {
-		const result1: SageNodeInitialized[] = [];
+		const result1 = [];
 
-		for (const k in nodeProfileSchema) {
-			const v = (nodeProfileSchema as any)[k];
-			const childPath = `${k}`;
-			console.log(childPath);
-			const childDef = nodeProfileSchema[childPath];
-			if (childDef) {
-				const walkRes = walkNode(profiles, v, nodeToWriteTo.profile, childPath, (nodeToWriteTo.level || 0) + 1);
-				if (walkRes) {
-					result1.push(walkRes);
+		// console.log(nodeProfileSchema);
+		for (const childPath in nodeProfileSchema) {
+			if (childPath.includes(".")) {
+				// console.log(childPath);
+				const v = (nodeProfileSchema as any)[childPath];
+				// console.log(v);
+				// const childPath = `${nodePath}.${k}`;
+				const childDef = nodeProfileSchema[childPath];
+				// console.log('childDef', childDef)
+				if (childDef) {
+					const walkRes = walkNode(profiles, v, nodeToWriteTo.profile, childPath, (nodeToWriteTo.level || 0) + 1);
+					if (walkRes) {
+						result1.push(walkRes);
+					}
 				}
-			}
-			else {
-				if (childPath.split('.').pop() != 'resourceType') { // resourceType is not in the schema for some reason
-					console.log(`Could not find definition for ${childPath}`);
+				else {
+					if (childPath.split('.').pop() != 'resourceType') { // resourceType is not in the schema for some reason
+						console.log(`Could not find definition for ${childPath}`);
+					}
 				}
+				// add else to check if childPath exists in another profile
 			}
-			// add else to check if childPath exists in another profile
 		}
 		return result1;
 	})());
@@ -701,47 +703,49 @@ export const walkNode = (profiles: SimplifiedProfiles, valueOfNode: any, profile
 		//root node
 		level = 0;
 	}
-``
+	
 	const name = schemaPath.split('.').pop() as string; // we know pop() will return a string here
 	let trueSchemaPath = schemaPath;
-	const schema = profiles[profileUri]?.[trueSchemaPath];
-	console.log(schema)
-	// let typeIdx = 0; // Assuming 0
-	const fhirType = (schema?.type as unknown as string);
-	const type = (schema?.type as unknown as string);
-	//is it a multi-type? //TODO
-	// if (!schema) {
-	// 	const elementName = schemaPath.split('.').pop() as string;
-	// 	const nameParts = elementName.split(/(?=[A-Z])/);
-	// 	let testSchemaPath = schemaPath.split(".").slice(0, schemaPath.split(".").length - 1).join(".") + ".";
-	// 	for (i = 0; i < nameParts.length; i++) {
-	// 		let testSchema;
-	// 		const namePart = nameParts[i];
-	// 		testSchemaPath += `${namePart}`;
-	// 		if ((testSchema = profiles[profileUri]?.[`${testSchemaPath}[x]`])) {
-	// 			schema = testSchema;
-	// 			trueSchemaPath = `${testSchemaPath}[x]`;
-	// 			const expectedType = nameParts.slice(i + 1).join("");
-	// 			for (let j = 0; j < schema.type.length; j++) {
-	// 				const curType = schema.type[j];
-	// 				if (curType.code.toLowerCase() == expectedType.toLowerCase()) { // toLowerCase to deal with primitives being lowercase
-	// 					fhirType = curType.code;
-	// 					type = curType;
-	// 					typeIdx = j;
-	// 				}
-	// 			}
-	// 			if (!fhirType) {
-	// 				console.log(`Error: expected to find FHIR type ${expectedType} as a possible type for ${trueSchemaPath}`);
-	// 				return;
-	// 			}
-	// 			// //allow for complex type multi-types
-	// 			// if (!profiles[fhirType]) { 
-	// 			// 	fhirType = fhirType[0].toLowerCase() + fhirType.slice(1);
-	// 			// }
-	// 			// displayName = buildDisplayName(schemaPath, fhirType);
-	// 		}
-	// 	}
-	// }
+	// console.log(name)
+	// console.log(trueSchemaPath)
+	let schema = profiles[profileUri]?.[trueSchemaPath];
+	// console.log(schema)
+	let typeIdx = 0; // Assuming 0
+	let fhirType = schema?.type[typeIdx]?.code;
+	let type = schema?.type[typeIdx];
+	//is it a multi-type?
+	if (!schema) {
+		const elementName = schemaPath.split('.').pop() as string;
+		const nameParts = elementName.split(/(?=[A-Z])/);
+		let testSchemaPath = schemaPath.split(".").slice(0, schemaPath.split(".").length - 1).join(".") + ".";
+		for (i = 0; i < nameParts.length; i++) {
+			let testSchema;
+			const namePart = nameParts[i];
+			testSchemaPath += `${namePart}`;
+			if ((testSchema = profiles[profileUri]?.[`${testSchemaPath}[x]`])) {
+				schema = testSchema;
+				trueSchemaPath = `${testSchemaPath}[x]`;
+				const expectedType = nameParts.slice(i + 1).join("");
+				for (let j = 0; j < schema.type.length; j++) {
+					const curType = schema.type[j];
+					if (curType.code.toLowerCase() == expectedType.toLowerCase()) { // toLowerCase to deal with primitives being lowercase
+						fhirType = curType.code;
+						type = curType;
+						typeIdx = j;
+					}
+				}
+				if (!fhirType) {
+					console.log(`Error: expected to find FHIR type ${expectedType} as a possible type for ${trueSchemaPath}`);
+					return;
+				}
+				// //allow for complex type multi-types
+				// if (!profiles[fhirType]) { 
+				// 	fhirType = fhirType[0].toLowerCase() + fhirType.slice(1);
+				// }
+				// displayName = buildDisplayName(schemaPath, fhirType);
+			}
+		}
+	}
 	if (!schema) {
 		console.log(`Error reading element of type ${schemaPath} with value ${valueOfNode}`);
 		return;
@@ -843,24 +847,25 @@ export const walkNode = (profiles: SimplifiedProfiles, valueOfNode: any, profile
 				:
 				"valueArray";
 
-	} else if ((decorated.nodeType == 'object') &&
-		!(valueOfNode instanceof Array) &&
-		!(valueOfNode instanceof Date)) {
-		decorated.nodeType = schema && (schema.max !== "1") ? "arrayObject" : "object";
-		decorated.children = ((() => {
-			const result1 = [];
+	// } else if ((decorated.nodeType == 'object') &&
+	// 	!(valueOfNode instanceof Array) &&
+	// 	!(valueOfNode instanceof Date) &&
+	// 	!(valueOfNode instanceof String)) {
+	// 	decorated.nodeType = schema && (schema.max !== "1") ? "arrayObject" : "object";
+	// 	decorated.children = ((() => {
+	// 		const result1 = [];
 
-			for (const k in valueOfNode) {
-				v = (valueOfNode as any)[k];
-				const childPath = `${childSchemaPath}.${k}`;
-				const walkRes = walkNode(profiles, v, childProfile, childPath, level + 1);
-				if (walkRes != null && walkRes != undefined) {
-					result1.push(walkRes);
-				}
-			}
-			return result1;
-		})());
-		decorated.children = decorated.children.sort((a, b) => a.index - b.index);
+	// 		for (const k in valueOfNode) {
+	// 			v = (valueOfNode as any)[k];
+	// 			const childPath = `${childSchemaPath}.${k}`;
+	// 			const walkRes = walkNode(profiles, v, childProfile, childPath, level + 1);
+	// 			if (walkRes != null && walkRes != undefined) {
+	// 				result1.push(walkRes);
+	// 			}
+	// 		}
+	// 		return result1;
+	// 	})());
+	// 	decorated.children = decorated.children.sort((a, b) => a.index - b.index);
 
 	} else {
 		//some servers return decimals as numbers instead of strings
@@ -879,7 +884,7 @@ export const walkNode = (profiles: SimplifiedProfiles, valueOfNode: any, profile
 
 		//check if value has a cardinality of > 1 and isn't in an array
 		if (decorated.range?.[1] && (decorated.range[1] !== "1") && !inArray) {
-			console.log('what is this?', decorated);
+			// console.log('what is this?', decorated);
 			// decorated.fhirType = null;
 		}
 
@@ -957,7 +962,7 @@ const ipsCode = "ips";
 
 export function makeProfile(resource: FriendlyResourceProps | string): string {
 
-	if (typeof (resource) !== 'string' && resource.DEFAULT_PROFILE_URI ) {
+	if (typeof (resource) !== 'string' && resource.DEFAULT_PROFILE_URI) {
 		return resource.DEFAULT_PROFILE_URI;
 	}
 
