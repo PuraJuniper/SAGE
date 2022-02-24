@@ -64,6 +64,21 @@ const simpleCardField = (fieldName: string, actNode: SageNodeInitializedFreezerN
     return [fieldName, fieldContents, setField, fieldSaveHandler]
 }
 
+// const resourceCardField = (fieldName: string, actNode: SageNodeInitializedFreezerNode) => {
+//     const [fieldContents, setField] = CardStateEditor<SageNodeInitializedFreezerNode>(actNode, fieldName);
+//     function fieldSaveHandler(name: string, contents: any, act: any, plan: any) {
+//         const fieldNode = SchemaUtils.getChildOfNodePath(plan, ["action", name]);
+//         if (fieldNode) {
+//             State.emit("value_change", fieldNode, name, false);
+//         }
+//         if (act.displayName == ACTIVITY_DEFINITION) {
+//             State.emit("value_change", SchemaUtils.getChildOfNode(act, name), contents, false);
+//         }
+//         State.emit("value_change", SchemaUtils.getChildOfNode(plan, name), contents, false);
+//     }
+//     return [fieldName, fieldContents, setField, fieldSaveHandler]
+// }
+
 const createTextBoxElement = (fieldKey: string, friendlyFieldName: string, textProps: textBoxProps, fieldHandlers: any[][], node: SageNodeInitializedFreezerNode): JSX.Element => {
     const [fieldName, fieldContents, setField, fieldSaveHandler] = simpleCardField(fieldKey, node);
     function returnVal() {
@@ -200,7 +215,10 @@ export const CardEditor = (props: CardEditorProps) => {
     function getResourceType(): FriendlyResourceProps {
         const resourceProfile = (): string => {
             if (actNode) {
-                return actNode.profile;
+                const fhirResource = SchemaUtils.toFhir(actNode, false);
+                const meta = fhirResource ? fhirResource.meta : undefined;
+                const profile = meta ? meta.profile : undefined;
+                return profile ? profile[0] : "";
             } else {
                 return "";
             }
