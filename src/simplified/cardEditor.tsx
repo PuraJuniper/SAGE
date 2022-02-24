@@ -7,8 +7,8 @@ import hypertensionLibraryJson from "../../public/samples/hypertension-library.j
 import * as SageUtils from "../helpers/sage-utils";
 import * as SchemaUtils from "../helpers/schema-utils";
 import State, { SageNodeInitializedFreezerNode } from "../state";
-import { OuterCardForm, CardFormProps, textBoxProps, cardLayout } from "./outerCardForm";
-import { ACTIVITY_DEFINITION, FriendlyResourceFormElement, FriendlyResourceListEntry, getFormElementListForResource, profileToFriendlyResourceListEntry } from "./nameHelpers";
+import { OuterCardForm, textBoxProps, cardLayout } from "./outerCardForm";
+import { ACTIVITY_DEFINITION, FriendlyResourceFormElement, FriendlyResourceProps, getFormElementListForResource, profileToFriendlyResourceListEntry } from "./nameHelpers";
 import { MedicationRequestForm } from "./medicationRequestForm";
 
 
@@ -39,9 +39,10 @@ export interface pageThreeProps {
     displayElements: JSX.Element[],
 }
 export interface ICardForm {
-    resourceType: FriendlyResourceListEntry;
+    resourceType: FriendlyResourceProps;
     textBoxFields: Map<string, textBoxProps>;
     dropdownFields: Map<string, string[]>;
+    resourceFields: string[];
     cardFieldLayout: cardLayout;
     pageOne: React.FunctionComponent<pageOneProps> | React.ComponentClass<pageOneProps>;
     pageTwo: React.FunctionComponent<pageTwoProps> | React.ComponentClass<pageTwoProps>;
@@ -49,7 +50,7 @@ export interface ICardForm {
 }
 
 const simpleCardField = (fieldName: string, actNode: SageNodeInitializedFreezerNode) => {
-    const [fieldContents, setField] = CardStringStateEditor(actNode, fieldName);
+    const [fieldContents, setField] = CardStateEditor<string>(actNode, fieldName);
     function fieldSaveHandler(name: string, contents: any, act: any, plan: any) {
         const fieldNode = SchemaUtils.getChildOfNodePath(plan, ["action", name]);
         if (fieldNode) {
@@ -62,6 +63,21 @@ const simpleCardField = (fieldName: string, actNode: SageNodeInitializedFreezerN
     }
     return [fieldName, fieldContents, setField, fieldSaveHandler]
 }
+
+// const resourceCardField = (fieldName: string, actNode: SageNodeInitializedFreezerNode) => {
+//     const [fieldContents, setField] = CardStateEditor<SageNodeInitializedFreezerNode>(actNode, fieldName);
+//     function fieldSaveHandler(name: string, contents: any, act: any, plan: any) {
+//         const fieldNode = SchemaUtils.getChildOfNodePath(plan, ["action", name]);
+//         if (fieldNode) {
+//             State.emit("value_change", fieldNode, name, false);
+//         }
+//         if (act.displayName == ACTIVITY_DEFINITION) {
+//             State.emit("value_change", SchemaUtils.getChildOfNode(act, name), contents, false);
+//         }
+//         State.emit("value_change", SchemaUtils.getChildOfNode(plan, name), contents, false);
+//     }
+//     return [fieldName, fieldContents, setField, fieldSaveHandler]
+// }
 
 const createTextBoxElement = (fieldKey: string, friendlyFieldName: string, textProps: textBoxProps, fieldHandlers: any[][], node: SageNodeInitializedFreezerNode): JSX.Element => {
     const [fieldName, fieldContents, setField, fieldSaveHandler] = simpleCardField(fieldKey, node);
@@ -131,7 +147,7 @@ const createDisplayElement = (fieldHandlers: any, friendlyFields: any, i: number
 )
 }
 
-const createDisplayElementList = (fieldHandlers: any, resourceType: FriendlyResourceListEntry): JSX.Element[] => {
+const createDisplayElementList = (fieldHandlers: any, resourceType: FriendlyResourceProps): JSX.Element[] => {
     const friendlyFields = getFormElementListForResource(resourceType.FHIR);
     const list: JSX.Element[] = [];
 
@@ -145,26 +161,39 @@ const createDisplayElementList = (fieldHandlers: any, resourceType: FriendlyReso
 const createTextBoxElementList = (innerCardForm: ICardForm, friendlyFields: FriendlyResourceFormElement[], fieldHandlers: any, node: SageNodeInitializedFreezerNode): JSX.Element[] => {
     const defaultBoxProps: textBoxProps = { boxSize: 1, isReadOnly: false, isLink: false, caption: "" }
     return friendlyFields
-        .filter(ff => innerCardForm.textBoxFields.has(ff.FHIR))
+        .filter(ff => innerCardForm.textBoxFields.has(ff.SELF.FHIR))
         .map(ff => {
-            return createTextBoxElement(ff.FHIR, ff.FRIENDLY,
-                innerCardForm.textBoxFields.get(ff.FHIR) ?? defaultBoxProps, fieldHandlers, node)
+            return createTextBoxElement(ff.SELF.FHIR, ff.SELF.FRIENDLY,
+                innerCardForm.textBoxFields.get(ff.SELF.FHIR) ?? defaultBoxProps, fieldHandlers, node)
         });
 }
 
 const createDropdownElementList = (innerCardForm: ICardForm, friendlyFields: FriendlyResourceFormElement[], fieldHandlers: any, node: SageNodeInitializedFreezerNode): JSX.Element[] => {
     return friendlyFields
-        .filter(ff => innerCardForm.dropdownFields.has(ff.FHIR))
+        .filter(ff => innerCardForm.dropdownFields.has(ff.SELF.FHIR))
         .map(ff => {
-            return createDropdownElement(ff.FHIR, ff.FRIENDLY, innerCardForm.dropdownFields.get(ff.FHIR) ?? [], fieldHandlers, node)
+            return createDropdownElement(ff.SELF.FHIR, ff.SELF.FRIENDLY, innerCardForm.dropdownFields.get(ff.SELF.FHIR) ?? [], fieldHandlers, node)
         })
 }
 
-const fieldElementListForType = (innerCardForm: ICardForm, fieldHandlers: any, node: SageNodeInitializedFreezerNode): JSX.Element[] => {
-    const friendlyFields = getFormElementListForResource(innerCardForm.resourceType.FHIR);
+const createResourceElementList = (innerCardForm: ICardForm, friendlyFields: FriendlyResourceFormElement[], fieldHandlers: any, node: SageNodeInitializedFreezerNode): JSX.Element[] => {
+    const subFriendlyFields = friendlyFields
+        .filter(ff => innerCardForm.resourceFields.includes(ff.SELF.FHIR))
+        .map(ff => ff.LIST).flatMap(list => list ? [list] : [])
+        .filter(ffList => ffList.length > 0)
+        .flat();
+    return subFriendlyFields
+        .flatMap(sff => sff.LIST ? [sff.LIST] : [])
+        .map(sffList => {
+            return sffList.length == 0 ? [] : fieldElementListForType(innerCardForm, sffList, fieldHandlers, node);
+        }).flat();
+}
+
+const fieldElementListForType = (innerCardForm: ICardForm, friendlyFields: FriendlyResourceFormElement[], fieldHandlers: any, node: SageNodeInitializedFreezerNode): JSX.Element[] => {
     return [
         ...createTextBoxElementList(innerCardForm, friendlyFields, fieldHandlers, node),
-        ...createDropdownElementList(innerCardForm, friendlyFields, fieldHandlers, node)
+        ...createDropdownElementList(innerCardForm, friendlyFields, fieldHandlers, node),
+        ...createResourceElementList(innerCardForm, friendlyFields, fieldHandlers, node)
     ]
 }
 
@@ -183,7 +212,7 @@ const conditionCardField = (planNode: SageNodeInitializedFreezerNode) => {
 export const CardEditor = (props: CardEditorProps) => {
     const actNode = props.actNode;
     const planNode = props.planNode;
-    function getResourceType(): FriendlyResourceListEntry {
+    function getResourceType(): FriendlyResourceProps {
         const resourceProfile = (): string => {
             if (actNode) {
                 const fhirResource = SchemaUtils.toFhir(actNode, false);
@@ -194,19 +223,19 @@ export const CardEditor = (props: CardEditorProps) => {
                 return "";
             }
         };
-            return profileToFriendlyResourceListEntry(resourceProfile());
+        return profileToFriendlyResourceListEntry(resourceProfile());
     }
     const actResourceType = getResourceType();
     const fieldHandlers: any[][] = [];
     const getInnerCardForm: () => ICardForm = () => {
         switch (actResourceType.FHIR) {
-                case "MedicationRequest":
-                    return new MedicationRequestForm(actResourceType)
+            case "MedicationRequest":
+                return new MedicationRequestForm(actResourceType)
 
-                default: 
-                    return new MedicationRequestForm(actResourceType)
-            }
+            default:
+                return new MedicationRequestForm(actResourceType)
         }
+    }
 
     const innerCardForm = getInnerCardForm();
 
@@ -221,7 +250,7 @@ export const CardEditor = (props: CardEditorProps) => {
                     fieldHandlers={fieldHandlers}
                     pdConditions={pdConditions}
                     resourceType={actResourceType}
-                    elementList={fieldElementListForType(innerCardForm, fieldHandlers, actNode)}
+                    elementList={fieldElementListForType(innerCardForm, getFormElementListForResource(innerCardForm.resourceType.FHIR), fieldHandlers, actNode)}
                     displayList = {createDisplayElementList(fieldHandlers, actResourceType)}
                     innerCardForm={innerCardForm}
                     handleSaveResource = {handleSaveResource}
@@ -306,8 +335,8 @@ function CardPDActionConditionStateEditor(planNode: SageNodeInitializedFreezerNo
     });
 }
 
-function CardStringStateEditor(node: SageNodeInitializedFreezerNode, resourceName: string): [any, any] {
-    return useState<string>(SchemaUtils.getChildOfNode(node, resourceName)?.value || "");
+function CardStateEditor<T>(node: SageNodeInitializedFreezerNode, resourceName: string): [any, any] {
+    return useState<T>(SchemaUtils.getChildOfNode(node, resourceName)?.value || "");
 }
 
 function handleImportLibrary(FhirLibrary: string) {

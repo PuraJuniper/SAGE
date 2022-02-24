@@ -1,9 +1,28 @@
 import friendlyNames from "../../friendly-names.json";
 
-export type FriendlyResource = (typeof friendlyNames.RESOURCES) extends Array<infer T> ? T : never;
-export type FriendlyResourceSelf = FriendlyResource["SELF"];
-export type FriendlyResourceListEntry = FriendlyResource["LIST"] extends Array<infer T> ? T : never;
-export type FriendlyResourceFormElement = FriendlyResourceListEntry["FORM_ELEMENTS"] extends Array<infer T> ? T : never;
+export interface FriendlyResourceProps {
+    FHIR: string;
+    FRIENDLY: string;
+    DEFAULT_PROFILE_URI?: string
+    FORM_ELEMENTS?: FriendlyResourceFormElement[]
+}
+
+export type FriendlyResourceFormElement = {
+    SELF: FriendlyResourceProps
+    LIST?: FriendlyResourceFormElement[]
+}
+
+export interface FriendlyResourceType {
+    SELF: FriendlyResourceProps,
+    LIST?: FriendlyResourceProps[]
+}
+
+export type FriendlyResourceSelf = FriendlyResourceType["SELF"]
+interface FriendlyResourceRoot {
+    RESOURCES: FriendlyResourceType[]
+}
+
+export const friendlyResourceRoot: FriendlyResourceRoot = friendlyNames;
 
 const defaultUndefinedString = "undefined";
 
@@ -25,7 +44,7 @@ export const DATA_ELEMENT = getType("DataElement");
 export const VALUE_SET = getType("ValueSet");
 export const STRUCTURE_DEFINITION = getType("StructureDefinition");
 
-export function getFhirSelf(resourceParent: FriendlyResource[], resourceType: string) {
+export function getFhirSelf(resourceParent: FriendlyResourceType[], resourceType: string) {
     return resourceParent.find(
         (resource) => {
             return resource.SELF.FHIR === resourceType;
@@ -44,7 +63,7 @@ function elseIfUndefined<T>(maybeUndefinedObject: T, ifDefinedFunction: (input: 
 }
 
 export const fhirToFriendly = (fhirWord: string) => {
-    return elseIfUndefined(getFhirSelf(friendlyNames.RESOURCES, fhirWord)
+    return elseIfUndefined(getFhirSelf(friendlyResourceRoot.RESOURCES, fhirWord)
         , ((o) => (o.SELF.FRIENDLY))
         , defaultUndefinedString);
 }
@@ -52,21 +71,21 @@ export const fhirToFriendly = (fhirWord: string) => {
 export const friendlyToFhir = (friendlyWord: string) => {
 
     function findPossibleType() {
-        const isMainType = friendlyNames.RESOURCES.find(resource => resource.SELF.FRIENDLY == friendlyWord);
+        const isMainType = friendlyResourceRoot.RESOURCES.find(resource => resource.SELF.FRIENDLY == friendlyWord);
         if (isMainType) {
             return isMainType.SELF;
         }
 
-        const isSubType = (friendlyNames.RESOURCES.map(mainRes => {
-            return mainRes.LIST.find(subRes => subRes.FRIENDLY == friendlyWord);
-        })).filter(unfound => unfound).pop();
+        const isSubType = (friendlyResourceRoot.RESOURCES.map(mainRes => {
+            return mainRes.LIST?.find(subRes => subRes.FRIENDLY == friendlyWord);
+        })).filter(unfound => unfound).at(0);
         if (isSubType) {
             return isSubType;
         }
-        const isFormElem = (friendlyNames.RESOURCES.map(mainRes =>
-            mainRes.LIST.map(subRes =>
-                subRes.FORM_ELEMENTS.find(formElem => formElem.FRIENDLY == friendlyWord))
-        )).filter(unfound => unfound).pop()?.filter(unfound => unfound).pop();
+        const isFormElem = (friendlyResourceRoot.RESOURCES.map(mainRes =>
+            mainRes.LIST?.map(subRes =>
+                subRes.FORM_ELEMENTS?.find(formElem => formElem.SELF.FRIENDLY == friendlyWord))
+        )).filter(unfound => unfound).at(0)?.filter(unfound => unfound).at(0)?.SELF;
 
         return isFormElem;
 
@@ -77,33 +96,23 @@ export const friendlyToFhir = (friendlyWord: string) => {
         , defaultUndefinedString);
 }
 
-export function profileToFriendlyResourceListEntry(profile?: string): FriendlyResourceListEntry {
-
-    return friendlyNames.RESOURCES
-        .map(resType => resType.LIST.find(res => res.PROFILE_URI == profile))
-        .filter(defined => defined)
-        .pop() ??
+export function profileToFriendlyResourceListEntry(profile?: string): FriendlyResourceProps {
+    return friendlyResourceRoot.RESOURCES
+        .map(resType => resType.LIST).flatMap(list => list ? [list] : [])
+        .find(resTypeList => resTypeList.flatMap(item => item.DEFAULT_PROFILE_URI ? [item.DEFAULT_PROFILE_URI] : [])
+            .find(uri => uri == profile))?.at(0) ??
     {
         FHIR: "",
-        FRIENDLY: "",
-        PROFILE_URI: "",
-        FORM_ELEMENTS: []
-    }
+        FRIENDLY: ""
+    };
 }
-
-    // for (const resource of friendlyNames.RESOURCES) {
-    //     const out = resource.LIST.find(res => res.PROFILE_URI == profile);
-    //     if (out) {
-    //         return out;
-    //     }
-    // }
 
 export function profileToFriendlyResourceSelf(profile?: string) {
     if (!profile) {
         return undefined;
     }
-    for (const resource of friendlyNames.RESOURCES) {
-        const found = resource.LIST.find(res => res.PROFILE_URI == profile);
+    for (const resource of friendlyResourceRoot.RESOURCES) {
+        const found = resource.LIST?.find(res => res.DEFAULT_PROFILE_URI == profile);
         if (found) {
             return resource.SELF;
         }
@@ -111,8 +120,8 @@ export function profileToFriendlyResourceSelf(profile?: string) {
 }
 
 export const defaultProfileUriOfResourceType = (resourceType: string) => {
-    return elseIfUndefined(getFhirSelf(friendlyNames.RESOURCES, resourceType)
-        , ((object) => object.SELF.DEFAULT_PROFILE_URI));
+    return elseIfUndefined(getFhirSelf(friendlyResourceRoot.RESOURCES, resourceType)
+        , ((object) => object.SELF.DEFAULT_PROFILE_URI ? object.SELF.DEFAULT_PROFILE_URI : "none"));
 }
 
 export function getBorderPropsForType(resourceType: string): string | undefined {
@@ -125,10 +134,11 @@ export function getBorderPropsForType(resourceType: string): string | undefined 
 }
 
 export function getFormElementListForResource(resource: string): FriendlyResourceFormElement[] {
-    const foundResource: FriendlyResourceListEntry | undefined = friendlyNames.RESOURCES
-        .map(res => res.LIST.find(resType => resType.FHIR == resource))
+    const foundResource: FriendlyResourceProps | undefined = friendlyResourceRoot.RESOURCES
+        .map(resType => resType.LIST).flatMap(list => list ? [list] : [])
+        .map(resTypeList => resTypeList.find(resType => resType.FHIR == resource))
         .filter(def => def)
-        .pop();
+        .at(0);
 
     return foundResource?.FORM_ELEMENTS ?? []
 }

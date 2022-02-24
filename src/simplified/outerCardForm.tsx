@@ -3,11 +3,10 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { PlanDefinitionActionCondition } from 'fhir/r4';
 import React from "react";
 import State, { SageNodeInitializedFreezerNode } from '../state';
+
 import { ICardForm, CardEditor } from './cardEditor';
-import { FriendlyResourceListEntry } from './nameHelpers';
+import { FriendlyResourceProps } from './nameHelpers';
 import { Card } from "react-bootstrap";
-
-
 
 export type cardRow = string[];
 export type cardLayout = {
@@ -30,7 +29,7 @@ export interface CardFormState {
 export type CardFormProps = {
     sageNode: SageNodeInitializedFreezerNode,
     fieldHandlers: any[][],
-    resourceType: FriendlyResourceListEntry,
+    resourceType: FriendlyResourceProps,
     elementList: JSX.Element[],
     displayList: JSX.Element[],
     pdConditions: PlanDefinitionActionCondition[],
