@@ -19,13 +19,24 @@
                   "SELF": { "FHIR": "timing", "FRIENDLY": "Timing: " },
                   "LIST": [
                     {
-                      "SELF": { "FHIR": "frequency", "FRIENDLY": " dose(s)" }
-                    },
-                    {
-                      "SELF": { "FHIR": "period", "FRIENDLY": "per: " }
-                    },
-                    {
-                      "SELF": { "FHIR": "periodUnit", "FRIENDLY": "Unit (day,week,month, etc.)" }
+                      "SELF": { "FHIR": "repeat", "FRIENDLY": "Repeat: " },
+                      "LIST": [
+                        {
+                          "SELF": {
+                            "FHIR": "frequency",
+                            "FRIENDLY": " dose(s)"
+                          }
+                        },
+                        {
+                          "SELF": { "FHIR": "period", "FRIENDLY": "per: " }
+                        },
+                        {
+                          "SELF": {
+                            "FHIR": "periodUnit",
+                            "FRIENDLY": "Unit (day,week,month, etc.)"
+                          }
+                        }
+                      ]
                     }
                   ]
                 },

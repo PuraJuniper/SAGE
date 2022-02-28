@@ -1,3 +1,5 @@
+import { createAssignment } from "typescript";
+import { stringify } from "uuid";
 import friendlyNames from "../../friendly-names.json";
 
 export interface FriendlyResourceProps {
@@ -141,4 +143,16 @@ export function getFormElementListForResource(resource: string): FriendlyResourc
         .at(0);
 
     return foundResource?.FORM_ELEMENTS ?? []
+}
+
+export function convertFormElementToObject(formElem: FriendlyResourceFormElement): any {
+    if (formElem.LIST) {
+        const retVal: { [x: string]: any; } = {};
+        formElem.LIST.forEach(element => {
+            retVal[element.SELF.FHIR] = element.LIST ? convertFormElementToObject(element) : undefined;
+        })
+        return retVal;
+    }
+
+    return {};
 }

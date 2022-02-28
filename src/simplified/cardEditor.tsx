@@ -1,5 +1,5 @@
 import * as cql from "cql-execution";
-import { Library, PlanDefinitionActionCondition } from "fhir/r4";
+import { Dosage, Library, PlanDefinitionActionCondition } from "fhir/r4";
 import { ExtractTypeOfFN } from "freezer-js";
 import React, { ElementType, useEffect, useState } from "react";
 import { Button, Col, Form, InputGroup, Modal, Row } from 'react-bootstrap';
@@ -8,7 +8,7 @@ import * as SageUtils from "../helpers/sage-utils";
 import * as SchemaUtils from "../helpers/schema-utils";
 import State, { SageNodeInitializedFreezerNode } from "../state";
 import { OuterCardForm, textBoxProps, cardLayout } from "./outerCardForm";
-import { ACTIVITY_DEFINITION, FriendlyResourceFormElement, FriendlyResourceProps, getFormElementListForResource, profileToFriendlyResourceListEntry } from "./nameHelpers";
+import { ACTIVITY_DEFINITION, convertFormElementToObject, FriendlyResourceFormElement, FriendlyResourceProps, getFormElementListForResource, profileToFriendlyResourceListEntry } from "./nameHelpers";
 import { MedicationRequestForm } from "./medicationRequestForm";
 
 
@@ -63,21 +63,6 @@ const simpleCardField = (fieldName: string, actNode: SageNodeInitializedFreezerN
     }
     return [fieldName, fieldContents, setField, fieldSaveHandler]
 }
-
-// const resourceCardField = (fieldName: string, actNode: SageNodeInitializedFreezerNode) => {
-//     const [fieldContents, setField] = CardStateEditor<SageNodeInitializedFreezerNode>(actNode, fieldName);
-//     function fieldSaveHandler(name: string, contents: any, act: any, plan: any) {
-//         const fieldNode = SchemaUtils.getChildOfNodePath(plan, ["action", name]);
-//         if (fieldNode) {
-//             State.emit("value_change", fieldNode, name, false);
-//         }
-//         if (act.displayName == ACTIVITY_DEFINITION) {
-//             State.emit("value_change", SchemaUtils.getChildOfNode(act, name), contents, false);
-//         }
-//         State.emit("value_change", SchemaUtils.getChildOfNode(plan, name), contents, false);
-//     }
-//     return [fieldName, fieldContents, setField, fieldSaveHandler]
-// }
 
 const createTextBoxElement = (fieldKey: string, friendlyFieldName: string, textProps: textBoxProps, fieldHandlers: any[][], node: SageNodeInitializedFreezerNode): JSX.Element => {
     const [fieldName, fieldContents, setField, fieldSaveHandler] = simpleCardField(fieldKey, node);
@@ -142,9 +127,9 @@ const createDisplayElement = (fieldHandlers: any, friendlyFields: any, i: number
     }
     return (
         <Form.Group key={fieldHandlers[i][0] + "-fromGroup"} as={Col} controlId={fieldHandlers[i][0]}>
-        <Form.Label key={fieldHandlers[i][0] + "-label"}>{friendly} {fieldHandlers[i][1]}</Form.Label>
+            <Form.Label key={fieldHandlers[i][0] + "-label"}>{friendly} {fieldHandlers[i][1]}</Form.Label>
         </Form.Group>
-)
+    )
 }
 
 const createDisplayElementList = (fieldHandlers: any, resourceType: FriendlyResourceProps): JSX.Element[] => {
@@ -152,7 +137,7 @@ const createDisplayElementList = (fieldHandlers: any, resourceType: FriendlyReso
     const list: JSX.Element[] = [];
 
     for (let i = 0; i < fieldHandlers.length; i++) {
-        list[i] =  createDisplayElement(fieldHandlers,friendlyFields, i);
+        list[i] = createDisplayElement(fieldHandlers, friendlyFields, i);
     }
 
     return list;
@@ -178,15 +163,21 @@ const createDropdownElementList = (innerCardForm: ICardForm, friendlyFields: Fri
 
 const createResourceElementList = (innerCardForm: ICardForm, friendlyFields: FriendlyResourceFormElement[], fieldHandlers: any, node: SageNodeInitializedFreezerNode): JSX.Element[] => {
     const subFriendlyFields = friendlyFields
-        .filter(ff => innerCardForm.resourceFields.includes(ff.SELF.FHIR))
-        .map(ff => ff.LIST).flatMap(list => list ? [list] : [])
-        .filter(ffList => ffList.length > 0)
-        .flat();
-    return subFriendlyFields
-        .flatMap(sff => sff.LIST ? [sff.LIST] : [])
-        .map(sffList => {
-            return sffList.length == 0 ? [] : fieldElementListForType(innerCardForm, sffList, fieldHandlers, node);
-        }).flat();
+        .filter(ff => innerCardForm.resourceFields.includes(ff.SELF.FHIR));
+        // .map(ff => ff.LIST).flatMap(list => list ? [list] : [])
+        // .filter(ffList => ffList.length > 0)
+        // .flat();
+    return subFriendlyFields.length > 0 ? subFriendlyFields
+        .flatMap(sff => {
+            if (sff.LIST) {
+                loadResourceField(node, sff.SELF.FHIR);
+            }
+            return sff.LIST ? sff.LIST : []
+        })
+        .map(frFormElement => {
+            return frFormElement.LIST?.length == 0 || !frFormElement.LIST ? [] : fieldElementListForType(innerCardForm, frFormElement.LIST, fieldHandlers, node);
+        }).flat()
+        : [];
 }
 
 const fieldElementListForType = (innerCardForm: ICardForm, friendlyFields: FriendlyResourceFormElement[], fieldHandlers: any, node: SageNodeInitializedFreezerNode): JSX.Element[] => {
@@ -207,6 +198,19 @@ const conditionCardField = (planNode: SageNodeInitializedFreezerNode) => {
         }
     }
     return ["condition", condition, setCondition, conditionSaveHandler]
+}
+
+const loadResourceField = (rootResourceNode: SageNodeInitializedFreezerNode, resourceFieldName: string) => {
+    const resourceFieldNode = SchemaUtils.getChildOfNode(rootResourceNode, resourceFieldName);
+    if (resourceFieldNode) {
+        const resourceFormElements = [...getFormElementListForResource(resourceFieldNode?.fhirType), ...profileToFriendlyResourceListEntry(rootResourceNode.profile).FORM_ELEMENTS ?? []];
+        const resourceFieldFriendlyName = resourceFormElements.find(ff => ff.SELF.FHIR == resourceFieldName);
+        if (resourceFieldFriendlyName) {
+            const resourceFieldRequiredChildren = convertFormElementToObject(resourceFieldFriendlyName);
+            const childNodes = SchemaUtils.getChildrenFromObjectArrayNode(resourceFieldNode);
+            State.emit("load_json_into", childNodes[0], resourceFieldRequiredChildren);
+        }
+    }
 }
 
 export const CardEditor = (props: CardEditorProps) => {
@@ -230,6 +234,7 @@ export const CardEditor = (props: CardEditorProps) => {
     const getInnerCardForm: () => ICardForm = () => {
         switch (actResourceType.FHIR) {
             case "MedicationRequest":
+                // dosageCardField(actNode);
                 return new MedicationRequestForm(actResourceType)
 
             default:
@@ -251,9 +256,9 @@ export const CardEditor = (props: CardEditorProps) => {
                     pdConditions={pdConditions}
                     resourceType={actResourceType}
                     elementList={fieldElementListForType(innerCardForm, getFormElementListForResource(innerCardForm.resourceType.FHIR), fieldHandlers, actNode)}
-                    displayList = {createDisplayElementList(fieldHandlers, actResourceType)}
+                    displayList={createDisplayElementList(fieldHandlers, actResourceType)}
                     innerCardForm={innerCardForm}
-                    handleSaveResource = {handleSaveResource}
+                    handleSaveResource={handleSaveResource}
                 />
             </div>
         </div>
