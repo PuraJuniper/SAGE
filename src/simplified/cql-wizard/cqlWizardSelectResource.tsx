@@ -1,14 +1,14 @@
 import React, { Dispatch, useEffect, useReducer, useState } from "react";
 import { Button } from "react-bootstrap";
 import { CSSTransition } from "react-transition-group";
-import { WizardAction, WizardState } from './wizardLogic';
+import { getSelectableResourceTypes, WizardAction, WizardState } from './wizardLogic';
 
 interface CqlWizardSelectResourceProps {
     wizDispatch: Dispatch<WizardAction>,
     wizState: WizardState,
 }
 
-const rTypes = ['AllergyIntolerance', 'Condition', 'Age', 'Gender', 'Device', 'Encounter', 'Immunization', 'MedicationStatement', 'MedicationRequest', 'Observation', 'Procedure', 'ServiceRequest']
+const rTypes = getSelectableResourceTypes();
 
 export const CqlWizardSelectResource: React.FunctionComponent<CqlWizardSelectResourceProps> = (props) => {
     const [selectedRes, setSelectedRes] = useState(props.wizState.resType);

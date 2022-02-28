@@ -3,11 +3,13 @@ import React, { useEffect, useReducer, useState, Dispatch } from "react";
 import { Button, Modal, Pagination, Row } from "react-bootstrap";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { CqlWizardSelectResource } from "./cqlWizardSelectResource";
-import { faArrowLeft, faArrowRight } from "@fortawesome/pro-solid-svg-icons";
+import { faArrowLeft, faArrowRight, faCheck } from "@fortawesome/pro-solid-svg-icons";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
 import { CqlWizardSelectCodes } from "./cqlWizardSelectCodes";
-import { WizardAction, WizardPage, WizardReducer, WizardSteps, getNextPage, getPrevPage, initWizState, WizardState } from "./wizardLogic";
+import { WizardAction, WizardPage, WizardReducer, WizardPagesArr, getNextPage, getPrevPage, initWizState, WizardState, StepStatus } from "./wizardLogic";
+import { CqlWizardSelectFilters } from "./cqlWizardSelectFilters";
 
+// Get the title for the dialog header and the page content for the dialog body
 function getTitleAndPage(wizardState: WizardState, wizardDispatch: Dispatch<WizardAction>): {title: string, pageComponent: JSX.Element} {
     switch(wizardState.page) {
         case WizardPage.SelectResource:
@@ -17,56 +19,85 @@ function getTitleAndPage(wizardState: WizardState, wizardDispatch: Dispatch<Wiza
             }
         case WizardPage.SelectCodes:
             return {
-                title: "Which codes do you want to select?",
+                title: `${wizardState.resType}: Which codes do you want to select?`,
                 pageComponent: <CqlWizardSelectCodes wizState={wizardState} wizDispatch={wizardDispatch} />
             }
         case WizardPage.SelectFilters:
             return {
-                title: "What else should this hold for this resource?",
-                pageComponent: <b>Select Filters</b>
+                title: `${wizardState.resType}: What restrictions should apply?`,
+                pageComponent: <CqlWizardSelectFilters wizState={wizardState} wizDispatch={wizardDispatch} />
             }
     }
 }
 
 interface CqlWizardModalProps {
     show: boolean,
-    expression: Expression | null,
+    expression: Expression | null, // some unique reference to the currently edited expression
     onClose: () => void,
-    onSaveAndClose: (expr: Expression) => void,
+    onSaveAndClose: (expr?: Expression) => void,
 }
 
 export const CqlWizardModal: React.FunctionComponent<CqlWizardModalProps> = (props) => {
-    const [curExpr, setCurExpr] = useState<Expression | null>(props.expression);
+    const [curExpr, setCurExpr] = useState<Expression | null>(null);
     const [wizardState, wizardDispatch] = useReducer(WizardReducer, curExpr, initWizState);
+
+    // props.expression is some unique reference for the expression we're editing, so
+    //  any change to it should trigger a re-initializtion of the wizard
+    //  (prop.expression === null represents a totally new expression)
+    useEffect(() => {
+        wizardDispatch(["resetState", props.expression]);
+        setCurExpr(props.expression);
+    }, [props.expression])
     
     // Convenience
     const {
         page,
-        pageDisabled,
+        pageStatus,
         resType,
         codes,
         filters
     } = wizardState;
 
     const handleClose = () => props.onClose();
-    const handleSaveAndClose = (expr: Expression) => props.onSaveAndClose(expr);
+    const handleSaveAndClose = () => {
+        // Reset wizard state since changes have been committed
+        wizardDispatch(["resetState", null]);
+        setCurExpr(null);
+        props.onSaveAndClose();
+    }
     
     const {title: pageTitle, pageComponent: pageContent} = getTitleAndPage(wizardState, wizardDispatch);
     
-    const paginationItems = WizardSteps.map((v) => 
-        <Pagination.Item key={v} active={page==v} disabled={pageDisabled[v]} onClick={() => wizardDispatch(['changeStep', v])}>
-            {v}
+    // Page items for header pagination
+    const paginationItems = WizardPagesArr.map((v) => 
+        <Pagination.Item key={v} active={page==v}
+            disabled={pageStatus[v] === StepStatus.Disabled || pageStatus[v] === StepStatus.Skipped}
+            onClick={() => wizardDispatch(['changePage', v])}
+        >
+            <div className="cql-wizard-pagination-text">
+                {(()=>{
+                    switch(v) {
+                        case WizardPage.SelectResource:
+                            return "Select Resource";
+                        case WizardPage.SelectCodes:
+                            return "Select Codes";
+                        case WizardPage.SelectFilters:
+                            return "Select Restrictions";
+                    }
+                })()}
+            </div>
         </Pagination.Item>
     );
     
-    const [canProceed, nextPage] = getNextPage(page, pageDisabled);
-    const [canGoBack, prevPage] = getPrevPage(page, pageDisabled);
+    const [canProceed, nextPage] = getNextPage(page, pageStatus);
+    const [canGoBack, prevPage] = getPrevPage(page, pageStatus);
     return (
         <Modal
             show={props.show}
             onHide={handleClose}
             size="xl"
             centered
+            animation={true}
             contentClassName="cql-wizard-modal"
         >
             <Modal.Header>
@@ -82,7 +113,7 @@ export const CqlWizardModal: React.FunctionComponent<CqlWizardModalProps> = (pro
                     <Button variant="light" className="cql-wizard-nav-button" disabled={!canGoBack}
                         onClick={() => {
                             if (prevPage) {
-                                wizardDispatch(['changeStep', prevPage])
+                                wizardDispatch(['changePage', prevPage])
                             }
                         }}
                     >
@@ -97,14 +128,17 @@ export const CqlWizardModal: React.FunctionComponent<CqlWizardModalProps> = (pro
                             </CSSTransition>
                         </TransitionGroup>
                     </div>
-                    <Button variant="light" className="cql-wizard-nav-button" disabled={!canProceed}
+                    <Button variant={nextPage === null && canProceed ? "success" : "light"} className="cql-wizard-nav-button" disabled={!canProceed}
                         onClick={() => {
-                            if (nextPage) {
-                                wizardDispatch(['changeStep', nextPage])
+                            if (nextPage === null) {
+                                handleSaveAndClose();
+                            }
+                            else {
+                                wizardDispatch(['changePage', nextPage])
                             }
                         }}
                     >
-                        <FontAwesomeIcon icon={faArrowRight} />
+                        <FontAwesomeIcon icon={nextPage === null ? faCheck : faArrowRight} />
                     </Button>
                 </div>
             </Modal.Body>

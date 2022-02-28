@@ -1,4 +1,4 @@
-import React, { Dispatch, useReducer, useState } from "react";
+import React, { Dispatch, useEffect, useReducer, useState } from "react";
 import { WizardAction, WizardState } from './wizardLogic';
 import * as FHIRClient from '../../helpers/FHIRClient';
 import { Button, Form, ListGroup, Card, Spinner, Overlay, Tooltip, OverlayTrigger, Popover } from "react-bootstrap";
@@ -27,12 +27,12 @@ interface CqlWizardSelectCodesProps {
 }
 
 export interface VsacResponse {
-    system: any;
-    systemName: any;
-    systemOID: any;
-    version: any;
-    code: any;
-    display: any;
+    system: string;
+    systemName: string;
+    systemOID: string;
+    version: string;
+    code: string;
+    display: string;
 }
 
 export const CqlWizardSelectCodes: React.FunctionComponent<CqlWizardSelectCodesProps> = (props) => {
@@ -41,17 +41,26 @@ export const CqlWizardSelectCodes: React.FunctionComponent<CqlWizardSelectCodesP
     const [vsacResponse, setVsacResponse] = useState<VsacResponse[]>([])
     const [isSearching, setIsSearching] = useState(false);
 
+    const {
+        wizState,
+        wizDispatch,
+    } = props;
+
+    useEffect(() => {
+        wizDispatch(['setCodes', [{"system":"http://snomed.info/sct","systemName":"SNOMEDCT","systemOID":"2.16.840.1.113883.6.96","version":"http://snomed.info/sct/731000124108/version/2021-09","code":"TEMP TEST","display":"Chest pain (finding)"}]])
+    }, [wizDispatch])
+
     return (
         <div className="cql-wizard-select-code-grid"> 
             <Card className="cql-wizard-select-code-selection-grid" border="primary">
-                    <CSSTransition in={props.wizState.codes.length === 0} timeout={250} classNames="cql-wizard-content-transition" unmountOnExit>
+                    <CSSTransition in={wizState.codes.length === 0} timeout={250} classNames="cql-wizard-content-transition" unmountOnExit>
                         <div className="cql-wizard-select-code-selection-empty text-muted">
                             <i>Search for a code on the right</i>
                         </div>
                     </CSSTransition>
                     <ListGroup>
                         <TransitionGroup component={null}>
-                            {props.wizState.codes.map((v, i) => 
+                            {wizState.codes.map((v, i) => 
                                 <CSSTransition key={`${v.systemOID} ${v.code} ${v.version}`} timeout={250} classNames="cql-wizard-code-transition">
                                     <OverlayTrigger
                                         placement="right"
@@ -64,14 +73,15 @@ export const CqlWizardSelectCodes: React.FunctionComponent<CqlWizardSelectCodesP
                                                     <br />
                                                     {`Version: ${v.version}`}
                                                 </Popover.Content>
-                                            </Popover>}
+                                            </Popover>
+                                        }
                                     >
-                                        <ListGroup.Item action>
+                                        <ListGroup.Item>
                                             <Button
                                                 className="cql-wizard-code-selection-item-remove-btn" 
                                                 variant="secondary"
                                                 size="sm"
-                                                onClick={() => props.wizDispatch(['setCodes', props.wizState.codes.filter(vi => vi != v)])}
+                                                onClick={() => wizDispatch(['setCodes', wizState.codes.filter(vi => vi != v)])}
                                             > 
                                                 <FontAwesomeIcon icon={faMinus} />
                                             </Button>
@@ -106,7 +116,7 @@ export const CqlWizardSelectCodes: React.FunctionComponent<CqlWizardSelectCodesP
                         value={system}
                         custom
                     >
-                        {Object.entries(systemDisplayToUrl).map((option, idx) => {
+                        {Object.entries(systemDisplayToUrl).map((option) => {
                             return <option key={option[0]} value={option[0]}>{option[0]}</option>
                         })}
                     </Form.Control>
@@ -129,9 +139,9 @@ export const CqlWizardSelectCodes: React.FunctionComponent<CqlWizardSelectCodesP
                                 <Button
                                     variant="outline-secondary"
                                     size="sm"
-                                    disabled={props.wizState.codes.some(vCode => (vCode.code === v.code && vCode.systemOID === v.systemOID && vCode.version === v.version)) !== false}
+                                    disabled={wizState.codes.some(vCode => (vCode.code === v.code && vCode.systemOID === v.systemOID && vCode.version === v.version)) !== false}
                                     onClick={()=>{
-                                        props.wizDispatch(['setCodes', props.wizState.codes.concat([v])]);
+                                        wizDispatch(['setCodes', wizState.codes.concat([v])]);
                                     }}
                                 >
                                     Add Code <FontAwesomeIcon icon={faPlus} />

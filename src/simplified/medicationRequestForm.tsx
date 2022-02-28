@@ -165,13 +165,14 @@ export class MedicationRequestForm implements ICardForm {
             setShowWiz(false);
         }
 
-        function handleSaveAndClose(expr: Expression) {
+        function handleSaveAndClose(expr?: Expression) {
             console.log(expr);
             handleClose();
         }
 
         return (
             <>
+            <React.StrictMode>
                 <CqlWizardModal show={showWiz} expression={selectedExpr} onClose={handleClose} onSaveAndClose={handleSaveAndClose}/>
                 <ListGroup>
                     {props.conditions.map((v) => {
@@ -190,6 +191,7 @@ export class MedicationRequestForm implements ICardForm {
                         New Expression..
                     </Button>
                 </ListGroup>
+            </React.StrictMode>
             </>
         );
     }

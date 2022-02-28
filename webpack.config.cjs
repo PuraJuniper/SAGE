@@ -51,6 +51,10 @@ module.exports = (env) => {
 					],
 					exclude: /node_modules/,
 				},
+				{
+					test:[ /react-datepicker.css/,  /_datepicker.css/],
+					use: ["style-loader", "css-loader"],
+				}
 			]
 		},
 		resolve: {

@@ -631,23 +631,27 @@ a {
 }
 .cql-wizard-nav-button {
   height: 100%;
+  border-radius: 0;
 }
 
 .cql-wizard-header-content {
   width: 100%;
   display: grid;
-  grid-template-columns: auto 1fr;
+  grid-template-columns: min-content 1fr; /* Pagination, Title */
   place-items: center;
 }
 .cql-wizard-pagination {
-  margin: 10px;
+  margin: 10px; /* Override bootstrap pagination's `margin-bottom: 16px` */
+}
+.cql-wizard-pagination-text {
+  text-align: center;
 }
 
 .cql-wizard-body-content {
   height: 100%;
   width: 100%;
   display: grid;
-  grid-template-columns: 10% 1fr 10%;
+  grid-template-columns: 10% 1fr 10%; /* Back Button, Page Content, Forward Button */
 }
 .cql-wizard-page-content-closest-positioned-ancestor {
   /* https://developer.mozilla.org/en-US/docs/Web/CSS/position - See positioning details for "absolute"*/
@@ -665,7 +669,7 @@ a {
   left: 0;
 }
 
-.cql-wizard-content-transition-enter {
+.cql-wizard-content-transition-enter { /* cql-wizard-content-transition usable by CSSTransition */
   opacity: 0;
   transform: scale(0.9);
 }
@@ -712,19 +716,19 @@ a {
 
 .cql-wizard-select-code-grid {
   display: grid;
-  grid-template-columns: 50% 50%;
+  grid-template-columns: 50% 50%; /* Selected codes, Search area */
   grid-template-rows: 100%;
   gap: 5px;
   height: 100%; /* We're fixing the height here so that we have control over which child containers are scrollable */
 }
 .cql-wizard-select-code-input-grid {
   display: grid;
-  grid-template-rows: 50px 1fr;
+  grid-template-rows: 50px 1fr; /* Search bar, Search results */
   padding: 10px;
 }
 .cql-wizard-select-code-input-form {
   display: grid;
-  grid-template-columns: 5fr 4fr 1fr 1.5fr;
+  grid-template-columns: 5fr 4fr 1fr 1.5fr; /* Code search, System select, Submit button, Loading indicator*/
   gap: 5px;
   place-items: center;
   place-content: space-around;
@@ -738,7 +742,7 @@ a {
 .cql-wizard-code-selection-item-remove-btn {
   margin-right: 0.5rem;
 }
-.cql-wizard-code-transition-enter {
+.cql-wizard-code-transition-enter { /* cql-wizard-code-transition usable by CSSTransition */
   opacity: 0;
 }
 .cql-wizard-code-transition-enter-active {
@@ -767,4 +771,27 @@ a {
   align-content: center;
   flex-direction: column;
   text-align: center;
+}
+
+.cql-wizard-select-filters-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.cql-wizard-element-filters-button-group {
+  display: grid;
+  grid-auto-flow: column;
+}
+.cql-wizard-element-filters-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.cql-wizard-element-filters-button-ignored {
+  opacity: 0.5;
+}
+
+.text-dotted-underline {
+  text-decoration-line: underline;
+  text-decoration-style: dotted;
 }
