@@ -11,6 +11,9 @@ import * as SchemaUtils from './helpers/schema-utils';
 import * as BundleUtils from './helpers/bundle-utils';
 import { SageNode, SageNodeInitialized, SimplifiedProfiles } from './helpers/schema-utils';
 import { ACTIVITY_DEFINITION, PLAN_DEFINITION, QUESTIONNAIRE } from './simplified/nameHelpers';
+import hypertensionLibraryJson from "../public/samples/hypertension-library.json";
+import * as cql from "cql-execution";
+import * as SageUtils from "./helpers/sage-utils";
 
 const canMoveNode = function(node: SageNodeInitialized, parent: SageNodeInitialized) {
 	if (!["objectArray", "valueArray"].includes(parent?.nodeType)) {
@@ -125,7 +128,15 @@ State.on("load_initial_json", function(profilePath, resourcePath, isRemote) {
 
 	const onLoadError = (xhr: any, status: any) => current && State.emit("set_ui", current[2]);
 
-	return loadNext();
+	// Load profiles
+	loadNext();
+
+	// Load sample libraries
+	const hypertensionLibrary: Library = hypertensionLibraryJson as Library;
+	const newLib = SageUtils.getCqlExecutionLibraryFromInputLibraryResource(hypertensionLibrary);
+	if (newLib) {
+		State.emit("load_library", newLib.library, newLib.url, hypertensionLibrary);
+	}
 });
 
 State.on("set_profiles", json => State.get().set({
@@ -749,9 +760,8 @@ State.on("load_library", function(library, url, fhirLibrary) {
 	State.get().simplified.libraries.set(libraryIdentifier, {
 		fhirLibrary: fhirLibrary,
 		library: library,
-		url: url
+		url: url,
 	});
-	console.log(State.get());
 });
 
 State.on("insert_resource_into_bundle", function(resource) {

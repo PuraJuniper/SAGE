@@ -10,8 +10,7 @@
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
 import React from "react";
-import {Container, Row, Col, Modal, Tabs, Tab, Button} from "react-bootstrap";
-import { UncontrolledAlert } from "reactstrap";
+import {Container, Row, Col, Modal, Tabs, Tab, Button, Alert} from "react-bootstrap";
 import State from "../state";
 
 const FHIRClient = require('../helpers/FHIRClient');
@@ -101,13 +100,7 @@ class UserSettingsDialog extends React.Component {
         </div>;
         
         const verifyStatus = this.state.endpointVerified ?
-            <div>
-            <UncontrolledAlert color="success">Success.</UncontrolledAlert>
-            </div>
-            :
-            <div>
-            <UncontrolledAlert color="danger">Failed.</UncontrolledAlert>
-        </div>;
+            <Alert variant="success">Success</Alert> : <Alert variant="danger">Failed</Alert>;
 
         const verifyButtonElement = <span>
             <button
