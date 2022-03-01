@@ -38,6 +38,14 @@ const getType = (type: string) => {
     }
 }
 
+function getAllResTypes(resTypeList: FriendlyResourceFormElement[]) : FriendlyResourceProps[] {
+    return resTypeList.flatMap(resType => [...resType.LIST ? getAllResTypes(resType.LIST) : [], resType.SELF]);
+}
+
+const allResourceTypes: FriendlyResourceProps[] = friendlyResourceRoot.RESOURCES.flatMap(resType => [...resType.LIST ? resType.LIST : [], resType.SELF]);
+const allFormElems: FriendlyResourceProps[] = allResourceTypes.flatMap(resType => resType.FORM_ELEMENTS ? getAllResTypes(resType.FORM_ELEMENTS) : []);
+const allThings = [...allResourceTypes, ...allFormElems]
+
 export const PLAN_DEFINITION = getType("PlanDefinition");
 export const ACTIVITY_DEFINITION = getType("ActivityDefinition");
 export const LIBRARY = getType("Library");
@@ -99,10 +107,11 @@ export const friendlyToFhir = (friendlyWord: string) => {
 }
 
 export function profileToFriendlyResourceListEntry(profile?: string): FriendlyResourceProps {
-    return friendlyResourceRoot.RESOURCES
-        .map(resType => resType.LIST).flatMap(list => list ? [list] : [])
-        .find(resTypeList => resTypeList.flatMap(item => item.DEFAULT_PROFILE_URI ? [item.DEFAULT_PROFILE_URI] : [])
-            .find(uri => uri == profile))?.at(0) ??
+
+    return allThings
+        .filter(resType => resType.DEFAULT_PROFILE_URI)
+        .find(resType => resType.DEFAULT_PROFILE_URI == profile)
+         ??
     {
         FHIR: "",
         FRIENDLY: ""

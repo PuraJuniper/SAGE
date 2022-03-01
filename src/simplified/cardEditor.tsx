@@ -170,7 +170,7 @@ const createResourceElementList = (innerCardForm: ICardForm, friendlyFields: Fri
     return subFriendlyFields.length > 0 ? subFriendlyFields
         .flatMap(sff => {
             if (sff.LIST) {
-                loadResourceField(node, sff.SELF.FHIR);
+                // loadResourceField(node, sff.SELF.FHIR);
             }
             return sff.LIST ? sff.LIST : []
         })
@@ -200,6 +200,7 @@ const conditionCardField = (planNode: SageNodeInitializedFreezerNode) => {
     return ["condition", condition, setCondition, conditionSaveHandler]
 }
 
+//TODO: related
 const loadResourceField = (rootResourceNode: SageNodeInitializedFreezerNode, resourceFieldName: string) => {
     const resourceFieldNode = SchemaUtils.getChildOfNode(rootResourceNode, resourceFieldName);
     if (resourceFieldNode) {

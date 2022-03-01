@@ -191,7 +191,7 @@ export const getElementChildren = function (profiles: SimplifiedProfiles, node: 
 			name,
 			displayName: buildDisplayName(name, childSchema.sliceName),
 			index: childSchema.index,
-			isRequired: childSchema.min >= 1 || presentedInCardEditor(name, node.profile),
+			isRequired: childSchema.min >= 1 || presentedInCardEditor(name, childProfile) || presentedInCardEditor(name, node.profile),
 			fhirType: typeDef.code,
 			type: typeDef,
 			short: childSchema.short,
@@ -400,7 +400,7 @@ export const buildChildNode = function (profiles: SimplifiedProfiles, parentNode
 		name = name.replace("[x]", capType);
 	}
 
-	if ((schema.max !== "1") && !["valueArray", "objectArray"].includes(parentNode.nodeType)) {
+	if ((schema.max !== "1") && !["valueArray", "objectArray", "resource"].includes(parentNode.nodeType)) {
 		const result: SageNodeInitialized = {
 			id: nextId++,
 			name,
@@ -556,6 +556,9 @@ const getProfileOfSchemaDef = function (profiles: SimplifiedProfiles, schemaNode
 
 function presentedInCardEditor(name: string, profile: string): boolean {
 	const resourceEntry = profileToFriendlyResourceListEntry(profile);
+	if (resourceEntry.DEFAULT_PROFILE_URI == profile && resourceEntry.FHIR == name) {
+		return true
+	}
 	function getFormListItem(name: string, frfe: FriendlyResourceFormElement): FriendlyResourceFormElement | undefined {
 		return (frfe.SELF.FHIR == name) ? frfe :
 			frfe.LIST ?
@@ -564,7 +567,7 @@ function presentedInCardEditor(name: string, profile: string): boolean {
 					: undefined
 				: undefined
 	}
-	if (resourceEntry.FORM_ELEMENTS) {
+	if (resourceEntry.FORM_ELEMENTS) { //It's a subnode of a Card Resource Type
 		const formElem: FriendlyResourceFormElement | undefined = resourceEntry.FORM_ELEMENTS
 			.map(formElem => getFormListItem(name, formElem))
 			.find(formElem => formElem)

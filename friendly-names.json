@@ -13,10 +13,12 @@
           "DEFAULT_PROFILE_URI": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-medicationrequestactivity",
           "FORM_ELEMENTS": [
             {
-              "SELF": { "FHIR": "dosage", "FRIENDLY": "Dosage: " },
+              "SELF": { "FHIR": "dosage", "FRIENDLY": "Dosage: ",
+                "DEFAULT_PROFILE_URI": "http://hl7.org/fhir/StructureDefinition/Dosage" },
               "LIST": [
                 {
-                  "SELF": { "FHIR": "timing", "FRIENDLY": "Timing: " },
+                  "SELF": { "FHIR": "timing", "FRIENDLY": "Timing: ",
+                  "DEFAULT_PROFILE_URI": "http://hl7.org/fhir/StructureDefinition/Timing" },
                   "LIST": [
                     {
                       "SELF": { "FHIR": "repeat", "FRIENDLY": "Repeat: " },
