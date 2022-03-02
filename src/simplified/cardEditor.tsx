@@ -8,7 +8,7 @@ import * as SageUtils from "../helpers/sage-utils";
 import * as SchemaUtils from "../helpers/schema-utils";
 import State, { SageNodeInitializedFreezerNode } from "../state";
 import { OuterCardForm, textBoxProps, cardLayout } from "./outerCardForm";
-import { ACTIVITY_DEFINITION, convertFormElementToObject, FriendlyResourceFormElement, FriendlyResourceProps, getFormElementListForResource, profileToFriendlyResourceListEntry } from "./nameHelpers";
+import { ACTIVITY_DEFINITION, convertFormElementToObject, formElemtoResourceProp, FriendlyResourceFormElement, FriendlyResourceProps, getFormElementListForResource, profileToFriendlyResourceListEntry } from "./nameHelpers";
 import { MedicationRequestForm } from "./medicationRequestForm";
 
 
@@ -200,19 +200,19 @@ const conditionCardField = (planNode: SageNodeInitializedFreezerNode) => {
     return ["condition", condition, setCondition, conditionSaveHandler]
 }
 
-//TODO: related
-const loadResourceField = (rootResourceNode: SageNodeInitializedFreezerNode, resourceFieldName: string) => {
-    const resourceFieldNode = SchemaUtils.getChildOfNode(rootResourceNode, resourceFieldName);
-    if (resourceFieldNode) {
-        const resourceFormElements = [...getFormElementListForResource(resourceFieldNode?.fhirType), ...profileToFriendlyResourceListEntry(rootResourceNode.profile).FORM_ELEMENTS ?? []];
-        const resourceFieldFriendlyName = resourceFormElements.find(ff => ff.SELF.FHIR == resourceFieldName);
-        if (resourceFieldFriendlyName) {
-            const resourceFieldRequiredChildren = convertFormElementToObject(resourceFieldFriendlyName);
-            const childNodes = SchemaUtils.getChildrenFromObjectArrayNode(resourceFieldNode);
-            State.emit("load_json_into", childNodes[0], resourceFieldRequiredChildren);
-        }
-    }
-}
+// / related
+// const loadResourceField = (rootResourceNode: SageNodeInitializedFreezerNode, resourceFieldName: string) => {
+//     const resourceFieldNode = SchemaUtils.getChildOfNode(rootResourceNode, resourceFieldName);
+//     if (resourceFieldNode) {
+//         const resourceFormElements = [...getFormElementListForResource(resourceFieldNode?.fhirType), ...profileToFriendlyResourceListEntry(rootResourceNode.profile).FORM_ELEMENTS ?? []];
+//         const resourceFieldFriendlyName = resourceFormElements.find(ff => ff.SELF.FHIR == resourceFieldName);
+//         if (resourceFieldFriendlyName) {
+//             const resourceFieldRequiredChildren = convertFormElementToObject(resourceFieldFriendlyName);
+//             const childNodes = SchemaUtils.getChildrenFromObjectArrayNode(resourceFieldNode);
+//             State.emit("load_json_into", childNodes[0], resourceFieldRequiredChildren);
+//         }
+//     }
+// }
 
 export const CardEditor = (props: CardEditorProps) => {
     const actNode = props.actNode;
@@ -228,7 +228,7 @@ export const CardEditor = (props: CardEditorProps) => {
                 return "";
             }
         };
-        return profileToFriendlyResourceListEntry(resourceProfile());
+        return formElemtoResourceProp(profileToFriendlyResourceListEntry(resourceProfile()));
     }
     const actResourceType = getResourceType();
     const fieldHandlers: any[][] = [];

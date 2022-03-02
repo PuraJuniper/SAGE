@@ -557,7 +557,17 @@ const getProfileOfSchemaDef = function (profiles: SimplifiedProfiles, schemaNode
 
 function presentedInCardEditor(name: string, profile?: string): boolean {
 	const resourceEntry = profileToFriendlyResourceListEntry(profile);
-	if (resourceEntry.DEFAULT_PROFILE_URI == profile && resourceEntry.FHIR == name) {
+	if (name == 'repeat') {
+		console.log("nothing");
+	}
+
+	function resourceContainsSubElem(formElem: FriendlyResourceFormElement): boolean {
+		return formElem.SELF.FHIR == name || (formElem.FORM_ELEMENTS?.reduce(function(accumulator: boolean, subFormElem) {
+			return accumulator || resourceContainsSubElem(subFormElem);
+		}, false) ?? false)
+	}
+
+	if (resourceEntry && resourceEntry.SELF.DEFAULT_PROFILE_URI == profile && resourceEntry.SELF.FHIR == name) {
 		return true
 	}
 	function getFormListItem(name: string, frfe: FriendlyResourceFormElement): FriendlyResourceFormElement | undefined {
@@ -568,7 +578,7 @@ function presentedInCardEditor(name: string, profile?: string): boolean {
 					: undefined
 				: undefined
 	}
-	if (resourceEntry.FORM_ELEMENTS) { //It's a subnode of a Card Resource Type
+	if (resourceEntry && resourceEntry.FORM_ELEMENTS) { //It's a subnode of a Card Resource Type
 		const formElem: FriendlyResourceFormElement | undefined = resourceEntry.FORM_ELEMENTS
 			.map(formElem => getFormListItem(name, formElem))
 			.find(formElem => formElem)

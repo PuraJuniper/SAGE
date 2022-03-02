@@ -18,7 +18,7 @@ interface FolderProps {
 
 export const Folder = (props: FolderProps) => {
     const [show, setShow] = useState(false);
-    const friendlyName = profileToFriendlyResourceListEntry(props.profile)?.FRIENDLY ?? "Unknown";
+    const friendlyName = profileToFriendlyResourceListEntry(props.profile)?.SELF.FRIENDLY ?? "Unknown";
     const resourceType = profileToFriendlyResourceSelf(props.profile)?.FHIR ?? "";
     useEffect(() => {
         const timeoutId = setTimeout(() => {

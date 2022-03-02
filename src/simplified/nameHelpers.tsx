@@ -102,23 +102,38 @@ export const friendlyToFhir = (friendlyWord: string) => {
         , defaultUndefinedString);
 }
 
-export function profileToFriendlyResourceListEntry(profile?: string): FriendlyResourceProps {
+function resourcePropsToFormElement(resProps: FriendlyResourceProps) : FriendlyResourceFormElement {
+    return {
+        
+            SELF: {...resProps},
+            FORM_ELEMENTS: resProps.FORM_ELEMENTS
+        }
+    }
+
+export function formElemtoResourceProp(formElem: FriendlyResourceFormElement | undefined ) : FriendlyResourceProps {
+    return {
+        
+        FHIR: formElem?.SELF.FHIR ?? "",
+        FRIENDLY: formElem?.SELF.FRIENDLY ?? "",
+        DEFAULT_PROFILE_URI: formElem?.SELF.DEFAULT_PROFILE_URI ?? "",
+        FORM_ELEMENTS: formElem?.FORM_ELEMENTS
+        }
+    }
+
+
+export function profileToFriendlyResourceListEntry(profile?: string): FriendlyResourceFormElement | undefined {
 
     const allResourceTypes: FriendlyResourceProps[] = friendlyResourceRoot.RESOURCES.flatMap(resType => [...resType.LIST ? resType.LIST : [], resType.SELF]);
     function allFormElems(formElems: FriendlyResourceFormElement[]): FriendlyResourceFormElement[]  {
          return formElems.flatMap(formElem => [...formElem.FORM_ELEMENTS ? allFormElems(formElem.FORM_ELEMENTS) : [], formElem]);
     }
-    const allThings = [...allResourceTypes, ...allResourceTypes.flatMap(resType => resType.FORM_ELEMENTS ? allFormElems(resType.FORM_ELEMENTS) : []).map(fElem => fElem.SELF)]
+    //TODO: Make this a friednlyresourceFormelement
+    const allThings: FriendlyResourceFormElement[] = [...allResourceTypes.map(resType => resourcePropsToFormElement(resType)), ...allResourceTypes.flatMap(resType => resType.FORM_ELEMENTS ? allFormElems(resType.FORM_ELEMENTS) : [])]
 
 
     return allThings
-        .filter(resType => resType.DEFAULT_PROFILE_URI)
-        .find(resType => resType.DEFAULT_PROFILE_URI == profile)
-         ??
-    {
-        FHIR: "",
-        FRIENDLY: ""
-    };
+        .filter(resType => resType.SELF.DEFAULT_PROFILE_URI)
+        .find(resType => resType.SELF.DEFAULT_PROFILE_URI == profile);
 }
 
 export function profileToFriendlyResourceSelf(profile?: string) {
