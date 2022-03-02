@@ -161,25 +161,6 @@ const createDropdownElementList = (innerCardForm: ICardForm, friendlyFields: Fri
         })
 }
 
-// const createResourceElementList = (innerCardForm: ICardForm, friendlyFields: FriendlyResourceFormElement[], fieldHandlers: any, node: SageNodeInitializedFreezerNode): JSX.Element[] => {
-//     const subFriendlyFields = friendlyFields
-//         .filter(ff => innerCardForm.resourceFields.includes(ff.SELF.FHIR));
-//         // .map(ff => ff.LIST).flatMap(list => list ? [list] : [])
-//         // .filter(ffList => ffList.length > 0)
-//         // .flat();
-//     return subFriendlyFields.length > 0 ? subFriendlyFields
-//         .flatMap(sff => {
-//             if (sff.FORM_ELEMENTS) {
-//                 // loadResourceField(node, sff.SELF.FHIR);
-//             }
-//             return sff.FORM_ELEMENTS ? sff.FORM_ELEMENTS : []
-//         })
-//         .map(frFormElement => {
-//             return frFormElement.FORM_ELEMENTS?.length == 0 || !frFormElement.FORM_ELEMENTS ? [] : fieldElementListForType(innerCardForm, frFormElement.FORM_ELEMENTS, fieldHandlers, node);
-//         }).flat()
-//         : [];
-// }
-
 const fieldElementListForType = (innerCardForm: ICardForm, friendlyFields: FriendlyResourceFormElement[], fieldHandlers: any, node: SageNodeInitializedFreezerNode): JSX.Element[] => {
     const flattenFriendlyFields = allFormElems(friendlyFields);
     return [

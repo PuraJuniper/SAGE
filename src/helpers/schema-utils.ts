@@ -557,6 +557,7 @@ const getProfileOfSchemaDef = function (profiles: SimplifiedProfiles, schemaNode
 
 function presentedInCardEditor(name: string, profile?: string): boolean {
 	const resourceEntry = profileToFriendlyResourceListEntry(profile);
+
 	function resourceContainsSubElem(formElem: FriendlyResourceFormElement): boolean {
 		return formElem.SELF.FHIR == name || (formElem.FORM_ELEMENTS?.reduce(function(accumulator: boolean, subFormElem) {
 			return accumulator || resourceContainsSubElem(subFormElem);
@@ -618,6 +619,11 @@ export function getChildOfNode(node: SageNodeInitialized, childName: string): Sa
 	for (const child of node.children) {
 		if (child.name == childName) {
 			return child
+		} else {
+			const granChild = getChildOfNode(child, childName)
+			if (granChild) {
+				return granChild;
+			}
 		}
 	}
 	console.log(`Couldnt find child named "${childName}" for:`, node);
