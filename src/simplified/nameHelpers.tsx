@@ -120,14 +120,14 @@ export function formElemtoResourceProp(formElem: FriendlyResourceFormElement | u
         }
     }
 
-
+export function allFormElems(formElems: FriendlyResourceFormElement[]): FriendlyResourceFormElement[]  {
+    return formElems.flatMap(formElem => [...formElem.FORM_ELEMENTS ? allFormElems(formElem.FORM_ELEMENTS) : [], formElem]);
+}
 export function profileToFriendlyResourceListEntry(profile?: string): FriendlyResourceFormElement | undefined {
 
     const allResourceTypes: FriendlyResourceProps[] = friendlyResourceRoot.RESOURCES.flatMap(resType => [...resType.LIST ? resType.LIST : [], resType.SELF]);
-    function allFormElems(formElems: FriendlyResourceFormElement[]): FriendlyResourceFormElement[]  {
-         return formElems.flatMap(formElem => [...formElem.FORM_ELEMENTS ? allFormElems(formElem.FORM_ELEMENTS) : [], formElem]);
-    }
-    //TODO: Make this a friednlyresourceFormelement
+
+
     const allThings: FriendlyResourceFormElement[] = [...allResourceTypes.map(resType => resourcePropsToFormElement(resType)), ...allResourceTypes.flatMap(resType => resType.FORM_ELEMENTS ? allFormElems(resType.FORM_ELEMENTS) : [])]
 
 

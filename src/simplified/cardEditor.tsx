@@ -8,7 +8,7 @@ import * as SageUtils from "../helpers/sage-utils";
 import * as SchemaUtils from "../helpers/schema-utils";
 import State, { SageNodeInitializedFreezerNode } from "../state";
 import { OuterCardForm, textBoxProps, cardLayout } from "./outerCardForm";
-import { ACTIVITY_DEFINITION, convertFormElementToObject, formElemtoResourceProp, FriendlyResourceFormElement, FriendlyResourceProps, getFormElementListForResource, profileToFriendlyResourceListEntry } from "./nameHelpers";
+import { ACTIVITY_DEFINITION, allFormElems, convertFormElementToObject, formElemtoResourceProp, FriendlyResourceFormElement, FriendlyResourceProps, getFormElementListForResource, profileToFriendlyResourceListEntry } from "./nameHelpers";
 import { MedicationRequestForm } from "./medicationRequestForm";
 
 
@@ -161,30 +161,30 @@ const createDropdownElementList = (innerCardForm: ICardForm, friendlyFields: Fri
         })
 }
 
-const createResourceElementList = (innerCardForm: ICardForm, friendlyFields: FriendlyResourceFormElement[], fieldHandlers: any, node: SageNodeInitializedFreezerNode): JSX.Element[] => {
-    const subFriendlyFields = friendlyFields
-        .filter(ff => innerCardForm.resourceFields.includes(ff.SELF.FHIR));
-        // .map(ff => ff.LIST).flatMap(list => list ? [list] : [])
-        // .filter(ffList => ffList.length > 0)
-        // .flat();
-    return subFriendlyFields.length > 0 ? subFriendlyFields
-        .flatMap(sff => {
-            if (sff.FORM_ELEMENTS) {
-                // loadResourceField(node, sff.SELF.FHIR);
-            }
-            return sff.FORM_ELEMENTS ? sff.FORM_ELEMENTS : []
-        })
-        .map(frFormElement => {
-            return frFormElement.FORM_ELEMENTS?.length == 0 || !frFormElement.FORM_ELEMENTS ? [] : fieldElementListForType(innerCardForm, frFormElement.FORM_ELEMENTS, fieldHandlers, node);
-        }).flat()
-        : [];
-}
+// const createResourceElementList = (innerCardForm: ICardForm, friendlyFields: FriendlyResourceFormElement[], fieldHandlers: any, node: SageNodeInitializedFreezerNode): JSX.Element[] => {
+//     const subFriendlyFields = friendlyFields
+//         .filter(ff => innerCardForm.resourceFields.includes(ff.SELF.FHIR));
+//         // .map(ff => ff.LIST).flatMap(list => list ? [list] : [])
+//         // .filter(ffList => ffList.length > 0)
+//         // .flat();
+//     return subFriendlyFields.length > 0 ? subFriendlyFields
+//         .flatMap(sff => {
+//             if (sff.FORM_ELEMENTS) {
+//                 // loadResourceField(node, sff.SELF.FHIR);
+//             }
+//             return sff.FORM_ELEMENTS ? sff.FORM_ELEMENTS : []
+//         })
+//         .map(frFormElement => {
+//             return frFormElement.FORM_ELEMENTS?.length == 0 || !frFormElement.FORM_ELEMENTS ? [] : fieldElementListForType(innerCardForm, frFormElement.FORM_ELEMENTS, fieldHandlers, node);
+//         }).flat()
+//         : [];
+// }
 
 const fieldElementListForType = (innerCardForm: ICardForm, friendlyFields: FriendlyResourceFormElement[], fieldHandlers: any, node: SageNodeInitializedFreezerNode): JSX.Element[] => {
+    const flattenFriendlyFields = allFormElems(friendlyFields);
     return [
-        ...createTextBoxElementList(innerCardForm, friendlyFields, fieldHandlers, node),
-        ...createDropdownElementList(innerCardForm, friendlyFields, fieldHandlers, node),
-        ...createResourceElementList(innerCardForm, friendlyFields, fieldHandlers, node)
+        ...createTextBoxElementList(innerCardForm, flattenFriendlyFields, fieldHandlers, node),
+        ...createDropdownElementList(innerCardForm, flattenFriendlyFields, fieldHandlers, node)
     ]
 }
 
@@ -199,20 +199,6 @@ const conditionCardField = (planNode: SageNodeInitializedFreezerNode) => {
     }
     return ["condition", condition, setCondition, conditionSaveHandler]
 }
-
-// / related
-// const loadResourceField = (rootResourceNode: SageNodeInitializedFreezerNode, resourceFieldName: string) => {
-//     const resourceFieldNode = SchemaUtils.getChildOfNode(rootResourceNode, resourceFieldName);
-//     if (resourceFieldNode) {
-//         const resourceFormElements = [...getFormElementListForResource(resourceFieldNode?.fhirType), ...profileToFriendlyResourceListEntry(rootResourceNode.profile).FORM_ELEMENTS ?? []];
-//         const resourceFieldFriendlyName = resourceFormElements.find(ff => ff.SELF.FHIR == resourceFieldName);
-//         if (resourceFieldFriendlyName) {
-//             const resourceFieldRequiredChildren = convertFormElementToObject(resourceFieldFriendlyName);
-//             const childNodes = SchemaUtils.getChildrenFromObjectArrayNode(resourceFieldNode);
-//             State.emit("load_json_into", childNodes[0], resourceFieldRequiredChildren);
-//         }
-//     }
-// }
 
 export const CardEditor = (props: CardEditorProps) => {
     const actNode = props.actNode;
@@ -235,7 +221,6 @@ export const CardEditor = (props: CardEditorProps) => {
     const getInnerCardForm: () => ICardForm = () => {
         switch (actResourceType.FHIR) {
             case "MedicationRequest":
-                // dosageCardField(actNode);
                 return new MedicationRequestForm(actResourceType)
 
             default:

@@ -557,10 +557,6 @@ const getProfileOfSchemaDef = function (profiles: SimplifiedProfiles, schemaNode
 
 function presentedInCardEditor(name: string, profile?: string): boolean {
 	const resourceEntry = profileToFriendlyResourceListEntry(profile);
-	if (name == 'repeat') {
-		console.log("nothing");
-	}
-
 	function resourceContainsSubElem(formElem: FriendlyResourceFormElement): boolean {
 		return formElem.SELF.FHIR == name || (formElem.FORM_ELEMENTS?.reduce(function(accumulator: boolean, subFormElem) {
 			return accumulator || resourceContainsSubElem(subFormElem);
