@@ -6,6 +6,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMinus, faPlus, faSearch } from "@fortawesome/pro-solid-svg-icons";
 
 import { CSSTransition, TransitionGroup } from "react-transition-group";
+import { CSSTransitionStrictMode, HoverOverlay } from "../../helpers/CSSTransitionStrictMode";
 
 
 const systemDisplayToUrl = {
@@ -61,10 +62,9 @@ export const CqlWizardSelectCodes: React.FunctionComponent<CqlWizardSelectCodesP
                     <ListGroup>
                         <TransitionGroup component={null}>
                             {wizState.codes.map((v, i) => 
-                                <CSSTransition key={`${v.systemOID} ${v.code} ${v.version}`} timeout={250} classNames="cql-wizard-code-transition">
-                                    <OverlayTrigger
+                                <CSSTransitionStrictMode key={`${v.systemOID} ${v.code} ${v.version}`} timeout={250} classNames="cql-wizard-code-transition">
+                                    <HoverOverlay
                                         placement="right"
-                                        trigger={['hover', 'focus']}
                                         overlay={
                                             <Popover id={`code-popover-${v.display}`}>
                                                 <Popover.Title as="h3">{`${v.systemName}: ${v.code}`}</Popover.Title>
@@ -82,13 +82,13 @@ export const CqlWizardSelectCodes: React.FunctionComponent<CqlWizardSelectCodesP
                                                 variant="secondary"
                                                 size="sm"
                                                 onClick={() => wizDispatch(['setCodes', wizState.codes.filter(vi => vi != v)])}
-                                            > 
+                                            >
                                                 <FontAwesomeIcon icon={faMinus} />
                                             </Button>
                                             {v.display}
                                         </ListGroup.Item>
-                                    </OverlayTrigger>
-                                </CSSTransition>
+                                    </HoverOverlay>
+                                </CSSTransitionStrictMode>
                             )}
                         </TransitionGroup>
                     </ListGroup>

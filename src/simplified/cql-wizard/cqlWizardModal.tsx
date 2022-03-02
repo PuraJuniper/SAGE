@@ -8,6 +8,7 @@ import { CSSTransition, TransitionGroup } from "react-transition-group";
 import { CqlWizardSelectCodes } from "./cqlWizardSelectCodes";
 import { WizardAction, WizardPage, WizardReducer, WizardPagesArr, getNextPage, getPrevPage, initWizState, WizardState, StepStatus } from "./wizardLogic";
 import { CqlWizardSelectFilters } from "./cqlWizardSelectFilters";
+import { CSSTransitionStrictMode } from "../../helpers/CSSTransitionStrictMode";
 
 // Get the title for the dialog header and the page content for the dialog body
 function getTitleAndPage(wizardState: WizardState, wizardDispatch: Dispatch<WizardAction>): {title: string, pageComponent: JSX.Element} {
@@ -121,11 +122,11 @@ export const CqlWizardModal: React.FunctionComponent<CqlWizardModalProps> = (pro
                     </Button>
                     <div className="cql-wizard-page-content-closest-positioned-ancestor">
                         <TransitionGroup component={null}>
-                            <CSSTransition classNames="cql-wizard-content-transition" key={page} timeout={300}>
+                            <CSSTransitionStrictMode classNames="cql-wizard-content-transition" key={page} timeout={300}>
                                 <div className="cql-wizard-page-content">
                                     {pageContent}
                                 </div>
-                            </CSSTransition>
+                            </CSSTransitionStrictMode>
                         </TransitionGroup>
                     </div>
                     <Button variant={nextPage === null && canProceed ? "success" : "light"} className="cql-wizard-nav-button" disabled={!canProceed}
