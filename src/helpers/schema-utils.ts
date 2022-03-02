@@ -446,7 +446,7 @@ export const buildChildNode = function (profiles: SimplifiedProfiles, parentNode
 			fhirType: childNode.fhirType,
 			type: childNode.type,
 			displayName: buildDisplayName(name, childNode.sliceName),
-			isRequired: schema.min >= 1 || presentedInCardEditor(name, parentNode.profile),
+			isRequired: schema.min >= 1 || presentedInCardEditor(name, childNode.profile),
 			short: schema.short,
 			nodeCreator: "user",
 			isFixed,
@@ -554,8 +554,11 @@ const getProfileOfSchemaDef = function (profiles: SimplifiedProfiles, schemaNode
 	}
 }
 
-function presentedInCardEditor(name: string, profile: string): boolean {
+function presentedInCardEditor(name: string, profile?: string): boolean {
 	const resourceEntry = profileToFriendlyResourceListEntry(profile);
+	if (name == 'timing') {
+		console.log("nothing");
+	}
 	if (resourceEntry.DEFAULT_PROFILE_URI == profile && resourceEntry.FHIR == name) {
 		return true
 	}
