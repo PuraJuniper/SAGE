@@ -15,14 +15,14 @@
             {
               "SELF": { "FHIR": "dosage", "FRIENDLY": "Dosage: ",
                 "DEFAULT_PROFILE_URI": "http://hl7.org/fhir/StructureDefinition/Dosage" },
-              "LIST": [
+              "FORM_ELEMENTS": [
                 {
                   "SELF": { "FHIR": "timing", "FRIENDLY": "Timing: ",
                   "DEFAULT_PROFILE_URI": "http://hl7.org/fhir/StructureDefinition/Timing" },
-                  "LIST": [
+                  "FORM_ELEMENTS": [
                     {
                       "SELF": { "FHIR": "repeat", "FRIENDLY": "Repeat: " },
-                      "LIST": [
+                      "FORM_ELEMENTS": [
                         {
                           "SELF": {
                             "FHIR": "frequency",

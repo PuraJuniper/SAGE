@@ -374,6 +374,7 @@ export const buildChildNode = function (profiles: SimplifiedProfiles, parentNode
 		// 	schemaPath = fhirType;
 		// }
 
+		//TODO: Investigate this
 		const children = getElementChildren(profiles, parentNode2, []);
 
 		const reqChildren = [];
@@ -556,17 +557,14 @@ const getProfileOfSchemaDef = function (profiles: SimplifiedProfiles, schemaNode
 
 function presentedInCardEditor(name: string, profile?: string): boolean {
 	const resourceEntry = profileToFriendlyResourceListEntry(profile);
-	if (name == 'timing') {
-		console.log("nothing");
-	}
 	if (resourceEntry.DEFAULT_PROFILE_URI == profile && resourceEntry.FHIR == name) {
 		return true
 	}
 	function getFormListItem(name: string, frfe: FriendlyResourceFormElement): FriendlyResourceFormElement | undefined {
 		return (frfe.SELF.FHIR == name) ? frfe :
-			frfe.LIST ?
-				frfe.LIST.length > 0 ?
-					frfe.LIST.find(fListItem => getFormListItem(name, fListItem))
+			frfe.FORM_ELEMENTS ?
+				frfe.FORM_ELEMENTS.length > 0 ?
+					frfe.FORM_ELEMENTS.find(fListItem => getFormListItem(name, fListItem))
 					: undefined
 				: undefined
 	}

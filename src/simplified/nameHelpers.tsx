@@ -11,7 +11,7 @@ export interface FriendlyResourceProps {
 
 export type FriendlyResourceFormElement = {
     SELF: FriendlyResourceProps
-    LIST?: FriendlyResourceFormElement[]
+    FORM_ELEMENTS?: FriendlyResourceFormElement[]
 }
 
 export interface FriendlyResourceType {
@@ -39,12 +39,8 @@ const getType = (type: string) => {
 }
 
 function getAllResTypes(resTypeList: FriendlyResourceFormElement[]) : FriendlyResourceProps[] {
-    return resTypeList.flatMap(resType => [...resType.LIST ? getAllResTypes(resType.LIST) : [], resType.SELF]);
+    return resTypeList.flatMap(resType => [...resType.FORM_ELEMENTS ? getAllResTypes(resType.FORM_ELEMENTS) : [], resType.SELF]);
 }
-
-const allResourceTypes: FriendlyResourceProps[] = friendlyResourceRoot.RESOURCES.flatMap(resType => [...resType.LIST ? resType.LIST : [], resType.SELF]);
-const allFormElems: FriendlyResourceProps[] = allResourceTypes.flatMap(resType => resType.FORM_ELEMENTS ? getAllResTypes(resType.FORM_ELEMENTS) : []);
-const allThings = [...allResourceTypes, ...allFormElems]
 
 export const PLAN_DEFINITION = getType("PlanDefinition");
 export const ACTIVITY_DEFINITION = getType("ActivityDefinition");
@@ -108,6 +104,13 @@ export const friendlyToFhir = (friendlyWord: string) => {
 
 export function profileToFriendlyResourceListEntry(profile?: string): FriendlyResourceProps {
 
+    const allResourceTypes: FriendlyResourceProps[] = friendlyResourceRoot.RESOURCES.flatMap(resType => [...resType.LIST ? resType.LIST : [], resType.SELF]);
+    function allFormElems(formElems: FriendlyResourceFormElement[]): FriendlyResourceFormElement[]  {
+         return formElems.flatMap(formElem => [...formElem.FORM_ELEMENTS ? allFormElems(formElem.FORM_ELEMENTS) : [], formElem]);
+    }
+    const allThings = [...allResourceTypes, ...allResourceTypes.flatMap(resType => resType.FORM_ELEMENTS ? allFormElems(resType.FORM_ELEMENTS) : []).map(fElem => fElem.SELF)]
+
+
     return allThings
         .filter(resType => resType.DEFAULT_PROFILE_URI)
         .find(resType => resType.DEFAULT_PROFILE_URI == profile)
@@ -155,10 +158,10 @@ export function getFormElementListForResource(resource: string): FriendlyResourc
 }
 
 export function convertFormElementToObject(formElem: FriendlyResourceFormElement): any {
-    if (formElem.LIST) {
+    if (formElem.FORM_ELEMENTS) {
         const retVal: { [x: string]: any; } = {};
-        formElem.LIST.forEach(element => {
-            retVal[element.SELF.FHIR] = element.LIST ? convertFormElementToObject(element) : undefined;
+        formElem.FORM_ELEMENTS.forEach(element => {
+            retVal[element.SELF.FHIR] = element.FORM_ELEMENTS ? convertFormElementToObject(element) : undefined;
         })
         return retVal;
     }

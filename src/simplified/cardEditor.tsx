@@ -169,13 +169,13 @@ const createResourceElementList = (innerCardForm: ICardForm, friendlyFields: Fri
         // .flat();
     return subFriendlyFields.length > 0 ? subFriendlyFields
         .flatMap(sff => {
-            if (sff.LIST) {
+            if (sff.FORM_ELEMENTS) {
                 // loadResourceField(node, sff.SELF.FHIR);
             }
-            return sff.LIST ? sff.LIST : []
+            return sff.FORM_ELEMENTS ? sff.FORM_ELEMENTS : []
         })
         .map(frFormElement => {
-            return frFormElement.LIST?.length == 0 || !frFormElement.LIST ? [] : fieldElementListForType(innerCardForm, frFormElement.LIST, fieldHandlers, node);
+            return frFormElement.FORM_ELEMENTS?.length == 0 || !frFormElement.FORM_ELEMENTS ? [] : fieldElementListForType(innerCardForm, frFormElement.FORM_ELEMENTS, fieldHandlers, node);
         }).flat()
         : [];
 }
