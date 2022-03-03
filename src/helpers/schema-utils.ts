@@ -622,14 +622,17 @@ export function getChildOfNode(node: SageNodeInitialized, childName: string): Sa
 			return;
 		}
 	}
+	//Look for direct children first
 	for (const child of node.children) {
 		if (child.name == childName) {
 			return child
-		} else {
-			const granChild = getChildOfNode(child, childName)
-			if (granChild) {
-				return granChild;
-			}
+		}
+	}
+	//if direct child is not found, then try grandchild
+	for (const child of node.children) {
+		const granChild = getChildOfNode(child, childName)
+		if (granChild) {
+			return granChild;
 		}
 	}
 	console.log(`Couldnt find child named "${childName}" for:`, node);
