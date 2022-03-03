@@ -242,7 +242,7 @@ function ConditionDropdown(fieldList: any[][]) {
     const conditionField = fieldList.find((field) => field[0] == "condition") ?? ["", "", () => { return undefined }];
     const libraryField = fieldList.find((field) => field[0] == "library") ?? ["", "", () => { return undefined }];
     const [expressionOptions, setExpressionOptions] = useState<ExpressionOptionDict>({});
-    const [FhirLibrary, setFhirLibrary] = useState<any>();
+    const [FhirLibraryStr, setFhirLibraryStr] = useState<string>();
     const [showLibraryImportModal, setShowLibraryImportModal] = useState<boolean>(false);
 
     // Initialization
@@ -250,7 +250,7 @@ function ConditionDropdown(fieldList: any[][]) {
 
     return (
         <>
-            {libraryModalElement(showLibraryImportModal, setShowLibraryImportModal, setFhirLibrary, () => handleImportLibrary(FhirLibrary))}
+            {libraryModalElement(showLibraryImportModal, setShowLibraryImportModal, setFhirLibraryStr, () => handleImportLibrary(FhirLibraryStr))}
             <Row className="mb-2">
                 <Form.Group as={Col} controlId="condition">
                     <Form.Label>Condition</Form.Label>
@@ -311,7 +311,7 @@ function CardStateEditor<T>(node: SageNodeInitializedFreezerNode, resourceName: 
     return useState<T>(SchemaUtils.getChildOfNode(node, resourceName)?.value || "");
 }
 
-function handleImportLibrary(FhirLibrary: string) {
+function handleImportLibrary(FhirLibrary?: string) {
     if (FhirLibrary) {
         try {
             const parsedFhir = JSON.parse(FhirLibrary);
@@ -377,7 +377,7 @@ function InitializeLibraries(setExpressionOptions: { (value: React.SetStateActio
     );
 }
 
-function libraryModalElement(showLibraryImportModal: boolean, setShowLibraryImportModal: React.Dispatch<React.SetStateAction<boolean>>, setFhirLibrary: React.Dispatch<any>, handleImportLibrary: () => void) {
+function libraryModalElement(showLibraryImportModal: boolean, setShowLibraryImportModal: React.Dispatch<React.SetStateAction<boolean>>, setFhirLibraryStr: React.Dispatch<any>, handleImportLibrary: () => void) {
     return <>
         <Modal show={showLibraryImportModal} onHide={() => setShowLibraryImportModal(false)}
             centered
@@ -392,7 +392,7 @@ function libraryModalElement(showLibraryImportModal: boolean, setShowLibraryImpo
                         <Form.Control as="textarea" rows={14} wrap="hard"
                             className="name-input" type="text" placeholder="FHIR Library" name="FHIR Library"
                             autoComplete="off"
-                            onChange={(e) => setFhirLibrary(e.currentTarget.value)} />
+                            onChange={(e) => setFhirLibraryStr(e.currentTarget.value)} />
                     </Form.Group>
                 </Form>
                 <i>Please note that any dependencies of the pasted FHIR Library will not be automatically resolved or added to the final Bundle.</i>

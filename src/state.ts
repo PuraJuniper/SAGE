@@ -11,7 +11,7 @@ export interface StateVars {
 		replaceId?: number,
 		count?: number,
 		update?: {from: string, to: string}[],
-		selectedNode?: SageNodeInitialized
+		selectedNode?: SageNodeInitialized,
 	},
 	mode: "basic" | "advanced",
 	VSACEndpoint: string,
@@ -52,8 +52,7 @@ export interface StateVars {
 
 export type SageUiStatus = 'ready' | 'contained' | 'open' | 'validation_error' | 'resource_load_error' | 'ref_warning' | 'codePicker' 
 	| 'change_profile' | 'missing_title_error' | 'id_duplicate_error' | 'title_duplicate_error' | 'url_duplicate_error' | 'cards' | 'collection'
-	| 'loading' | 'profile_load_error' | 'export' | 'cpg' | 'valueSet' | 'settings' | 'select' | 'basic-cpg' | 'advanced-cpg';
-
+	| 'loading' | 'profile_load_error' | 'export' | 'cpg' | 'valueSet' | 'settings' | 'select' | 'basic-cpg' | 'advanced-cpg' | 'view-libraries';
 
 export interface SageReactions {
 	"load_initial_json": (profilePath: string, resourcePath: string, isRemote: boolean) => void;

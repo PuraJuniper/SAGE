@@ -472,7 +472,13 @@ export const buildChildNode = function (profiles: SimplifiedProfiles, parentNode
 	}
 };
 
-export const findFirstSageNodeByUri = function (nodes: SageFreezerNode<SageNodeInitialized[]>, uri: string) {
+export function findFirstSageNodeByUri(nodes: SageFreezerNode<SageNodeInitialized[]>, uri: string): {
+	node: SageNodeInitializedFreezerNode,
+	pos: number
+} | {
+	node: null,
+	pos: null
+} {
 	// Return the first SageNode of `nodes` that has a child "URL" SageNode with value equal to `uri`
 	let idx = 0;
 	for (const node of nodes) {
@@ -487,7 +493,7 @@ export const findFirstSageNodeByUri = function (nodes: SageFreezerNode<SageNodeI
 	}
 	return {
 		node: null,
-		idx: null
+		pos: null
 	}
 }
 
@@ -917,8 +923,7 @@ export const decorateFhirData = function (profiles: SimplifiedProfiles, resource
 		console.log(`No suitable profile exists in SAGE for ${resource.resourceType} -- skipping`);
 		return;
 	}
-	nextId = 0;
-
+	
 	// Create root node first
 	const rootProfileSchema = profiles[resourceProfile]; // This is the schema of the profile
 	const rootPath = resource.resourceType; // This path gives you the schema of the Resource itself
@@ -981,3 +986,6 @@ export function makeValueSetURL(resource: FriendlyResourceProps): string {
 	return linkPrefix + "/" + uvCode + "/" + ipsCode + "/" + VALUE_SET + "/" + (resource.FHIR).toLowerCase()
 }
 
+export function incrementNextId() {
+	return nextId++;
+}
