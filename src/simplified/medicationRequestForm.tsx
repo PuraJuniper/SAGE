@@ -75,7 +75,7 @@ export class MedicationRequestForm implements ICardForm {
                 ['status', 'frequency'],
                 ['intent', 'placeholder'],
                 ['relatedArtifact', 'placeholder'],
-                ['period', 'frequency'],
+                ['placeholder', 'placeholder'],
                 ['periodUnit', 'text']
             ]
 

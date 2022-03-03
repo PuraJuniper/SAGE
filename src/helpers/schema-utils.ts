@@ -635,7 +635,7 @@ export function getChildOfNode(node: SageNodeInitialized, childName: string): Sa
 			return granChild;
 		}
 	}
-	console.log(`Couldnt find child named "${childName}" for:`, node);
+	// console.log(`Couldnt find child named "${childName}" for:`, node);
 	return;
 }
 
