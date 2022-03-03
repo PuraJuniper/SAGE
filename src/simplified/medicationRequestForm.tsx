@@ -1,14 +1,15 @@
+import { Resource } from "fhir/r4";
 import React from "react";
 import { Col, Form, Row } from "react-bootstrap";
 import { ICardForm } from "./cardEditor";
-import { FriendlyResourceListEntry } from "./nameHelpers";
+import { FriendlyResourceProps } from "./nameHelpers";
 import { textBoxProps } from "./outerCardForm";
 
 export class MedicationRequestForm implements ICardForm {
 
     resourceType;
 
-    constructor(resourceType: FriendlyResourceListEntry) {
+    constructor(resourceType: FriendlyResourceProps) {
         this.resourceType = resourceType;
     }
 
@@ -26,8 +27,8 @@ export class MedicationRequestForm implements ICardForm {
             caption: ""
         }],
         ['relatedArtifact', {
-            boxSize: 1,
-            isReadOnly: false,
+            boxSize: 1, 
+            isReadOnly: true,
             isLink: false,
             caption: ""
         }],
@@ -37,6 +38,18 @@ export class MedicationRequestForm implements ICardForm {
             isLink: false,
             caption: "NOTE: For advanced timing instructions, leave basic dosage sentence blank."
 
+        }],
+        ['frequency', {
+            boxSize: 1,
+            isReadOnly: false,
+            isLink: false,
+            caption: ""
+        }],
+        ['period', {
+            boxSize: 1,
+            isReadOnly: false,
+            isLink: false,
+            caption: ""
         }]
     ]);
 
@@ -46,9 +59,12 @@ export class MedicationRequestForm implements ICardForm {
         ['intent',
             ['proposal', 'plan', 'order', 'original-order', 'reflex-order', 'filler-order', 'instance-order', 'option']],
         ['productReference',
-            ['proposal', 'plan', 'order', 'original-order', 'reflex-order', 'filler-order', 'instance-order', 'option']]
+            ['proposal', 'plan', 'order', 'original-order', 'reflex-order', 'filler-order', 'instance-order', 'option']],
+        ['periodUnit',
+            ['s', 'min', 'h', 'd', 'wk', 'mo', 'a']]
     ]);
 
+    resourceFields = ['dosage', 'timing', 'repeat'];
 
     cardFieldLayout =
         {
@@ -60,12 +76,25 @@ export class MedicationRequestForm implements ICardForm {
                 ['intent', 'placeholder'],
                 ['relatedArtifact', 'placeholder'],
                 ['placeholder', 'placeholder'],
-                ['placeholder', 'text']
+                ['periodUnit', 'text']
             ]
 
-        };
-    
-    
+    };
+                  
+    cardDisplayLayout =
+    {
+        cardColumns: [
+            ['title'],
+            ['description'],
+            ['relatedArtifact'],
+            ['productReference'],
+            ['text']
+        ]
+
+    };
+
+
+
 
     pageOne: ICardForm['pageOne'] = (props) => {
         const placeHolderElem =
@@ -95,12 +124,26 @@ export class MedicationRequestForm implements ICardForm {
         );
     }
 
-
-    pageThree = (fieldElements: JSX.Element[]) => {
+    pageThree: ICardForm['pageThree'] = (props) => {
+        const placeHolderElem =
+            <Form.Group key='placeholder-formGroup' as={Col} >
+            </Form.Group>;
         return (
-            [
-                <div key="page2">To be implemented</div>
-            ]
+            <div> {
+                ...this.cardDisplayLayout.cardColumns.map((cr, i: number) => {
+                    return (
+                        <Row key={"row-" + i} className="mb-3">
+                            {cr.map(field =>
+                                [
+                                    placeHolderElem,
+                                    ...props.displayElements
+                                ].find(elem =>
+                                    elem.key?.toString().startsWith(field + "-")))}
+                        </Row>
+                    )
+                })
+            }</div>
         );
     }
+
 }

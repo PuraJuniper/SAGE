@@ -29,8 +29,8 @@ const Collection = () => {
             </div>
             <div className="row box">
                 {
-                    resources.reduce(
-                        function (accumulator: any[], currentValue, currentIndex, array) {
+                    resources.reduce<SageNodeInitialized[][]>(
+                        function (accumulator, currentValue, currentIndex, array) {
                             if (currentIndex % 2 === 0)
                                 accumulator.push(array.slice(currentIndex, currentIndex + 2));
                             return accumulator;
