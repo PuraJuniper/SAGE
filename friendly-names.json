@@ -13,19 +13,32 @@
           "DEFAULT_PROFILE_URI": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-medicationrequestactivity",
           "FORM_ELEMENTS": [
             {
-              "SELF": { "FHIR": "dosage", "FRIENDLY": "Dosage: " },
-              "LIST": [
+              "SELF": { "FHIR": "dosage", "FRIENDLY": "Dosage: ",
+                "DEFAULT_PROFILE_URI": "http://hl7.org/fhir/StructureDefinition/Dosage" },
+              "FORM_ELEMENTS": [
                 {
-                  "SELF": { "FHIR": "timing", "FRIENDLY": "Timing: " },
-                  "LIST": [
+                  "SELF": { "FHIR": "timing", "FRIENDLY": "Timing: ",
+                  "DEFAULT_PROFILE_URI": "http://hl7.org/fhir/StructureDefinition/Timing" },
+                  "FORM_ELEMENTS": [
                     {
-                      "SELF": { "FHIR": "frequency", "FRIENDLY": " dose(s)" }
-                    },
-                    {
-                      "SELF": { "FHIR": "period", "FRIENDLY": "per: " }
-                    },
-                    {
-                      "SELF": { "FHIR": "periodUnit", "FRIENDLY": "Unit (day,week,month, etc.)" }
+                      "SELF": { "FHIR": "repeat", "FRIENDLY": "Repeat: " },
+                      "FORM_ELEMENTS": [
+                        {
+                          "SELF": {
+                            "FHIR": "frequency",
+                            "FRIENDLY": " dose(s)"
+                          }
+                        },
+                        {
+                          "SELF": { "FHIR": "period", "FRIENDLY": "per: " }
+                        },
+                        {
+                          "SELF": {
+                            "FHIR": "periodUnit",
+                            "FRIENDLY": "Unit (day,week,month, etc.)"
+                          }
+                        }
+                      ]
                     }
                   ]
                 },

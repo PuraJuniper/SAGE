@@ -191,7 +191,7 @@ export const getElementChildren = function (profiles: SimplifiedProfiles, node: 
 			name,
 			displayName: buildDisplayName(name, childSchema.sliceName),
 			index: childSchema.index,
-			isRequired: childSchema.min >= 1 || presentedInCardEditor(name, node.profile),
+			isRequired: childSchema.min >= 1 || presentedInCardEditor(name, childProfile) || presentedInCardEditor(name, node.profile),
 			fhirType: typeDef.code,
 			type: typeDef,
 			short: childSchema.short,
@@ -374,6 +374,7 @@ export const buildChildNode = function (profiles: SimplifiedProfiles, parentNode
 		// 	schemaPath = fhirType;
 		// }
 
+		//TODO: Investigate this
 		const children = getElementChildren(profiles, parentNode2, []);
 
 		const reqChildren = [];
@@ -400,7 +401,7 @@ export const buildChildNode = function (profiles: SimplifiedProfiles, parentNode
 		name = name.replace("[x]", capType);
 	}
 
-	if ((schema.max !== "1") && !["valueArray", "objectArray"].includes(parentNode.nodeType)) {
+	if ((schema.max !== "1") && !["valueArray", "objectArray", "resource"].includes(parentNode.nodeType)) {
 		const result: SageNodeInitialized = {
 			id: nextId++,
 			name,
@@ -446,7 +447,7 @@ export const buildChildNode = function (profiles: SimplifiedProfiles, parentNode
 			fhirType: childNode.fhirType,
 			type: childNode.type,
 			displayName: buildDisplayName(name, childNode.sliceName),
-			isRequired: schema.min >= 1 || presentedInCardEditor(name, parentNode.profile),
+			isRequired: schema.min >= 1 || presentedInCardEditor(name, childNode.profile),
 			short: schema.short,
 			nodeCreator: "user",
 			isFixed,
@@ -560,17 +561,27 @@ const getProfileOfSchemaDef = function (profiles: SimplifiedProfiles, schemaNode
 	}
 }
 
-function presentedInCardEditor(name: string, profile: string): boolean {
+function presentedInCardEditor(name: string, profile?: string): boolean {
 	const resourceEntry = profileToFriendlyResourceListEntry(profile);
+
+	function resourceContainsSubElem(formElem: FriendlyResourceFormElement): boolean {
+		return formElem.SELF.FHIR == name || (formElem.FORM_ELEMENTS?.reduce(function(accumulator: boolean, subFormElem) {
+			return accumulator || resourceContainsSubElem(subFormElem);
+		}, false) ?? false)
+	}
+
+	if (resourceEntry && resourceEntry.SELF.DEFAULT_PROFILE_URI == profile && resourceEntry.SELF.FHIR == name) {
+		return true
+	}
 	function getFormListItem(name: string, frfe: FriendlyResourceFormElement): FriendlyResourceFormElement | undefined {
 		return (frfe.SELF.FHIR == name) ? frfe :
-			frfe.LIST ?
-				frfe.LIST.length > 0 ?
-					frfe.LIST.find(fListItem => getFormListItem(name, fListItem))
+			frfe.FORM_ELEMENTS ?
+				frfe.FORM_ELEMENTS.length > 0 ?
+					frfe.FORM_ELEMENTS.find(fListItem => getFormListItem(name, fListItem))
 					: undefined
 				: undefined
 	}
-	if (resourceEntry.FORM_ELEMENTS) {
+	if (resourceEntry && resourceEntry.FORM_ELEMENTS) { //It's a subnode of a Card Resource Type
 		const formElem: FriendlyResourceFormElement | undefined = resourceEntry.FORM_ELEMENTS
 			.map(formElem => getFormListItem(name, formElem))
 			.find(formElem => formElem)
@@ -611,12 +622,20 @@ export function getChildOfNode(node: SageNodeInitialized, childName: string): Sa
 			return;
 		}
 	}
+	//Look for direct children first
 	for (const child of node.children) {
 		if (child.name == childName) {
 			return child
 		}
 	}
-	console.log(`Couldnt find child named "${childName}" for:`, node);
+	//if direct child is not found, then try grandchild
+	for (const child of node.children) {
+		const granChild = getChildOfNode(child, childName)
+		if (granChild) {
+			return granChild;
+		}
+	}
+	// console.log(`Couldnt find child named "${childName}" for:`, node);
 	return;
 }
 
