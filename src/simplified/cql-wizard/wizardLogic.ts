@@ -1,8 +1,8 @@
-import { Expression } from "fhir/r4";
 import State from "../../state";
 import { VsacResponse } from "./cqlWizardSelectCodes";
 import { ACTIVITY_DEFINITION, defaultProfileUriOfResourceType, getFhirSelf, friendlyResourceRoot } from "../nameHelpers";
 import { Moment } from "moment";
+import { SageCondition } from "../medicationRequestForm";
 
 // Pages of the wizard
 export enum WizardPage {
@@ -18,69 +18,6 @@ export enum StepStatus {
 }
 export const WizardPagesArr: WizardPage[] = [WizardPage.SelectResource, WizardPage.SelectCodes, WizardPage.SelectFilters];
 
-// Various types for filtering by FHIR element
-export interface ElementFilter {
-    elementName: string,
-    filter: CodingFilter | DateFilter | UnknownFilter,
-}
-export interface CodingFilter {
-    type: "coding",
-    filteredCoding: {
-        filterType: CodeFilterType,
-        selectedCodes: string[],
-    }
-    codeBinding?: CodeBinding,
-    error: boolean,
-}
-export enum CodeFilterType {
-    None = "no_code",
-    Filtered = "some_code(s)",
-}
-interface CodeBinding {
-    codes: {
-        display: string,
-        code: string,
-    }[],
-    definition: string
-}
-export interface DateFilter {
-    type: "date",
-    filteredDate: {
-        filterType: DateFilterType,
-        absoluteDate1: Moment | null,
-        absoluteDate2: Moment | null,
-        relativeAmount: number,
-        relativeUnit?: RelativeDateUnit,
-    },
-    dateBinding: {
-        definition: string
-    },
-    error: boolean,
-}
-export enum DateFilterType {
-    None = "any_date",
-    Before = "abs_before",
-    After = "abs_after",
-    Between = "abs_between",
-    OlderThan = "rel_older",
-    NewerThan = "rel_newer",
-}
-
-export enum RelativeDateUnit {
-    Minutes = "minutes",
-    Hours = "hours",
-    Days = "days",
-    Weeks = "weeks",
-    Months = "months",
-    Years = "years",
-}
-
-export interface UnknownFilter {
-    type: "unknown",
-    curValue: unknown,
-    error: boolean,
-}
-
 // Wizard state and its reducer function
 export interface WizardState {
     page: WizardPage,
@@ -89,11 +26,13 @@ export interface WizardState {
     codes: VsacResponse[],
     filters: ElementFilter[],
 }
-export type WizardAction = ['changePage', WizardPage ] | ['selectExprType', string] | ['setCodes', VsacResponse[]] | ['setFilters', ElementFilter[]] | ['resetState', Expression | null];
+export type WizardAction = ['changePage', WizardPage ] | ['selectExprType', string] | ['setCodes', VsacResponse[]] | ['setFilters', ElementFilter[]] | ['setState', WizardState];
 export function WizardReducer(prevWizState: WizardState, action: WizardAction): WizardState {
     switch(action[0]) {
-        case 'resetState':
-            return initWizState(action[1]);
+        case 'setState':
+            return {
+                ...action[1]
+            };
         case 'changePage':
             return {
                 ...prevWizState,
@@ -176,20 +115,96 @@ export function WizardReducer(prevWizState: WizardState, action: WizardAction): 
     }
 }
 
-export function initWizState(initialExpr: Expression | null): WizardState {
-    return {
-        page: WizardPage.SelectResource,
-        pageStatus: {
-            [WizardPage.SelectResource]: StepStatus.Incomplete,
-            [WizardPage.SelectCodes]: StepStatus.Disabled,
-            [WizardPage.SelectFilters]: StepStatus.Disabled,
-        },
-        resType: "",
-        codes: [],
-        filters: [],
+// Return an initialized state with values copied from `fromState` if possible
+export function initFromState(state: WizardState | null): WizardState {
+    const startPage = WizardPage.SelectResource;
+    if (state !== null) {
+        return {
+            ...state,
+            page: startPage,
+        };
+    }
+    else {
+        return {
+            page: startPage,
+            pageStatus: {
+                [WizardPage.SelectResource]: StepStatus.Incomplete,
+                [WizardPage.SelectCodes]: StepStatus.Disabled,
+                [WizardPage.SelectFilters]: StepStatus.Disabled,
+            },
+            resType: "",
+            codes: [],
+            filters: [],
+        }
     }
 }
 
+// Various types for filtering by FHIR element
+export interface ElementFilter {
+    elementName: string,
+    filter: CodingFilter | DateFilter | UnknownFilter,
+}
+export interface CodingFilter {
+    type: "coding",
+    filteredCoding: {
+        filterType: CodeFilterType,
+        selectedCodes: string[],
+    }
+    codeBinding?: CodeBinding,
+    error: boolean,
+}
+export enum CodeFilterType {
+    None = "no_code",
+    Filtered = "some_code(s)",
+}
+interface CodeBinding {
+    codes: {
+        display: string,
+        code: string,
+    }[],
+    definition: string
+}
+export interface DateFilter {
+    type: "date",
+    filteredDate: {
+        filterType: DateFilterType,
+        absoluteDate1: Moment | null,
+        absoluteDate2: Moment | null,
+        relativeAmount: number,
+        relativeUnit?: RelativeDateUnit,
+    },
+    dateBinding: {
+        definition: string
+    },
+    error: boolean,
+}
+export enum DateFilterType {
+    None = "any_date",
+    Before = "abs_before",
+    After = "abs_after",
+    Between = "abs_between",
+    OlderThan = "rel_older",
+    NewerThan = "rel_newer",
+}
+
+export enum RelativeDateUnit {
+    Minutes = "minutes",
+    Hours = "hours",
+    Days = "days",
+    Weeks = "weeks",
+    Months = "months",
+    Years = "years",
+}
+
+export interface UnknownFilter {
+    type: "unknown",
+    curValue: unknown,
+    error: boolean,
+}
+
+// Returns a filter type for the given element path in the profile identified by `url`
+// These filter types should include all information needed by the UI to know what controls should be displayed
+//  to the user for the element.
 function getFilterType(url: string, elementFhirPath: string): CodingFilter | DateFilter | UnknownFilter {
     const unknownFilter: UnknownFilter = {
         type: "unknown",
@@ -306,4 +321,13 @@ export function getPrevPage(curPage: WizardPage, stepStatus: WizardState["pageSt
         }
     }
     return prevPage;
+}
+
+// Temporary storage/loading of wizard states for purpose of cql export feature
+const exprToWizStateMap: {[key: string]: WizardState} = {};
+export function buildWizStateFromCondition(condition: SageCondition): WizardState {
+    return exprToWizStateMap[condition.id] !== undefined ? exprToWizStateMap[condition.id] : initFromState(null);
+}
+export function saveWizStateForConditionId(conditionId: string, stateToSave: WizardState) {
+    exprToWizStateMap[conditionId] = stateToSave;
 }

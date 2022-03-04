@@ -1,4 +1,3 @@
-import { Expression } from "fhir/r4";
 import React, { useEffect, useReducer, useState, Dispatch } from "react";
 import { Button, Modal, Pagination, Row } from "react-bootstrap";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -6,7 +5,7 @@ import { CqlWizardSelectResource } from "./cqlWizardSelectResource";
 import { faArrowLeft, faArrowRight, faCheck } from "@fortawesome/pro-solid-svg-icons";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
 import { CqlWizardSelectCodes } from "./cqlWizardSelectCodes";
-import { WizardAction, WizardPage, WizardReducer, WizardPagesArr, getNextPage, getPrevPage, initWizState, WizardState, StepStatus } from "./wizardLogic";
+import { WizardAction, WizardPage, WizardReducer, WizardPagesArr, getNextPage, getPrevPage, initFromState, WizardState, StepStatus, saveWizStateForConditionId } from "./wizardLogic";
 import { CqlWizardSelectFilters } from "./cqlWizardSelectFilters";
 import { CSSTransitionStrictMode } from "../../helpers/CSSTransitionStrictMode";
 
@@ -33,22 +32,17 @@ function getTitleAndPage(wizardState: WizardState, wizardDispatch: Dispatch<Wiza
 
 interface CqlWizardModalProps {
     show: boolean,
-    expression: Expression | null, // some unique reference to the currently edited expression
+    initialWizState: WizardState | null,
     onClose: () => void,
-    onSaveAndClose: (expr?: Expression) => void,
+    onSaveAndClose: (wizState: WizardState) => void,
 }
 
 export const CqlWizardModal: React.FunctionComponent<CqlWizardModalProps> = (props) => {
-    const [curExpr, setCurExpr] = useState<Expression | null>(null);
-    const [wizardState, wizardDispatch] = useReducer(WizardReducer, curExpr, initWizState);
+    const [wizardState, wizardDispatch] = useReducer(WizardReducer, props.initialWizState, initFromState);
 
-    // props.expression is some unique reference for the expression we're editing, so
-    //  any change to it should trigger a re-initializtion of the wizard
-    //  (prop.expression === null represents a totally new expression)
     useEffect(() => {
-        wizardDispatch(["resetState", props.expression]);
-        setCurExpr(props.expression);
-    }, [props.expression])
+        wizardDispatch(["setState", initFromState(props.initialWizState)]);
+    }, [props.initialWizState])
     
     // Convenience
     const {
@@ -62,9 +56,8 @@ export const CqlWizardModal: React.FunctionComponent<CqlWizardModalProps> = (pro
     const handleClose = () => props.onClose();
     const handleSaveAndClose = () => {
         // Reset wizard state since changes have been committed
-        wizardDispatch(["resetState", null]);
-        setCurExpr(null);
-        props.onSaveAndClose();
+        props.onSaveAndClose(wizardState);
+        wizardDispatch(["setState", initFromState(null)]);
     }
     
     const {title: pageTitle, pageComponent: pageContent} = getTitleAndPage(wizardState, wizardDispatch);

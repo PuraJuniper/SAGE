@@ -791,6 +791,10 @@ a {
   opacity: 0.5;
 }
 
+.cql-wizard-result-should-exist {
+  float: right;
+}
+
 .text-dotted-underline {
   text-decoration-line: underline;
   text-decoration-style: dotted;
