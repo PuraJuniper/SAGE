@@ -26,7 +26,7 @@ export class MedicationRequestForm implements ICardForm {
             isLink: false,
             caption: ""
         }],
-        ['url', {
+        ['resource', {
             boxSize: 1, 
             isReadOnly: false,
             isLink: false,
@@ -74,7 +74,7 @@ export class MedicationRequestForm implements ICardForm {
                 ['description', 'placeholder'],
                 ['status', 'placeholder'],
                 ['intent', 'placeholder'],
-                ['url', 'placeholder'],
+                ['resource', 'placeholder'],
                 ['placeholder', 'placeholder'],
                 ['periodUnit', 'text']
             ]
