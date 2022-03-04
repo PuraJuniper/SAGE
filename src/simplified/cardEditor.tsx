@@ -80,7 +80,7 @@ const createTextBoxElement = (fieldKey: string, friendlyFieldName: string, textP
         if (textProps.isLink) {
             return <Button key={fieldName + "-button"} variant="link" onClick={() => window.open(fieldContents)}>{fieldContents}</Button>;
         } else {
-            return <Form.Control key={fieldName + "-formControl"} className= {(fieldName == "relatedArtifact") ? (((fieldContents == "")||validURL(fieldContents)) ? "" : "is-invalid") : ""}
+            return <Form.Control key={fieldName + "-formControl"} className= {(fieldName == "url") ? (((fieldContents == "")||validURL(fieldContents)) ? "" : "is-invalid") : ""}
                 {...{
                     ...(textProps.isReadOnly) && { readOnly: textProps.isReadOnly },
                     ...(textProps.boxSize) > 1 && { as: "textarea" as ElementType<any>, rows: textProps.boxSize },
