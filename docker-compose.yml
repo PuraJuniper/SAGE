@@ -2,7 +2,7 @@ version: "3.9"
 services:
   node:
     image: sage:node-app
-    entrypoint: npm run dev
+    entrypoint: npm run start
     expose:
       - 8083
     ports:

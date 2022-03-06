@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "webpack serve --devtool eval-cheap-module-source-map --config webpack.config.cjs --color",
+    "start": "webpack serve",
     "build-profiles": "./node_modules/.bin/coffee ./scripts/simplify-profiles.coffee",
     "build": "webpack --env build --output-path ./public --config webpack.config.cjs",
     "test": "jest",
