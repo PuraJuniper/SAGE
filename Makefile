@@ -10,7 +10,7 @@ NODE_WORKER_IMG=sage:node-worker
 # Use the docker buildkit enhancements, see https://docs.docker.com/develop/develop-images/build_enhancements/
 export DOCKER_BUILDKIT=1
 
-EXPOSE_PORT?=8080
+EXPOSE_PORT?=8083
 
 # Run Docker compose (with CI overrides)
 DOCKER_COMPOSE:=EXPOSE_PORT=$(EXPOSE_PORT) \

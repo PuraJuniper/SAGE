@@ -66,7 +66,7 @@ FRED is an open source web application that enables users to edit JSON [FHIR res
     npm run dev
     ```
     
-6. Browse to ```http://localhost:8080```
+6. Browse to ```http://localhost:8083```
 
 ## Commands
 | Action | Command |

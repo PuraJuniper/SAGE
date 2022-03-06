@@ -4,9 +4,9 @@ services:
     image: sage:node-app
     entrypoint: npm run dev
     expose:
-      - 8080
+      - 8083
     ports:
-      - '8080:8080'
+      - '8083:8083'
     env_file:
       - .env
     volumes:
