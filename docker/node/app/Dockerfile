@@ -8,3 +8,6 @@ WORKDIR /srv
 
 # Copy stuff - refine this later on
 COPY . /srv
+
+RUN npm config set "@fortawesome:registry" https://npm.fontawesome.com/
+RUN npm config set "//npm.fontawesome.com/:_authToken" ${FONT_AWESOME_KEY}

@@ -9,3 +9,4 @@ editor.iml
 .project
 .classpath
 .firebase
+.env
