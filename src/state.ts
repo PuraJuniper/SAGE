@@ -30,7 +30,7 @@ export interface StateVars {
 	publisher: string,
 	canonicalUris: {uri: string, resourceType: string}[],
 	showHiddenElements: boolean,
-	bundle?: {
+	bundle: {
 		pos: number
 		resources: SageNodeInitialized[],
 	},
@@ -45,7 +45,7 @@ export interface StateVars {
 		}
 	}
 	resCount: number,
-	errFields?: string[],
+	errFields: string[],
 	profiles: SimplifiedProfiles,
 	valuesets: SimplifiedValuesets,
 }
@@ -111,11 +111,16 @@ const defaultStateVars: StateVars = {
 	CPGName: "",
 	publisher: "",
 	canonicalUris: [], // URIs to reference in canonical elements
+	bundle: {
+		pos: -1,
+		resources: [],
+	},
 	simplified: {
 		step: 1,
 		libraries: {}
 	},
 	resCount: 0,
+	errFields: [],
 	showHiddenElements: false,
 	profiles: {},
 	valuesets: {},

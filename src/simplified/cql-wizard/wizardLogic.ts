@@ -162,7 +162,7 @@ interface CodeBinding {
         display: string,
         code: string,
     }[],
-    definition: string
+    definition: string | undefined
 }
 export interface DateFilter {
     type: "date",
@@ -174,7 +174,7 @@ export interface DateFilter {
         relativeUnit?: RelativeDateUnit,
     },
     dateBinding: {
-        definition: string
+        definition: string | undefined
     },
     error: boolean,
 }
@@ -218,9 +218,14 @@ function getFilterType(url: string, elementFhirPath: string): CodingFilter | Dat
     }
 
     if (elementSchema.type[0]?.code === "code") {
-        const valueSet = State.get().valuesets[elementSchema.binding.reference];
+        const valueSetReference = elementSchema.binding?.reference;
+        if (valueSetReference === undefined) {
+            console.log(`No code bindings exist for ${elementFhirPath}`);
+            return unknownFilter;
+        }
+        const valueSet = State.get().valuesets[valueSetReference];
         if (!valueSet) {
-            console.log(`ValueSet ${elementSchema.binding.reference} could not be found`);
+            console.log(`ValueSet ${valueSetReference} could not be found`);
             return unknownFilter
         }
         const codes = valueSet.items.toJS().map(v => {

@@ -70,7 +70,7 @@ declare module 'freezer-js' {
         remove(a: OptionalPropertyOf<T>): FreezerObject<T, E>,
         remove(a: OptionalPropertyOf<T>[]): FreezerObject<T, E>,
     } & {
-        [K in keyof T]-?: FreezerNode<T[K], E>
+        [K in keyof T]: FreezerNode<T[K], E>
     };
 
     // Definitions repeated for pivots

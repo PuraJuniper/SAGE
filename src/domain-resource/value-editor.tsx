@@ -124,7 +124,7 @@ class ValueEditor extends React.Component<ValueEditorProps, Record<string, never
 
 	renderCanonical(value: string) {
 		console.log('render canonical value is ', value);
-		const inputField = this.buildCanonicalInput();
+		const inputField = this.buildCanonicalInput(value);
 		return this.wrapEditControls(inputField);
 	}
 
@@ -182,8 +182,11 @@ class ValueEditor extends React.Component<ValueEditorProps, Record<string, never
 		</span>;
 	}
 
-	buildCanonicalInput() {
-		const targetProfiles: string[] = this.props.node.type.targetProfile;
+	buildCanonicalInput(value: string) {
+		const targetProfiles = this.props.node.type.targetProfile;
+		if (targetProfiles === undefined) {
+			return this.buildTextInput((value||""));
+		}
 		const targetResourceTypes: string[] = [];
 		for (const targetProfile of targetProfiles) {
 			// This is technically incorrect since it's not always true that two FHIR resources with the same resourceType

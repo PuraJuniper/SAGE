@@ -269,15 +269,22 @@ const bundleInsert = function(json: Resource | Bundle, isBundle?: boolean) {
 	}
 };
 
+// Some functionality from fred that we're not using atm
 const replaceContained = function(json: Resource) {
 	let decorated;
+	const replaceId = State.get().ui.replaceId;
+	if (replaceId === undefined) {
+		console.log("error: replaceContained called with undefined ui.replaceId");
+		return false;
+	}
 	if ((decorated = decorateResource(json, State.get().profiles))) {		
-		const {parentNode, childIdx} = getParentById(State.get().ui.replaceId);
+		const {parentNode, childIdx} = getParentById(replaceId);
 		if (parentNode) {
 			parentNode.children.splice(childIdx, 1, decorated);
 		}
 		return true;
 	}
+	return false;
 };
 
 const isBundleAndRootId = (node: SageNodeInitialized, parent: SageNodeInitialized) => (node.fhirType === "id") && State.get().bundle &&
