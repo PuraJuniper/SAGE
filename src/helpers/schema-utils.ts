@@ -612,7 +612,7 @@ export function getChildOfNode(node: SageNodeInitializedFreezerNode, childName: 
 export function getChildOfNode(node: SageNodeInitialized, childName: string): SageNodeInitialized | undefined;
 export function getChildOfNode(node: SageNodeInitialized, childName: string): SageNodeInitialized | undefined {
 	if (node.nodeType == "objectArray") {
-		const nodesOfArray = getChildrenFromObjectArrayNode(node);
+		const nodesOfArray = getChildrenFromArrayNode(node);
 		if (nodesOfArray.length > 0) {
 			return getChildOfNode(nodesOfArray[0], childName);
 		}
@@ -685,10 +685,10 @@ export function buildNewFhirResource(resourceType: string, withUrl?: boolean): S
 	return newResource;
 }
 
-export function getChildrenFromObjectArrayNode(node: SageNodeInitializedFreezerNode): SageNodeInitializedFreezerNode[];
-export function getChildrenFromObjectArrayNode(node: SageNodeInitialized): SageNodeInitialized[];
-export function getChildrenFromObjectArrayNode(node: SageNodeInitialized): SageNodeInitialized[] {
-	if (node.nodeType != "objectArray") {
+export function getChildrenFromArrayNode(node: SageNodeInitializedFreezerNode): SageNodeInitializedFreezerNode[];
+export function getChildrenFromArrayNode(node: SageNodeInitialized): SageNodeInitialized[];
+export function getChildrenFromArrayNode(node: SageNodeInitialized): SageNodeInitialized[] {
+	if (node.nodeType != "objectArray" && node.nodeType != "valueArray") {
 		return [];
 	}
 	const retArr: SageNodeInitialized[] = [];
@@ -988,6 +988,15 @@ export function makeValueSetURL(resource: FriendlyResourceProps): string {
 	return linkPrefix + "/" + uvCode + "/" + ipsCode + "/" + VALUE_SET + "/" + (resource.FHIR).toLowerCase()
 }
 
+// Temporary unique id gen
 export function incrementNextId() {
 	return nextId++;
+}
+
+// Returns the resource type of the node or null if the node is not a resource
+export function getResourceType(node: SageNodeInitialized): string | null {
+	if (node.nodeType === "resource") {
+		return node.schemaPath;
+	}
+	return null;
 }

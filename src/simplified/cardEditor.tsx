@@ -188,7 +188,7 @@ const conditionCardField = (planNode: SageNodeInitializedFreezerNode) => {
     function conditionSaveHandler(name: string, contents: any, act: any, plan: any) {
         const conditionNode = SchemaUtils.getChildOfNodePath(plan, ["action", name]);
         if (conditionNode) {
-            const conditionNodes = SchemaUtils.getChildrenFromObjectArrayNode(conditionNode);
+            const conditionNodes = SchemaUtils.getChildrenFromArrayNode(conditionNode);
             State.emit("load_json_into", conditionNodes[0], condition);
         }
     }

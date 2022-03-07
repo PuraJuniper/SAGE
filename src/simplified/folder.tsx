@@ -4,13 +4,16 @@ import { CSSTransition } from 'react-transition-group';
 import State from "../state";
 import { CloseButton } from "react-bootstrap";
 import {getBorderPropsForType, PLAN_DEFINITION, profileToFriendlyResourceListEntry, profileToFriendlyResourceSelf } from "./nameHelpers";
+import * as SchemaUtils from '../helpers/schema-utils';
 
 interface FolderProps {
     actTitle: string,
     actDesc: string,
     planTitle: string,
+    referencedLibraries: string[],
     conditionExpressions: string[],
-    index: number,
+    pdIndex: number, // Position of plandef in state.bundle.resources
+    refIndex: number | null, // Position of pd's referenced resource in state.bundle.resources
     profile: string,
     link?: string
     wait: number
@@ -38,7 +41,7 @@ export const Folder = (props: FolderProps) => {
     <div className="folder" style={{position:"relative", marginBottom:"100px", marginTop: "10px"}}
         onClick={(e) => {
             setShow(false);
-            State.emit("set_bundle_pos", props.index);
+            State.emit("set_bundle_pos", props.pdIndex);
         }}>
         <BaseCard header="_" title={PLAN_DEFINITION} />
         <div className="folder-type" style={{position:"absolute", top:"-18px", left:"20px", maxWidth:"90%"}}>
@@ -53,22 +56,22 @@ export const Folder = (props: FolderProps) => {
             <BaseCard header={PLAN_DEFINITION} title={props.planTitle}
             content={
                 <span>
-                {props.actDesc} {props.conditionExpressions.length > 0 ? `WHEN ${props.conditionExpressions[0]} IS TRUE` : ""}
+                {props.actDesc} {props.conditionExpressions.length > 0 ? `WHEN "${props.conditionExpressions.join('" AND "')}" IS TRUE` : ""}
                 </span>
                 }/>
         </div>
-        {
-            <div className="delete">
-                <CloseButton
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        State.emit("remove_from_bundle", props.index + 1);
-                        State.emit("remove_from_bundle", props.index); 
-                        State.get().set("ui", {status:"collection"})
-                    }}
-                />
-            </div>
-        }
+        <div className="delete">
+            <CloseButton
+                onClick={(e) => {
+                    e.stopPropagation();
+                    if (props.refIndex !== null) {
+                        State.emit("remove_from_bundle", props.refIndex);
+                    }
+                    State.emit("remove_from_bundle", props.pdIndex); 
+                    State.get().set("ui", {status:"collection"})
+                }}
+            />
+        </div>
     </div>
     </CSSTransition>
     )

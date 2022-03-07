@@ -73,7 +73,7 @@ export const BaseCard = (props: BaseCardProps) => {
                             {
                                 resource: {
                                     resourceType: PLAN_DEFINITION,
-                                    library: [],
+                                    library: "", // r4 expects library as an array, cpg expects a single value (we are always using the cpg spec in basic view)
                                     action: [
                                         {
                                             title: "",
@@ -91,6 +91,8 @@ export const BaseCard = (props: BaseCardProps) => {
                         ]
                     };
                     State.emit("load_json_resource", json);
+                    // Set current editor position to the last resource (should be the PlanDefinition in `json` after the "load_json_resource" call)
+                    State.emit("set_bundle_pos", State.get().bundle.resources.length-1);
                 }
             }}
         >
