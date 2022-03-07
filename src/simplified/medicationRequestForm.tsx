@@ -50,6 +50,25 @@ export class MedicationRequestForm implements ICardForm {
             isReadOnly: false,
             isLink: false,
             caption: ""
+        }],
+        ['value', {
+            boxSize: 1,
+            isReadOnly: false,
+            isLink: false,
+            caption: ""
+        }],
+        ['unit', {
+            boxSize: 1,
+            isReadOnly: false,
+            isLink: false,
+            caption: ""
+        }],
+        ['productDescription', {
+            boxSize: 3,
+            isReadOnly: false,
+            isLink: false,
+            caption: ""
+
         }]
     ]);
 
@@ -69,14 +88,16 @@ export class MedicationRequestForm implements ICardForm {
     cardFieldLayout =
         {
             cardColumns: [
-                ['placeholder', 'productReference'],
-                ['title', 'placeholder'],
-                ['description', 'placeholder'],
-                ['status', 'placeholder'],
-                ['intent', 'placeholder'],
-                ['resource', 'placeholder'],
                 ['placeholder', 'placeholder'],
-                ['periodUnit', 'text']
+                ['title', 'productReference'],
+                ['description', 'productDescription'],
+                ['status', 'value'],
+                ['intent', 'unit'],
+                ['resource', 'frequency'],
+                ['placeholder', 'period'],
+                ['placeholder', 'periodUnit'],
+                ['freeTextplaceholder', 'text'],
+                ['placeholder', 'placeholder'],
             ]
 
     };
@@ -98,15 +119,19 @@ export class MedicationRequestForm implements ICardForm {
 
     pageOne: ICardForm['pageOne'] = (props) => {
         const placeHolderElem =
-            <Form.Group key='placeholder-formGroup' as={Col} >
+            <Form.Group key='placeholder-formGroup' as={Col}>
+            </Form.Group>;
+        const freeTextplaceHolderElem =
+            <Form.Group key='freeTextplaceholder-formGroup' as={Col} style={{'margin': 0, 'flex': '0 0 20%'}}>
             </Form.Group>;
         return (
             <div>{
                 ...this.cardFieldLayout.cardColumns.map((cr, i: number) => {
                     return (
-                        <Row key={"row-" + i} className="mb-3">
+                        <Row key={"row-" + i} style = {{'marginBottom': '10px'}} >
                             {cr.map(field =>
                                 [
+                                    freeTextplaceHolderElem,
                                     placeHolderElem,
                                     ...props.fieldElements
                                 ].find(elem =>

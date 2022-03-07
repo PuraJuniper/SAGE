@@ -604,3 +604,22 @@ a {
   transition: all 500ms;
 }
 
+.dropdown-label-page1{
+  text-align: right;
+  margin: 0;
+  flex: 0 0 30%
+}
+.dropdown-selector-page1{
+  margin: 0;
+  flex: 0 0 60%
+}
+.textBox-label-page1{
+  text-align: right;
+  flex: 0 0 30%
+}
+.textBox-input-page1{
+  flex: 0 0 60%
+}
+.page1-form-group{
+  margin: 0;
+}

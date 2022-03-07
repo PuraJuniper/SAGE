@@ -94,16 +94,16 @@ const createTextBoxElement = (fieldKey: string, friendlyFieldName: string, textP
     }
     fieldHandlers.push([fieldName, fieldContents, setField, fieldSaveHandler]);
     return (
-        <Form.Group key={fieldName + "-formGroup"} as={Col} controlId={fieldName}>
-            <Form.Label key={fieldName + "-formLabel"}>{friendlyFieldName}</Form.Label>
-            <Form.Text 
-                key={fieldName + "-formText"}
-            >
-                {textProps.caption}
-            </Form.Text>
-            <Col key={fieldName + "-col"} sm={10}>
-                {returnVal()}
-            </Col>
+        <Form.Group className="page1-form-group" key={fieldName + "-formGroup"} as={Col} controlId={fieldName}>
+            <Row >
+                <Row style={{'flex': '0 0 100%'}}>
+                    <Form.Label className = 'textBox-label-page1' key={fieldName + "-formLabel"} >{friendlyFieldName} </Form.Label>
+                    <Col className = 'textBox-input-page1' key={fieldName + "-col"}>
+                            {returnVal()}
+                    </Col>
+                </Row>
+                <Form.Text style={{'flex': '0 0 100%', 'textAlign': 'center'}} key={fieldName + "-formText"} >{textProps.caption}</Form.Text>
+            </Row>
         </Form.Group>
     );
 }
@@ -112,22 +112,24 @@ const createDropdownElement = (fieldKey: string, fieldFriendlyName: string, fiel
     const [fieldName, fieldContents, setField, fieldSaveHandler] = simpleCardField(fieldKey, node);
     fieldHandlers.push([fieldName, fieldContents, setField, fieldSaveHandler]);
     return (
-        <Form.Group key={fieldName + "-fromGroup"} as={Col} controlId={fieldKey}>
-            <Form.Label key={fieldName + "-label"}>{fieldFriendlyName}</Form.Label>
-            <Col key={fieldName + "-col"} sm={10}>
-                <InputGroup key={fieldName + "-inputGroup"} className="mb-3">
-                    <Form.Control
-                        key={fieldName + "formControl"}
-                        as="select"
-                        defaultValue={fieldContents}
-                        onChange={(e) => setField(e.currentTarget.value)}
-                    >
-                        {fieldElements.map(sType => {
-                            return <option key={fieldKey + "-" + sType} value={sType}>{sType}</option>;
-                        })}
-                    </Form.Control>
-                </InputGroup>
-            </Col>
+        <Form.Group  className="page1-form-group" key={fieldName + "-fromGroup"} as={Col} controlId={fieldKey}>
+            <Row>
+                <Form.Label key={fieldName + "-label"} className = 'dropdown-label-page1' >{fieldFriendlyName}</Form.Label>
+                <Col key={fieldName + "-col"} className = 'dropdown-selector-page1'>
+                    <InputGroup key={fieldName + "-inputGroup"}>
+                        <Form.Control
+                            key={fieldName + "formControl"}
+                            as="select"
+                            defaultValue={fieldContents}
+                            onChange={(e) => setField(e.currentTarget.value)}
+                        >
+                            {fieldElements.map(sType => {
+                                return <option key={fieldKey + "-" + sType} value={sType}>{sType}</option>;
+                            })}
+                        </Form.Control>
+                    </InputGroup>
+                </Col>
+            </Row>
         </Form.Group>
     );
 }
