@@ -50,6 +50,18 @@ export class MedicationRequestForm implements ICardForm {
             isReadOnly: false,
             isLink: false,
             caption: ""
+        }],
+        ['value', {
+            boxSize: 1,
+            isReadOnly: false,
+            isLink: false,
+            caption: ""
+        }],
+        ['unit', {
+            boxSize: 1,
+            isReadOnly: false,
+            isLink: false,
+            caption: ""
         }]
     ]);
 
@@ -70,11 +82,11 @@ export class MedicationRequestForm implements ICardForm {
         {
             cardColumns: [
                 ['placeholder', 'productReference'],
-                ['title', 'period'],
-                ['description', 'placeholder'],
-                ['status', 'frequency'],
-                ['intent', 'placeholder'],
-                ['relatedArtifact', 'placeholder'],
+                ['title', 'value'],
+                ['description', 'unit'],
+                ['status', 'placeholder'],
+                ['intent', 'period'],
+                ['relatedArtifact', 'frequency'],
                 ['placeholder', 'placeholder'],
                 ['periodUnit', 'text']
             ]

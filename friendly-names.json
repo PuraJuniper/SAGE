@@ -26,7 +26,7 @@
                         {
                           "SELF": {
                             "FHIR": "frequency",
-                            "FRIENDLY": " dose(s)"
+                            "FRIENDLY": " dose(s):"
                           }
                         },
                         {
@@ -35,7 +35,29 @@
                         {
                           "SELF": {
                             "FHIR": "periodUnit",
-                            "FRIENDLY": "Unit (day,week,month, etc.)"
+                            "FRIENDLY": "Unit (day,week,month, etc.):"
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "SELF": { "FHIR": "doseAndRate", "FRIENDLY": "Dose&Rate: "},
+                  "FORM_ELEMENTS":[
+                    {
+                      "SELF": { "FHIR": "doseQuantity", "FRIENDLY": "Dose Amount and UOM: "},
+                      "FORM_ELEMENTS": [
+                        {
+                          "SELF": {
+                            "FHIR": "value",
+                            "FRIENDLY": "Dose Quantity:"
+                          }
+                        },
+                        {
+                          "SELF": {
+                            "FHIR": "unit",
+                            "FRIENDLY": "Dose UOM:"
                           }
                         }
                       ]
