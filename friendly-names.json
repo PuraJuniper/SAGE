@@ -46,7 +46,8 @@
                   "SELF": { "FHIR": "doseAndRate", "FRIENDLY": "Dose&Rate: "},
                   "FORM_ELEMENTS":[
                     {
-                      "SELF": { "FHIR": "doseQuantity", "FRIENDLY": "Dose Amount and UOM: "},
+                      "SELF": { "FHIR": "doseQuantity", "FRIENDLY": "Dose Amount and UOM: ",
+                      "DEFAULT_PROFILE_URI": "http://hl7.org/fhir/StructureDefinition/SimpleQuantity" },
                       "FORM_ELEMENTS": [
                         {
                           "SELF": {
