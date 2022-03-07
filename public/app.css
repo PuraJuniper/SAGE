@@ -423,6 +423,18 @@ a {
   background-color: #296a90;
 } */
 
+.folder .basic-collection-library-loading {
+  position:absolute;
+  top:100px;
+  left:213px;
+  width:30px;
+  height:30px;
+  border-radius:30px;
+  border: 0px;
+  /* background-color:#25a5f5; */
+  font-size:17px;
+}
+
 /* BUTTONS */
 
 .navigate {

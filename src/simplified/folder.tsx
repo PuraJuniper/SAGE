@@ -1,10 +1,12 @@
 import {useState, useEffect} from "react";
 import {BaseCard} from"./baseCard";
 import { CSSTransition } from 'react-transition-group';
-import State from "../state";
-import { CloseButton } from "react-bootstrap";
+import State, { GeneratedLibraries } from "../state";
+import { CloseButton, Spinner } from "react-bootstrap";
 import {getBorderPropsForType, PLAN_DEFINITION, profileToFriendlyResourceListEntry, profileToFriendlyResourceSelf } from "./nameHelpers";
 import * as SchemaUtils from '../helpers/schema-utils';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faExclamationTriangle } from "@fortawesome/pro-solid-svg-icons";
 
 interface FolderProps {
     actTitle: string,
@@ -28,8 +30,47 @@ export const Folder = (props: FolderProps) => {
             setShow(true);
         }, props.wait);
         return () => clearTimeout(timeoutId);
-      }, [props.wait]);
+    }, [props.wait]);
     
+    // All FHIR Libraries referenced by this PlanDefinition on mount that cannot be resolved by SAGE
+    // Note: This does not update if props.refrencedLibraries changes while this Folder is already mounted
+    const [unresolvedLibrariesOnMount, setUnresolvedLibrariesOnMount] = useState<string[]>(()=>{
+        return props.referencedLibraries.flatMap(libraryUrl => {
+            const {
+                node: referencedLibrary,
+            } = SchemaUtils.findFirstSageNodeByUri(State.get().bundle.resources, libraryUrl);
+            if (referencedLibrary === null) {
+                // Check if library is in SAGE's generated store
+                const generatedLib = State.get().simplified.generatedLibraries[libraryUrl];
+                if (generatedLib === undefined || generatedLib.isGenerating === true) {
+                    return [libraryUrl]
+                }
+                else {
+                    // Generated FHIR Library exists in SAGE's store
+                    return [];
+                }
+            }
+            // Library exists in bundle, so skip it
+            return [];
+        });
+    });
+
+    // Register event listener on SAGE's generated libraries object to trigger a rerender whenever
+    //  an unresolved library is resolved
+    useEffect(() => {
+        const genLibariesListener = State.get().simplified.generatedLibraries.getListener();
+        const checkForUnresolvedLibrary = function (libraries: GeneratedLibraries) {
+            for (const unresolvedLib of unresolvedLibrariesOnMount) {
+                if (libraries[unresolvedLib]?.isGenerating === false) {
+                    setUnresolvedLibrariesOnMount(old => old.filter(v=>v!==unresolvedLib));
+                }
+            }
+        };
+        genLibariesListener.on("update", checkForUnresolvedLibrary);
+        return () => {
+            genLibariesListener.off("update", checkForUnresolvedLibrary);
+        };
+    }, [unresolvedLibrariesOnMount])
 
     return (
     <CSSTransition
@@ -71,6 +112,20 @@ export const Folder = (props: FolderProps) => {
                     State.get().set("ui", {status:"collection"})
                 }}
             />
+        </div>
+        <div className="basic-collection-library-loading">
+            {unresolvedLibrariesOnMount.map(libraryUrl => {
+                // Render status of each unresolved FHIR Library
+                const generatedLib = State.get().simplified.generatedLibraries[libraryUrl];
+                if (generatedLib === undefined) {
+                    // Library does not exist anywhere in SAGE, show error symbol
+                    return <FontAwesomeIcon key={libraryUrl} icon={faExclamationTriangle} />
+                }
+                else {
+                    // Library is still being generated, show loading symbol
+                    return <Spinner key={libraryUrl} animation="border" />
+                }
+            })}
         </div>
     </div>
     </CSSTransition>

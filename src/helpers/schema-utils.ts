@@ -641,29 +641,51 @@ export function getChildOfNode(node: SageNodeInitialized, childName: string): Sa
 export const createChildrenFromJson = function (profiles: SimplifiedProfiles, nodeToWriteTo: SageNodeInitialized, fhirJson: any) {
 	const nodeProfileSchema = profiles[nodeToWriteTo.profile];
 	const nodePath = nodeToWriteTo.schemaPath
-	const newChildren = ((() => {
-		const result1 = [];
+	const newChildren: SageNodeInitialized[] = [];
 
-		for (const k in fhirJson) {
-			const v = (fhirJson as any)[k];
-			const childPath = `${nodePath}.${k}`;
-			const childDef = nodeProfileSchema[childPath];
-			if (childDef) {
-				const walkRes = walkNode(profiles, v, nodeToWriteTo.profile, childPath, (nodeToWriteTo.level || 0) + 1);
-				if (walkRes) {
-					result1.push(walkRes);
-				}
+	for (const k in fhirJson) {
+		const v = (fhirJson as any)[k];
+		const childPath = `${nodePath}.${k}`;
+		const childDef = nodeProfileSchema[childPath];
+		if (childDef) {
+			const walkRes = walkNode(profiles, v, nodeToWriteTo.profile, childPath, (nodeToWriteTo.level || 0) + 1);
+			if (walkRes) {
+				newChildren.push(walkRes);
 			}
-			else {
-				if (childPath.split('.').pop() != 'resourceType') { // resourceType is not in the schema for some reason
-					console.log(`Could not find definition for ${childPath}`);
-				}
-			}
-			// add else to check if childPath exists in another profile
 		}
+		else {
+			if (childPath.split('.').pop() != 'resourceType') { // resourceType is not in the schema for some reason
+				console.log(`Could not find definition for ${childPath}`);
+			}
+		}
+		// add else to check if childPath exists in another profile
+	}
 
-		return result1;
-	})());
+	return newChildren;
+}
+
+export const createChildrenFromArray = function (profiles: SimplifiedProfiles, nodeToWriteTo: SageNodeInitialized, fhirJsonArray: any[]) {
+	const nodeProfileSchema = profiles[nodeToWriteTo.profile];
+	const nodePath = nodeToWriteTo.schemaPath
+	const newChildren: SageNodeInitialized[] = [];
+
+	for (const fhirJson of fhirJsonArray) {
+		const childPath = `${nodePath}`;
+		const childDef = nodeProfileSchema[childPath];
+		if (childDef) {
+			const walkRes = walkNode(profiles, fhirJson, nodeToWriteTo.profile, childPath, (nodeToWriteTo.level || 0) + 1);
+			if (walkRes) {
+				newChildren.push(walkRes);
+			}
+		}
+		else {
+			if (childPath.split('.').pop() != 'resourceType') { // resourceType is not in the schema for some reason
+				console.log(`Could not find definition for ${childPath}`);
+			}
+		}
+		// add else to check if childPath exists in another profile
+	}
+
 	return newChildren;
 }
 

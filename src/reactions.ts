@@ -493,18 +493,10 @@ State.on("start_edit", function (node) {
 	}
 });
 
-const getResourceType = function(node: SageNodeInitialized) {
-	for (const child of node.children) {
-		if (child.name === "resourceType") {
-			return child.value;
-		}
-	}
-};
-
 const showReferenceWarning = function(node: SageNodeInitialized, parent: SageNodeInitialized, fredId?: string) {
 	const prevId = node.ui.prevState.value;
 	const currentId = fredId || node.value;
-	const resourceType = getResourceType(parent);
+	const resourceType = SchemaUtils.getResourceType(parent);
 	const prevRef = `${resourceType}/${prevId}`;
 	const newRef = `${resourceType}/${currentId}`;
 	console.log("showReferenceWarning", prevRef, newRef);
@@ -756,6 +748,15 @@ State.on("change_profile", function(nodeToChange, newProfile) {
 State.on("load_json_into", function(nodeToWriteTo, json) {
 	console.log('loading ', json, ' into ', nodeToWriteTo);
 	const newChildren = SchemaUtils.createChildrenFromJson(State.get().profiles, nodeToWriteTo, json);
+	console.log(newChildren);
+	nodeToWriteTo.set({
+		children: newChildren
+	});
+});
+
+State.on("load_array_into", function(nodeToWriteTo, jsonArray) {
+	console.log('loading ', jsonArray, ' into ', nodeToWriteTo);
+	const newChildren = SchemaUtils.createChildrenFromArray(State.get().profiles, nodeToWriteTo, jsonArray);
 	console.log(newChildren);
 	nodeToWriteTo.set({
 		children: newChildren

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Col, Form, ListGroup, Row, Button, Card, ToggleButton, ToggleButtonGroup } from "react-bootstrap";
-import { ICardForm } from "./cardEditor";
+import { EditableStateForCondition, ICardForm, ResourceCondition } from "./cardEditor";
 import { FriendlyResourceProps } from "./nameHelpers";
 import { textBoxProps } from "./outerCardForm";
 import { CqlWizardModal } from "./cql-wizard/CqlWizardModal"
@@ -151,73 +151,35 @@ export class MedicationRequestForm implements ICardForm {
     }
 
     pageTwo: ICardForm['pageTwo'] = (props) => {
-        enum ResourceCondition {
-            Exists = "exists",
-            DoesNotExist = "doesNotExist",
-            AtLeast = "atLeast",
-            NoMoreThan = "noMoreThan"
-        }
-        // The editable state for the Expression with id `exprId`
-        interface EditableStateForCondition {
-            curWizState: WizardState | null,
-            outCondition: ResourceCondition,
-            conditionId: string,
-        }
-        function createNewExpressionForWizard(numExpressions: number): EditableStateForCondition {
-            return {
-                curWizState: null,
-                outCondition: ResourceCondition.Exists,
-                conditionId: `index-${numExpressions + 1}`,
-            };
-        }
-        function buildEditableStateFromCondition(condition: SageCondition): EditableStateForCondition {
-            return {
-                curWizState: buildWizStateFromCondition(condition),
-                outCondition: ResourceCondition.Exists,
-                conditionId: condition.id
-            }
-        }
+        const [showWiz, setShowWiz] = useState(false);
+        const [currentlyEditedState, setCurrentlyEditedState] = useState<EditableStateForCondition>(()=>props.generateNewCondition());
 
-        const [showWiz, setShowWiz] = useState(true);
-        const [currentlyEditedState, setCurrentlyEditedState] = useState<EditableStateForCondition>(()=>createNewExpressionForWizard(props.conditions.length));
-        const [existingConditions, setExistingConditions] = useState<SageCondition[]>(() => props.conditions.map((v, i): SageCondition => {
-            return {
-                ...v,
-                id: v.id ?? `index-${i}`,
-            }
-        }));
-
+        // Handle open/close of CQL Wizard Dialog
         function handleEditExpression(editedExpr: EditableStateForCondition) {
             setCurrentlyEditedState(editedExpr);
             setShowWiz(true);
         }
-
         function handleCreateExpression() {
-            setCurrentlyEditedState(createNewExpressionForWizard(existingConditions.length));
+            setCurrentlyEditedState(props.generateNewCondition());
             setShowWiz(true);
         }
-
         function handleClose() {
             setShowWiz(false);
         }
-
         function handleSaveAndClose(newWizState: WizardState) {
-            saveWizStateForConditionId(currentlyEditedState.conditionId, newWizState);
-            const newSageCondition: SageCondition = {
-                id: currentlyEditedState.conditionId,
-                expression: {
-                    language: 'cql-wizard',
-                    expression: 'test expr',
-                },
-                kind: 'applicability',
-            };
-            if (!existingConditions.some(v=>v.id === currentlyEditedState.conditionId)) {
-                setExistingConditions(existingConditions.concat([newSageCondition]));
-            }
-            else {
-                setExistingConditions(existingConditions.map(v => (v.id !== currentlyEditedState.conditionId) ? v : newSageCondition))
-            }
+            saveWizStateForConditionId(currentlyEditedState.conditionId, newWizState); // Temp
+            props.persistEditedCondition({
+                ...currentlyEditedState,
+                curWizState: newWizState,
+            })
             handleClose();
+        }
+
+        function handleResourceConditionChange(draftCondition: EditableStateForCondition, newResourceCondition: ResourceCondition) {
+            props.persistEditedCondition({
+                ...draftCondition,
+                outCondition: newResourceCondition,
+            });
         }
 
         return (
@@ -225,33 +187,33 @@ export class MedicationRequestForm implements ICardForm {
             <React.StrictMode>
                 <CqlWizardModal show={showWiz} initialWizState={currentlyEditedState.curWizState} onClose={handleClose} onSaveAndClose={handleSaveAndClose} />
                 <ListGroup>
-                    {existingConditions.flatMap(v => {
-                        const conditionAsSageExpression = buildEditableStateFromCondition(v);
-                        return conditionAsSageExpression.curWizState !== null ? [
-                            <Card key={v.id}>
+                    {props.draftConditions.flatMap(draft => {
+                        return draft.curWizState !== null ? [
+                            <Card key={draft.conditionId}>
                                 <Card.Body>
-                                    <Card.Title>{conditionAsSageExpression.curWizState.resType}</Card.Title>
-                                    <Card.Subtitle className="mb-2 text-muted">{`With one of the codes ${conditionAsSageExpression.curWizState.codes.map(code=>code.code).join(', ')}`}</Card.Subtitle>
+                                    <Card.Title>{draft.curWizState.resType}</Card.Title>
+                                    <Card.Subtitle className="mb-2 text-muted">{`With one of the codes ${draft.curWizState.codes.map(code=>code.code).join(', ')}`}</Card.Subtitle>
                                     <Card.Text>
                                         With the following restrictions:
                                         <br />
-                                        {conditionAsSageExpression.curWizState.filters.map(v => {
+                                        {draft.curWizState.filters.map(v => {
                                             return (
                                                 `${v.elementName} is ${v.filter.type === "coding" ? `one of ${v.filter.filteredCoding.selectedCodes.join(', ')}` : "some date" }`
                                             );
                                         }).join(', ')}
                                     </Card.Text>
-                                    <Button onClick={() => handleEditExpression(conditionAsSageExpression)}>Edit</Button>
+                                    <Button onClick={() => handleEditExpression(draft)}>Edit</Button>
                                 </Card.Body>
                                 <Card.Footer>
                                 <ToggleButtonGroup
                                     className="cql-wizard-result-should-exist"
                                     type="radio"
-                                    name={`exists-filter`}
-                                    value={"should-exist"}
+                                    name={`${draft.conditionId}-exists-filter`}
+                                    value={draft.outCondition}
+                                    onChange={value=>handleResourceConditionChange(draft, value)}
                                 >
-                                    <ToggleButton variant="outline-success" value={"should-exist"}>Should Exist</ToggleButton>
-                                    <ToggleButton variant="outline-danger" value={"should-not-exist"}>Should Not Exist</ToggleButton>
+                                    <ToggleButton variant="outline-success" value={ResourceCondition.Exists}>Should Exist</ToggleButton>
+                                    <ToggleButton variant="outline-danger" value={ResourceCondition.DoesNotExist}>Should Not Exist</ToggleButton>
                                 </ToggleButtonGroup>
                                 </Card.Footer>
                             </Card>

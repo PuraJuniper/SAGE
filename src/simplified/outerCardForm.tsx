@@ -4,7 +4,7 @@ import { PlanDefinitionActionCondition } from 'fhir/r4';
 import React from "react";
 import State, { SageNodeInitializedFreezerNode } from '../state';
 
-import { ICardForm, CardEditor } from './cardEditor';
+import { ICardForm, CardEditor, EditableStateForCondition } from './cardEditor';
 import { FriendlyResourceProps } from './nameHelpers';
 import { Card } from "react-bootstrap";
 
@@ -32,7 +32,9 @@ export type CardFormProps = {
     resourceType: FriendlyResourceProps,
     elementList: JSX.Element[],
     displayList: JSX.Element[],
-    pdConditions: PlanDefinitionActionCondition[],
+    draftConditions: EditableStateForCondition[],
+    persistEditedCondition: (newConditionState: EditableStateForCondition) => void,
+    generateNewCondition: () => EditableStateForCondition,
     innerCardForm: ICardForm,
     handleSaveResource: ()=> void,
 }
@@ -110,7 +112,7 @@ export class OuterCardForm extends React.Component<CardFormProps, CardFormState>
             <div>
                 <div className='basic-page-titles'>{this.pageTitles.get(this.state.step)}</div>
                 <div>{this.state.step == 1 ? <PageOne fieldElements={this.props.elementList} /> : null}</div>
-                {this.state.step == 2 ? <PageTwo conditions={this.props.pdConditions}/> : null}
+                {this.state.step == 2 ? <PageTwo draftConditions={this.props.draftConditions} persistEditedCondition={this.props.persistEditedCondition} generateNewCondition={this.props.generateNewCondition} /> : null}
                 {this.state.step == 3 ? <Card style={{ padding: "20px", margin: "10px", borderWidth: "2px", borderColor:'rgb(42, 107, 146)', borderRadius: '40px'}}>
                                         <Card.Title>{this.props.resourceType.FRIENDLY}</Card.Title>
                                         <Card.Body><PageThree displayElements={this.props.displayList}/></Card.Body>

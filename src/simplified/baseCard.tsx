@@ -78,11 +78,7 @@ export const BaseCard = (props: BaseCardProps) => {
                                         {
                                             title: "",
                                             description: "",
-                                            condition: [
-                                                {
-                                                    kind: "applicability",
-                                                }
-                                            ],
+                                            condition: [],
                                             definitionCanonical: referencedResourceUrl
                                         }
                                     ]

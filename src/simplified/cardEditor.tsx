@@ -1,5 +1,5 @@
 import * as cql from "cql-execution";
-import { Dosage, Library, PlanDefinitionActionCondition } from "fhir/r4";
+import { Library, Dosage, PlanDefinition, PlanDefinitionActionCondition } from "fhir/r4";
 import { ExtractTypeOfFN } from "freezer-js";
 import React, { ElementType, useEffect, useState } from "react";
 import { Button, Col, Form, InputGroup, Modal, Row } from 'react-bootstrap';
@@ -8,8 +8,9 @@ import * as SageUtils from "../helpers/sage-utils";
 import * as SchemaUtils from "../helpers/schema-utils";
 import State, { SageNodeInitializedFreezerNode } from "../state";
 import { OuterCardForm, textBoxProps, cardLayout } from "./outerCardForm";
-import { ACTIVITY_DEFINITION, allFormElems, convertFormElementToObject, formElemtoResourceProp, FriendlyResourceFormElement, FriendlyResourceProps, getFormElementListForResource, profileToFriendlyResourceListEntry } from "./nameHelpers";
-import { MedicationRequestForm } from "./medicationRequestForm";
+import { ACTIVITY_DEFINITION, allFormElems, convertFormElementToObject, formElemtoResourceProp, FriendlyResourceFormElement, FriendlyResourceProps, getFormElementListForResource, PLAN_DEFINITION, profileToFriendlyResourceListEntry } from "./nameHelpers";
+import { MedicationRequestForm, SageCondition } from "./medicationRequestForm";
+import { buildWizStateFromCondition, WizardState } from "./cql-wizard/wizardLogic";
 
 
 
@@ -33,7 +34,9 @@ export interface pageOneProps {
 }
 
 export interface pageTwoProps {
-    conditions: PlanDefinitionActionCondition[],
+    draftConditions: EditableStateForCondition[],
+    persistEditedCondition: (newConditionState: EditableStateForCondition) => void,
+    generateNewCondition: () => EditableStateForCondition,
 }
 export interface pageThreeProps {
     displayElements: JSX.Element[],
@@ -195,9 +198,7 @@ const conditionCardField = (planNode: SageNodeInitializedFreezerNode) => {
     return ["condition", condition, setCondition, conditionSaveHandler]
 }
 
-/**
- * Returns a new inner card form instance for the given resource type
- */
+// Returns a new inner card form instance for the given resource type
 function actTypeToICardForm(actResourceType: FriendlyResourceProps) {
     switch (actResourceType.FHIR) {
         case "MedicationRequest":
@@ -208,10 +209,8 @@ function actTypeToICardForm(actResourceType: FriendlyResourceProps) {
     }
 }
 
-/**
- * Returns the resource type of the given SageNode
- */
- function getResourceType(actNode: SageNodeInitializedFreezerNode): FriendlyResourceProps {
+// Returns the resource type of the given SageNode
+function getResourceType(actNode: SageNodeInitializedFreezerNode): FriendlyResourceProps {
     const resourceProfile = (): string => {
         const fhirResource = SchemaUtils.toFhir(actNode, false);
         const meta = fhirResource ? fhirResource.meta : undefined;
@@ -219,6 +218,19 @@ function actTypeToICardForm(actResourceType: FriendlyResourceProps) {
         return profile ? profile[0] : "";
     };
     return formElemtoResourceProp(profileToFriendlyResourceListEntry(resourceProfile()));
+}
+
+export enum ResourceCondition {
+    Exists = "exists",
+    DoesNotExist = "doesNotExist",
+    AtLeast = "atLeast",
+    NoMoreThan = "noMoreThan"
+}
+// An editable state for the Condition with id `conditionId`
+export interface EditableStateForCondition {
+    curWizState: WizardState | null,
+    outCondition: ResourceCondition,
+    conditionId: string,
 }
 
 export const CardEditor = (props: CardEditorProps) => {
@@ -240,8 +252,55 @@ export const CardEditor = (props: CardEditorProps) => {
         setInnerCardForm(actTypeToICardForm(newActResourceType));
     }, [actNode])
 
-    // Read existing conditions
-    const pdConditions: PlanDefinitionActionCondition[] = [];
+    /**
+     * Read conditions into a format editable by the condition editor, and create callback to save edits 
+     * All types of cards have identical requirements with respect to reading and writing conditions, so it's safe
+     *  for this component to have complete ownership of the PD's condition edit state
+     *  */
+    const [draftConditions, setDraftConditions] = useState<EditableStateForCondition[]>(()=>{
+        // Read existing FHIR condition elements from plandefinition
+        const planNodeResource = SchemaUtils.toFhir(planNode, false) as PlanDefinition;
+        // Basic editor only supports a single action per PlanDefinition
+        const pdConditions: PlanDefinitionActionCondition[] = planNodeResource.action?.at(0)?.condition ?? [];
+
+        // Set ids for each condition, if one does not already exist
+        const pdSageConditions: SageCondition[] = pdConditions.map((v, i) => {
+            return {
+                ...v,
+                id: v.id ?? `index-${SchemaUtils.getNextId()}`, // Need some unique id
+            }
+        });
+
+        // Convert each expression to a format compatible with the condition editor
+        function buildEditableStateFromCondition(condition: SageCondition): EditableStateForCondition {
+            return {
+                curWizState: buildWizStateFromCondition(condition),
+                outCondition: ResourceCondition.Exists,
+                conditionId: condition.id
+            }
+        }
+        return pdSageConditions.map(v=>buildEditableStateFromCondition(v))
+    });
+    // Create callbacks for persisting edits to a condition and for generating a new condition
+    const persistEditedCondition = (newConditionState: EditableStateForCondition) => {
+        setDraftConditions(curEditableConditions => {
+            if (!curEditableConditions.some(v=>v.conditionId === newConditionState.conditionId)) {
+                // Condition is brand new, add to our draft conditions
+                return curEditableConditions.concat([newConditionState])
+            }
+            else {
+                // Condition already exists in drafts, so update its draft
+                return curEditableConditions.map(v => (v.conditionId !== newConditionState.conditionId) ? v : newConditionState)
+            }
+        });
+    }
+    const generateEditableCondition = (): EditableStateForCondition => {
+        return {
+            curWizState: null,
+            outCondition: ResourceCondition.Exists,
+            conditionId: `index-${SchemaUtils.getNextId()}`, // Need some unique id
+        };
+    }
 
     return (
         <div>
@@ -249,7 +308,9 @@ export const CardEditor = (props: CardEditorProps) => {
                 <OuterCardForm
                     sageNode={actNode}
                     fieldHandlers={fieldHandlers}
-                    pdConditions={pdConditions}
+                    draftConditions={draftConditions}
+                    persistEditedCondition={persistEditedCondition}
+                    generateNewCondition={generateEditableCondition}
                     resourceType={actResourceType}
                     elementList={fieldElementListForType(innerCardForm, getFormElementListForResource(innerCardForm.resourceType.FHIR), fieldHandlers, actNode)}
                     displayList={createDisplayElementList(fieldHandlers, actResourceType)}
@@ -262,6 +323,74 @@ export const CardEditor = (props: CardEditorProps) => {
 
     function handleSaveResource() {
         fieldHandlers.forEach((field) => field[3](field[0], field[1], actNode, planNode));
+        /**
+         * Save conditions to PlanDefinition
+         * Drops any condition that could not be read by our condition editor
+         *  */
+        const newConditions: PlanDefinitionActionCondition[] = draftConditions.map(v => {
+            return {
+                id: v.conditionId,
+                expression: {
+                    language: "cql-wizard-test",
+                    expression: v.conditionId,
+                },
+                kind: "applicability"
+            }
+        });
+        // Save new conditions array under PlanDefinition.action.condition
+        const conditionNode = SchemaUtils.getChildOfNodePath(planNode, ["action", "condition"]);
+        if (conditionNode) {
+            State.emit("load_array_into", conditionNode, newConditions);
+        }
+        // Save Library URL (stored as an array in FHIR) under PlanDefinition.Library
+        const newLibraryUri = `NEW_LIBRARY_GEN-${SchemaUtils.getNextId()}`;
+        const libraryNode = SchemaUtils.getChildOfNode(planNode, "library");
+        if (libraryNode?.nodeType === "valueArray") { // In the regular FHIR spec, library has a cardinality 0..* so it's a valueArray.
+            State.emit("load_array_into", libraryNode, [newLibraryUri]);
+        }
+        else if (libraryNode?.nodeType === "value") { // In the CPG spec, library has a cardinality of 0..1, so it's a value!
+            State.emit("value_change", libraryNode, newLibraryUri);
+        }
+        // Send off asynchronous request to generate library
+        State.get().simplified.generatedLibraries.set(newLibraryUri, {
+            isGenerating: true,
+            fhirLibrary: {
+                resourceType: "Library",
+                url: newLibraryUri,
+                status: "draft",
+                type: {
+                    coding: [{
+                        system: "http://terminology.hl7.org/CodeSystem/library-type",
+                        code: "logic-library",
+                        display: "Logic Library"
+                    }]
+                }
+            }
+        });
+        // Fake request for testing
+        setTimeout(() => {
+            State.get().simplified.generatedLibraries.set(newLibraryUri, {
+                isGenerating: false,
+                fhirLibrary: {
+                    resourceType: "Library",
+                    url: newLibraryUri,
+                    status: "active",
+                    type: {
+                        coding: [{
+                            system: "http://terminology.hl7.org/CodeSystem/library-type",
+                            code: "logic-library",
+                            display: "Logic Library"
+                        }]
+                    },
+                    content: [{
+                        contentType: "application/elm+json",
+                        data: "testdata",
+                    }],
+                }
+            });
+        }, 5000);
+
+        // Done saving, switch back to collection view (continues waiting for the generated library in the background)
         State.get().set("ui", { status: "collection" });
     }
 
