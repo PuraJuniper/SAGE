@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "webpack serve --devtool eval-cheap-module-source-map --config webpack.config.cjs --color",
-    "start": "webpack serve",
+    "start": "node --max-old-space-size=2048 node_modules/webpack-dev-server/bin/webpack-dev-server.js",
     "build-profiles": "./node_modules/.bin/coffee ./scripts/simplify-profiles.coffee",
     "build": "webpack --env build --output-path ./public --config webpack.config.cjs",
     "test": "jest",
