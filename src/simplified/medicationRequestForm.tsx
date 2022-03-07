@@ -26,9 +26,9 @@ export class MedicationRequestForm implements ICardForm {
             isLink: false,
             caption: ""
         }],
-        ['relatedArtifact', {
+        ['resource', {
             boxSize: 1, 
-            isReadOnly: true,
+            isReadOnly: false,
             isLink: false,
             caption: ""
         }],
@@ -64,17 +64,17 @@ export class MedicationRequestForm implements ICardForm {
             ['s', 'min', 'h', 'd', 'wk', 'mo', 'a']]
     ]);
 
-    resourceFields = ['dosage', 'timing', 'repeat'];
+    resourceFields = ['dosage', 'timing', 'repeat', 'relatedArtifact'];
 
     cardFieldLayout =
         {
             cardColumns: [
                 ['placeholder', 'productReference'],
-                ['title', 'period'],
+                ['title', 'placeholder'],
                 ['description', 'placeholder'],
-                ['status', 'frequency'],
+                ['status', 'placeholder'],
                 ['intent', 'placeholder'],
-                ['relatedArtifact', 'placeholder'],
+                ['resource', 'placeholder'],
                 ['placeholder', 'placeholder'],
                 ['periodUnit', 'text']
             ]
