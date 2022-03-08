@@ -94,15 +94,15 @@ const createTextBoxElement = (fieldKey: string, friendlyFieldName: string, textP
     }
     fieldHandlers.push([fieldName, fieldContents, setField, fieldSaveHandler]);
     return (
-        <Form.Group className="page1-form-group" key={fieldName + "-formGroup"} as={Col} controlId={fieldName}>
-            <Row >
-                <Row style={{'flex': '0 0 100%'}}>
-                    <Form.Label className = 'textBox-label-page1' key={fieldName + "-formLabel"} >{friendlyFieldName} </Form.Label>
-                    <Col className = 'textBox-input-page1' key={fieldName + "-col"}>
+        <Form.Group key={fieldName + "-formGroup"} as={Col} controlId={fieldName}>
+            <Row className="page1-row-element">
+                <Row className="page1-label-and-input">
+                    <Form.Label key={fieldName + "-formLabel"} >{friendlyFieldName}</Form.Label>
+                    <Col className = 'page1-input-fields' key={fieldName + "-col"}>
                             {returnVal()}
                     </Col>
                 </Row>
-                <Form.Text style={{'flex': '0 0 100%', 'textAlign': 'center'}} key={fieldName + "-formText"} >{textProps.caption}</Form.Text>
+                <Form.Text key={fieldName + "-formText"}>{textProps.caption}</Form.Text>
             </Row>
         </Form.Group>
     );
@@ -112,10 +112,10 @@ const createDropdownElement = (fieldKey: string, fieldFriendlyName: string, fiel
     const [fieldName, fieldContents, setField, fieldSaveHandler] = simpleCardField(fieldKey, node);
     fieldHandlers.push([fieldName, fieldContents, setField, fieldSaveHandler]);
     return (
-        <Form.Group  className="page1-form-group" key={fieldName + "-fromGroup"} as={Col} controlId={fieldKey}>
-            <Row>
-                <Form.Label key={fieldName + "-label"} className = 'dropdown-label-page1' >{fieldFriendlyName}</Form.Label>
-                <Col key={fieldName + "-col"} className = 'dropdown-selector-page1'>
+        <Form.Group key={fieldName + "-fromGroup"} as={Col} controlId={fieldKey}>
+            <Row className="page1-row-element">
+                <Form.Label key={fieldName + "-label"}>{fieldFriendlyName}</Form.Label>
+                <Col key={fieldName + "-col"} className = 'page1-input-fields'>
                     <InputGroup key={fieldName + "-inputGroup"}>
                         <Form.Control
                             key={fieldName + "formControl"}

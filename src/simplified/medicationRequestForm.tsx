@@ -122,13 +122,13 @@ export class MedicationRequestForm implements ICardForm {
             <Form.Group key='placeholder-formGroup' as={Col}>
             </Form.Group>;
         const freeTextplaceHolderElem =
-            <Form.Group key='freeTextplaceholder-formGroup' as={Col} style={{'margin': 0, 'flex': '0 0 20%'}}>
+            <Form.Group key='freeTextplaceholder-formGroup' as={Col} style={{'margin': 0, 'flex': '0 0 35%'}}>
             </Form.Group>;
         return (
             <div>{
                 ...this.cardFieldLayout.cardColumns.map((cr, i: number) => {
                     return (
-                        <Row key={"row-" + i} style = {{'marginBottom': '10px'}} >
+                        <Row key={"row-" + i} style={{'marginLeft': -100}}>
                             {cr.map(field =>
                                 [
                                     freeTextplaceHolderElem,

@@ -604,22 +604,19 @@ a {
   transition: all 500ms;
 }
 
-.dropdown-label-page1{
-  text-align: right;
-  margin: 0;
-  flex: 0 0 30%
-}
-.dropdown-selector-page1{
-  margin: 0;
+.page1-input-fields{
   flex: 0 0 60%
 }
-.textBox-label-page1{
-  text-align: right;
-  flex: 0 0 30%
+.page1-row-element{
+  padding: 0;
+  justify-content: flex-end
 }
-.textBox-input-page1{
-  flex: 0 0 60%
-}
-.page1-form-group{
+.page1-label-and-input{
+  flex: 0 0 100%; 
   margin: 0;
+  justify-content: flex-end
+}
+.basic-page-titles{
+  font-weight: bold;
+  font-size: large;
 }
