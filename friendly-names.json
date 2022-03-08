@@ -14,7 +14,7 @@
           "FORM_ELEMENTS": [
             {
               "SELF": { "FHIR": "dosage", "FRIENDLY": "Dosage: ",
-                "DEFAULT_PROFILE_URI": "http://hl7.org/fhir/StructureDefinition/Dosage" },
+              "DEFAULT_PROFILE_URI": "http://hl7.org/fhir/StructureDefinition/Dosage" },
               "FORM_ELEMENTS": [
                 {
                   "SELF": { "FHIR": "timing", "FRIENDLY": "Timing: ",
@@ -24,10 +24,7 @@
                       "SELF": { "FHIR": "repeat", "FRIENDLY": "Repeat: " },
                       "FORM_ELEMENTS": [
                         {
-                          "SELF": {
-                            "FHIR": "frequency",
-                            "FRIENDLY": " dose(s):"
-                          }
+                          "SELF": { "FHIR": "frequency", "FRIENDLY": " dose(s)"}
                         },
                         {
                           "SELF": { "FHIR": "period", "FRIENDLY": "per: " }
@@ -66,10 +63,7 @@
                   ]
                 },
                 {
-                  "SELF": {
-                    "FHIR": "text",
-                    "FRIENDLY": "Free text dosage instructions: "
-                  }
+                  "SELF": { "FHIR": "text", "FRIENDLY": "Free text dosage instructions: " }
                 }
               ]
             },
@@ -77,10 +71,7 @@
               "SELF": { "FHIR": "title", "FRIENDLY": "Card short name: " }
             },
             {
-              "SELF": {
-                "FHIR": "description",
-                "FRIENDLY": "Card description: "
-              }
+              "SELF": { "FHIR": "description", "FRIENDLY": "Card description: " }
             },
             {
               "SELF": { "FHIR": "status", "FRIENDLY": "Status: " }
@@ -89,16 +80,17 @@
               "SELF": { "FHIR": "intent", "FRIENDLY": "Intent: " }
             },
             {
-              "SELF": {
-                "FHIR": "relatedArtifact",
-                "FRIENDLY": "Related artifact: "
-              }
+              "SELF": { "FHIR": "relatedArtifact", "FRIENDLY": "relatedArtifact",
+              "DEFAULT_PROFILE_URI": "http://hl7.org/fhir/StructureDefinition/RelatedArtifact"},
+              "FORM_ELEMENTS": [
+                {
+                  "SELF": { "FHIR": "resource", "FRIENDLY": "Related artifact: " }
+                }
+              ]
             },
             {
               "SELF": {
-                "FHIR": "productReference",
-                "FRIENDLY": "Medication Code: "
-              }
+                "FHIR": "productReference", "FRIENDLY": "Medication Code: "}
             }
           ]
         }

@@ -10,7 +10,7 @@ jobs:
       - uses: actions/checkout@v2
       - run: npm config set '//npm.fontawesome.com/:_authToken' "${{ secrets.FONTAWESOME_PRO_AUTH_TOKEN }}"
 
-      - run: npm install
+      - run: npm ci
       - run: npm run build
 
       - name: Deploy to firebase

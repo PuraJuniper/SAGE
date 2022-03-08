@@ -1,6 +1,6 @@
 module.exports = (env) => {
 	// Default to env.development
-	if (!('development' in env) && !('build' in env)) {
+	if (!('build' in env)) {
 		env.development = true;
 	}
 
@@ -23,7 +23,7 @@ module.exports = (env) => {
 			bundle: './src/index.tsx',
 		},
 		output: {
-			filename: env.development ? '[name].js' : './public/[name].js',
+			filename: '[name].js',
 		},
 		mode: env.development ? 'development' : 'production',
 		module: {

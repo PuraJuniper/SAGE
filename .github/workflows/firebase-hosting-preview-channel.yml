@@ -13,7 +13,7 @@ jobs:
           path: ~/.npm
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
 
-      - run: npm install
+      - run: npm ci
       - run: npm run build
 
       - name: Deploy to firebase
