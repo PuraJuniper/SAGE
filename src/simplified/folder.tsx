@@ -6,7 +6,7 @@ import { CloseButton, Spinner } from "react-bootstrap";
 import {getBorderPropsForType, PLAN_DEFINITION, profileToFriendlyResourceListEntry, profileToFriendlyResourceSelf } from "./nameHelpers";
 import * as SchemaUtils from '../helpers/schema-utils';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faExclamationTriangle } from "@fortawesome/pro-solid-svg-icons";
+import { faExclamationTriangle, faQuestionCircle } from "@fortawesome/pro-solid-svg-icons";
 
 interface FolderProps {
     actTitle: string,
@@ -118,12 +118,18 @@ export const Folder = (props: FolderProps) => {
                 // Render status of each unresolved FHIR Library
                 const generatedLib = State.get().simplified.generatedLibraries[libraryUrl];
                 if (generatedLib === undefined) {
-                    // Library does not exist anywhere in SAGE, show error symbol
-                    return <FontAwesomeIcon key={libraryUrl} icon={faExclamationTriangle} />
+                    // Library does not exist anywhere in SAGE, show missing symbol
+                    return <FontAwesomeIcon key={libraryUrl} icon={faQuestionCircle} />
                 }
                 else {
-                    // Library is still being generated, show loading symbol
-                    return <Spinner key={libraryUrl} animation="border" />
+                    if (generatedLib.errorOccurred) {
+                        // Library has some error
+                        return <FontAwesomeIcon key={libraryUrl} icon={faExclamationTriangle} />
+                    }
+                    else {
+                        // Library is still being generated, show loading symbol
+                        return <Spinner key={libraryUrl} animation="border" />
+                    }
                 }
             })}
         </div>

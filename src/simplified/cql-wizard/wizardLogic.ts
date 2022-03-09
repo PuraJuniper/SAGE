@@ -3,6 +3,7 @@ import { VsacResponse } from "./cqlWizardSelectCodes";
 import { ACTIVITY_DEFINITION, defaultProfileUriOfResourceType, getFhirSelf, friendlyResourceRoot } from "../nameHelpers";
 import { Moment } from "moment";
 import { SageCondition } from "../medicationRequestForm";
+import { EditableStateForCondition, ResourceCondition } from "../cardEditor";
 import { getConceptsOfValueSet, SageCodeConcept } from "../../helpers/schema-utils";
 
 // Pages of the wizard
@@ -215,7 +216,7 @@ function getFilterType(url: string, elementFhirPath: string): CodingFilter | Dat
         return unknownFilter;
     }
 
-    if (elementSchema.type[0]?.code === "code") {
+    if (elementSchema.type[0]?.code === "code" || elementSchema.type[0]?.code === "CodeableConcept") {
         const valueSetReference = elementSchema.binding?.reference;
         if (valueSetReference === undefined) {
             console.log(`No code bindings exist for ${elementFhirPath}`);
@@ -267,7 +268,7 @@ function getFilterType(url: string, elementFhirPath: string): CodingFilter | Dat
 function createExpectedFiltersForResType(resType: string): ElementFilter[] {
     switch(resType) {
         case "MedicationRequest": {
-            const expectedElements = ['status', 'intent', 'authoredOn']
+            const expectedElements = ['status', 'intent', 'category', 'authoredOn']
             // const url = friendlyResourceRoot.RESOURCES.find(v => v.SELF.FHIR === ACTIVITY_DEFINITION)?.LIST?.find(lv => lv.FHIR === resType)?.DEFAULT_PROFILE_URI;
             const url = "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-medicationrequest"; // temporary
             return expectedElements.map(expectedElement => {
@@ -322,10 +323,16 @@ export function getPrevPage(curPage: WizardPage, stepStatus: WizardState["pageSt
 }
 
 // Temporary storage/loading of wizard states for purpose of cql export feature
-const exprToWizStateMap: {[key: string]: WizardState} = {};
-export function buildWizStateFromCondition(condition: SageCondition): WizardState {
-    return exprToWizStateMap[condition.id] !== undefined ? exprToWizStateMap[condition.id] : initFromState(null);
+const exprToWizStateMap: {[key: string]: EditableStateForCondition} = {};
+export function buildEditableStateFromCondition(condition: SageCondition): EditableStateForCondition {
+    return exprToWizStateMap[condition.id] !== undefined ?
+        exprToWizStateMap[condition.id] :
+        { 
+            conditionId: condition.id, 
+            outCondition: ResourceCondition.Exists, 
+            curWizState: initFromState(null) 
+        };
 }
-export function saveWizStateForConditionId(conditionId: string, stateToSave: WizardState) {
+export function saveEditableStateForConditionId(conditionId: string, stateToSave: EditableStateForCondition) {
     exprToWizStateMap[conditionId] = stateToSave;
 }

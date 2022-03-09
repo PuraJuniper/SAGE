@@ -5,7 +5,7 @@ import { CqlWizardSelectResource } from "./cqlWizardSelectResource";
 import { faArrowLeft, faArrowRight, faCheck } from "@fortawesome/pro-solid-svg-icons";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
 import { CqlWizardSelectCodes } from "./cqlWizardSelectCodes";
-import { WizardAction, WizardPage, WizardReducer, WizardPagesArr, getNextPage, getPrevPage, initFromState, WizardState, StepStatus, saveWizStateForConditionId } from "./wizardLogic";
+import { WizardAction, WizardPage, WizardReducer, WizardPagesArr, getNextPage, getPrevPage, initFromState, WizardState, StepStatus } from "./wizardLogic";
 import { CqlWizardSelectFilters } from "./cqlWizardSelectFilters";
 import { CSSTransitionStrictMode } from "../../helpers/CSSTransitionStrictMode";
 

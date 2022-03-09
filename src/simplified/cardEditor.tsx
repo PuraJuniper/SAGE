@@ -10,7 +10,7 @@ import State, { SageNodeInitializedFreezerNode } from "../state";
 import { OuterCardForm, textBoxProps, cardLayout } from "./outerCardForm";
 import { ACTIVITY_DEFINITION, allFormElems, convertFormElementToObject, formElemtoResourceProp, FriendlyResourceFormElement, FriendlyResourceProps, getFormElementListForResource, PLAN_DEFINITION, profileToFriendlyResourceListEntry } from "./nameHelpers";
 import { MedicationRequestForm, SageCondition } from "./medicationRequestForm";
-import { buildWizStateFromCondition, WizardState } from "./cql-wizard/wizardLogic";
+import { buildEditableStateFromCondition, WizardState } from "./cql-wizard/wizardLogic";
 
 
 
@@ -271,14 +271,7 @@ export const CardEditor = (props: CardEditorProps) => {
             }
         });
 
-        // Convert each expression to a format compatible with the condition editor
-        function buildEditableStateFromCondition(condition: SageCondition): EditableStateForCondition {
-            return {
-                curWizState: buildWizStateFromCondition(condition),
-                outCondition: ResourceCondition.Exists,
-                conditionId: condition.id
-            }
-        }
+        // Return each condition as a format compatible with the condition editor
         return pdSageConditions.map(v=>buildEditableStateFromCondition(v))
     });
     // Create callbacks for persisting edits to a condition and for generating a new condition
@@ -321,7 +314,7 @@ export const CardEditor = (props: CardEditorProps) => {
         </div>
     );
 
-    function handleSaveResource() {
+    async function handleSaveResource() {
         fieldHandlers.forEach((field) => field[3](field[0], field[1], actNode, planNode));
         /**
          * Save conditions to PlanDefinition
@@ -344,6 +337,8 @@ export const CardEditor = (props: CardEditorProps) => {
         }
         // Save Library URL (stored as an array in FHIR) under PlanDefinition.Library
         const newLibraryUri = `NEW_LIBRARY_GEN-${SchemaUtils.getNextId()}`;
+        const newLibraryName = newLibraryUri;
+        const newLibraryVersion = '1';
         const libraryNode = SchemaUtils.getChildOfNode(planNode, "library");
         if (libraryNode?.nodeType === "valueArray") { // In the regular FHIR spec, library has a cardinality 0..* so it's a valueArray.
             State.emit("load_array_into", libraryNode, [newLibraryUri]);
@@ -354,9 +349,11 @@ export const CardEditor = (props: CardEditorProps) => {
         // Send off asynchronous request to generate library
         State.get().simplified.generatedLibraries.set(newLibraryUri, {
             isGenerating: true,
+            errorOccurred: false,
             fhirLibrary: {
                 resourceType: "Library",
                 url: newLibraryUri,
+                name: newLibraryName,
                 status: "draft",
                 type: {
                     coding: [{
@@ -371,6 +368,7 @@ export const CardEditor = (props: CardEditorProps) => {
         setTimeout(() => {
             State.get().simplified.generatedLibraries.set(newLibraryUri, {
                 isGenerating: false,
+                errorOccurred: false,
                 fhirLibrary: {
                     resourceType: "Library",
                     url: newLibraryUri,

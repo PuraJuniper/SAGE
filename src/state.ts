@@ -55,6 +55,7 @@ export interface StateVars {
 export interface GeneratedLibraries {
 	[libraryUri: string]: {
 		isGenerating: boolean,
+		errorOccurred: boolean,
 		fhirLibrary: Library,
 	} | undefined
 }

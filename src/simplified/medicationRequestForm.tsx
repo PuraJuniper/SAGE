@@ -5,7 +5,7 @@ import { FriendlyResourceProps } from "./nameHelpers";
 import { textBoxProps } from "./outerCardForm";
 import { CqlWizardModal } from "./cql-wizard/CqlWizardModal"
 import { PlanDefinitionActionCondition } from "fhir/r4";
-import { buildWizStateFromCondition, saveWizStateForConditionId, WizardState } from "./cql-wizard/wizardLogic";
+import { saveEditableStateForConditionId, WizardState } from "./cql-wizard/wizardLogic";
 
 // Make `id` a required property
 export interface SageCondition extends PlanDefinitionActionCondition {
@@ -167,7 +167,7 @@ export class MedicationRequestForm implements ICardForm {
             setShowWiz(false);
         }
         function handleSaveAndClose(newWizState: WizardState) {
-            saveWizStateForConditionId(currentlyEditedState.conditionId, newWizState); // Temp
+            saveEditableStateForConditionId(currentlyEditedState.conditionId, currentlyEditedState); // Temp
             props.persistEditedCondition({
                 ...currentlyEditedState,
                 curWizState: newWizState,
@@ -176,6 +176,10 @@ export class MedicationRequestForm implements ICardForm {
         }
 
         function handleResourceConditionChange(draftCondition: EditableStateForCondition, newResourceCondition: ResourceCondition) {
+            saveEditableStateForConditionId(draftCondition.conditionId, {
+                ...draftCondition,
+                outCondition: newResourceCondition,
+            }); // Temp
             props.persistEditedCondition({
                 ...draftCondition,
                 outCondition: newResourceCondition,
