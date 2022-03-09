@@ -8,7 +8,7 @@
  */
 import State, { SageFreezerNode, SageNodeInitializedFreezerNode } from '../state';
 import PrimitiveValidator from './primitive-validator';
-import { Bundle, Resource, Element, ElementDefinition, ElementDefinitionType, ActivityDefinition, PlanDefinition, Questionnaire, Library, ValueSet, FhirResource } from 'fhir/r4';
+import { Bundle, Resource, Element, ElementDefinition, ElementDefinitionType, ActivityDefinition, PlanDefinition, Questionnaire, Library, ValueSet, FhirResource, CodeSystem } from 'fhir/r4';
 import { defaultProfileUriOfResourceType, FriendlyResourceFormElement, FriendlyResourceProps, profileToFriendlyResourceListEntry, STRUCTURE_DEFINITION, VALUE_SET } from '../simplified/nameHelpers';
 
 // Template of a SageNode for a specific element/resource
@@ -74,11 +74,15 @@ export type SimplifiedProfiles = {
 
 type ValuesetDef = {
 	items: [string, string][], // [friendly name, value][]
-	type: string,
+	rawElement: ValueSet
 }
 
 export type SimplifiedValuesets = {
-	[key: string]: ValuesetDef,
+	[key: string]: ValuesetDef, // should be ValuesetDef | undefined
+}
+
+export type SimplifiedCodesystems = {
+	[key: string]: CodeSystem | undefined,
 }
 
 // should match the profile output of simplify-profiles.coffee
@@ -1021,4 +1025,89 @@ export function getResourceType(node: SageNodeInitialized): string | null {
 		return node.schemaPath;
 	}
 	return null;
+}
+
+export interface SageCodeConcept {
+	system: string,
+	code: string,
+	display?: string,
+	version?: string,
+	definition?: string,
+}
+// Based off of rules at https://www.hl7.org/fhir/valueset.html
+export function getConceptsOfValueSet(valueSet: ValueSet, valueSetDefs: SimplifiedValuesets, codeSystemDefs: SimplifiedCodesystems): SageCodeConcept[] {
+	function warningText(reason: string) {
+		return `Warning: Tried to get codes of valueset "${valueSet.url ?? "[no url found in valueset]"}", but ${reason}`;
+	}
+	
+	const codesOfValueSet: SageCodeConcept[] = [];
+	
+	if (valueSet.compose === undefined) {
+		// TODO: ValueSets may have codes listed under "expansion"
+		// From spec: "The ValueSet resource can carry either the .compose or the .expansion, both of them, or neither of them (if only the metadata is being represented)."
+		console.log(warningText(`no "compose" element was defined for it`));
+		return [];
+	}
+
+	for (const include of valueSet.compose.include) {
+		if (include.valueSet) {
+			codesOfValueSet.concat(
+				include.valueSet.flatMap(vsUrl =>
+					vsUrl in valueSetDefs ?
+						getConceptsOfValueSet(valueSetDefs[vsUrl].rawElement, valueSetDefs, codeSystemDefs) :
+						[]
+				)
+			);
+		}
+		if (include.system) {
+			if (include.concept) {
+				// Add only the codes listed in `include.concept` (from `include.system`)
+				const codeSystemDef = codeSystemDefs[include.system];
+				codesOfValueSet.push(
+					...include.concept.map(concept => {
+						return {
+							// Why is this error showing up? Isn't include.system known to be defined due to an earlier condition?
+							// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+							system: include.system!,
+							code: concept.code,
+							display: concept.display,
+							version: codeSystemDef?.version,
+						}
+					})
+				)
+			}
+			else if (include.filter) {
+				// TODO: support `include.filter`
+				console.log(warningText(`SAGE does not support reading "include.filter". Some codes may be missing`));
+			}
+			else {
+				// Add everything from system
+				const codeSystemDef = codeSystemDefs[include.system];
+				if (codeSystemDef) {
+					if (codeSystemDef.concept) {
+						codesOfValueSet.push(
+							...codeSystemDef.concept.map(concept => {
+								return {
+									// Why is this error showing up? Isn't include.system known to be defined due to an earlier condition?
+									// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+									system: include.system!,
+									code: concept.code,
+									display: concept.display,
+									version: codeSystemDef.version,
+									definition: concept.definition,
+								}
+							})
+						)
+					}
+					else {
+						console.log(warningText(`included system "${include.system}" has no "concept" element`));
+					}
+				}
+				else {
+					console.log(warningText(`SAGE has no codes stored for included system "${include.system}"`));
+				}
+			}
+		}
+	}
+	return codesOfValueSet;
 }

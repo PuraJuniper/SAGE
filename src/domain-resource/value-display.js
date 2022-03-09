@@ -74,10 +74,10 @@ class ValueDisplay extends React.Component {
             } = this.props.node.binding;
 			const vs = State.get().valuesets[reference];
 			if (vs) {
-				for (let [display, code] of vs.items) {
+				for (let {display, code} of SchemaUtils.getConceptsOfValueSet(vs.rawElement, State.get().valuesets, State.get().codesystems)) {
 					if (code === value) {
 						invalid = false;
-						value = display;
+						value = display ?? code;
 						break;
 					}
 				}

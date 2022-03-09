@@ -3,6 +3,7 @@ import { VsacResponse } from "./cqlWizardSelectCodes";
 import { ACTIVITY_DEFINITION, defaultProfileUriOfResourceType, getFhirSelf, friendlyResourceRoot } from "../nameHelpers";
 import { Moment } from "moment";
 import { SageCondition } from "../medicationRequestForm";
+import { getConceptsOfValueSet, SageCodeConcept } from "../../helpers/schema-utils";
 
 // Pages of the wizard
 export enum WizardPage {
@@ -158,10 +159,7 @@ export enum CodeFilterType {
     Filtered = "some_code(s)",
 }
 interface CodeBinding {
-    codes: {
-        display: string,
-        code: string,
-    }[],
+    codes: SageCodeConcept[],
     definition: string | undefined
 }
 export interface DateFilter {
@@ -228,12 +226,7 @@ function getFilterType(url: string, elementFhirPath: string): CodingFilter | Dat
             console.log(`ValueSet ${valueSetReference} could not be found`);
             return unknownFilter
         }
-        const codes = valueSet.items.toJS().map(v => {
-            return {
-                display: v[0],
-                code: v[1],
-            }
-        });
+        const codes = getConceptsOfValueSet(valueSet.rawElement, State.get().valuesets, State.get().codesystems);
 
         const codingFilter: CodingFilter = {
             type: 'coding',

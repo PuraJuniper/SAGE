@@ -1,7 +1,7 @@
 import * as cql from 'cql-execution';
 import { Library } from 'fhir/r4';
 import Freezer, { EventDict, FE, FreezerNode } from 'freezer-js';
-import { SageNewResource, SageNode, SageNodeInitialized, SimplifiedProfiles, SimplifiedValuesets } from './helpers/schema-utils';
+import { SageNewResource, SageNode, SageNodeInitialized, SimplifiedCodesystems, SimplifiedProfiles, SimplifiedValuesets } from './helpers/schema-utils';
 
 export interface StateVars {
 	ui: {
@@ -49,6 +49,7 @@ export interface StateVars {
 	errFields: string[],
 	profiles: SimplifiedProfiles,
 	valuesets: SimplifiedValuesets,
+	codesystems: SimplifiedCodesystems,
 }
 
 export interface GeneratedLibraries {
@@ -134,6 +135,7 @@ const defaultStateVars: StateVars = {
 	showHiddenElements: false,
 	profiles: {},
 	valuesets: {},
+	codesystems: {},
 }
 
 const State = new Freezer<StateVars, SageReactions>(defaultStateVars);

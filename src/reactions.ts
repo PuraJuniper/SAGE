@@ -147,6 +147,10 @@ State.on("set_profiles", json => State.get().set({
     valuesets: {
 		...State.get().valuesets,
 		...json.valuesets,
+	},
+	codesystems: {
+		...State.get().codesystems,
+		...json.codesystems,
 	}
 }));
 

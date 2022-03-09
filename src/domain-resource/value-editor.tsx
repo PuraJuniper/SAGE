@@ -68,8 +68,13 @@ class ValueEditor extends React.Component<ValueEditorProps, Record<string, never
                     reference
                 } = this.props.node.binding;
 				const vs = State.get().valuesets[reference];
-				if (vs && vs.type === "complete") {
-					return State.emit("value_change", this.props.node, vs.items[0][1]);
+				if (vs) {
+					const firstConcept = SchemaUtils.getConceptsOfValueSet(vs.rawElement, State.get().valuesets, State.get().codesystems).at(0);
+					let defaultValue = "";
+					if (firstConcept?.code) {
+						defaultValue = firstConcept.code;
+					}
+					return State.emit("value_change", this.props.node, defaultValue);
 				}
 			}
 	}
@@ -136,8 +141,11 @@ class ValueEditor extends React.Component<ValueEditorProps, Record<string, never
                 reference
             } = this.props.node.binding;
 			const vs = State.get().valuesets[reference].toJS();
-			if (vs && vs.type === "complete") {
-				inputField =  this.buildCodeInput(value, vs.items);
+			if (vs) {
+				const concepts = SchemaUtils.getConceptsOfValueSet(vs.rawElement, State.get().valuesets, State.get().codesystems).map<[string, string]>(concept=>[concept.display ?? concept.code, concept.code]);
+				if (concepts) {
+					inputField =  this.buildCodeInput(value, concepts);
+				}
 			}
 		}
 
