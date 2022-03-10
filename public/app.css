@@ -802,9 +802,20 @@ a {
 .cql-wizard-element-filters-button-ignored {
   opacity: 0.5;
 }
+.cql-wizard-element-filters-relative-date-controls {
+  display: grid;
+  grid-auto-columns: 100px 1fr; /* Number input field, Relative unit button group */
+  grid-auto-flow: column;
+  gap: 3px;
+  justify-content: start;
+  align-items: center;
+}
 
 .cql-wizard-result-should-exist {
   float: right;
+  display: grid;
+  grid-auto-flow: column;
+  gap: 10px;
 }
 
 .text-dotted-underline {

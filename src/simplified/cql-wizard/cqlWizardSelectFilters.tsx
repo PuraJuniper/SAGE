@@ -51,7 +51,8 @@ function initDatePickerStates(filters: ElementFilter[]): DatePickerStates {
     return newDatePickerStates;
 }
 
-function convertFormInputToNumber(input: string | undefined, lastValue: number): number {
+// Dealing with HTML Form input
+export function convertFormInputToNumber(input: string | undefined, lastValue: number): number {
     return typeof(input) === 'undefined' ? lastValue : (typeof(input) === 'string' ? (isNaN(parseInt(input, 10)) ? 0 : parseInt(input, 10)) : input)
 }
 
@@ -77,7 +78,7 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
         setDatePickerStates(initDatePickerStates(props.wizState.filters));
     }, [props.wizState.filters])
 
-    function dispatchNewCodingFilter(elementName: string, filterType: CodeFilterType, selectedCodes: string[]) {
+    function dispatchNewCodingFilter(elementName: string, filterType: CodeFilterType, selectedIndexes: number[]) {
         const newElementFilters: ElementFilter[] = props.wizState.filters.map<ElementFilter>(v => {
             if (v.elementName !== elementName) {
                 return v;
@@ -90,9 +91,9 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
                         ...oldFilter,
                         filteredCoding: {
                             filterType,
-                            selectedCodes,
+                            selectedIndexes: selectedIndexes,
                         },
-                        error: filterType === CodeFilterType.Filtered && selectedCodes.length === 0,
+                        error: filterType === CodeFilterType.Filtered && selectedIndexes.length === 0,
                     }
                 }
             }
@@ -157,7 +158,7 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
                                                 name={`${elementFilter.elementName}-code-filter-type`}
                                                 value={codeFilter.filteredCoding.filterType === CodeFilterType.None ? "Any" : "Specific"}
                                                 onChange={selected => 
-                                                    dispatchNewCodingFilter(elementFilter.elementName, selected === "Any" ? CodeFilterType.None : CodeFilterType.Filtered, codeFilter.filteredCoding.selectedCodes)
+                                                    dispatchNewCodingFilter(elementFilter.elementName, selected === "Any" ? CodeFilterType.None : CodeFilterType.Filtered, codeFilter.filteredCoding.selectedIndexes)
                                                 }
                                             >
                                                 <ToggleButton type="radio" variant="outline-secondary" value="Any">
@@ -168,11 +169,11 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
                                                 </ToggleButton>
                                             </ToggleButtonGroup>
                                         </Card.Title>
-                                        <ToggleButtonGroup type="checkbox" value={codeFilter.filteredCoding.selectedCodes} className="cql-wizard-element-filters-button-group"
-                                            onChange={selectedCodes => dispatchNewCodingFilter(elementFilter.elementName, CodeFilterType.Filtered, selectedCodes)}
+                                        <ToggleButtonGroup type="checkbox" value={codeFilter.filteredCoding.selectedIndexes} className="cql-wizard-element-filters-button-group"
+                                            onChange={selectedIndexes => dispatchNewCodingFilter(elementFilter.elementName, CodeFilterType.Filtered, selectedIndexes)}
                                         >
-                                            {codeBinding.codes.map(code => {
-                                                return <ToggleButton key={code.code} value={code.code} variant='outline-primary'
+                                            {codeBinding.codes.map((code, i) => {
+                                                return <ToggleButton key={i} value={i} variant='outline-primary'
                                                     className={codeFilter.filteredCoding.filterType === CodeFilterType.None ? "cql-wizard-element-filters-button-ignored" : undefined}
                                                 >
                                                     {code.display}
@@ -305,7 +306,7 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
                                                 case DateFilterType.NewerThan:
                                                 case DateFilterType.OlderThan:
                                                     return (
-                                                        <InputGroup>
+                                                        <div className="cql-wizard-element-filters-relative-date-controls">
                                                             <Form.Control
                                                                 placeholder="Amount of time"
                                                                 type="number"
@@ -317,22 +318,20 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
                                                                         dateFilter.filteredDate.relativeUnit, convertFormInputToNumber(e.target.value, dateFilter.filteredDate.relativeAmount))
                                                                     }
                                                             />
-                                                            <InputGroup.Append>
-                                                                <ToggleButtonGroup
-                                                                    type="radio"
-                                                                    name={`${elementFilter.elementName}-date-relative-unit`}
-                                                                    value={dateFilter.filteredDate.relativeUnit}
-                                                                    onChange={newUnit => dispatchNewDateFilter(elementFilter.elementName, dateFilter.filteredDate.filterType, undefined, undefined, newUnit, dateFilter.filteredDate.relativeAmount)}
-                                                                >
-                                                                    <ToggleButton variant="outline-primary" value={RelativeDateUnit.Minutes}>Minute(s)</ToggleButton>
-                                                                    <ToggleButton variant="outline-primary" value={RelativeDateUnit.Hours}>Hour(s)</ToggleButton>
-                                                                    <ToggleButton variant="outline-primary" value={RelativeDateUnit.Days}>Day(s)</ToggleButton>
-                                                                    <ToggleButton variant="outline-primary" value={RelativeDateUnit.Weeks}>Week(s)</ToggleButton>
-                                                                    <ToggleButton variant="outline-primary" value={RelativeDateUnit.Months}>Month(s)</ToggleButton>
-                                                                    <ToggleButton variant="outline-primary" value={RelativeDateUnit.Years}>Year(s)</ToggleButton>
-                                                                </ToggleButtonGroup>
-                                                            </InputGroup.Append>
-                                                        </InputGroup>
+                                                            <ToggleButtonGroup
+                                                                type="radio"
+                                                                name={`${elementFilter.elementName}-date-relative-unit`}
+                                                                value={dateFilter.filteredDate.relativeUnit}
+                                                                onChange={newUnit => dispatchNewDateFilter(elementFilter.elementName, dateFilter.filteredDate.filterType, undefined, undefined, newUnit, dateFilter.filteredDate.relativeAmount)}
+                                                            >
+                                                                <ToggleButton variant="outline-primary" value={RelativeDateUnit.Minutes}>Minute(s)</ToggleButton>
+                                                                <ToggleButton variant="outline-primary" value={RelativeDateUnit.Hours}>Hour(s)</ToggleButton>
+                                                                <ToggleButton variant="outline-primary" value={RelativeDateUnit.Days}>Day(s)</ToggleButton>
+                                                                <ToggleButton variant="outline-primary" value={RelativeDateUnit.Weeks}>Week(s)</ToggleButton>
+                                                                <ToggleButton variant="outline-primary" value={RelativeDateUnit.Months}>Month(s)</ToggleButton>
+                                                                <ToggleButton variant="outline-primary" value={RelativeDateUnit.Years}>Year(s)</ToggleButton>
+                                                            </ToggleButtonGroup>
+                                                        </div>
                                                     )
                                             }
                                         })()}

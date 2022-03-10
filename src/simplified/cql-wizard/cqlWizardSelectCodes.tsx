@@ -48,8 +48,10 @@ export const CqlWizardSelectCodes: React.FunctionComponent<CqlWizardSelectCodesP
     } = props;
 
     useEffect(() => {
-        wizDispatch(['setCodes', [{"system":"http://snomed.info/sct","systemName":"SNOMEDCT","systemOID":"2.16.840.1.113883.6.96","version":"http://snomed.info/sct/731000124108/version/2021-09","code":"TEMP TEST","display":"Chest pain (finding)"}]])
-    }, [wizDispatch])
+        if (wizState.codes.length === 0) {
+            wizDispatch(['setCodes', [{"system":"http://snomed.info/sct","systemName":"SNOMEDCT","systemOID":"2.16.840.1.113883.6.96","version":"http://snomed.info/sct/731000124108/version/2021-09","code":"TEMP TEST","display":"Chest pain (finding)"}]])
+        }
+    }, [wizState.codes.length, wizDispatch])
 
     return (
         <div className="cql-wizard-select-code-grid"> 

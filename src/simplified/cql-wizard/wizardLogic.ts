@@ -3,7 +3,7 @@ import { VsacResponse } from "./cqlWizardSelectCodes";
 import { ACTIVITY_DEFINITION, defaultProfileUriOfResourceType, getFhirSelf, friendlyResourceRoot } from "../nameHelpers";
 import { Moment } from "moment";
 import { SageCondition } from "../medicationRequestForm";
-import { EditableStateForCondition, ResourceCondition } from "../cardEditor";
+import { EditableStateForCondition, AggregateType } from "../cardEditor";
 import { getConceptsOfValueSet, SageCodeConcept } from "../../helpers/schema-utils";
 
 // Pages of the wizard
@@ -150,9 +150,9 @@ export interface CodingFilter {
     type: "coding",
     filteredCoding: {
         filterType: CodeFilterType,
-        selectedCodes: string[],
+        selectedIndexes: number[], // Indexes into CodeBinding.codes
     }
-    codeBinding?: CodeBinding,
+    codeBinding: CodeBinding,
     error: boolean,
 }
 export enum CodeFilterType {
@@ -161,6 +161,8 @@ export enum CodeFilterType {
 }
 interface CodeBinding {
     codes: SageCodeConcept[],
+    isCoding: boolean, // if false, these codes must be compared as strings in CQL
+    isSingleton: boolean, // if false, we need to loop through codes of the element in CQL
     definition: string | undefined
 }
 export interface DateFilter {
@@ -233,11 +235,13 @@ function getFilterType(url: string, elementFhirPath: string): CodingFilter | Dat
             type: 'coding',
             codeBinding: {
                 codes,
+                isCoding: elementSchema.type[0]?.code !== "code",
+                isSingleton: elementSchema.max === "1",
                 definition: elementSchema.rawElement.definition,
             },
             filteredCoding: {
                 filterType: CodeFilterType.None,
-                selectedCodes: []
+                selectedIndexes: []
             },
             error: false,
         }
@@ -329,7 +333,9 @@ export function buildEditableStateFromCondition(condition: SageCondition): Edita
         exprToWizStateMap[condition.id] :
         { 
             conditionId: condition.id, 
-            outCondition: ResourceCondition.Exists, 
+            exprAggregate: {
+                aggregate: AggregateType.Exists
+            },
             curWizState: initFromState(null) 
         };
 }

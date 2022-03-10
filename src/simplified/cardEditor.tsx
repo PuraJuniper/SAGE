@@ -11,6 +11,8 @@ import { OuterCardForm, textBoxProps, cardLayout } from "./outerCardForm";
 import { ACTIVITY_DEFINITION, allFormElems, convertFormElementToObject, formElemtoResourceProp, FriendlyResourceFormElement, FriendlyResourceProps, getFormElementListForResource, PLAN_DEFINITION, profileToFriendlyResourceListEntry } from "./nameHelpers";
 import { MedicationRequestForm, SageCondition } from "./medicationRequestForm";
 import { buildEditableStateFromCondition, WizardState } from "./cql-wizard/wizardLogic";
+import { generateCqlFromConditions, makeCQLtoELMRequest } from "./cql-wizard/cql-generator";
+import { buildFredId } from "../helpers/bundle-utils";
 
 
 
@@ -220,19 +222,32 @@ function getResourceType(actNode: SageNodeInitializedFreezerNode): FriendlyResou
     return formElemtoResourceProp(profileToFriendlyResourceListEntry(resourceProfile()));
 }
 
-export enum ResourceCondition {
+/**
+ * Types required for the condition editor
+ */
+export enum AggregateType {
     Exists = "exists",
     DoesNotExist = "doesNotExist",
     AtLeast = "atLeast",
     NoMoreThan = "noMoreThan"
 }
+export interface WizExprAggregate {
+    aggregate: AggregateType,
+    count?: number,
+}
 // An editable state for the Condition with id `conditionId`
 export interface EditableStateForCondition {
     curWizState: WizardState | null,
-    outCondition: ResourceCondition,
+    exprAggregate: WizExprAggregate,
     conditionId: string,
 }
 
+/**
+ * This component reads data from and creates callbacks to write data into the given resource nodes
+ * The callbacks and data are passed to the generic ActivityDefinition editor component (OuterCardForm)
+ * @param props: A PlanDefinition node and an ActivityDefinition node
+ * @returns An OuterCardForm for the given PD+AD
+ */
 export const CardEditor = (props: CardEditorProps) => {
     const actNode = props.actNode;
     const planNode = props.planNode;
@@ -253,10 +268,10 @@ export const CardEditor = (props: CardEditorProps) => {
     }, [actNode])
 
     /**
-     * Read conditions into a format editable by the condition editor, and create callback to save edits 
-     * All types of cards have identical requirements with respect to reading and writing conditions, so it's safe
-     *  for this component to have complete ownership of the PD's condition edit state
-     *  */
+     * Read PD conditions into a format editable by the condition editor
+     * All types of cards have identical requirements with respect to reading and writing conditions, 
+     *  so it's safe for this component to have complete ownership of the PD's condition edit state
+     */
     const [draftConditions, setDraftConditions] = useState<EditableStateForCondition[]>(()=>{
         // Read existing FHIR condition elements from plandefinition
         const planNodeResource = SchemaUtils.toFhir(planNode, false) as PlanDefinition;
@@ -274,7 +289,9 @@ export const CardEditor = (props: CardEditorProps) => {
         // Return each condition as a format compatible with the condition editor
         return pdSageConditions.map(v=>buildEditableStateFromCondition(v))
     });
-    // Create callbacks for persisting edits to a condition and for generating a new condition
+    /**
+     * Create callbacks for persisting edits to a condition and for generating a brand new condition
+     */
     const persistEditedCondition = (newConditionState: EditableStateForCondition) => {
         setDraftConditions(curEditableConditions => {
             if (!curEditableConditions.some(v=>v.conditionId === newConditionState.conditionId)) {
@@ -287,10 +304,12 @@ export const CardEditor = (props: CardEditorProps) => {
             }
         });
     }
-    const generateEditableCondition = (): EditableStateForCondition => {
+    const generateEditableCondition = (): EditableStateForCondition => { // Creating a new condition with default values
         return {
             curWizState: null,
-            outCondition: ResourceCondition.Exists,
+            exprAggregate: {
+                aggregate: AggregateType.Exists,
+            },
             conditionId: `index-${SchemaUtils.getNextId()}`, // Need some unique id
         };
     }
@@ -314,17 +333,21 @@ export const CardEditor = (props: CardEditorProps) => {
         </div>
     );
 
+    /**
+     * Callback to write changes from the editor into the freezer-js state and return to the collection view
+     */
     async function handleSaveResource() {
         fieldHandlers.forEach((field) => field[3](field[0], field[1], actNode, planNode));
+
         /**
          * Save conditions to PlanDefinition
-         * Drops any condition that could not be read by our condition editor
-         *  */
+         * Drops any previously-existing conditions that could not be read by our condition editor
+         */
         const newConditions: PlanDefinitionActionCondition[] = draftConditions.map(v => {
             return {
                 id: v.conditionId,
                 expression: {
-                    language: "cql-wizard-test",
+                    language: "text/cql",
                     expression: v.conditionId,
                 },
                 kind: "applicability"
@@ -336,7 +359,8 @@ export const CardEditor = (props: CardEditorProps) => {
             State.emit("load_array_into", conditionNode, newConditions);
         }
         // Save Library URL (stored as an array in FHIR) under PlanDefinition.Library
-        const newLibraryUri = `NEW_LIBRARY_GEN-${SchemaUtils.getNextId()}`;
+        const newLibraryUri = `http://somewhere.org/fhir/uv/mycontentig/Library/NEW-LIBRARY-GEN-${SchemaUtils.getNextId()}`;
+        const newLibraryId = buildFredId();
         const newLibraryName = newLibraryUri;
         const newLibraryVersion = '1';
         const libraryNode = SchemaUtils.getChildOfNode(planNode, "library");
@@ -352,6 +376,7 @@ export const CardEditor = (props: CardEditorProps) => {
             errorOccurred: false,
             fhirLibrary: {
                 resourceType: "Library",
+                id: newLibraryId,
                 url: newLibraryUri,
                 name: newLibraryName,
                 status: "draft",
@@ -364,14 +389,37 @@ export const CardEditor = (props: CardEditorProps) => {
                 }
             }
         });
-        // Fake request for testing
-        setTimeout(() => {
+        // Call CQL translation function asynchronously, saving to bundle when finalized
+        generateCqlFromConditions(draftConditions, newLibraryName, newLibraryVersion).then(async (cql) => {
+            if (cql === null) {
+                console.log(`Error generating ${newLibraryName} version ${newLibraryVersion}`);
+                State.get().simplified.generatedLibraries.newLibraryUri?.set("errorOccurred", true);
+                State.get().simplified.generatedLibraries.newLibraryUri?.set("isGenerating", false);
+                return;
+            }
+            const b64Elm = await makeCQLtoELMRequest(cql);
+            const libContent: Library['content'] = [];
+            if (b64Elm === null) {
+                State.get().simplified.generatedLibraries.newLibraryUri?.set("errorOccurred", true);
+                libContent.push({
+                    contentType: "application/cql",
+                    data: window.btoa(cql),
+                });
+            }
+            else {
+                libContent.push({
+                    contentType: "application/elm+json",
+                    data: b64Elm,
+                });
+            }
+            State.get().simplified.generatedLibraries.newLibraryUri?.set("isGenerating", false);
             State.get().simplified.generatedLibraries.set(newLibraryUri, {
                 isGenerating: false,
                 errorOccurred: false,
                 fhirLibrary: {
                     resourceType: "Library",
                     url: newLibraryUri,
+                    name: newLibraryName,
                     status: "active",
                     type: {
                         coding: [{
@@ -380,15 +428,14 @@ export const CardEditor = (props: CardEditorProps) => {
                             display: "Logic Library"
                         }]
                     },
-                    content: [{
-                        contentType: "application/elm+json",
-                        data: "testdata",
-                    }],
+                    content: libContent,
                 }
             });
-        }, 5000);
+        });
 
-        // Done saving, switch back to collection view (continues waiting for the generated library in the background)
+        /**
+         * Finished saving resource, switch back to collection view
+         */
         State.get().set("ui", { status: "collection" });
     }
 

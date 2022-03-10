@@ -60,6 +60,7 @@ export class OuterCardForm extends React.Component<CardFormProps, CardFormState>
                 <FontAwesomeIcon key="butSaveIcon" icon={faCaretRight} />
             </button>;
 
+        // TODO: fix this -- linked resources won't always be beside each other
         this.deleteCardButton =
             <button key="butDel" type='button' className="navigate col-lg-2 col-md-3"
                 onClick={() => {
@@ -104,7 +105,7 @@ export class OuterCardForm extends React.Component<CardFormProps, CardFormState>
 
 
     render() {
-        const PageOne = this.props.innerCardForm.pageOne; // https://reactjs.org/docs/jsx-in-depth.html#choosing-the-type-at-runtime
+        const PageOne = this.props.innerCardForm.pageOne; // Variable name case matters (https://reactjs.org/docs/jsx-in-depth.html#choosing-the-type-at-runtime)
         const PageTwo = this.props.innerCardForm.pageTwo;
         const PageThree = this.props.innerCardForm.pageThree;
         
