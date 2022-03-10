@@ -41,13 +41,11 @@ class ExportDialog extends React.Component {
                   delete current[key];
                 }
               });
-              // remove any leftover undefined values from the delete 
-              // operation on an array
               if (_.isArray(current)) _.pull(current, undefined);
           
               return current;
           
-            }(_.cloneDeep(obj));  // Do not modify the original object, create a clone instead
+            }(_.cloneDeep(obj));
           }
 
 
