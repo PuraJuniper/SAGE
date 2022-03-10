@@ -116,10 +116,6 @@ const unsupportedElements: string[] = [];
 
 export function toFhir<B extends boolean>(decorated: SageNodeInitialized, validate: B): B extends true ? [SageSupportedFhirResource, number, string[]] : SageSupportedFhirResource
 export function toFhir(decorated: SageNodeInitialized, validate: boolean): [SageSupportedFhirResource, number, string[]] | SageSupportedFhirResource {
-	const _removeNonvalidFields = function (node: SageNodeInitialized, parent?: any){
-        //recursive function that tunnels down to the lowest level, if the value is zero
-        //removes the node and if not returns the node as normal
-    }
 	// console.log('toFhir', decorated, validate);
 	let errCount = 0;
 	const errFields: string[] = [];
@@ -146,7 +142,6 @@ export function toFhir(decorated: SageNodeInitialized, validate: boolean): [Sage
 					return child.value;
 				}
 			})();
-
 			if (parent instanceof Array) {
 				parent.push(value);
 			} else {

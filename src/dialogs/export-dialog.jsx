@@ -30,7 +30,28 @@ class ExportDialog extends React.Component {
     buildJson() {
         let [resource, errCount, errFields] = Array.from(
             SchemaUtils.toFhir(this.props.bundle.resources[this.props.bundle.pos], true)
-        );
+        );  
+
+        function removeEmptyFields(obj) {
+            return function remove(current) {
+              _.forOwn(current, function (value, key) {
+                if (_.isUndefined(value) || _.isNull(value) || _.isNaN(value) ||
+                  (_.isString(value) && _.isEmpty(value)) ||
+                  (_.isObject(value) && _.isEmpty(remove(value)))) {
+                  delete current[key];
+                }
+              });
+              // remove any leftover undefined values from the delete 
+              // operation on an array
+              if (_.isArray(current)) _.pull(current, undefined);
+          
+              return current;
+          
+            }(_.cloneDeep(obj));  // Do not modify the original object, create a clone instead
+          }
+
+
+
         // Convert all resources to FHIR JSON
         const resourcesJson = [];
         const urlsInBundle = []; // All URLs being exported
@@ -71,14 +92,8 @@ class ExportDialog extends React.Component {
                 resourcesJson
             );
         }
-        
-        function replacer(key, value){
-            if (value === '' || value === null) {
-                return undefined}
-            return value
-        }
 
-        const jsonString = JSON.stringify(bundleJson, replacer, 3);
+        const jsonString = JSON.stringify(removeEmptyFields(bundleJson), null, 3);
         return {jsonString, errCount, errFields, resourceType: resource.resourceType};
     }
 
