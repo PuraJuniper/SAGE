@@ -62,6 +62,13 @@ export class MedicationRequestForm implements ICardForm {
             isReadOnly: false,
             isLink: false,
             caption: ""
+        }],
+        ['productDescription', {
+            boxSize: 3,
+            isReadOnly: false,
+            isLink: false,
+            caption: ""
+
         }]
     ]);
 
@@ -81,14 +88,16 @@ export class MedicationRequestForm implements ICardForm {
     cardFieldLayout =
         {
             cardColumns: [
-                ['placeholder', 'productReference'],
-                ['title', 'value'],
-                ['description', 'unit'],
-                ['status', 'placeholder'],
-                ['intent', 'period'],
-                ['resource', 'frequency'],
                 ['placeholder', 'placeholder'],
-                ['periodUnit', 'text']
+                ['title', 'productReference'],
+                ['description', 'productDescription'],
+                ['status', 'value'],
+                ['intent', 'unit'],
+                ['resource', 'frequency'],
+                ['placeholder', 'period'],
+                ['placeholder', 'periodUnit'],
+                ['freeTextplaceholder', 'text'],
+                ['placeholder', 'placeholder'],
             ]
 
     };
@@ -110,15 +119,19 @@ export class MedicationRequestForm implements ICardForm {
 
     pageOne: ICardForm['pageOne'] = (props) => {
         const placeHolderElem =
-            <Form.Group key='placeholder-formGroup' as={Col} >
+            <Form.Group key='placeholder-formGroup' as={Col}>
+            </Form.Group>;
+        const freeTextplaceHolderElem =
+            <Form.Group key='freeTextplaceholder-formGroup' as={Col} style={{'margin': 0, 'flex': '0 0 35%'}}>
             </Form.Group>;
         return (
             <div>{
                 ...this.cardFieldLayout.cardColumns.map((cr, i: number) => {
                     return (
-                        <Row key={"row-" + i} className="mb-3">
+                        <Row key={"row-" + i} style={{'marginLeft': -100}}>
                             {cr.map(field =>
                                 [
+                                    freeTextplaceHolderElem,
                                     placeHolderElem,
                                     ...props.fieldElements
                                 ].find(elem =>

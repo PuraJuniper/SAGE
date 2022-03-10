@@ -24,7 +24,7 @@
                       "SELF": { "FHIR": "repeat", "FRIENDLY": "Repeat: " },
                       "FORM_ELEMENTS": [
                         {
-                          "SELF": { "FHIR": "frequency", "FRIENDLY": " dose(s)"}
+                          "SELF": { "FHIR": "frequency", "FRIENDLY": " dose(s):"}
                         },
                         {
                           "SELF": { "FHIR": "period", "FRIENDLY": "per: " }
@@ -63,6 +63,29 @@
                   ]
                 },
                 {
+                  "SELF":{"FHIR":"doseAndRate", "FRIENDLY":"Dose&Rate:"},
+                  "FORM_ELEMENTS":[
+                    {
+                      "SELF":{"FHIR": "doseQuantity","FRIENDLY": "Dose Amount and UOM:"},
+                      "FORM_ELEMENTS":[
+                        {
+                          "SELF":{
+                            "FHIR":"value",
+                            "FRIENDLY":"Dose Quantity:"
+                          }
+                        },
+                        {
+                          "SELF":{
+                            "FHIR":"unit",
+                            "FRIENDLY":"Dose UOM:"
+                          }
+                        }
+                      ]
+                    }
+                  ]
+
+                },
+                {
                   "SELF": { "FHIR": "text", "FRIENDLY": "Free text dosage instructions: " }
                 }
               ]
@@ -91,6 +114,12 @@
             {
               "SELF": {
                 "FHIR": "productReference", "FRIENDLY": "Medication Code: "}
+            },
+            {
+              "SELF": {
+                "FHIR": "productDescription",
+                "FRIENDLY": "Medication Display Text: "
+              }
             }
           ]
         }
