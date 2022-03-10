@@ -83,7 +83,7 @@ export class MedicationRequestForm implements ICardForm {
             ['s', 'min', 'h', 'd', 'wk', 'mo', 'a']]
     ]);
 
-    resourceFields = ['dosage', 'timing', 'repeat', 'relatedArtifact'];
+    resourceFields = ['dosage', 'timing', 'repeat', 'relatedArtifact', 'doseAndRate', 'doseQuantity'];
 
     cardFieldLayout =
         {
