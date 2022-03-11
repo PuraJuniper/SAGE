@@ -107,6 +107,9 @@
               "DEFAULT_PROFILE_URI": "http://hl7.org/fhir/StructureDefinition/RelatedArtifact"},
               "FORM_ELEMENTS": [
                 {
+                  "SELF": { "FHIR": "type", "FRIENDLY": "Related artifact type: " }
+                },
+                {
                   "SELF": { "FHIR": "resource", "FRIENDLY": "Related artifact: " }
                 }
               ]

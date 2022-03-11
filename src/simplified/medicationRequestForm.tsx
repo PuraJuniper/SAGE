@@ -80,7 +80,9 @@ export class MedicationRequestForm implements ICardForm {
         ['productReference',
             ['proposal', 'plan', 'order', 'original-order', 'reflex-order', 'filler-order', 'instance-order', 'option']],
         ['periodUnit',
-            ['s', 'min', 'h', 'd', 'wk', 'mo', 'a']]
+            ['s', 'min', 'h', 'd', 'wk', 'mo', 'a']],
+        ['type',
+            ['documentation', 'justification', 'citation', 'predecessor', 'successor', 'derived-from', 'depends-on', 'composed-of']]
     ]);
 
     resourceFields = ['dosage', 'timing', 'repeat', 'relatedArtifact', 'doseAndRate', 'doseQuantity'];
@@ -94,7 +96,7 @@ export class MedicationRequestForm implements ICardForm {
                 ['status', 'value'],
                 ['intent', 'unit'],
                 ['resource', 'frequency'],
-                ['placeholder', 'period'],
+                ['type', 'period'],
                 ['placeholder', 'periodUnit'],
                 ['freeTextplaceholder', 'text'],
                 ['placeholder', 'placeholder'],
