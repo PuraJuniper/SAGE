@@ -136,13 +136,12 @@ export function toFhir(decorated: SageNodeInitialized, validate: boolean): [Sage
 					}
 
 					if (err) {
-						errFields.push(child.schemaPath.substring(child.schemaPath.indexOf(".") + 1));
+                        errFields.push(child.schemaPath + ' - ' + err);
 						errCount++;
 					}
 					return child.value;
 				}
 			})();
-
 			if (parent instanceof Array) {
 				parent.push(value);
 			} else {

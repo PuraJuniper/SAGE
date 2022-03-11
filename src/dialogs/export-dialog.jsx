@@ -30,7 +30,25 @@ class ExportDialog extends React.Component {
     buildJson() {
         let [resource, errCount, errFields] = Array.from(
             SchemaUtils.toFhir(this.props.bundle.resources[this.props.bundle.pos], true)
-        );
+        );  
+
+        function removeEmptyFields(obj) {
+            return function remove(current) {
+              _.forOwn(current, function (value, key) {
+                if (_.isUndefined(value) || _.isNull(value) || _.isNaN(value) ||
+                  (_.isString(value) && _.isEmpty(value)) ||
+                  (_.isObject(value) && _.isEmpty(remove(value)))) {
+                  delete current[key];
+                }
+              });
+              if (_.isArray(current)) _.pull(current, undefined);
+          
+              return current;
+          
+            }(_.cloneDeep(obj));
+          }
+
+
 
         // Convert all resources to FHIR JSON
         const resourcesJson = [];
@@ -66,14 +84,14 @@ class ExportDialog extends React.Component {
                 }
             }
         }
-
         var bundleJson;
         if (this.props.bundle) {
             bundleJson = BundleUtils.generateBundle(
                 resourcesJson
             );
         }
-        const jsonString = JSON.stringify(bundleJson, null, 3);
+
+        const jsonString = JSON.stringify(removeEmptyFields(bundleJson), null, 3);
         return {jsonString, errCount, errFields, resourceType: resource.resourceType};
     }
 
@@ -83,26 +101,6 @@ class ExportDialog extends React.Component {
         const fileName = resourceType.toLowerCase() + ".json";
         const blob = new Blob([jsonString], {type: "text/plain;charset=utf-8"});
         return saveAs(blob, fileName);
-    }
-
-    handleUpdate(e) {
-        e.preventDefault();
-        const resid = $("#resource_id").val();
-        const posturl = `/fhir/fhir/${$("#resource_type").val()}/${resid}`;
-        //postdata = JSON.stringify( { "resource-create-body": jsonString, "resource-create-id": resid } )
-        const {jsonString, resourceType} = this.buildJson();
-        return $.ajax(posturl, {
-            type: "PUT",
-            //dataType: 'json'
-            contentType: "application/json+fhir",
-            data: jsonString,
-            error(jqXHR, textStatus, errorThrown) {
-                return $("body").append(`AJAX Error: ${textStatus}`);
-            },
-            success(data, textStatus, jqXHR) {
-                return $("body").append(`Successful AJAX call: ${data}`);
-            }
-        });
     }
 
     //help the user with a select all if they hit the
@@ -178,15 +176,7 @@ class ExportDialog extends React.Component {
                     <button
                         className="btn btn-default"
                         onClick={this.handleDownload.bind(this)}
-                    >{`\
-\t\t\t\t\tDownload\
-`}</button>
-                    <button
-                        className="btn btn-default"
-                        onClick={this.handleUpdate.bind(this)}
-                    >{`\
-\t\t\t\t\tUpdate\
-`}</button>
+                    >Download</button>
                 </Modal.Footer>
             </Modal>
         );
