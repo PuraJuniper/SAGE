@@ -74,13 +74,13 @@ export class MedicationRequestForm implements ICardForm {
 
     dropdownFields = new Map<string, string[]>([
         ['status',
-            ['active', 'on-hold', 'cancelled', 'completed', 'entered-in-error', 'stopped', 'draft', 'unknown']],
+            ['','active', 'on-hold', 'cancelled', 'completed', 'entered-in-error', 'stopped', 'draft', 'unknown']],
         ['intent',
-            ['proposal', 'plan', 'order', 'original-order', 'reflex-order', 'filler-order', 'instance-order', 'option']],
+            ['','proposal', 'plan', 'order', 'original-order', 'reflex-order', 'filler-order', 'instance-order', 'option']],
         ['productReference',
-            ['proposal', 'plan', 'order', 'original-order', 'reflex-order', 'filler-order', 'instance-order', 'option']],
+            ['','proposal', 'plan', 'order', 'original-order', 'reflex-order', 'filler-order', 'instance-order', 'option']],
         ['periodUnit',
-            ['s', 'min', 'h', 'd', 'wk', 'mo', 'a']],
+            ['','s', 'min', 'h', 'd', 'wk', 'mo', 'a']],
         ['type',
             ['documentation', 'justification', 'citation', 'predecessor', 'successor', 'derived-from', 'depends-on', 'composed-of']]
     ]);

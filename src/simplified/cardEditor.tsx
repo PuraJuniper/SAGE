@@ -121,7 +121,7 @@ const createDropdownElement = (fieldKey: string, fieldFriendlyName: string, fiel
                         <Form.Control
                             key={fieldName + "formControl"}
                             as="select"
-                            defaultValue={fieldContents}
+                            defaultValue= ''
                             onChange={(e) => setField(e.currentTarget.value)}
                         >
                             {fieldElements.map(sType => {
