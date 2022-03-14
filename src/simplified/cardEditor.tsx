@@ -111,7 +111,7 @@ const createTextBoxElement = (fieldKey: string, friendlyFieldName: string, textP
 const createDropdownElement = (fieldKey: string, fieldFriendlyName: string, fieldElements: string[], fieldHandlers: any[][], node: SageNodeInitializedFreezerNode): JSX.Element => {
     const [fieldName, fieldContents, setField, fieldSaveHandler] = simpleCardField(fieldKey, node);
     fieldHandlers.push([fieldName, fieldContents, setField, fieldSaveHandler]);
-    console.log(fieldContents)
+    let isInvalid;
     return (
         <Form.Group key={fieldName + "-fromGroup"} as={Col} controlId={fieldKey}>
             <Row className="page1-row-element">
@@ -123,9 +123,14 @@ const createDropdownElement = (fieldKey: string, fieldFriendlyName: string, fiel
                             as="select"
                             defaultValue= ''
                             onChange={(e) => setField(e.currentTarget.value)}
+                            required = {true}
+                            disabled = {(fieldName == "type") ? true : false}
                         >
-                            {fieldElements.map(sType => {
-                                return <option key={fieldKey + "-" + sType} value={sType}>{sType}</option>;
+                            {fieldElements.map((sType, index) => {
+                                return ( index == 0 ?  
+                                <option key={fieldKey + "-" + sType} value={''} disabled selected> {'--Please Select an Option--'} </option>
+                                :  
+                                <option key={fieldKey + "-" + sType} value={sType}>{sType}</option>)
                             })}
                         </Form.Control>
                     </InputGroup>
