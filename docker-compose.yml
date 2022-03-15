@@ -1,0 +1,14 @@
+version: "3.9"
+services:
+  node:
+    image: sage:node-app
+    entrypoint: npm run start
+    expose:
+      - 8083
+    ports:
+      - '8083:8083'
+    env_file:
+      - .env
+    volumes:
+      - .:/srv
+    working_dir: /srv

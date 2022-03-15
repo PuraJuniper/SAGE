@@ -1,0 +1,9 @@
+version: '3.7'
+services:
+
+  node-worker:
+    image: sage:node-app
+    volumes:
+      - .:/srv
+    working_dir: /srv
+

@@ -1,7 +1,7 @@
 node_modules
 .DS_Store
 .idea/
-node/
+./node/
 target/
 bundle.js
 editor.iml
@@ -9,3 +9,4 @@ editor.iml
 .project
 .classpath
 .firebase
+.env
