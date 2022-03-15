@@ -10,6 +10,7 @@ import { useRef } from "react";
 interface QuestionnaireEditorProps {
     planDefNode: SageNodeInitializedFreezerNode,
     questionnareNode: SageNodeInitializedFreezerNode,
+    handleDeleteResource: () => void,
 }
 
 export const QuestionnaireEditor = (props: QuestionnaireEditorProps) => {
@@ -36,10 +37,7 @@ export const QuestionnaireEditor = (props: QuestionnaireEditorProps) => {
         <div>
             <button className="navigate-reverse col-lg-2 col-md-3"
                 onClick={() => {
-                    const curBundlePos = State.get().bundle.pos;
-                    State.emit("remove_from_bundle", curBundlePos + 1);
-                    State.emit("remove_from_bundle", curBundlePos); 
-                    State.get().set("ui", {status:"cards"})
+                    props.handleDeleteResource();
                 }}
                 >
                 <FontAwesomeIcon icon={faCaretLeft} />

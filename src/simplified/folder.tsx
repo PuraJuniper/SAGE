@@ -106,9 +106,11 @@ export const Folder = (props: FolderProps) => {
                 onClick={(e) => {
                     e.stopPropagation();
                     if (props.refIndex !== null) {
-                        State.emit("remove_from_bundle", props.refIndex);
+                        State.emit("remove_from_bundle", props.pdIndex, props.refIndex);
                     }
-                    State.emit("remove_from_bundle", props.pdIndex); 
+                    else {
+                        State.emit("remove_from_bundle", props.pdIndex);
+                    }
                     State.get().set("ui", {status:"collection"})
                 }}
             />

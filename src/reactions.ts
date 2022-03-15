@@ -363,28 +363,11 @@ State.on('save_changes_to_bundle_json', function() {
 });
 
 
-State.on("remove_from_bundle", function(deleteAt = -1) {
-	let decorated;
-	const state = State.get();
-	let {
-        pos
-    } = state.bundle;
-	if (deleteAt >= 0) pos = deleteAt;
-	let newPos = pos+1;
-	if (newPos === state.bundle.resources.length) {
-		pos = (newPos = state.bundle.pos-1);
-	}
-
-	// if (!(decorated = decorateResource(state.bundle.resources[newPos], state.profiles))) {
-	// 	return State.emit("set_ui", "resource_load_error");
-	// }
-	
-	State.get().pivot()
-		// .set("resource", decorated)
-		.bundle.resources.splice(deleteAt >= 0 ? deleteAt : state.bundle.pos, 1)
-		.bundle.set("pos", pos);
-	
-	
+State.on("remove_from_bundle", function(...deleteAt) {
+	State.get().bundle.set({
+		resources: State.get().bundle.resources.filter((v, i) => !(i in deleteAt)),
+		pos: Math.max(0, State.get().bundle.pos - deleteAt.length),
+	});
 
 	return State.get().set("ui", {status: "ready"});
 });

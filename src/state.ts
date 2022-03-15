@@ -71,7 +71,7 @@ export interface SageReactions {
 	"load_json_resource": (json: any, isCPG?: boolean) => unknown;
 	"set_bundle_pos": (newPos: number) => unknown;
 	"save_changes_to_bundle_json": () => unknown;
-	"remove_from_bundle": (deleteAt: number) => unknown;
+	"remove_from_bundle": (...deleteAt: number[]) => unknown;
 	"show_open_contained": (node: SageNode) => unknown;
 	"show_open_insert": () => unknown;
 	"show_open_questionnaire": () => unknown;

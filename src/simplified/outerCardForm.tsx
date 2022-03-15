@@ -37,6 +37,7 @@ export type CardFormProps = {
     generateNewCondition: () => EditableStateForCondition,
     innerCardForm: ICardForm,
     handleSaveResource: ()=> void,
+    handleDeleteResource: () => void,
 }
 export class OuterCardForm extends React.Component<CardFormProps, CardFormState>{
     sageState: any;
@@ -64,10 +65,8 @@ export class OuterCardForm extends React.Component<CardFormProps, CardFormState>
         this.deleteCardButton =
             <button key="butDel" type='button' className="navigate col-lg-2 col-md-3"
                 onClick={() => {
-                    State.emit("remove_from_bundle", State.get().bundle.pos + 1);
-                    State.emit("remove_from_bundle", State.get().bundle.pos);
-                    State.get().set("ui", { status: "cards" });
-                    this.resetForm();
+                    this.setState({ step: 1 });
+                    this.props.handleDeleteResource();
                 }}>
                 Cancel
             </button>;
@@ -100,9 +99,6 @@ export class OuterCardForm extends React.Component<CardFormProps, CardFormState>
                 {<> {"Next "} <FontAwesomeIcon icon={faCaretRight} /></>}
             </button>);
     }
-
-    resetForm = () => { this.setState({ step: 1 }) }
-
 
     render() {
         const PageOne = this.props.innerCardForm.pageOne; // Variable name case matters (https://reactjs.org/docs/jsx-in-depth.html#choosing-the-type-at-runtime)

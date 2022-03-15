@@ -52,7 +52,6 @@ export const BaseCard = (props: BaseCardProps) => {
                 if (e.target instanceof Element && e.target.tagName !== "svg" && e.target.tagName !== "path" && props.clickable) {
                     setShow(false);
                     if (State.get().bundle?.resources.length) {
-                        State.emit("save_changes_to_bundle_json");
                         State.get().bundle.set("pos", State.get().bundle.resources.length-1);
                         State.get().ui.set("openMode", "insert");
                     }

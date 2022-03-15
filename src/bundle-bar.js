@@ -58,13 +58,13 @@ class BundleBar extends React.Component {
 
     handleRemove(e) {
         e.preventDefault();
-        return State.emit("remove_from_bundle");
+        return State.emit("remove_from_bundle", this.props.bundle.pos);
     }
 
     clicked(e) {
         if(confirm('Are you sure you want to remove this resource from bundle?')) {
             e.preventDefault();
-            return State.emit("remove_from_bundle");
+            return State.emit("remove_from_bundle", this.props.bundle.pos);
         }
     }
 
