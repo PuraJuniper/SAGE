@@ -118,10 +118,7 @@ const createDropdownElement = (fieldKey: string, fieldFriendlyName: string, fiel
     //console.log(document.getElementsByClassName('form-control')[8].value)
     //console.log(document.getElementById('resource').value)
     function checkIfActive(fieldName: string){
-        if (fieldName == "type"){
-            return (relatedArtifactIsValid == true ? false : true)
-        }
-        return false
+        return (fieldName == "type") ?  (relatedArtifactIsValid == true ? false : true) :false
     }
     return (
         <Form.Group key={fieldName + "-fromGroup"} as={Col} controlId={fieldKey}>
