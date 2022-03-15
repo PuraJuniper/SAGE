@@ -64,6 +64,8 @@ const simpleCardField = (fieldName: string, actNode: SageNodeInitializedFreezerN
     return [fieldName, fieldContents, setField, fieldSaveHandler]
 }
 
+let relatedArtifactIsValid: boolean;
+
 const createTextBoxElement = (fieldKey: string, friendlyFieldName: string, textProps: textBoxProps, fieldHandlers: any[][], node: SageNodeInitializedFreezerNode): JSX.Element => {
     const [fieldName, fieldContents, setField, fieldSaveHandler] = simpleCardField(fieldKey, node);
     function validURL(urlInput: string) {
@@ -73,6 +75,7 @@ const createTextBoxElement = (fieldKey: string, friendlyFieldName: string, textP
           '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+ // port and path
           '(\\?[;&a-z\\d%_.~+=-]*)?'+ // query string
           '(\\#[-a-z\\d_]*)?$','i'); // fragment locator
+        relatedArtifactIsValid = !!pattern.test(urlInput);
         return !!pattern.test(urlInput);
     }
 
@@ -80,7 +83,7 @@ const createTextBoxElement = (fieldKey: string, friendlyFieldName: string, textP
         if (textProps.isLink) {
             return <Button key={fieldName + "-button"} variant="link" onClick={() => window.open(fieldContents)}>{fieldContents}</Button>;
         } else {
-            return <Form.Control key={fieldName + "-formControl"} className= {(fieldName == "resource") ? (((fieldContents == "")||validURL(fieldContents)) ? "" : "is-invalid") : ""}
+            return <Form.Control key={fieldName + "-formControl"} className= {(fieldName == "resource") ? (((fieldContents == "")||validURL(fieldContents)) ? "" : "is-invalid") : "required"}
                 {...{
                     ...(textProps.isReadOnly) && { readOnly: textProps.isReadOnly },
                     ...(textProps.boxSize) > 1 && { as: "textarea" as ElementType<any>, rows: textProps.boxSize },
@@ -112,6 +115,14 @@ const createDropdownElement = (fieldKey: string, fieldFriendlyName: string, fiel
     const [fieldName, fieldContents, setField, fieldSaveHandler] = simpleCardField(fieldKey, node);
     fieldHandlers.push([fieldName, fieldContents, setField, fieldSaveHandler]);
     let isInvalid;
+    //console.log(document.getElementsByClassName('form-control')[8].value)
+    //console.log(document.getElementById('resource').value)
+    function checkIfActive(fieldName: string){
+        if (fieldName == "type"){
+            return (relatedArtifactIsValid == true ? false : true)
+        }
+        return false
+    }
     return (
         <Form.Group key={fieldName + "-fromGroup"} as={Col} controlId={fieldKey}>
             <Row className="page1-row-element">
@@ -121,16 +132,14 @@ const createDropdownElement = (fieldKey: string, fieldFriendlyName: string, fiel
                         <Form.Control
                             key={fieldName + "formControl"}
                             as="select"
-                            defaultValue= ''
+                            defaultValue = {fieldContents}
                             onChange={(e) => setField(e.currentTarget.value)}
                             required = {true}
-                            disabled = {(fieldName == "type") ? true : false}
+                            disabled = {checkIfActive(fieldName)}
                         >
+                            <option hidden disabled value=''>{'--Please Select an Option--'}</option>
                             {fieldElements.map((sType, index) => {
-                                return ( index == 0 ?  
-                                <option key={fieldKey + "-" + sType} value={''} disabled selected> {'--Please Select an Option--'} </option>
-                                :  
-                                <option key={fieldKey + "-" + sType} value={sType}>{sType}</option>)
+                                return <option key={fieldKey + "-" + sType} value={sType}>{sType}</option>;
                             })}
                         </Form.Control>
                     </InputGroup>
