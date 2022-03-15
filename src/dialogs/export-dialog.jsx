@@ -53,15 +53,24 @@ class ExportDialog extends React.Component {
         // Convert all resources to FHIR JSON
         const resourcesJson = [];
         const urlsInBundle = []; // All URLs being exported
-        const referencedLibraries = {}; // All Library URLs that are referenced
+        const referencedLibraries = {}; // All Library URLs that are referenced by a resource
         for (const resource of this.props.bundle.resources) {
             const resourceAsFhirJson = SchemaUtils.toFhir(resource, false);
             if (resourceAsFhirJson.url) {
                 urlsInBundle.push(resourceAsFhirJson.url);
             }
             if (resourceAsFhirJson.library) {
-                for (const libUrl of resourceAsFhirJson.library) {
-                    referencedLibraries[libUrl] = true;
+                if (Array.isArray(resourceAsFhirJson.library)) {
+                    for (const libUrl of resourceAsFhirJson.library) {
+                        if (libUrl) {
+                            referencedLibraries[libUrl] = true;
+                        }
+                    }
+                }
+                else {
+                    if (resourceAsFhirJson.library) {
+                        referencedLibraries[resourceAsFhirJson.library] = true;
+                    }
                 }
             }
             resourcesJson.push(resourceAsFhirJson);
@@ -73,10 +82,18 @@ class ExportDialog extends React.Component {
             if (!urlsInBundle.find((v) => v == libUrl)) {
                 // Must add Library with url `libUrl` to exported Bundle
                 let found = false;
-                for (const libId of Object.keys(libraryStore)) {
-                    if (libraryStore[libId].url == libUrl) {
-                        resourcesJson.push(libraryStore[libId].fhirLibrary);
-                        found = true;
+                const generatedLibs = State.get().simplified.generatedLibraries.toJS();
+                const libToAdd = Object.keys(generatedLibs).find(v => v === libUrl)
+                if (libToAdd !== undefined) {
+                    resourcesJson.push(generatedLibs[libToAdd].fhirLibrary);
+                    found = true;
+                }
+                if (!found) {
+                    for (const libId of Object.keys(libraryStore)) {
+                        if (libraryStore[libId].url == libUrl) {
+                            resourcesJson.push(libraryStore[libId].fhirLibrary);
+                            found = true;
+                        }
                     }
                 }
                 if (!found) {

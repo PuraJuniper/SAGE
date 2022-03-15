@@ -7,7 +7,8 @@ import { CardEditor } from "./cardEditor";
 import { QuestionnaireEditor } from "./questionnaireEditor/questionnaireEditor";
 
 interface PlanDefEditorProps {
-    planDefNode: SageNodeInitializedFreezerNode
+    planDefNode: SageNodeInitializedFreezerNode,
+    planDefPos: number,
 }
 
 export const PlanDefEditor = (props: PlanDefEditorProps) => {
@@ -18,6 +19,16 @@ export const PlanDefEditor = (props: PlanDefEditorProps) => {
             node: linkedResourceNode,
             pos: linkedResourcePos
         } = SchemaUtils.findFirstSageNodeByUri(State.get().bundle.resources, referencedURI);
+
+        function handleDeleteResource() {
+            if (linkedResourcePos !== null) {
+                State.emit("remove_from_bundle", props.planDefPos, linkedResourcePos);
+            }
+            else {
+                State.emit("remove_from_bundle", props.planDefPos);
+            }
+            State.get().set("ui", { status: "cards" });
+        }
         
         switch (linkedResourceNode?.schemaPath) {
             case undefined:
@@ -31,9 +42,9 @@ export const PlanDefEditor = (props: PlanDefEditorProps) => {
                     </div>
                 );
             case ACTIVITY_DEFINITION:
-                return <CardEditor actNode={linkedResourceNode} planNode={props.planDefNode}/>
+                return <CardEditor actNode={linkedResourceNode} planNode={props.planDefNode} handleDeleteResource={handleDeleteResource}/>
             case QUESTIONNAIRE:
-                return <QuestionnaireEditor planDefNode={props.planDefNode} questionnareNode={linkedResourceNode} />
+                return <QuestionnaireEditor planDefNode={props.planDefNode} questionnareNode={linkedResourceNode} handleDeleteResource={handleDeleteResource} />
             default:
                 return (
                     <div>        

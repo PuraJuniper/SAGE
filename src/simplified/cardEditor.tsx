@@ -1,5 +1,5 @@
 import * as cql from "cql-execution";
-import { Dosage, Library, PlanDefinitionActionCondition } from "fhir/r4";
+import { Library, Dosage, PlanDefinition, PlanDefinitionActionCondition } from "fhir/r4";
 import { ExtractTypeOfFN } from "freezer-js";
 import React, { ElementType, useEffect, useState } from "react";
 import { Button, Col, Form, InputGroup, Modal, Row } from 'react-bootstrap';
@@ -8,8 +8,11 @@ import * as SageUtils from "../helpers/sage-utils";
 import * as SchemaUtils from "../helpers/schema-utils";
 import State, { SageNodeInitializedFreezerNode } from "../state";
 import { OuterCardForm, textBoxProps, cardLayout } from "./outerCardForm";
-import { ACTIVITY_DEFINITION, allFormElems, convertFormElementToObject, formElemtoResourceProp, FriendlyResourceFormElement, FriendlyResourceProps, getFormElementListForResource, profileToFriendlyResourceListEntry } from "./nameHelpers";
-import { MedicationRequestForm } from "./medicationRequestForm";
+import { ACTIVITY_DEFINITION, allFormElems, convertFormElementToObject, formElemtoResourceProp, FriendlyResourceFormElement, FriendlyResourceProps, getFormElementListForResource, PLAN_DEFINITION, profileToFriendlyResourceListEntry } from "./nameHelpers";
+import { MedicationRequestForm, SageCondition } from "./medicationRequestForm";
+import { buildEditableStateFromCondition, WizardState } from "./cql-wizard/wizardLogic";
+import { generateCqlFromConditions, makeCQLtoELMRequest } from "./cql-wizard/cql-generator";
+import { buildFredId } from "../helpers/bundle-utils";
 
 
 
@@ -21,6 +24,7 @@ interface ExpressionOptionDict {
 interface CardEditorProps {
     actNode: SageNodeInitializedFreezerNode,
     planNode: SageNodeInitializedFreezerNode,
+    handleDeleteResource: () => void,
 }
 interface ExpressionOption {
     expressionInLibrary: string,
@@ -33,7 +37,9 @@ export interface pageOneProps {
 }
 
 export interface pageTwoProps {
-    conditions: PlanDefinitionActionCondition[],
+    draftConditions: EditableStateForCondition[],
+    persistEditedCondition: (newConditionState: EditableStateForCondition) => void,
+    generateNewCondition: () => EditableStateForCondition,
 }
 export interface pageThreeProps {
     displayElements: JSX.Element[],
@@ -183,50 +189,119 @@ const fieldElementListForType = (innerCardForm: ICardForm, friendlyFields: Frien
     ]
 }
 
-const conditionCardField = (planNode: SageNodeInitializedFreezerNode) => {
-    const [condition, setCondition] = CardPDActionConditionStateEditor(planNode);
-    function conditionSaveHandler(name: string, contents: any, act: any, plan: any) {
-        const conditionNode = SchemaUtils.getChildOfNodePath(plan, ["action", name]);
-        if (conditionNode) {
-            const conditionNodes = SchemaUtils.getChildrenFromObjectArrayNode(conditionNode);
-            State.emit("load_json_into", conditionNodes[0], condition);
-        }
+// Returns a new inner card form instance for the given resource type
+function actTypeToICardForm(actResourceType: FriendlyResourceProps) {
+    switch (actResourceType.FHIR) {
+        case "MedicationRequest":
+            return new MedicationRequestForm(actResourceType)
+
+        default: 
+            return new MedicationRequestForm(actResourceType)
     }
-    return ["condition", condition, setCondition, conditionSaveHandler]
 }
 
+// Returns the resource type of the given SageNode
+function getResourceType(actNode: SageNodeInitializedFreezerNode): FriendlyResourceProps {
+    const resourceProfile = (): string => {
+        const fhirResource = SchemaUtils.toFhir(actNode, false);
+        const meta = fhirResource ? fhirResource.meta : undefined;
+        const profile = meta ? meta.profile : undefined;
+        return profile ? profile[0] : "";
+    };
+    return formElemtoResourceProp(profileToFriendlyResourceListEntry(resourceProfile()));
+}
+
+/**
+ * Types required for the condition editor
+ */
+export enum AggregateType {
+    Exists = "exists",
+    DoesNotExist = "doesNotExist",
+    AtLeast = "atLeast",
+    NoMoreThan = "noMoreThan"
+}
+export interface WizExprAggregate {
+    aggregate: AggregateType,
+    count?: number,
+}
+// An editable state for the Condition with id `conditionId`
+export interface EditableStateForCondition {
+    curWizState: WizardState | null,
+    exprAggregate: WizExprAggregate,
+    conditionId: string,
+}
+
+/**
+ * This component reads data from and creates callbacks to write data into the given resource nodes
+ * The callbacks and data are passed to the generic ActivityDefinition editor component (OuterCardForm)
+ * @param props: A PlanDefinition node and an ActivityDefinition node
+ * @returns An OuterCardForm for the given PD+AD
+ */
 export const CardEditor = (props: CardEditorProps) => {
     const actNode = props.actNode;
     const planNode = props.planNode;
-    function getResourceType(): FriendlyResourceProps {
-        const resourceProfile = (): string => {
-            if (actNode) {
-                const fhirResource = SchemaUtils.toFhir(actNode, false);
-                const meta = fhirResource ? fhirResource.meta : undefined;
-                const profile = meta ? meta.profile : undefined;
-                return profile ? profile[0] : "";
-            } else {
-                return "";
-            }
-        };
-        return formElemtoResourceProp(profileToFriendlyResourceListEntry(resourceProfile()));
-    }
-    const actResourceType = getResourceType();
     const fieldHandlers: any[][] = [];
-    const getInnerCardForm: () => ICardForm = () => {
-        switch (actResourceType.FHIR) {
-            case "MedicationRequest":
-                return new MedicationRequestForm(actResourceType)
 
-            default:
-                return new MedicationRequestForm(actResourceType)
-        }
+    /**
+     * Derive the resource type and ICardForm based on props.actNode to pass down to the OuterCardForm
+     * Note: setState and useEffect are used here because a new Object and ICardForm instance is created 
+     *  by each getResourceType() and actTypeToICardForm() call respectively, so we must only derive them
+     *  conditionally to avoid causing OuterCardForm to re-render unconditionally
+     */
+    const [actResourceType, setActResourceType] = useState<FriendlyResourceProps>(() => getResourceType(actNode));
+    const [innerCardForm, setInnerCardForm] = useState<ICardForm>(() => actTypeToICardForm(actResourceType));
+    useEffect(() => {
+        const newActResourceType = getResourceType(actNode);
+        setActResourceType(newActResourceType);
+        setInnerCardForm(actTypeToICardForm(newActResourceType));
+    }, [actNode])
+
+    /**
+     * Read PD conditions into a format editable by the condition editor
+     * All types of cards have identical requirements with respect to reading and writing conditions, 
+     *  so it's safe for this component to have complete ownership of the PD's condition edit state
+     */
+    const [draftConditions, setDraftConditions] = useState<EditableStateForCondition[]>(()=>{
+        // Read existing FHIR condition elements from plandefinition
+        const planNodeResource = SchemaUtils.toFhir(planNode, false) as PlanDefinition;
+        // Basic editor only supports a single action per PlanDefinition
+        const pdConditions: PlanDefinitionActionCondition[] = planNodeResource.action?.at(0)?.condition ?? [];
+
+        // Set ids for each condition, if one does not already exist
+        const pdSageConditions: SageCondition[] = pdConditions.map((v, i) => {
+            return {
+                ...v,
+                id: v.id ?? `index-${SchemaUtils.getNextId()}`, // Need some unique id
+            }
+        });
+
+        // Return each condition as a format compatible with the condition editor
+        return pdSageConditions.map(v=>buildEditableStateFromCondition(v))
+    });
+    /**
+     * Create callbacks for persisting edits to a condition and for generating a brand new condition
+     */
+    const persistEditedCondition = (newConditionState: EditableStateForCondition) => {
+        setDraftConditions(curEditableConditions => {
+            if (!curEditableConditions.some(v=>v.conditionId === newConditionState.conditionId)) {
+                // Condition is brand new, add to our draft conditions
+                return curEditableConditions.concat([newConditionState])
+            }
+            else {
+                // Condition already exists in drafts, so update its draft
+                return curEditableConditions.map(v => (v.conditionId !== newConditionState.conditionId) ? v : newConditionState)
+            }
+        });
     }
-
-    const innerCardForm = getInnerCardForm();
-
-    // Read existing conditions
-    const pdConditions: PlanDefinitionActionCondition[] = [];
+    const generateEditableCondition = (): EditableStateForCondition => { // Creating a new condition with default values
+        return {
+            curWizState: null,
+            exprAggregate: {
+                aggregate: AggregateType.Exists,
+            },
+            conditionId: `index-${SchemaUtils.getNextId()}`, // Need some unique id
+        };
+    }
 
     return (
         <div>
@@ -234,196 +309,128 @@ export const CardEditor = (props: CardEditorProps) => {
                 <OuterCardForm
                     sageNode={actNode}
                     fieldHandlers={fieldHandlers}
-                    pdConditions={pdConditions}
+                    draftConditions={draftConditions}
+                    persistEditedCondition={persistEditedCondition}
+                    generateNewCondition={generateEditableCondition}
                     resourceType={actResourceType}
                     elementList={fieldElementListForType(innerCardForm, getFormElementListForResource(innerCardForm.resourceType.FHIR), fieldHandlers, actNode)}
                     displayList={createDisplayElementList(fieldHandlers, actResourceType)}
                     innerCardForm={innerCardForm}
                     handleSaveResource={handleSaveResource}
+                    handleDeleteResource={props.handleDeleteResource}
                 />
             </div>
         </div>
     );
 
-    function handleSaveResource() {
+    /**
+     * Callback to write changes from the editor into the freezer-js state and return to the collection view
+     */
+    async function handleSaveResource() {
         fieldHandlers.forEach((field) => field[3](field[0], field[1], actNode, planNode));
+
+        /**
+         * Save conditions to PlanDefinition
+         * Drops any previously-existing conditions that could not be read by our condition editor
+         */
+        const newConditions: PlanDefinitionActionCondition[] = draftConditions.map(v => {
+            return {
+                id: v.conditionId,
+                expression: {
+                    language: "text/cql",
+                    expression: v.conditionId,
+                },
+                kind: "applicability"
+            }
+        });
+        // Save new conditions array under PlanDefinition.action.condition
+        const conditionNode = SchemaUtils.getChildOfNodePath(planNode, ["action", "condition"]);
+        if (conditionNode) {
+            State.emit("load_array_into", conditionNode, newConditions);
+        }
+        // Save Library URL (stored as an array in FHIR) under PlanDefinition.Library
+        const newLibraryUri = `http://somewhere.org/fhir/uv/mycontentig/Library/NEW-LIBRARY-GEN-${SchemaUtils.getNextId()}`;
+        const newLibraryId = buildFredId();
+        const newLibraryName = newLibraryUri;
+        const newLibraryVersion = '1';
+        const libraryNode = SchemaUtils.getChildOfNode(planNode, "library");
+        if (libraryNode?.nodeType === "valueArray") { // In the regular FHIR spec, library has a cardinality 0..* so it's a valueArray.
+            State.emit("load_array_into", libraryNode, [newLibraryUri]);
+        }
+        else if (libraryNode?.nodeType === "value") { // In the CPG spec, library has a cardinality of 0..1, so it's a value!
+            State.emit("value_change", libraryNode, newLibraryUri);
+        }
+        // Send off asynchronous request to generate library
+        State.get().simplified.generatedLibraries.set(newLibraryUri, {
+            isGenerating: true,
+            errorOccurred: false,
+            fhirLibrary: {
+                resourceType: "Library",
+                id: newLibraryId,
+                url: newLibraryUri,
+                name: newLibraryName,
+                status: "draft",
+                type: {
+                    coding: [{
+                        system: "http://terminology.hl7.org/CodeSystem/library-type",
+                        code: "logic-library",
+                        display: "Logic Library"
+                    }]
+                }
+            }
+        });
+        // Call CQL translation function asynchronously, saving to bundle when finalized
+        generateCqlFromConditions(draftConditions, newLibraryName, newLibraryVersion).then(async (cql) => {
+            if (cql === null) {
+                console.log(`Error generating ${newLibraryName} version ${newLibraryVersion}`);
+                State.get().simplified.generatedLibraries.newLibraryUri?.set("errorOccurred", true);
+                State.get().simplified.generatedLibraries.newLibraryUri?.set("isGenerating", false);
+                return;
+            }
+            const b64Elm = await makeCQLtoELMRequest(cql);
+            const libContent: Library['content'] = [];
+            if (b64Elm === null) {
+                State.get().simplified.generatedLibraries.newLibraryUri?.set("errorOccurred", true);
+                libContent.push({
+                    contentType: "application/cql",
+                    data: window.btoa(cql),
+                });
+            }
+            else {
+                libContent.push({
+                    contentType: "application/elm+json",
+                    data: b64Elm,
+                });
+            }
+            State.get().simplified.generatedLibraries.newLibraryUri?.set("isGenerating", false);
+            State.get().simplified.generatedLibraries.set(newLibraryUri, {
+                isGenerating: false,
+                errorOccurred: false,
+                fhirLibrary: {
+                    resourceType: "Library",
+                    url: newLibraryUri,
+                    name: newLibraryName,
+                    status: "active",
+                    type: {
+                        coding: [{
+                            system: "http://terminology.hl7.org/CodeSystem/library-type",
+                            code: "logic-library",
+                            display: "Logic Library"
+                        }]
+                    },
+                    content: libContent,
+                }
+            });
+        });
+
+        /**
+         * Finished saving resource, switch back to collection view
+         */
         State.get().set("ui", { status: "collection" });
     }
 
 }
 
-function ConditionDropdown(fieldList: any[][]) {
-    const conditionField = fieldList.find((field) => field[0] == "condition") ?? ["", "", () => { return undefined }];
-    const libraryField = fieldList.find((field) => field[0] == "library") ?? ["", "", () => { return undefined }];
-    const [expressionOptions, setExpressionOptions] = useState<ExpressionOptionDict>({});
-    const [FhirLibraryStr, setFhirLibraryStr] = useState<string>();
-    const [showLibraryImportModal, setShowLibraryImportModal] = useState<boolean>(false);
-
-    // Initialization
-    InitializeLibraries(setExpressionOptions);
-
-    return (
-        <>
-            {libraryModalElement(showLibraryImportModal, setShowLibraryImportModal, setFhirLibraryStr, () => handleImportLibrary(FhirLibraryStr))}
-            <Row className="mb-2">
-                <Form.Group as={Col} controlId="condition">
-                    <Form.Label>Condition</Form.Label>
-                    <InputGroup className="mb-3">
-                        <Form.Control as="select"
-                            onChange={(e) => {
-                                if (e.currentTarget.value == '') {
-                                    conditionField[2](buildConditionFromSelection());
-                                    libraryField[2]("");
-                                }
-                                else if (e.currentTarget.value == '[[import library]]') {
-                                    setShowLibraryImportModal(true);
-                                    conditionField[2](buildConditionFromSelection());
-                                    libraryField[2]("");
-                                }
-                                else {
-                                    conditionField[2](buildConditionFromSelection(e.currentTarget.value));
-                                    libraryField[2](expressionOptions[e.currentTarget.value].libraryUrl);
-                                }
-                            }}
-                            value={conditionField[1].expression?.expression}
-                        >
-                            <option key="" value="">None</option>
-                            {Object.keys(expressionOptions).map((v) => {
-                                const exprOption = expressionOptions[v];
-                                return <option key={v} value={v}>{`${exprOption.expressionInLibrary} (${exprOption.libraryIdentifier})`}</option>;
-                            })}
-                            <option key="[[import library]]" value="[[import library]]">Import condition from FHIR Library...</option>
-                        </Form.Control>
-                    </InputGroup>
-                </Form.Group>
-            </Row>
-        </>
-    )
-}
-
-const buildConditionFromSelection = (expression?: string): PlanDefinitionActionCondition => {
-    let insertedExpression = "";
-    if (expression) {
-        insertedExpression = expression;
-    }
-    return {
-        expression: {
-            language: 'text/cql',
-            expression: insertedExpression
-        },
-        kind: 'applicability'
-    };
-}
-
-function CardPDActionConditionStateEditor(planNode: SageNodeInitializedFreezerNode): [any, any] {
-    return useState<PlanDefinitionActionCondition>(() => {
-        return buildConditionFromSelection(SchemaUtils.getChildOfNodePath(planNode, ["action", "condition", "expression", "expression"])?.value);
-    });
-}
-
 function CardStateEditor<T>(node: SageNodeInitializedFreezerNode, resourceName: string): [any, any] {
     return useState<T>(SchemaUtils.getChildOfNode(node, resourceName)?.value || "");
-}
-
-function handleImportLibrary(FhirLibrary?: string) {
-    if (FhirLibrary) {
-        try {
-            const parsedFhir = JSON.parse(FhirLibrary);
-            const newLib = SageUtils.getCqlExecutionLibraryFromInputLibraryResource(parsedFhir);
-            if (newLib) {
-                State.emit("load_library", newLib.library, newLib.url, parsedFhir);
-            }
-        }
-        catch (err) {
-            console.log("Could not parse FHIR Library as JSON object");
-            return;
-        }
-    }
-}
-
-function InitializeLibraries(setExpressionOptions: { (value: React.SetStateAction<ExpressionOptionDict>): void; (arg0: ExpressionOptionDict): void; }) {
-    useEffect(
-        () => {
-            const initialLibraries = State.get().simplified.libraries;
-            const librariesListener = initialLibraries.getListener();
-            const updateCB = function (libraries: ExtractTypeOfFN<typeof initialLibraries>) {
-                setLibraries(Object.keys(libraries).map((v) => {
-                    return {
-                        library: libraries[v].library,
-                        url: libraries[v].url
-                    };
-                }));
-            };
-            librariesListener.on("update", updateCB);
-            const newLib = SageUtils.getCqlExecutionLibraryFromInputLibraryResource(hypertensionLibrary);
-            if (newLib) {
-                State.emit("load_library", newLib.library, newLib.url, hypertensionLibrary);
-            }
-            return () => {
-                librariesListener.off("update", updateCB);
-            };
-        },
-        []
-    );
-
-    const getExpressionOptionsFromLibraries = (libraries: { library: cql.Library, url: string }[]) => {
-        const foundOptions: ExpressionOptionDict = {};
-        for (const library of libraries) {
-            for (const expressionKey of Object.keys(library.library.expressions)) {
-                const libId = library.library.source.library.identifier.id;
-                foundOptions[`${libId}.${expressionKey}`] = {
-                    expressionInLibrary: expressionKey,
-                    libraryIdentifier: libId,
-                    libraryUrl: library.url
-                };
-            }
-        }
-        return foundOptions;
-    }
-
-    const [libraries, setLibraries] = useState<{ library: cql.Library, url: string }[]>([]);
-    useEffect(
-        () => {
-            setExpressionOptions(getExpressionOptionsFromLibraries(libraries));
-            return;
-        },
-        [libraries, setExpressionOptions],
-    );
-}
-
-function libraryModalElement(showLibraryImportModal: boolean, setShowLibraryImportModal: React.Dispatch<React.SetStateAction<boolean>>, setFhirLibraryStr: React.Dispatch<any>, handleImportLibrary: () => void) {
-    return <>
-        <Modal show={showLibraryImportModal} onHide={() => setShowLibraryImportModal(false)}
-            centered
-        >
-            <Modal.Header closeButton>
-                <Modal.Title>Import Library</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-                Paste in the FHIR Library Resource that contains the condition you wish to use below:
-                <Form className="signup-form">
-                    <Form.Group>
-                        <Form.Control as="textarea" rows={14} wrap="hard"
-                            className="name-input" type="text" placeholder="FHIR Library" name="FHIR Library"
-                            autoComplete="off"
-                            onChange={(e) => setFhirLibraryStr(e.currentTarget.value)} />
-                    </Form.Group>
-                </Form>
-                <i>Please note that any dependencies of the pasted FHIR Library will not be automatically resolved or added to the final Bundle.</i>
-            </Modal.Body>
-            <Modal.Footer>
-                <Button variant="secondary" onClick={() => setShowLibraryImportModal(false)}>
-                    Close
-                </Button>
-                <Button variant="primary"
-                    onClick={() => {
-                        handleImportLibrary();
-                        setShowLibraryImportModal(false);
-                    }}
-                >
-                    Import
-                </Button>
-            </Modal.Footer>
-        </Modal>
-    </>;
 }

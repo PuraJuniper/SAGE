@@ -147,6 +147,10 @@ State.on("set_profiles", json => State.get().set({
     valuesets: {
 		...State.get().valuesets,
 		...json.valuesets,
+	},
+	codesystems: {
+		...State.get().codesystems,
+		...json.codesystems,
 	}
 }));
 
@@ -269,15 +273,22 @@ const bundleInsert = function(json: Resource | Bundle, isBundle?: boolean) {
 	}
 };
 
+// Some functionality from fred that we're not using atm
 const replaceContained = function(json: Resource) {
 	let decorated;
+	const replaceId = State.get().ui.replaceId;
+	if (replaceId === undefined) {
+		console.log("error: replaceContained called with undefined ui.replaceId");
+		return false;
+	}
 	if ((decorated = decorateResource(json, State.get().profiles))) {		
-		const {parentNode, childIdx} = getParentById(State.get().ui.replaceId);
+		const {parentNode, childIdx} = getParentById(replaceId);
 		if (parentNode) {
 			parentNode.children.splice(childIdx, 1, decorated);
 		}
 		return true;
 	}
+	return false;
 };
 
 const isBundleAndRootId = (node: SageNodeInitialized, parent: SageNodeInitialized) => (node.fhirType === "id") && State.get().bundle &&
@@ -352,28 +363,11 @@ State.on('save_changes_to_bundle_json', function() {
 });
 
 
-State.on("remove_from_bundle", function(deleteAt = -1) {
-	let decorated;
-	const state = State.get();
-	let {
-        pos
-    } = state.bundle;
-	if (deleteAt >= 0) pos = deleteAt;
-	let newPos = pos+1;
-	if (newPos === state.bundle.resources.length) {
-		pos = (newPos = state.bundle.pos-1);
-	}
-
-	// if (!(decorated = decorateResource(state.bundle.resources[newPos], state.profiles))) {
-	// 	return State.emit("set_ui", "resource_load_error");
-	// }
-	
-	State.get().pivot()
-		// .set("resource", decorated)
-		.bundle.resources.splice(deleteAt >= 0 ? deleteAt : state.bundle.pos, 1)
-		.bundle.set("pos", pos);
-	
-	
+State.on("remove_from_bundle", function(...deleteAt) {
+	State.get().bundle.set({
+		resources: State.get().bundle.resources.filter((v, i) => !(i in deleteAt)),
+		pos: Math.max(0, State.get().bundle.pos - deleteAt.length),
+	});
 
 	return State.get().set("ui", {status: "ready"});
 });
@@ -486,18 +480,10 @@ State.on("start_edit", function (node) {
 	}
 });
 
-const getResourceType = function(node: SageNodeInitialized) {
-	for (const child of node.children) {
-		if (child.name === "resourceType") {
-			return child.value;
-		}
-	}
-};
-
 const showReferenceWarning = function(node: SageNodeInitialized, parent: SageNodeInitialized, fredId?: string) {
 	const prevId = node.ui.prevState.value;
 	const currentId = fredId || node.value;
-	const resourceType = getResourceType(parent);
+	const resourceType = SchemaUtils.getResourceType(parent);
 	const prevRef = `${resourceType}/${prevId}`;
 	const newRef = `${resourceType}/${currentId}`;
 	console.log("showReferenceWarning", prevRef, newRef);
@@ -749,6 +735,15 @@ State.on("change_profile", function(nodeToChange, newProfile) {
 State.on("load_json_into", function(nodeToWriteTo, json) {
 	console.log('loading ', json, ' into ', nodeToWriteTo);
 	const newChildren = SchemaUtils.createChildrenFromJson(State.get().profiles, nodeToWriteTo, json);
+	console.log(newChildren);
+	nodeToWriteTo.set({
+		children: newChildren
+	});
+});
+
+State.on("load_array_into", function(nodeToWriteTo, jsonArray) {
+	console.log('loading ', jsonArray, ' into ', nodeToWriteTo);
+	const newChildren = SchemaUtils.createChildrenFromArray(State.get().profiles, nodeToWriteTo, jsonArray);
 	console.log(newChildren);
 	nodeToWriteTo.set({
 		children: newChildren

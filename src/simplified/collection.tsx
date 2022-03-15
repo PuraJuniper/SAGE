@@ -6,6 +6,7 @@ import * as SchemaUtils from "../helpers/schema-utils"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faDownload, faCaretLeft } from '@fortawesome/pro-solid-svg-icons';
 import { SageNodeInitialized } from "../helpers/schema-utils";
+import { PLAN_DEFINITION } from "./nameHelpers";
 
 
 const Collection = () => {
@@ -29,30 +30,65 @@ const Collection = () => {
             </div>
             <div className="row box">
                 {
-                    resources.reduce<SageNodeInitialized[][]>(
+                    resources.reduce<{node: SageNodeInitialized, pos: number}[]>(
                         function (accumulator, currentValue, currentIndex, array) {
-                            if (currentIndex % 2 === 0)
-                                accumulator.push(array.slice(currentIndex, currentIndex + 2));
+                            if (SchemaUtils.getResourceType(currentValue) === PLAN_DEFINITION) {
+                                accumulator.push({
+                                    node: currentValue,
+                                    pos: currentIndex,
+                                });
+                            }
                             return accumulator;
-                        }, []).map((pair, i) => {
-                            const actNode = pair[0];
-                            const planDefNode = pair[1];
-                            const actTitleNode = SchemaUtils.getChildOfNode(actNode, "title");
-                            const planTitleNode = SchemaUtils.getChildOfNode(planDefNode, "title");
-                            const actDescNode = SchemaUtils.getChildOfNode(actNode, "description");
-                            const firstExpression: string | undefined = SchemaUtils.getChildOfNodePath(planDefNode, ["action", "condition", "expression", "expression"])?.value;
-                            const conditionExpressions: string[] = firstExpression ? [firstExpression] : [];
-                            return <div className="col-lg-3 col-md-4 col-sm-6" key={i*2}>
-                                <Folder
-                                    actTitle={actTitleNode?.value ? actTitleNode.value : "Untitled AD"}
-                                    planTitle={planTitleNode?.value ? planTitleNode.value : "Untitled PD"}
-                                    actDesc={actDescNode?.value ? actDescNode.value : ""}
-                                    conditionExpressions={conditionExpressions}
-                                    profile={SchemaUtils.toFhir(actNode, false).meta?.profile?.[0] ?? ""}
-                                    wait={i * 25}
-                                    index={i*2}
-                                />
-                            </div>
+                        }, []).map((planDefNodeAndPos, i) => {
+                            const { node: planDefNode, pos: planDefPos } = planDefNodeAndPos;
+                            // Find SageNode for FHIR Resource referenced in planDefNode's definitionCanonical
+                            const referencedNodeURI = SchemaUtils.getChildOfNodePath(planDefNode, ["action", "definitionCanonical"])?.value;
+                            if (referencedNodeURI) {
+                                const {
+                                    node: referencedNode,
+                                    pos: referencedNodePos,
+                                } = SchemaUtils.findFirstSageNodeByUri(State.get().bundle.resources, referencedNodeURI);
+                                if (referencedNode) {
+                                    const actTitleNode = SchemaUtils.getChildOfNode(referencedNode, "title");
+                                    const planTitleNode = SchemaUtils.getChildOfNode(planDefNode, "title");
+                                    const actDescNode = SchemaUtils.getChildOfNode(referencedNode, "description");
+                                    // Get all CQL expressions
+                                    const conditionNode = SchemaUtils.getChildOfNodePath(planDefNode, ["action", "condition"]);
+                                    let conditionExpressions: string[] = [];
+                                    if (conditionNode) {
+                                        conditionExpressions = SchemaUtils.getChildrenFromArrayNode(conditionNode).flatMap(condition => {
+                                            const expressionStrNode = SchemaUtils.getChildOfNodePath(condition, ['expression', 'expression']);
+                                            return expressionStrNode ? [expressionStrNode.value] : []
+                                        })
+                                    }
+                                    // Get URL of each referenced Library
+                                    let libraryUrls: string[] = [];
+                                    const libraryNode = SchemaUtils.getChildOfNodePath(planDefNode, ['library']);
+                                    if (libraryNode?.nodeType === "valueArray") {
+                                        libraryUrls = SchemaUtils.getChildrenFromArrayNode(libraryNode).map(library=>library.value);
+                                    }
+                                    else if (libraryNode?.nodeType === "value") {
+                                        if (libraryNode.value !== null && libraryNode.value !== undefined && libraryNode.value !== "") {
+                                            libraryUrls = [libraryNode.value];
+                                        }
+                                    }
+                                    return <div className="col-lg-3 col-md-4 col-sm-6" key={i*2}>
+                                        <Folder
+                                            actTitle={actTitleNode?.value ? actTitleNode.value : "Untitled AD"}
+                                            planTitle={planTitleNode?.value ? planTitleNode.value : "Untitled PD"}
+                                            actDesc={actDescNode?.value ? actDescNode.value : ""}
+                                            conditionExpressions={conditionExpressions}
+                                            referencedLibraries={libraryUrls}
+                                            profile={SchemaUtils.toFhir(referencedNode, false).meta?.profile?.[0] ?? ""}
+                                            wait={i * 25}
+                                            pdIndex={planDefPos}
+                                            refIndex={referencedNodePos}
+                                        />
+                                    </div>
+                                }
+                            }
+                            // planDefNode has no defined definitionCanonical or the referenced FHIR Resource has not been loaded by SAGE (or doesn't exist)
+                            return null;
                         })
                 }
                 {resources.length == 0 ? <div style={{ margin: "50px", marginTop: "40px" }}> <i>No Cards</i> </div> : undefined}

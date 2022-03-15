@@ -19,7 +19,7 @@ interface SelectResourceDialogProps {
     show: boolean,
     bundle: NonNullable<StateVars['bundle']>,
     node: SageNodeInitializedFreezerNode,
-    resourceTypeFilter: string[]
+    resourceTypeFilter?: string[]
 }
 
 class SelectResourceDialog extends React.Component<SelectResourceDialogProps> {

@@ -4,7 +4,7 @@ import { PlanDefinitionActionCondition } from 'fhir/r4';
 import React from "react";
 import State, { SageNodeInitializedFreezerNode } from '../state';
 
-import { ICardForm, CardEditor } from './cardEditor';
+import { ICardForm, CardEditor, EditableStateForCondition } from './cardEditor';
 import { FriendlyResourceProps } from './nameHelpers';
 import { Card } from "react-bootstrap";
 
@@ -32,9 +32,12 @@ export type CardFormProps = {
     resourceType: FriendlyResourceProps,
     elementList: JSX.Element[],
     displayList: JSX.Element[],
-    pdConditions: PlanDefinitionActionCondition[],
+    draftConditions: EditableStateForCondition[],
+    persistEditedCondition: (newConditionState: EditableStateForCondition) => void,
+    generateNewCondition: () => EditableStateForCondition,
     innerCardForm: ICardForm,
     handleSaveResource: ()=> void,
+    handleDeleteResource: () => void,
 }
 export class OuterCardForm extends React.Component<CardFormProps, CardFormState>{
     sageState: any;
@@ -42,11 +45,9 @@ export class OuterCardForm extends React.Component<CardFormProps, CardFormState>
     saveButton: JSX.Element;
     deleteCardButton: JSX.Element;
     pageTitles: Map<number, string>;
-    innerCardForm: ICardForm;
 
     constructor(props: CardFormProps) {
         super(props);
-        this.innerCardForm = props.innerCardForm;
         this.cardHeader =
             <h3 key="cardName" style={{ marginTop: "20px", marginBottom: "10px" }}><b>
                 {this.props.resourceType ? this.props.resourceType?.FRIENDLY ?? "Unknown Resource Type" : ""}
@@ -60,13 +61,12 @@ export class OuterCardForm extends React.Component<CardFormProps, CardFormState>
                 <FontAwesomeIcon key="butSaveIcon" icon={faCaretRight} />
             </button>;
 
+        // TODO: fix this -- linked resources won't always be beside each other
         this.deleteCardButton =
             <button key="butDel" type='button' className="navigate col-lg-2 col-md-3"
                 onClick={() => {
-                    State.emit("remove_from_bundle", State.get().bundle.pos + 1);
-                    State.emit("remove_from_bundle", State.get().bundle.pos);
-                    State.get().set("ui", { status: "cards" });
-                    this.resetForm();
+                    this.setState({ step: 1 });
+                    this.props.handleDeleteResource();
                 }}>
                 Cancel
             </button>;
@@ -100,20 +100,16 @@ export class OuterCardForm extends React.Component<CardFormProps, CardFormState>
             </button>);
     }
 
-    resetForm = () => { this.setState({ step: 1 }) }
-
-
     render() {
-        const PageOne = this.innerCardForm.pageOne; // https://reactjs.org/docs/jsx-in-depth.html#choosing-the-type-at-runtime
-        const PageTwo = this.innerCardForm.pageTwo;
-        const PageThree = this.innerCardForm.pageThree;
-
+        const PageOne = this.props.innerCardForm.pageOne; // Variable name case matters (https://reactjs.org/docs/jsx-in-depth.html#choosing-the-type-at-runtime)
+        const PageTwo = this.props.innerCardForm.pageTwo;
+        const PageThree = this.props.innerCardForm.pageThree;
         
         return (
             <div>
                 <div className='basic-page-titles'>{this.pageTitles.get(this.state.step)}</div>
                 <div>{this.state.step == 1 ? <PageOne fieldElements={this.props.elementList} /> : null}</div>
-                {this.state.step == 2 ? <PageTwo conditions={this.props.pdConditions}/> : null}
+                {this.state.step == 2 ? <PageTwo draftConditions={this.props.draftConditions} persistEditedCondition={this.props.persistEditedCondition} generateNewCondition={this.props.generateNewCondition} /> : null}
                 {this.state.step == 3 ? <Card style={{ padding: "20px", margin: "10px", borderWidth: "2px", borderColor:'rgb(42, 107, 146)', borderRadius: '40px'}}>
                                         <Card.Title>{this.props.resourceType.FRIENDLY}</Card.Title>
                                         <Card.Body><PageThree displayElements={this.props.displayList}/></Card.Body>

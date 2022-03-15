@@ -8,7 +8,7 @@
  */
 import State, { SageFreezerNode, SageNodeInitializedFreezerNode } from '../state';
 import PrimitiveValidator from './primitive-validator';
-import { Bundle, Resource, Element, ElementDefinition, ElementDefinitionType, ActivityDefinition, PlanDefinition, Questionnaire, Library, ValueSet, FhirResource } from 'fhir/r4';
+import { Bundle, Resource, Element, ElementDefinition, ElementDefinitionType, ActivityDefinition, PlanDefinition, Questionnaire, Library, ValueSet, FhirResource, CodeSystem } from 'fhir/r4';
 import { defaultProfileUriOfResourceType, FriendlyResourceFormElement, FriendlyResourceProps, profileToFriendlyResourceListEntry, STRUCTURE_DEFINITION, VALUE_SET } from '../simplified/nameHelpers';
 
 // Template of a SageNode for a specific element/resource
@@ -74,11 +74,15 @@ export type SimplifiedProfiles = {
 
 type ValuesetDef = {
 	items: [string, string][], // [friendly name, value][]
-	type: string,
+	rawElement: ValueSet
 }
 
 export type SimplifiedValuesets = {
-	[key: string]: ValuesetDef,
+	[key: string]: ValuesetDef, // should be ValuesetDef | undefined
+}
+
+export type SimplifiedCodesystems = {
+	[key: string]: CodeSystem | undefined,
 }
 
 // should match the profile output of simplify-profiles.coffee
@@ -612,7 +616,7 @@ export function getChildOfNode(node: SageNodeInitializedFreezerNode, childName: 
 export function getChildOfNode(node: SageNodeInitialized, childName: string): SageNodeInitialized | undefined;
 export function getChildOfNode(node: SageNodeInitialized, childName: string): SageNodeInitialized | undefined {
 	if (node.nodeType == "objectArray") {
-		const nodesOfArray = getChildrenFromObjectArrayNode(node);
+		const nodesOfArray = getChildrenFromArrayNode(node);
 		if (nodesOfArray.length > 0) {
 			return getChildOfNode(nodesOfArray[0], childName);
 		}
@@ -641,29 +645,51 @@ export function getChildOfNode(node: SageNodeInitialized, childName: string): Sa
 export const createChildrenFromJson = function (profiles: SimplifiedProfiles, nodeToWriteTo: SageNodeInitialized, fhirJson: any) {
 	const nodeProfileSchema = profiles[nodeToWriteTo.profile];
 	const nodePath = nodeToWriteTo.schemaPath
-	const newChildren = ((() => {
-		const result1 = [];
+	const newChildren: SageNodeInitialized[] = [];
 
-		for (const k in fhirJson) {
-			const v = (fhirJson as any)[k];
-			const childPath = `${nodePath}.${k}`;
-			const childDef = nodeProfileSchema[childPath];
-			if (childDef) {
-				const walkRes = walkNode(profiles, v, nodeToWriteTo.profile, childPath, (nodeToWriteTo.level || 0) + 1);
-				if (walkRes) {
-					result1.push(walkRes);
-				}
+	for (const k in fhirJson) {
+		const v = (fhirJson as any)[k];
+		const childPath = `${nodePath}.${k}`;
+		const childDef = nodeProfileSchema[childPath];
+		if (childDef) {
+			const walkRes = walkNode(profiles, v, nodeToWriteTo.profile, childPath, (nodeToWriteTo.level || 0) + 1);
+			if (walkRes) {
+				newChildren.push(walkRes);
 			}
-			else {
-				if (childPath.split('.').pop() != 'resourceType') { // resourceType is not in the schema for some reason
-					console.log(`Could not find definition for ${childPath}`);
-				}
-			}
-			// add else to check if childPath exists in another profile
 		}
+		else {
+			if (childPath.split('.').pop() != 'resourceType') { // resourceType is not in the schema for some reason
+				console.log(`Could not find definition for ${childPath}`);
+			}
+		}
+		// add else to check if childPath exists in another profile
+	}
 
-		return result1;
-	})());
+	return newChildren;
+}
+
+export const createChildrenFromArray = function (profiles: SimplifiedProfiles, nodeToWriteTo: SageNodeInitialized, fhirJsonArray: any[]) {
+	const nodeProfileSchema = profiles[nodeToWriteTo.profile];
+	const nodePath = nodeToWriteTo.schemaPath
+	const newChildren: SageNodeInitialized[] = [];
+
+	for (const fhirJson of fhirJsonArray) {
+		const childPath = `${nodePath}`;
+		const childDef = nodeProfileSchema[childPath];
+		if (childDef) {
+			const walkRes = walkNode(profiles, fhirJson, nodeToWriteTo.profile, childPath, (nodeToWriteTo.level || 0) + 1);
+			if (walkRes) {
+				newChildren.push(walkRes);
+			}
+		}
+		else {
+			if (childPath.split('.').pop() != 'resourceType') { // resourceType is not in the schema for some reason
+				console.log(`Could not find definition for ${childPath}`);
+			}
+		}
+		// add else to check if childPath exists in another profile
+	}
+
 	return newChildren;
 }
 
@@ -685,10 +711,10 @@ export function buildNewFhirResource(resourceType: string, withUrl?: boolean): S
 	return newResource;
 }
 
-export function getChildrenFromObjectArrayNode(node: SageNodeInitializedFreezerNode): SageNodeInitializedFreezerNode[];
-export function getChildrenFromObjectArrayNode(node: SageNodeInitialized): SageNodeInitialized[];
-export function getChildrenFromObjectArrayNode(node: SageNodeInitialized): SageNodeInitialized[] {
-	if (node.nodeType != "objectArray") {
+export function getChildrenFromArrayNode(node: SageNodeInitializedFreezerNode): SageNodeInitializedFreezerNode[];
+export function getChildrenFromArrayNode(node: SageNodeInitialized): SageNodeInitialized[];
+export function getChildrenFromArrayNode(node: SageNodeInitialized): SageNodeInitialized[] {
+	if (node.nodeType != "objectArray" && node.nodeType != "valueArray") {
 		return [];
 	}
 	const retArr: SageNodeInitialized[] = [];
@@ -988,6 +1014,100 @@ export function makeValueSetURL(resource: FriendlyResourceProps): string {
 	return linkPrefix + "/" + uvCode + "/" + ipsCode + "/" + VALUE_SET + "/" + (resource.FHIR).toLowerCase()
 }
 
+// Temporary unique id gen
 export function incrementNextId() {
 	return nextId++;
+}
+
+// Returns the resource type of the node or null if the node is not a resource
+export function getResourceType(node: SageNodeInitialized): string | null {
+	if (node.nodeType === "resource") {
+		return node.schemaPath;
+	}
+	return null;
+}
+
+export interface SageCodeConcept {
+	system: string,
+	code: string,
+	display?: string,
+	version?: string,
+	definition?: string,
+}
+// Based off of rules at https://www.hl7.org/fhir/valueset.html
+export function getConceptsOfValueSet(valueSet: ValueSet, valueSetDefs: SimplifiedValuesets, codeSystemDefs: SimplifiedCodesystems): SageCodeConcept[] {
+	function warningText(reason: string) {
+		return `Warning: Tried to get codes of valueset "${valueSet.url ?? "[no url found in valueset]"}", but ${reason}`;
+	}
+	
+	const codesOfValueSet: SageCodeConcept[] = [];
+	
+	if (valueSet.compose === undefined) {
+		// TODO: ValueSets may have codes listed under "expansion"
+		// From spec: "The ValueSet resource can carry either the .compose or the .expansion, both of them, or neither of them (if only the metadata is being represented)."
+		console.log(warningText(`no "compose" element was defined for it`));
+		return [];
+	}
+
+	for (const include of valueSet.compose.include) {
+		if (include.valueSet) {
+			codesOfValueSet.concat(
+				include.valueSet.flatMap(vsUrl =>
+					vsUrl in valueSetDefs ?
+						getConceptsOfValueSet(valueSetDefs[vsUrl].rawElement, valueSetDefs, codeSystemDefs) :
+						[]
+				)
+			);
+		}
+		if (include.system) {
+			if (include.concept) {
+				// Add only the codes listed in `include.concept` (from `include.system`)
+				const codeSystemDef = codeSystemDefs[include.system];
+				codesOfValueSet.push(
+					...include.concept.map(concept => {
+						return {
+							// Why is this error showing up? Isn't include.system known to be defined due to an earlier condition?
+							// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+							system: include.system!,
+							code: concept.code,
+							display: concept.display,
+							version: codeSystemDef?.version,
+						}
+					})
+				)
+			}
+			else if (include.filter) {
+				// TODO: support `include.filter`
+				console.log(warningText(`SAGE does not support reading "include.filter". Some codes may be missing`));
+			}
+			else {
+				// Add everything from system
+				const codeSystemDef = codeSystemDefs[include.system];
+				if (codeSystemDef) {
+					if (codeSystemDef.concept) {
+						codesOfValueSet.push(
+							...codeSystemDef.concept.map(concept => {
+								return {
+									// Why is this error showing up? Isn't include.system known to be defined due to an earlier condition?
+									// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+									system: include.system!,
+									code: concept.code,
+									display: concept.display,
+									version: codeSystemDef.version,
+									definition: concept.definition,
+								}
+							})
+						)
+					}
+					else {
+						console.log(warningText(`included system "${include.system}" has no "concept" element`));
+					}
+				}
+				else {
+					console.log(warningText(`SAGE has no codes stored for included system "${include.system}"`));
+				}
+			}
+		}
+	}
+	return codesOfValueSet;
 }

@@ -11,6 +11,7 @@ summarizeDirectory = (inputDirName, inputDirPath, outputDirPath) ->
 	console.log "Processing #{inputDirName}"
 	profiles = {}
 	valuesets = {}
+	codesystems = {}
 	
 	for bundleFileName in fs.readdirSync(inputDirPath).sort()
 		continue unless bundleFileName.indexOf("json") > -1
@@ -19,11 +20,12 @@ summarizeDirectory = (inputDirName, inputDirPath, outputDirPath) ->
 
 		if bundleFileName.indexOf("valuesets") > -1 
 			summarizeValuesets(bundle, valuesets)
+			summarizeCodesystems(bundle, codesystems)
 		else if bundleFileName.indexOf("profiles") > -1
 			summarizeProfiles(bundle, profiles)
 
 	fs.writeFileSync path.join(outputDirPath, "#{inputDirName}.json"),
-		JSON.stringify {profiles: profiles, valuesets: valuesets}, null, "  "
+		JSON.stringify {profiles: profiles, valuesets: valuesets, codesystems: codesystems}, null, "  "
 
 summarizeValuesets = (fhirBundle, valuesets) ->
 	dstu2 = (entry) ->
@@ -53,10 +55,10 @@ summarizeValuesets = (fhirBundle, valuesets) ->
 		_addValue(entry?.resource?.concept)
 	
 	r4 = (entry) ->
-		url = entry.resource.valueSet|| entry.resource.url
+		url = entry.resource.url
 		if (valuesets[url]?.items)
 			return;
-		valuesets[url] = {type: entry.resource.content, items: [], system: entry.resource?.compose?.include?[0].system, version: entry?.resource?.compose?.include?[0].version}
+		valuesets[url] = {type: entry.resource.content, items: [], system: entry.resource?.compose?.include?[0].system, version: entry?.resource?.compose?.include?[0].version, rawElement: entry.resource}
 
 		_addValue = (concept) ->
 			for c in concept || []
@@ -69,14 +71,23 @@ summarizeValuesets = (fhirBundle, valuesets) ->
 		
 
 	for entry in fhirBundle?.entry || []
-		if entry?.resource?.valueSet and entry?.resource?.concept?.length > 0
-			stu3(entry)
-		else if entry?.resource?.url and entry?.resource?.codeSystem?.concept?.length > 0
-			dstu2(entry)
-		else if entry.resource.url
+		if entry.resource.url && entry.resource.resourceType == "ValueSet"
 			r4(entry)
 
 	return valuesets
+
+summarizeCodesystems = (fhirBundle, codesystems) ->
+	r4 = (entry) ->
+		url = entry.resource.url
+		if (codesystems[url]?) # Skip if exists
+			return;
+		codesystems[url] = entry.resource # Write in the entire definition
+
+	for entry in fhirBundle?.entry || []
+		if entry.resource.url && entry.resource.resourceType == "CodeSystem"
+			r4(entry)
+
+	return codesystems
 
 summarizeProfiles = (fhirBundle, profiles) ->
 	for entry in fhirBundle?.entry || []
@@ -116,6 +127,9 @@ summarizeProfiles = (fhirBundle, profiles) ->
 
 			if e.id && ["PlanDefinition.action.title", "PlanDefinition.action.description", "PlanDefinition.action.condition", "PlanDefinition.action.condition.expression"].includes(e.id)
 				profiles[root][e.id]["min"] = 1
+
+			if e.id && ["ActivityDefinition.extension:knowledgeCapability"].includes(e.id)
+				profiles[root][e.id]["min"] = 0 # Do we need this?
 
 			if url = e?.binding?.valueSetReference?.reference
 				profiles[root][e.id].binding =

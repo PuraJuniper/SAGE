@@ -40,7 +40,7 @@ declare module 'freezer-js' {
         transact(): void,
     }
 
-    type FreezerArray<T, E> = FreezerCommon<T, E> & {
+    type FreezerArray<T, E> = FreezerCommon<T[], E> & {
         append(a: T[]): FreezerArray<T, E>,
         pop(): T | undefined,
         prepend(): FreezerArray<T, E>,
@@ -70,7 +70,7 @@ declare module 'freezer-js' {
         remove(a: OptionalPropertyOf<T>): FreezerObject<T, E>,
         remove(a: OptionalPropertyOf<T>[]): FreezerObject<T, E>,
     } & {
-        [K in keyof T]-?: FreezerNode<T[K], E>
+        [K in keyof T]: FreezerNode<T[K], E>
     };
 
     // Definitions repeated for pivots
