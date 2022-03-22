@@ -1,10 +1,10 @@
 import State from "../../state";
-import { VsacResponse } from "./cqlWizardSelectCodes";
 import { ACTIVITY_DEFINITION, defaultProfileUriOfResourceType, getFhirSelf, friendlyResourceRoot } from "../nameHelpers";
 import { Moment } from "moment";
 import { SageCondition } from "../medicationRequestForm";
 import { EditableStateForCondition, AggregateType } from "../cardEditor";
 import { getConceptsOfValueSet, SageCodeConcept } from "../../helpers/schema-utils";
+import { Coding } from "fhir/r4";
 
 // Pages of the wizard
 export enum WizardPage {
@@ -20,15 +20,24 @@ export enum StepStatus {
 }
 export const WizardPagesArr: WizardPage[] = [WizardPage.SelectResource, WizardPage.SelectCodes, WizardPage.SelectFilters];
 
+export interface SageCoding extends Coding {
+    code: NonNullable<Coding['code']>
+    display: NonNullable<Coding['display']>
+    system: NonNullable<Coding['system']>
+    version: NonNullable<Coding['version']>
+    __sageDefinitions?: string[],
+    __sageSynonyms?: string[],
+}
+
 // Wizard state and its reducer function
 export interface WizardState {
     page: WizardPage,
     pageStatus: {[key in WizardPage]: StepStatus},
     resType: string,
-    codes: VsacResponse[],
+    codes: SageCoding[],
     filters: ElementFilter[],
 }
-export type WizardAction = ['changePage', WizardPage ] | ['selectExprType', string] | ['setCodes', VsacResponse[]] | ['setFilters', ElementFilter[]] | ['setState', WizardState];
+export type WizardAction = ['changePage', WizardPage ] | ['selectExprType', string] | ['setCodes', SageCoding[]] | ['setFilters', ElementFilter[]] | ['setState', WizardState];
 export function WizardReducer(prevWizState: WizardState, action: WizardAction): WizardState {
     switch(action[0]) {
         case 'setState':

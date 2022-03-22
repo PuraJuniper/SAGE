@@ -1,3 +1,5 @@
+const Dotenv = require('dotenv-webpack');
+
 module.exports = (env) => {
 	// Default to env.development
 	if (!('build' in env)) {
@@ -30,6 +32,10 @@ module.exports = (env) => {
 			filename: '[name].js',
 		},
 		mode: env.development ? 'development' : 'production',
+		plugins: [
+			new Dotenv(), // Loads variables from file ".env" into `process.env` accessible in application code
+		],
+		target: 'web',
 		module: {
 			rules: [
 				{
