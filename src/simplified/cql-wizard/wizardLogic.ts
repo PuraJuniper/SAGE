@@ -1,6 +1,6 @@
 import State from "../../state";
 import { VsacResponse } from "./cqlWizardSelectCodes";
-import { ACTIVITY_DEFINITION, defaultProfileUriOfResourceType, getFhirSelf, friendlyResourceRoot } from "../nameHelpers";
+import { ACTIVITY_DEFINITION, defaultProfileUriOfResourceType, getFhirSelf, friendlyResourceRoot, PATIENT } from "../nameHelpers";
 import { Moment } from "moment";
 import { SageCondition } from "../medicationRequestForm";
 import { EditableStateForCondition, AggregateType } from "../cardEditor";
@@ -212,6 +212,7 @@ function getFilterType(url: string, elementFhirPath: string): CodingFilter | Dat
         curValue: "test",
         error: false,
     }
+    const profiles = State.get().profiles;
     const elementSchema = State.get().profiles[url][`${elementFhirPath}`];
     if (!elementSchema) {
         console.log(`No schema found for ${elementFhirPath} in ${url}`);
@@ -280,6 +281,16 @@ function createExpectedFiltersForResType(resType: string): ElementFilter[] {
                 return {
                     elementName: expectedElement,
                     filter: getFilterType(url, `${resType}.${expectedElement}`)
+                }
+            })
+        }
+        case PATIENT: {
+            const profileURL = defaultProfileUriOfResourceType(PATIENT) ?? "";
+            const expectedElements = ['birthDate']            
+            return expectedElements.map(expectedElement => {
+                return {
+                    elementName: expectedElement,
+                    filter: getFilterType(profileURL, `${resType}.${expectedElement}`)
                 }
             })
         }

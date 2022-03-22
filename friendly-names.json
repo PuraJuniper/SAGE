@@ -127,6 +127,13 @@
     },
     {
       "SELF": {
+        "FHIR": "Patient",
+        "FRIENDLY": "Patient",
+        "DEFAULT_PROFILE_URI": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-patient"
+      }
+    },
+    {
+      "SELF": {
         "FHIR": "PlanDefinition",
         "FRIENDLY": "Plan",
         "DEFAULT_PROFILE_URI": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-computableplandefinition"
