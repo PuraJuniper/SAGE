@@ -144,8 +144,13 @@ export function initFromState(state: WizardState | null): WizardState {
 // Various types for filtering by FHIR element
 export interface ElementFilter {
     elementName: string,
-    filter: CodingFilter | DateFilter | UnknownFilter,
+    filter: CodingFilter | DateFilter | AgeFilter |  UnknownFilter,
 }
+
+export interface AgeFilter extends DateFilter {
+    type: "age"
+}
+
 export interface CodingFilter {
     type: "coding",
     filteredCoding: {
@@ -166,7 +171,7 @@ interface CodeBinding {
     definition: string | undefined
 }
 export interface DateFilter {
-    type: "date",
+    type: "date" | "age",
     filteredDate: {
         filterType: DateFilterType,
         absoluteDate1: Moment | null,
@@ -248,8 +253,8 @@ function getFilterType(url: string, elementFhirPath: string): CodingFilter | Dat
         return codingFilter;
     }
     else if (["dateTime", "date"].includes(elementSchema.type[0]?.code)) {
-        const dateFilter: DateFilter = {
-            type: "date",
+        const filter: DateFilter | AgeFilter = {
+            type: elementFhirPath.endsWith(".birthDate") ? "age" : "date",
             dateBinding: {
                 definition: elementSchema.rawElement.definition,
             },
@@ -261,7 +266,7 @@ function getFilterType(url: string, elementFhirPath: string): CodingFilter | Dat
             },
             error: false,
         }
-        return dateFilter;
+        return filter;
     }
     else {
         return unknownFilter;

@@ -340,6 +340,13 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
                             </div>
                         );
                     }
+//TODO: fill in
+                    case "age":
+                        return (
+                            <div key={elementFilter.elementName}>
+                                Age Filter (in progress) {elementFilter.elementName}
+                            </div>
+                        )
                     case "unknown":
                         return (
                             <div key={elementFilter.elementName}>
