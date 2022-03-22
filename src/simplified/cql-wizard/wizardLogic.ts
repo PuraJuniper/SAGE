@@ -61,7 +61,7 @@ export function WizardReducer(prevWizState: WizardState, action: WizardAction): 
                 newPageStatus[WizardPage.SelectCodes] = newCodes.length === 0 ? StepStatus.Incomplete : StepStatus.Complete;
 
                 // Skip code selection if we're filtering for age or gender
-                if (['Gender', 'Age'].includes(action[1])) {
+                if (['Gender', 'Age', 'Patient'].includes(action[1])) {
                     newPageStatus[WizardPage.SelectCodes] = StepStatus.Skipped;
                     newPage = WizardPage.SelectFilters;
                 }
@@ -269,6 +269,7 @@ function getFilterType(url: string, elementFhirPath: string): CodingFilter | Dat
 }
 
 // Should be rewritten to use friendly-names
+//TODO: add filters for Age
 function createExpectedFiltersForResType(resType: string): ElementFilter[] {
     switch(resType) {
         case "MedicationRequest": {
@@ -289,7 +290,7 @@ function createExpectedFiltersForResType(resType: string): ElementFilter[] {
 
 // Should be rewritten to use friendly-names
 export function getSelectableResourceTypes() {
-    return ['AllergyIntolerance', 'Condition', 'Age', 'Gender', 'Device', 'Encounter', 'Immunization', 'MedicationStatement', 'MedicationRequest', 'Observation', 'Procedure', 'ServiceRequest']
+    return ['AllergyIntolerance', 'Condition', 'Age', 'Gender', 'Device', 'Encounter', 'Immunization', 'MedicationStatement', 'MedicationRequest', 'Observation', 'Procedure', 'ServiceRequest', 'Patient']
 }
 
 export function getNextPage(curPage: WizardPage, stepStatus: WizardState["pageStatus"]): [true, WizardPage | null] | [false, WizardPage | null] {
