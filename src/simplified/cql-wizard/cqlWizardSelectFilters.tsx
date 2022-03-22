@@ -239,7 +239,7 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
                                                 case DateFilterType.After:
                                                     return (
                                                         <SingleDatePicker
-                                                            openDirection="up"
+                                                            openDirection="down"
                                                             numberOfMonths={1}
                                                             showClearDate
                                                             reopenPickerOnClearDate

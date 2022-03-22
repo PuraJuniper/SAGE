@@ -5,7 +5,7 @@ import { faCaretRight, faInfoCircle } from '@fortawesome/pro-solid-svg-icons';
 import State from "../state";
 import { Container, Row, Col } from "react-bootstrap";
 import friendlyNames from "../../friendly-names.json";
-import { ACTIVITY_DEFINITION, friendlyResourceRoot, getBorderPropsForType } from "./nameHelpers";
+import { ACTIVITY_DEFINITION, allFormElems, friendlyResourceRoot, getBorderPropsForType, getFormElementListForResource } from "./nameHelpers";
 
 const SelectView = () => {
     return (
@@ -25,7 +25,9 @@ const SelectView = () => {
                             friendlyResourceRoot.RESOURCES.map(
                                 (resourceType) => {
                                     if (resourceType.LIST) {
-                                        return resourceType.LIST.map(
+                                        return resourceType.LIST
+                                        .filter(subResType => allFormElems(getFormElementListForResource(subResType.FHIR)).length > 0)
+                                        .map(
                                             (resource, i) => {
                                                 return (
                                                     <div style={{ padding: "10px" }} key={resource.FHIR}>

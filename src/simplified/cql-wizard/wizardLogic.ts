@@ -23,14 +23,14 @@ export const WizardPagesArr: WizardPage[] = [WizardPage.SelectResource, WizardPa
 // Wizard state and its reducer function
 export interface WizardState {
     page: WizardPage,
-    pageStatus: {[key in WizardPage]: StepStatus},
+    pageStatus: { [key in WizardPage]: StepStatus },
     resType: string,
     codes: VsacResponse[],
     filters: ElementFilter[],
 }
-export type WizardAction = ['changePage', WizardPage ] | ['selectExprType', string] | ['setCodes', VsacResponse[]] | ['setFilters', ElementFilter[]] | ['setState', WizardState];
+export type WizardAction = ['changePage', WizardPage] | ['selectExprType', string] | ['setCodes', VsacResponse[]] | ['setFilters', ElementFilter[]] | ['setState', WizardState];
 export function WizardReducer(prevWizState: WizardState, action: WizardAction): WizardState {
-    switch(action[0]) {
+    switch (action[0]) {
         case 'setState':
             return {
                 ...action[1]
@@ -54,7 +54,7 @@ export function WizardReducer(prevWizState: WizardState, action: WizardAction): 
                 if (prevWizState.resType != action[1]) {
                     newCodes = [];
                     newFilters = createExpectedFiltersForResType(action[1]);
-                    newPageStatus[WizardPage.SelectFilters] = newFilters.some(v=>v.filter.error) ? StepStatus.Incomplete : StepStatus.Complete;
+                    newPageStatus[WizardPage.SelectFilters] = newFilters.some(v => v.filter.error) ? StepStatus.Incomplete : StepStatus.Complete;
                 }
 
                 // Set status of SelectCodes page
@@ -71,7 +71,7 @@ export function WizardReducer(prevWizState: WizardState, action: WizardAction): 
                         newPageStatus[WizardPage.SelectFilters] = StepStatus.Disabled;
                     }
                 }
-                
+
                 return {
                     ...prevWizState,
                     page: newPage,
@@ -93,7 +93,7 @@ export function WizardReducer(prevWizState: WizardState, action: WizardAction): 
                     newPageStatus[WizardPage.SelectFilters] = StepStatus.Disabled;
                 }
                 else { // Enable filters page otherwise
-                    newPageStatus[WizardPage.SelectFilters] = prevWizState.filters.some(v=>v.filter.error) ? StepStatus.Incomplete : StepStatus.Complete;
+                    newPageStatus[WizardPage.SelectFilters] = prevWizState.filters.some(v => v.filter.error) ? StepStatus.Incomplete : StepStatus.Complete;
                 }
 
                 return {
@@ -106,7 +106,7 @@ export function WizardReducer(prevWizState: WizardState, action: WizardAction): 
             {
                 const newPageStatus = {
                     ...prevWizState.pageStatus,
-                    [WizardPage.SelectFilters]: action[1].some(v=>v.filter.error) ? StepStatus.Incomplete : StepStatus.Complete,
+                    [WizardPage.SelectFilters]: action[1].some(v => v.filter.error) ? StepStatus.Incomplete : StepStatus.Complete,
                 }
                 return {
                     ...prevWizState,
@@ -212,7 +212,6 @@ function getFilterType(url: string, elementFhirPath: string): CodingFilter | Dat
         curValue: "test",
         error: false,
     }
-    const profiles = State.get().profiles;
     const elementSchema = State.get().profiles[url][`${elementFhirPath}`];
     if (!elementSchema) {
         console.log(`No schema found for ${elementFhirPath} in ${url}`);
@@ -248,7 +247,7 @@ function getFilterType(url: string, elementFhirPath: string): CodingFilter | Dat
         }
         return codingFilter;
     }
-    else if (elementSchema.type[0]?.code === "dateTime") {
+    else if (["dateTime", "date"].includes(elementSchema.type[0]?.code)) {
         const dateFilter: DateFilter = {
             type: "date",
             dateBinding: {
@@ -270,32 +269,34 @@ function getFilterType(url: string, elementFhirPath: string): CodingFilter | Dat
 }
 
 // Should be rewritten to use friendly-names
-//TODO: add filters for Age
 function createExpectedFiltersForResType(resType: string): ElementFilter[] {
-    switch(resType) {
-        case "MedicationRequest": {
-            const expectedElements = ['status', 'intent', 'category', 'authoredOn']
-            // const url = friendlyResourceRoot.RESOURCES.find(v => v.SELF.FHIR === ACTIVITY_DEFINITION)?.LIST?.find(lv => lv.FHIR === resType)?.DEFAULT_PROFILE_URI;
-            const url = "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-medicationrequest"; // temporary
-            return expectedElements.map(expectedElement => {
-                return {
-                    elementName: expectedElement,
-                    filter: getFilterType(url, `${resType}.${expectedElement}`)
-                }
-            })
+    const friendlyRes = getFhirSelf(friendlyResourceRoot.RESOURCES, resType)
+    if (friendlyRes) {
+        const profileURL = friendlyRes.SELF.DEFAULT_PROFILE_URI ?? "";
+        const expectedElements = friendlyRes.LIST ?? [];
+        switch (resType) {
+            case "MedicationRequest": {
+                const expectedMedElements = ['status', 'intent', 'category', 'authoredOn']
+                // const url = friendlyResourceRoot.RESOURCES.find(v => v.SELF.FHIR === ACTIVITY_DEFINITION)?.LIST?.find(lv => lv.FHIR === resType)?.DEFAULT_PROFILE_URI;
+                const url = "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-medicationrequest"; // temporary
+                return expectedMedElements.map(expectedElement => {
+                    return {
+                        elementName: expectedElement,
+                        filter: getFilterType(url, `${resType}.${expectedElement}`)
+                    }
+                })
+            }
+            default: {
+                return expectedElements.map(expectedElement => {
+                    return {
+                        elementName: expectedElement.FRIENDLY,
+                        filter: getFilterType(profileURL, `${resType}.${expectedElement.FHIR}`)
+                    }
+                })
+            }
         }
-        case PATIENT: {
-            const profileURL = defaultProfileUriOfResourceType(PATIENT) ?? "";
-            const expectedElements = ['birthDate']            
-            return expectedElements.map(expectedElement => {
-                return {
-                    elementName: expectedElement,
-                    filter: getFilterType(profileURL, `${resType}.${expectedElement}`)
-                }
-            })
-        }
-        default:
-            return []
+    } else {
+        return [];
     }
 }
 
@@ -339,16 +340,16 @@ export function getPrevPage(curPage: WizardPage, stepStatus: WizardState["pageSt
 }
 
 // Temporary storage/loading of wizard states for purpose of cql export feature
-const exprToWizStateMap: {[key: string]: EditableStateForCondition} = {};
+const exprToWizStateMap: { [key: string]: EditableStateForCondition } = {};
 export function buildEditableStateFromCondition(condition: SageCondition): EditableStateForCondition {
     return exprToWizStateMap[condition.id] !== undefined ?
         exprToWizStateMap[condition.id] :
-        { 
-            conditionId: condition.id, 
+        {
+            conditionId: condition.id,
             exprAggregate: {
                 aggregate: AggregateType.Exists
             },
-            curWizState: initFromState(null) 
+            curWizState: initFromState(null)
         };
 }
 export function saveEditableStateForConditionId(conditionId: string, stateToSave: EditableStateForCondition) {
