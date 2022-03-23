@@ -1,7 +1,7 @@
 import React, { Dispatch, useEffect, useReducer, useState } from "react";
 import { Button } from "react-bootstrap";
 import { CSSTransition } from "react-transition-group";
-import { getSelectableResourceTypes, WizardAction, WizardState } from './wizardLogic';
+import { getSelectableResourceTypes, WizardAction, WizardState, createExpectedFiltersForResType } from './wizardLogic';
 
 interface CqlWizardSelectResourceProps {
     wizDispatch: Dispatch<WizardAction>,
@@ -31,7 +31,10 @@ export const CqlWizardSelectResource: React.FunctionComponent<CqlWizardSelectRes
                     }}>
                         No
                     </Button>
-                    <Button variant="primary" onClick={() => props.wizDispatch(['selectExprType', selectedRes])}>
+                    <Button variant="primary" onClick={async () => {
+                        const newElementFilters = await createExpectedFiltersForResType(selectedRes);
+                        props.wizDispatch(['selectExprType', selectedRes, newElementFilters])
+                    }}>
                         Yes
                     </Button>
                 </div>
@@ -41,14 +44,15 @@ export const CqlWizardSelectResource: React.FunctionComponent<CqlWizardSelectRes
                     const selected = selectedRes == v;
                     return (
                         <Button key={v} active={selected} variant={"outline-primary"} 
-                            onClick={()=>{
+                            onClick={async ()=>{
                                 setSelectedRes(v);
                                 if (props.wizState.resType != v && props.wizState.resType != '') {
                                     // Resource type is being changed from one to another
                                     setShowWarning(true);
                                 }
                                 else {
-                                    props.wizDispatch(['selectExprType', v]);
+                                    const newElementFilters = await createExpectedFiltersForResType(v);
+                                    props.wizDispatch(['selectExprType', v, newElementFilters]);
                                 }
                             }}
                         >

@@ -20,3 +20,8 @@ it('should only return results from the SNOMEDCT ontology', async () => {
         expect(v).toMatchObject(expected)
     });
 })
+
+it('should return SNOMEDCT codes with concept "266710000" (Drugs not taken/completed)', async () => {
+    const result = await Bioportal.searchForSNOMEDConcept('266710000');
+    expect(result.length).toBeGreaterThan(10);
+})

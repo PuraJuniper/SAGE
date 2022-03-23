@@ -37,7 +37,7 @@ export interface WizardState {
     codes: SageCoding[],
     filters: ElementFilter[],
 }
-export type WizardAction = ['changePage', WizardPage ] | ['selectExprType', string] | ['setCodes', SageCoding[]] | ['setFilters', ElementFilter[]] | ['setState', WizardState];
+export type WizardAction = ['changePage', WizardPage ] | ['selectExprType', string, ElementFilter[]] | ['setCodes', SageCoding[]] | ['setFilters', ElementFilter[]] | ['setState', WizardState];
 export function WizardReducer(prevWizState: WizardState, action: WizardAction): WizardState {
     switch(action[0]) {
         case 'setState':
@@ -62,7 +62,7 @@ export function WizardReducer(prevWizState: WizardState, action: WizardAction): 
                 // Reset selected codes and filters if the selected resource type has changed
                 if (prevWizState.resType != action[1]) {
                     newCodes = [];
-                    newFilters = createExpectedFiltersForResType(action[1]);
+                    newFilters = action[2];
                     newPageStatus[WizardPage.SelectFilters] = newFilters.some(v=>v.filter.error) ? StepStatus.Incomplete : StepStatus.Complete;
                 }
 
@@ -215,7 +215,7 @@ export interface UnknownFilter {
 // Returns a filter type for the given element path in the profile identified by `url`
 // These filter types should include all information needed by the UI to know what controls should be displayed
 //  to the user for the element.
-function getFilterType(url: string, elementFhirPath: string): CodingFilter | DateFilter | UnknownFilter {
+async function getFilterType(url: string, elementFhirPath: string): Promise<CodingFilter | DateFilter | UnknownFilter> {
     const unknownFilter: UnknownFilter = {
         type: "unknown",
         curValue: "test",
@@ -238,7 +238,7 @@ function getFilterType(url: string, elementFhirPath: string): CodingFilter | Dat
             console.log(`ValueSet ${valueSetReference} could not be found`);
             return unknownFilter
         }
-        const codes = getConceptsOfValueSet(valueSet.rawElement, State.get().valuesets, State.get().codesystems);
+        const codes = await getConceptsOfValueSet(valueSet.rawElement, State.get().valuesets, State.get().codesystems);
 
         const codingFilter: CodingFilter = {
             type: 'coding',
@@ -278,18 +278,18 @@ function getFilterType(url: string, elementFhirPath: string): CodingFilter | Dat
 }
 
 // Should be rewritten to use friendly-names
-function createExpectedFiltersForResType(resType: string): ElementFilter[] {
+export async function createExpectedFiltersForResType(resType: string): Promise<ElementFilter[]> {
     switch(resType) {
         case "MedicationRequest": {
             const expectedElements = ['status', 'intent', 'category', 'authoredOn']
             // const url = friendlyResourceRoot.RESOURCES.find(v => v.SELF.FHIR === ACTIVITY_DEFINITION)?.LIST?.find(lv => lv.FHIR === resType)?.DEFAULT_PROFILE_URI;
             const url = "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-medicationrequest"; // temporary
-            return expectedElements.map(expectedElement => {
+            return Promise.all(expectedElements.map(async (expectedElement) => {
                 return {
                     elementName: expectedElement,
-                    filter: getFilterType(url, `${resType}.${expectedElement}`)
+                    filter: await getFilterType(url, `${resType}.${expectedElement}`)
                 }
-            })
+            }));
         }
         default:
             return []
