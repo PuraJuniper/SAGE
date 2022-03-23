@@ -1,5 +1,5 @@
 import React, { Dispatch, useEffect, useState } from "react";
-import { CodeFilterType, CodingFilter, DateFilter, DateFilterType, RelativeDateUnit, WizardAction, WizardState } from './wizardLogic';
+import { AgeFilter, CodeFilterType, CodingFilter, DateFilter, DateFilterType, RelativeDateUnit, WizardAction, WizardState } from './wizardLogic';
 import { ToggleButtonGroup, ToggleButton, Card, Form, Container, InputGroup, FormControl, DropdownButton, Dropdown } from 'react-bootstrap';
 import { ElementFilter } from './wizardLogic';
 import 'react-dates/initialize';
@@ -340,13 +340,34 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
                             </div>
                         );
                     }
-//TODO: fill in
-                    case "age":
+                    //TODO: fill in
+                    case "age": {
+                        const ageFilter = elementFilter.filter as AgeFilter;
                         return (
                             <div key={elementFilter.elementName}>
                                 Age Filter (in progress) {elementFilter.elementName}
+                                <Card>
+                                    <Card.Body>
+                                        <Card.Title>
+                                        <ToggleButtonGroup
+                                                type="radio"
+                                                name={`${elementFilter.elementName}-age-type`}
+                                                value={getDateTypeFromFilterType(ageFilter.filteredDate.filterType)}
+                                                onChange={newDateType => {
+                                                    const newFilterType = newDateType === DateType.None ? DateFilterType.None : newDateType === DateType.Relative ? DateFilterType.OlderThan : DateFilterType.Before;
+                                                    dispatchNewDateFilter(elementFilter.elementName, newFilterType)
+                                                }}
+                                            >
+                                                <ToggleButton variant="outline-secondary" value={DateType.None}>Any Date</ToggleButton>
+                                                <ToggleButton variant="outline-secondary" value={DateType.Relative}>Relative</ToggleButton>
+                                                <ToggleButton variant="outline-secondary" value={DateType.Absolute}>Absolute</ToggleButton>
+                                            </ToggleButtonGroup>
+                                        </Card.Title>
+                                    </Card.Body>
+                                </Card>
                             </div>
-                        )
+                        );
+                    }
                     case "unknown":
                         return (
                             <div key={elementFilter.elementName}>
