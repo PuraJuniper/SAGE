@@ -1,3 +1,4 @@
+import 'dotenv/config' // Loads variables from file ".env" into NodeJS's `process.env` global
 import '@testing-library/jest-dom'
 
 import $ from 'jquery';

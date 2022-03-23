@@ -1,11 +1,12 @@
 import React, { Dispatch, useEffect, useState } from "react";
-import { AgeFilter, CodeFilterType, CodingFilter, DateFilter, DateFilterType, RelativeDateUnit, WizardAction, WizardState } from './wizardLogic';
+import { AgeFilter, BooleanFilter, CodeFilterType, CodingFilter, DateFilter, DateFilterType, RelativeDateUnit, WizardAction, WizardState } from './wizardLogic';
 import { ToggleButtonGroup, ToggleButton, Card, Form, Container, InputGroup, FormControl, DropdownButton, Dropdown } from 'react-bootstrap';
 import { ElementFilter } from './wizardLogic';
 import 'react-dates/initialize';
 import { DateRangePicker, SingleDatePicker, DayPickerRangeController } from 'react-dates';
 import 'react-dates/lib/css/_datepicker.css';
 import moment, { Moment } from 'moment';
+import Select, { ActionMeta, InputActionMeta, SingleValue } from "react-select";
 
 interface CqlWizardSelectFiltersProps {
     wizDispatch: Dispatch<WizardAction>,
@@ -34,6 +35,13 @@ enum DateType {
 
 interface DatePickerStates {
     [elementName: string]: { dateOne: Moment | null, focusDateOne: boolean, dateTwo: Moment | null, focusDateTwo: boolean }
+}
+
+// HTML <select> element only accepts strings or numbers as values
+enum BooleanSelectOptions {
+    Any = "any",
+    True = "true",
+    False = "false",
 }
 
 function initDatePickerStates(filters: ElementFilter[]): DatePickerStates {
@@ -78,64 +86,77 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
         setDatePickerStates(initDatePickerStates(props.wizState.filters));
     }, [props.wizState.filters])
 
-    function dispatchNewCodingFilter(elementName: string, filterType: CodeFilterType, selectedIndexes: number[]) {
+    /**
+     * Helper for dispatching a "setFilters" event with a new element filters array
+     * @param elementToReplace Name of the element being replaced
+     * @param replaceFunc Function called to generate the replacement element
+     */
+    function dispatchNewFilters(elementToReplace: string, replaceFunc: (v: ElementFilter) => ElementFilter) {
         const newElementFilters: ElementFilter[] = props.wizState.filters.map<ElementFilter>(v => {
-            if (v.elementName !== elementName) {
-                return v;
-            }
-            else {
-                const oldFilter = v.filter as CodingFilter; // Ok to cast because this current function should only be called when editing CodingFilters
-                return {
-                    ...v,
-                    filter: {
-                        ...oldFilter,
-                        filteredCoding: {
-                            filterType,
-                            selectedIndexes: selectedIndexes,
-                        },
-                        error: filterType === CodeFilterType.Filtered && selectedIndexes.length === 0,
-                    }
-                }
-            }
-        })
+            return v.elementName !== elementToReplace ? v : replaceFunc(v)
+        });
         props.wizDispatch(["setFilters", newElementFilters]);
     }
 
-    function dispatchNewDateFilter(elementName: string, newFilterType: DateFilterType, newDate1?: Moment | null, newDate2?: Moment | null, newRelativeUnit?: RelativeDateUnit, newRelativeAmountInput?: number) {
-        const newElementFilters: ElementFilter[] = props.wizState.filters.map<ElementFilter>(v => {
-            if (v.elementName !== elementName) {
-                return v;
+    function dispatchNewCodingFilter(elementName: string, filterType: CodeFilterType, selectedIndexes: number[]) {
+        dispatchNewFilters(elementName, v => {
+            const oldFilter = v.filter as CodingFilter; // Ok to cast because this current function should only be called when editing CodingFilters
+            return {
+                ...v,
+                filter: {
+                    ...oldFilter,
+                    filteredCoding: {
+                        filterType,
+                        selectedIndexes: selectedIndexes,
+                    },
+                    error: filterType === CodeFilterType.Filtered && selectedIndexes.length === 0,
+                }
             }
-            else {
-                const oldFilter = v.filter as DateFilter;
-                const newRelativeAmount = typeof(newRelativeAmountInput) === 'undefined' ? oldFilter.filteredDate.relativeAmount : newRelativeAmountInput;
-                const newElementFilter: ElementFilter = {
-                    ...v,
-                    filter: {
-                        ...oldFilter,
-                        filteredDate: {
-                            ...oldFilter.filteredDate,
-                            filterType: newFilterType,
-                            absoluteDate1: newDate1 === undefined ? oldFilter.filteredDate.absoluteDate1 : (newDate1?.clone() || null),
-                            absoluteDate2: newDate2 === undefined ? oldFilter.filteredDate.absoluteDate2 : (newDate2?.clone() || null),
-                            relativeUnit: newRelativeUnit ?? oldFilter.filteredDate.relativeUnit,
-                            relativeAmount: newRelativeAmount,
-                        }
+        });
+    }
+
+    function dispatchNewDateFilter(elementName: string, newFilterType: DateFilterType, newDate1?: Moment | null, newDate2?: Moment | null, newRelativeUnit?: RelativeDateUnit, newRelativeAmountInput?: number) {
+        dispatchNewFilters(elementName, v => {
+            const oldFilter = v.filter as DateFilter;
+            const newRelativeAmount = typeof(newRelativeAmountInput) === 'undefined' ? oldFilter.filteredDate.relativeAmount : newRelativeAmountInput;
+            const newElementFilter: ElementFilter = {
+                ...v,
+                filter: {
+                    ...oldFilter,
+                    filteredDate: {
+                        ...oldFilter.filteredDate,
+                        filterType: newFilterType,
+                        absoluteDate1: newDate1 === undefined ? oldFilter.filteredDate.absoluteDate1 : (newDate1?.clone() || null),
+                        absoluteDate2: newDate2 === undefined ? oldFilter.filteredDate.absoluteDate2 : (newDate2?.clone() || null),
+                        relativeUnit: newRelativeUnit ?? oldFilter.filteredDate.relativeUnit,
+                        relativeAmount: newRelativeAmount,
                     }
                 }
-
-                const newFilter = newElementFilter.filter as DateFilter;
-                newFilter.error = checkDateFilterErrors(newFilter, newFilterType);
-
-                return newElementFilter;
             }
-        })
-        props.wizDispatch(["setFilters", newElementFilters]);
+
+            const newFilter = newElementFilter.filter as DateFilter;
+            newFilter.error = checkDateFilterErrors(newFilter, newFilterType);
+
+            return newElementFilter;
+        });
+    }
+
+    function dispatchNewBooleanFilter(elementName: string, newBool: boolean | null) {
+        dispatchNewFilters(elementName, v => {
+            const oldFilter = v.filter as BooleanFilter;
+            return {
+                ...v,
+                filter: {
+                    ...oldFilter,
+                    filteredBoolean: newBool,
+                }
+            }
+        });
     }
 
     return (
         <div className="cql-wizard-select-filters-grid">
-            {props.wizState.filters.map(elementFilter => {
+            {props.wizState.filters.map((elementFilter): JSX.Element => {
                 switch (elementFilter.filter.type) {
                     case "coding": {
                         const codeBinding = elementFilter.filter.codeBinding;
@@ -169,7 +190,23 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
                                                 </ToggleButton>
                                             </ToggleButtonGroup>
                                         </Card.Title>
-                                        <ToggleButtonGroup type="checkbox" value={codeFilter.filteredCoding.selectedIndexes} className="cql-wizard-element-filters-button-group"
+                                        <Select<{ idx: number }, true> // This { idx: number } business is just so that this component can be interchangeable with the ToggleButtonGroup below
+                                            options={codeBinding.codes.map((code, i) => {
+                                                return { idx: i };
+                                            })}
+                                            isMulti={true}
+                                            getOptionValue={codeIdx => `${codeIdx.idx}`}
+                                            getOptionLabel={codeIdx => codeBinding.codes[codeIdx.idx].display ?? codeBinding.codes[codeIdx.idx].code}
+                                            onChange={newValue => dispatchNewCodingFilter(elementFilter.elementName, CodeFilterType.Filtered, newValue.map(v => v.idx))}
+                                            value={codeFilter.filteredCoding.selectedIndexes.map(v => {
+                                                return { idx: v }
+                                            })}
+                                            styles={{ menu: provided => ({ ...provided, zIndex: 9999 }) }} // https://stackoverflow.com/a/55831990
+                                            isSearchable={true}
+                                            closeMenuOnSelect={false}
+                                            isDisabled={codeFilter.filteredCoding.filterType === CodeFilterType.None}
+                                        />
+                                        {/* <ToggleButtonGroup type="checkbox" value={codeFilter.filteredCoding.selectedIndexes} className="cql-wizard-element-filters-button-group"
                                             onChange={selectedIndexes => dispatchNewCodingFilter(elementFilter.elementName, CodeFilterType.Filtered, selectedIndexes)}
                                         >
                                             {codeBinding.codes.map((code, i) => {
@@ -179,7 +216,7 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
                                                     {code.display}
                                                 </ToggleButton>
                                             })}
-                                        </ToggleButtonGroup>
+                                        </ToggleButtonGroup> */}
                                     </Card.Body>
                                 </Card>
                             </div>
@@ -271,7 +308,7 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
                                                 case DateFilterType.Between:
                                                     return (
                                                         <DateRangePicker
-                                                            openDirection="up"
+                                                            openDirection="down"
                                                             showClearDates
                                                             reopenPickerOnClearDates
                                                             onClose={({startDate, endDate}) => dispatchNewDateFilter(elementFilter.elementName, dateFilter.filteredDate.filterType, startDate, endDate)}
@@ -361,12 +398,40 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
                                                 <ToggleButton variant="outline-secondary" value={DateType.None}>Any Date</ToggleButton>
                                                 <ToggleButton variant="outline-secondary" value={DateType.Relative}>Relative</ToggleButton>
                                                 <ToggleButton variant="outline-secondary" value={DateType.Absolute}>Absolute</ToggleButton>
-                                            </ToggleButtonGroup>
+                                                </ToggleButtonGroup>
                                         </Card.Title>
                                     </Card.Body>
                                 </Card>
                             </div>
                         );
+                    }
+                    case "boolean": {
+                        const booleanFilter = elementFilter.filter;
+                        return (
+                            <div key={elementFilter.elementName}>
+                                <Card>
+                                    <Card.Body>
+                                        <Card.Title className="cql-wizard-element-filters-header">
+                                            {`${elementFilter.elementName[0].toUpperCase()}${elementFilter.elementName.slice(1)}`}
+                                            
+                                            <ToggleButtonGroup
+                                                type="radio"
+                                                name={`${elementFilter.elementName}-boolean`}
+                                                value={booleanFilter.filteredBoolean === null ? BooleanSelectOptions.Any : booleanFilter.filteredBoolean ? BooleanSelectOptions.True : BooleanSelectOptions.False}
+                                                onChange={newBoolOption => {
+                                                    const newBool = newBoolOption === BooleanSelectOptions.Any ? null : newBoolOption === BooleanSelectOptions.True ? true : false;
+                                                    dispatchNewBooleanFilter(elementFilter.elementName, newBool)
+                                                }}
+                                            >
+                                                <ToggleButton variant="outline-secondary" value={BooleanSelectOptions.Any}>Any</ToggleButton>
+                                                <ToggleButton variant="outline-secondary" value={BooleanSelectOptions.True}>True</ToggleButton>
+                                                <ToggleButton variant="outline-secondary" value={BooleanSelectOptions.False}>False</ToggleButton>
+                                            </ToggleButtonGroup>
+                                        </Card.Title>
+                                    </Card.Body>
+                                </Card>
+                            </div>
+                        )
                     }
                     case "unknown":
                         return (
@@ -376,6 +441,7 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
                         )
                 }
             })}
+            <div className="cql-wizard-filters-overscroll-excess" />
         </div>
     )
 }

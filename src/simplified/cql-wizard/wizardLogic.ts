@@ -1,10 +1,9 @@
 import State from "../../state";
-import { VsacResponse } from "./cqlWizardSelectCodes";
-import { ACTIVITY_DEFINITION, defaultProfileUriOfResourceType, getFhirSelf, friendlyResourceRoot, PATIENT } from "../nameHelpers";
 import { Moment } from "moment";
 import { SageCondition } from "../medicationRequestForm";
 import { EditableStateForCondition, AggregateType } from "../cardEditor";
 import { getConceptsOfValueSet, SageCodeConcept } from "../../helpers/schema-utils";
+import { Coding } from "fhir/r4";
 
 // Pages of the wizard
 export enum WizardPage {
@@ -20,17 +19,41 @@ export enum StepStatus {
 }
 export const WizardPagesArr: WizardPage[] = [WizardPage.SelectResource, WizardPage.SelectCodes, WizardPage.SelectFilters];
 
+export interface SageCoding extends Coding {
+    code: NonNullable<Coding['code']>
+    display: NonNullable<Coding['display']>
+    system: NonNullable<Coding['system']>
+    version: NonNullable<Coding['version']>
+    __sageDefinitions?: string[],
+    __sageSynonyms?: string[],
+}
+
 // Wizard state and its reducer function
 export interface WizardState {
     page: WizardPage,
     pageStatus: { [key in WizardPage]: StepStatus },
     resType: string,
-    codes: VsacResponse[],
+    codes: SageCoding[],
     filters: ElementFilter[],
+    actionsDisabled: boolean,
 }
-export type WizardAction = ['changePage', WizardPage] | ['selectExprType', string] | ['setCodes', VsacResponse[]] | ['setFilters', ElementFilter[]] | ['setState', WizardState];
+export type WizardAction = ['changePage', WizardPage ] | ['selectExprType', string, ElementFilter[]] | ['setCodes', SageCoding[]] | ['setFilters', ElementFilter[]] | ['setState', WizardState] | ['disableActions'] | ['enableActions'];
 export function WizardReducer(prevWizState: WizardState, action: WizardAction): WizardState {
-    switch (action[0]) {
+    // If some asynchronous action is being performed, use 'disableActions' and 'enableActions' to drop all events that occur before it is complete
+    if (prevWizState.actionsDisabled && action[0] !== "enableActions") {
+        return prevWizState;
+    }
+    switch(action[0]) {
+        case 'disableActions':
+            return {
+                ...prevWizState,
+                actionsDisabled: true,
+            }
+        case 'enableActions':
+            return {
+                ...prevWizState,
+                actionsDisabled: false,
+            }
         case 'setState':
             return {
                 ...action[1]
@@ -53,8 +76,8 @@ export function WizardReducer(prevWizState: WizardState, action: WizardAction): 
                 // Reset selected codes and filters if the selected resource type has changed
                 if (prevWizState.resType != action[1]) {
                     newCodes = [];
-                    newFilters = createExpectedFiltersForResType(action[1]);
-                    newPageStatus[WizardPage.SelectFilters] = newFilters.some(v => v.filter.error) ? StepStatus.Incomplete : StepStatus.Complete;
+                    newFilters = action[2];
+                    newPageStatus[WizardPage.SelectFilters] = newFilters.some(v=>v.filter.error) ? StepStatus.Incomplete : StepStatus.Complete;
                 }
 
                 // Set status of SelectCodes page
@@ -137,6 +160,7 @@ export function initFromState(state: WizardState | null): WizardState {
             resType: "",
             codes: [],
             filters: [],
+            actionsDisabled: false,
         }
     }
 }
@@ -144,11 +168,12 @@ export function initFromState(state: WizardState | null): WizardState {
 // Various types for filtering by FHIR element
 export interface ElementFilter {
     elementName: string,
-    filter: CodingFilter | DateFilter | AgeFilter |  UnknownFilter,
+    filter: CodingFilter | DateFilter | AgeFilter | BooleanFilter |  UnknownFilter,
 }
 
 export interface AgeFilter extends DateFilter {
     type: "age"
+    filter: CodingFilter | DateFilter | AgeFilter | BooleanFilter | UnknownFilter,
 }
 
 export interface CodingFilter {
@@ -201,7 +226,11 @@ export enum RelativeDateUnit {
     Months = "months",
     Years = "years",
 }
-
+export interface BooleanFilter {
+    type: "boolean",
+    filteredBoolean: boolean | null,
+    error: false, // All possibilities for this filter are accepted
+}
 export interface UnknownFilter {
     type: "unknown",
     curValue: unknown,
@@ -211,7 +240,7 @@ export interface UnknownFilter {
 // Returns a filter type for the given element path in the profile identified by `url`
 // These filter types should include all information needed by the UI to know what controls should be displayed
 //  to the user for the element.
-function getFilterType(url: string, elementFhirPath: string): CodingFilter | DateFilter | UnknownFilter {
+async function getFilterType(url: string, elementFhirPath: string): Promise<CodingFilter | DateFilter | BooleanFilter | UnknownFilter> {
     const unknownFilter: UnknownFilter = {
         type: "unknown",
         curValue: "test",
@@ -223,7 +252,7 @@ function getFilterType(url: string, elementFhirPath: string): CodingFilter | Dat
         return unknownFilter;
     }
 
-    if (elementSchema.type[0]?.code === "code" || elementSchema.type[0]?.code === "CodeableConcept") {
+    if (elementSchema.type[0]?.code === "code" || elementSchema.type[0]?.code === "CodeableConcept" || elementSchema.type[0]?.code === "Coding") {
         const valueSetReference = elementSchema.binding?.reference;
         if (valueSetReference === undefined) {
             console.log(`No code bindings exist for ${elementFhirPath}`);
@@ -234,7 +263,7 @@ function getFilterType(url: string, elementFhirPath: string): CodingFilter | Dat
             console.log(`ValueSet ${valueSetReference} could not be found`);
             return unknownFilter
         }
-        const codes = getConceptsOfValueSet(valueSet.rawElement, State.get().valuesets, State.get().codesystems);
+        const codes = await getConceptsOfValueSet(valueSet.rawElement, State.get().valuesets, State.get().codesystems);
 
         const codingFilter: CodingFilter = {
             type: 'coding',
@@ -268,41 +297,77 @@ function getFilterType(url: string, elementFhirPath: string): CodingFilter | Dat
         }
         return filter;
     }
+    else if (elementSchema.type[0]?.code === "boolean") {
+        const booleanFilter: BooleanFilter = {
+            type: "boolean",
+            filteredBoolean: null,
+            error: false,
+        }
+        return booleanFilter;
+    }
     else {
+        console.debug("unknown", elementSchema);
         return unknownFilter;
     }
 }
 
 // Should be rewritten to use friendly-names
-function createExpectedFiltersForResType(resType: string): ElementFilter[] {
-    const friendlyRes = getFhirSelf(friendlyResourceRoot.RESOURCES, resType)
-    if (friendlyRes) {
-        const profileURL = friendlyRes.SELF.DEFAULT_PROFILE_URI ?? "";
-        const expectedElements = friendlyRes.LIST ?? [];
-        switch (resType) {
-            case "MedicationRequest": {
-                const expectedMedElements = ['status', 'intent', 'category', 'authoredOn']
-                // const url = friendlyResourceRoot.RESOURCES.find(v => v.SELF.FHIR === ACTIVITY_DEFINITION)?.LIST?.find(lv => lv.FHIR === resType)?.DEFAULT_PROFILE_URI;
-                const url = "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-medicationrequest"; // temporary
-                return expectedMedElements.map(expectedElement => {
-                    return {
-                        elementName: expectedElement,
-                        filter: getFilterType(url, `${resType}.${expectedElement}`)
-                    }
-                })
-            }
-            default: {
-                return expectedElements.map(expectedElement => {
-                    return {
-                        elementName: expectedElement.FRIENDLY,
-                        filter: getFilterType(profileURL, `${resType}.${expectedElement.FHIR}`)
-                    }
-                })
-            }
+export async function createExpectedFiltersForResType(resType: string): Promise<ElementFilter[]> {
+    let expectedElements: string[] = [];
+    let schemaResType = resType;
+    let url = "";
+    switch(resType) {
+        case "MedicationRequest": {
+            expectedElements = ['status', 'statusReason', 'intent', 'category', 'doNotPerform', 'authoredOn']
+            // const url = friendlyResourceRoot.RESOURCES.find(v => v.SELF.FHIR === ACTIVITY_DEFINITION)?.LIST?.find(lv => lv.FHIR === resType)?.DEFAULT_PROFILE_URI;
+            url = "http://hl7.org/fhir/StructureDefinition/MedicationRequest"; // temporary
+            break;
         }
-    } else {
-        return [];
+        case "MedicationStatement": {
+            expectedElements = ['status', 'statusReason', 'category', 'effective[x]']
+            url = "http://hl7.org/fhir/StructureDefinition/MedicationStatement"; // temporary
+            break;
+        }
+        case "AllergyIntolerance":
+            expectedElements = ['clinicalStatus', 'verificationStatus', 'type', 'category', 'criticality', 'onset[x]', 'recordedDate', 'reaction'];
+            url = "http://hl7.org/fhir/StructureDefinition/AllergyIntolerance"; // temporary
+            break;
+        case "Condition":
+            expectedElements = ['clinicalStatus', 'verificationStatus', 'category', 'onset[x]', 'abatement[x]', 'recordedDate', 'stage']
+            url = "http://hl7.org/fhir/StructureDefinition/Condition"
+            break;
+        case "Encounter":
+            expectedElements = ['status', 'statusHistory', 'class', 'classHistory', 'serviceType', 'priority', 'period', 'hospitalization']
+            url = "http://hl7.org/fhir/StructureDefinition/Encounter"
+            break;
+        case "Immunization":
+            expectedElements = ['status', 'occurrence[x]', 'recorded']
+            url = "http://hl7.org/fhir/StructureDefinition/Immunization"
+            break;
+        case "Observation":
+            expectedElements = ['status', 'category', 'effective[x]', 'value[x]']
+            url = "http://hl7.org/fhir/StructureDefinition/Observation"
+            break;
+        case "Procedure":
+            expectedElements = ['status', 'statusReason', 'category', 'performed[x]']
+            url = "http://hl7.org/fhir/StructureDefinition/Procedure"
+            break;
+        case "ServiceRequest":
+            expectedElements = ['status', 'intent', 'category', 'priority', 'doNotPerform', 'occurrence[x]', 'authoredOn']
+            url = "http://hl7.org/fhir/StructureDefinition/ServiceRequest"
+            break;
+        case "Patient":
+            expectedElements = ['birthDate','gender'];
+            schemaResType = "Patient";
+            url = "http://hl7.org/fhir/StructureDefinition/Patient";
+            break;
     }
+    return Promise.all(expectedElements.map(async (expectedElement) => {
+        return {
+            elementName: expectedElement,
+            filter: await getFilterType(url, `${schemaResType}.${expectedElement}`)
+        }
+    }));
 }
 
 // Should be rewritten to use friendly-names
