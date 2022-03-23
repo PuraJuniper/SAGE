@@ -1,7 +1,7 @@
 import React, { Dispatch, useEffect, useReducer, useState } from "react";
-import { Button } from "react-bootstrap";
+import { Button, Spinner } from "react-bootstrap";
 import { CSSTransition } from "react-transition-group";
-import { getSelectableResourceTypes, WizardAction, WizardState, createExpectedFiltersForResType } from './wizardLogic';
+import { getSelectableResourceTypes, WizardAction, WizardState, createExpectedFiltersForResType, ElementFilter } from './wizardLogic';
 
 interface CqlWizardSelectResourceProps {
     wizDispatch: Dispatch<WizardAction>,
@@ -13,6 +13,7 @@ const rTypes = getSelectableResourceTypes();
 export const CqlWizardSelectResource: React.FunctionComponent<CqlWizardSelectResourceProps> = (props) => {
     const [selectedRes, setSelectedRes] = useState(props.wizState.resType);
     const [showWarning, setShowWarning] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
         setSelectedRes(props.wizState.resType)
@@ -32,8 +33,19 @@ export const CqlWizardSelectResource: React.FunctionComponent<CqlWizardSelectRes
                         No
                     </Button>
                     <Button variant="primary" onClick={async () => {
-                        const newElementFilters = await createExpectedFiltersForResType(selectedRes);
+                        if (isLoading) return;
+                        setShowWarning(false);
+                        setIsLoading(true);
+                        let newElementFilters: ElementFilter[] = [];
+                        try {
+                            props.wizDispatch(['disableActions']);
+                            newElementFilters = await createExpectedFiltersForResType(selectedRes);
+                        }
+                        finally {
+                            props.wizDispatch(['enableActions']);
+                        }
                         props.wizDispatch(['selectExprType', selectedRes, newElementFilters])
+                        setIsLoading(false);
                     }}>
                         Yes
                     </Button>
@@ -45,18 +57,31 @@ export const CqlWizardSelectResource: React.FunctionComponent<CqlWizardSelectRes
                     return (
                         <Button key={v} active={selected} variant={"outline-primary"} 
                             onClick={async ()=>{
+                                if (isLoading) return;
+                                setIsLoading(true);
                                 setSelectedRes(v);
                                 if (props.wizState.resType != v && props.wizState.resType != '') {
                                     // Resource type is being changed from one to another
                                     setShowWarning(true);
                                 }
                                 else {
-                                    const newElementFilters = await createExpectedFiltersForResType(v);
+                                    let newElementFilters: ElementFilter[] = [];
+                                    try {
+                                        props.wizDispatch(['disableActions']);
+                                        newElementFilters = await createExpectedFiltersForResType(v);
+                                    }
+                                    finally {
+                                        props.wizDispatch(['enableActions']);
+                                    }
                                     props.wizDispatch(['selectExprType', v, newElementFilters]);
                                 }
+                                setIsLoading(false);
                             }}
                         >
                             {v}
+                            {selected && isLoading ?
+                                <Spinner style={{marginLeft: "5px"}} as="span" size="sm" animation={"border"} /> :
+                                null}
                         </Button>
                     );
                 }

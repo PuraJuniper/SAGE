@@ -89,7 +89,7 @@
     "react-bootstrap": "^1.6.1",
     "react-dates": "^21.8.0",
     "react-dom": "^16.14.0",
-    "react-select": "^5.2.0",
+    "react-select": "^5.2.2",
     "react-transition-group": "^4.4.2",
     "sanitize-caja": "^0.1.4",
     "url-loader": "^4.1.1",

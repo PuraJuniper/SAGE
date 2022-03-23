@@ -139,6 +139,9 @@ export async function generateCqlFromConditions(conditionStates: EditableStateFo
                         }
                     }
 
+                    case "boolean":
+                        return null;
+
                     case "unknown":
                         return null;
                 }
