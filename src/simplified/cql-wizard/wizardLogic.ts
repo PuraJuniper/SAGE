@@ -83,8 +83,8 @@ export function WizardReducer(prevWizState: WizardState, action: WizardAction): 
                 // Set status of SelectCodes page
                 newPageStatus[WizardPage.SelectCodes] = newCodes.length === 0 ? StepStatus.Incomplete : StepStatus.Complete;
 
-                // Skip code selection if we're filtering for age or gender
-                if (['Gender', 'Age', 'Patient'].includes(action[1])) {
+                // Skip code selection if we're filtering for Patient
+                if (['Patient'].includes(action[1])) {
                     newPageStatus[WizardPage.SelectCodes] = StepStatus.Skipped;
                     newPage = WizardPage.SelectFilters;
                 }
@@ -112,12 +112,12 @@ export function WizardReducer(prevWizState: WizardState, action: WizardAction): 
                 }
 
                 // Disable filters page if no code has been selected, unless the resource cannot be filtered by code
-                if (action[1].length === 0 && !(['Gender', 'Age'].includes(prevWizState.resType))) {
-                    newPageStatus[WizardPage.SelectFilters] = StepStatus.Disabled;
-                }
-                else { // Enable filters page otherwise
+                // if (action[1].length === 0 && !(['Gender', 'Age'].includes(prevWizState.resType))) {
+                //     newPageStatus[WizardPage.SelectFilters] = StepStatus.Disabled;
+                // }
+                // else { // Enable filters page otherwise
                     newPageStatus[WizardPage.SelectFilters] = prevWizState.filters.some(v => v.filter.error) ? StepStatus.Incomplete : StepStatus.Complete;
-                }
+                // }
 
                 return {
                     ...prevWizState,
@@ -372,7 +372,7 @@ export async function createExpectedFiltersForResType(resType: string): Promise<
 
 // Should be rewritten to use friendly-names
 export function getSelectableResourceTypes() {
-    return ['AllergyIntolerance', 'Condition', 'Age', 'Gender', 'Device', 'Encounter', 'Immunization', 'MedicationStatement', 'MedicationRequest', 'Observation', 'Procedure', 'ServiceRequest', 'Patient']
+    return ['AllergyIntolerance', 'Condition', 'Device', 'Encounter', 'Immunization', 'MedicationStatement', 'MedicationRequest', 'Observation', 'Procedure', 'ServiceRequest', 'Patient']
 }
 
 export function getNextPage(curPage: WizardPage, stepStatus: WizardState["pageStatus"]): [true, WizardPage | null] | [false, WizardPage | null] {
