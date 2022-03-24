@@ -394,8 +394,8 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
                                                     dispatchNewDateFilter(elementFilter.elementName, newFilterType)
                                                 }}
                                             >
-                                                <ToggleButton variant="outline-secondary" value={DateType.None}>Any Date</ToggleButton>
-                                                <ToggleButton variant="outline-secondary" value={DateType.Absolute}>Absolute</ToggleButton>
+                                                <ToggleButton variant="outline-secondary" value={DateType.None}>Any</ToggleButton>
+                                                <ToggleButton variant="outline-secondary" value={DateType.Absolute}>Date</ToggleButton>
                                                 <ToggleButton variant="outline-secondary" value={DateType.Relative}>Age</ToggleButton>
                                             </ToggleButtonGroup>
                                             <ToggleButtonGroup
@@ -515,9 +515,6 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
                                                                 value={ageFilter.filteredDate.relativeUnit}
                                                                 onChange={newUnit => dispatchNewDateFilter(elementFilter.elementName, ageFilter.filteredDate.filterType, undefined, undefined, newUnit, ageFilter.filteredDate.relativeAmount)}
                                                             >
-                                                                <ToggleButton variant="outline-primary" value={RelativeDateUnit.Minutes}>Minute(s)</ToggleButton>
-                                                                <ToggleButton variant="outline-primary" value={RelativeDateUnit.Hours}>Hour(s)</ToggleButton>
-                                                                <ToggleButton variant="outline-primary" value={RelativeDateUnit.Days}>Day(s)</ToggleButton>
                                                                 <ToggleButton variant="outline-primary" value={RelativeDateUnit.Weeks}>Week(s)</ToggleButton>
                                                                 <ToggleButton variant="outline-primary" value={RelativeDateUnit.Months}>Month(s)</ToggleButton>
                                                                 <ToggleButton variant="outline-primary" value={RelativeDateUnit.Years}>Year(s)</ToggleButton>
