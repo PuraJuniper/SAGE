@@ -3,6 +3,8 @@ name: Deploy commit to Firebase Hosting live channel
   push:
    branches:
     - master
+env:
+  BIOPORTAL_APIKEY: ${{ secrets.BIOPORTAL_APIKEY }}
 jobs:
   build_and_deploy_to_live:
     runs-on: ubuntu-latest
