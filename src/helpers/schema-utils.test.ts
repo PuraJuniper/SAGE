@@ -130,6 +130,7 @@ test('if original element index is preserved when the definition of the element 
 });
 
 // WIP
+// eslint-disable-next-line jest/no-commented-out-tests
 // it('should return all possible element children of an element whose definition is a reference to another definition', () => {
 //     const decoratedNode = SchemaUtils.decorateFhirData(r4AndCpg, samplePD);
 //     expect(decoratedNode).toBeDefined();
