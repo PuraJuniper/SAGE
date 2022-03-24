@@ -34,7 +34,8 @@ beforeAll(() => server.listen());
 afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
 
-test('Create an advanced CPG with a PlanDefinition linked to an ActiviityDefinition and export it', async () => {
+// eslint-disable-next-line jest/no-disabled-tests
+test.skip('Create an advanced CPG with a PlanDefinition linked to an ActiviityDefinition and export it', async () => {
     render(<RootComponent />);
     // Wait for profiles to load
     await waitForElementToBeRemoved(() => screen.queryByRole('progressbar', {name: "loading-symbol"}), {timeout: process.env.CI ? 30000 : 10000, interval: 1000});

@@ -1,6 +1,7 @@
 import React, { useRef, useState } from "react";
+import { Overlay } from "react-bootstrap";
+import { OverlayChildren, Placement } from "react-bootstrap/esm/Overlay";
 import CSSTransition, { CSSTransitionProps } from "react-transition-group/CSSTransition";
-import Overlay, { OverlayChildren, Placement } from "react-bootstrap/esm/Overlay";
 
 type CSSTransitionStrictModeProps = CSSTransitionProps & {
     children: React.ReactElement | React.ReactPortal; // Only allows a single element since CSSTransition errors out when given multiple
