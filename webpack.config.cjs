@@ -33,7 +33,9 @@ module.exports = (env) => {
 		},
 		mode: env.development ? 'development' : 'production',
 		plugins: [
-			new Dotenv(), // Loads variables from file ".env" into `process.env` accessible in application code
+			new Dotenv({
+				systemvars: true, // load all the predefined 'process.env' variables which will trump anything local per dotenv specs. (from dotenv-webpack docs)
+			}), // Loads variables from file ".env" into `process.env` accessible in application code
 		],
 		target: 'web',
 		module: {
