@@ -1,5 +1,7 @@
 name: Deploy commit to new Firebase Hosting preview channel
 'on': pull_request
+env:
+  BIOPORTAL_APIKEY: ${{ secrets.BIOPORTAL_APIKEY }}
 jobs:
   build_and_deploy_to_preview:
     runs-on: ubuntu-latest

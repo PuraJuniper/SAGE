@@ -23,6 +23,9 @@ module.exports = {
     "plugins": [
         "react",
     ],
+    globals: {
+        process: "readonly"
+    },
     "rules": {
     },
     "overrides": [
@@ -51,6 +54,7 @@ module.exports = {
                 "react/react-in-jsx-scope": 0,
                 "@typescript-eslint/no-unused-vars": 0,
                 "@typescript-eslint/no-explicit-any": 0, //[1, { "ignoreRestArgs": true }],
+                "prefer-const": 1,
             }
         },
         { // Jest files

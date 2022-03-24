@@ -810,6 +810,9 @@ a {
   justify-content: start;
   align-items: center;
 }
+.cql-wizard-filters-overscroll-excess {
+  height: 300px;
+}
 
 .cql-wizard-result-should-exist {
   float: right;

@@ -1,57 +1,30 @@
-import React, { Dispatch, useEffect, useReducer, useState } from "react";
-import { WizardAction, WizardState } from './wizardLogic';
-import * as FHIRClient from '../../helpers/FHIRClient';
+import React, { Dispatch, useEffect, useState } from "react";
+import { SageCoding, WizardAction, WizardState } from './wizardLogic';
 import { Button, Form, ListGroup, Card, Spinner, Overlay, Tooltip, OverlayTrigger, Popover } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faMinus, faPlus, faSearch } from "@fortawesome/pro-solid-svg-icons";
+import { faMinus, faPlus, faQuestion, faQuestionCircle, faSearch } from "@fortawesome/pro-solid-svg-icons";
+import * as Bioportal from './bioportal';
 
 import { CSSTransition, TransitionGroup } from "react-transition-group";
 import { CSSTransitionStrictMode, HoverOverlay } from "../../helpers/CSSTransitionStrictMode";
 
-
-const systemDisplayToUrl = {
-    'SNOMEDCT': 'http://snomed.info/sct',
-    'ICD9CM': 'http://hl7.org/fhir/sid/icd-9-cm',
-    'ICD10': 'http://hl7.org/fhir/sid/icd-10',
-    'ICD10CM': 'http://hl7.org/fhir/sid/icd-10-cm',
-    'NCI': 'http://ncimeta.nci.nih.gov',
-    'LOINC': 'http://loinc.org',
-    'RXNORM': 'http://www.nlm.nih.gov/research/umls/rxnorm',
-    'UCUM': 'http://unitsofmeasure.org',
-    'CPT': 'http://www.ama-assn.org/go/cpt',
-    'CVX': 'http://hl7.org/fhir/sid/cvx'
-  };
+const ALL_SYSTEMS = "__ALL_SYSTEMS__";
 
 interface CqlWizardSelectCodesProps {
     wizDispatch: Dispatch<WizardAction>,
     wizState: WizardState,
 }
 
-export interface VsacResponse {
-    system: string;
-    systemName: string;
-    systemOID: string;
-    version: string;
-    code: string;
-    display: string;
-}
-
 export const CqlWizardSelectCodes: React.FunctionComponent<CqlWizardSelectCodesProps> = (props) => {
-    const [code, setCode] = useState<string>("");
-    const [system, setSystem] = useState<keyof (typeof systemDisplayToUrl)>(Object.keys(systemDisplayToUrl)[0] as keyof (typeof systemDisplayToUrl));
-    const [vsacResponse, setVsacResponse] = useState<VsacResponse[]>([])
+    const [searchInput, setSearchInput] = useState<string>("");
+    const [searchResults, setSearchResults] = useState<SageCoding[]>([]);
+    const [searchSystem, setSearchSystem] = useState<string>(ALL_SYSTEMS);
     const [isSearching, setIsSearching] = useState(false);
 
     const {
         wizState,
         wizDispatch,
     } = props;
-
-    useEffect(() => {
-        if (wizState.codes.length === 0) {
-            wizDispatch(['setCodes', [{"system":"http://snomed.info/sct","systemName":"SNOMEDCT","systemOID":"2.16.840.1.113883.6.96","version":"http://snomed.info/sct/731000124108/version/2021-09","code":"TEMP TEST","display":"Chest pain (finding)"}]])
-        }
-    }, [wizState.codes.length, wizDispatch])
 
     return (
         <div className="cql-wizard-select-code-grid"> 
@@ -64,16 +37,18 @@ export const CqlWizardSelectCodes: React.FunctionComponent<CqlWizardSelectCodesP
                     <ListGroup>
                         <TransitionGroup component={null}>
                             {wizState.codes.map((v, i) => 
-                                <CSSTransitionStrictMode key={`${v.systemOID} ${v.code} ${v.version}`} timeout={250} classNames="cql-wizard-code-transition">
+                                <CSSTransitionStrictMode key={`${v.system} ${v.code} ${v.version}`} timeout={250} classNames="cql-wizard-code-transition">
                                     <HoverOverlay
                                         placement="right"
                                         overlay={
                                             <Popover id={`code-popover-${v.display}`}>
-                                                <Popover.Title as="h3">{`${v.systemName}: ${v.code}`}</Popover.Title>
+                                                <Popover.Title as="h3">{`${v.display}`}</Popover.Title>
                                                 <Popover.Content>
-                                                    {`${v.systemOID}:${v.code}`}
+                                                    {`System: ${v.system}`}
                                                     <br />
-                                                    {`Version: ${v.version}`}
+                                                    {`Code: ${v.code}`}
+                                                    <br />
+                                                    {v.version ? `Version: ${v.version}` : null}
                                                 </Popover.Content>
                                             </Popover>
                                         }
@@ -94,8 +69,8 @@ export const CqlWizardSelectCodes: React.FunctionComponent<CqlWizardSelectCodesP
                             )}
                         </TransitionGroup>
                     </ListGroup>
-
             </Card>
+
             <Card className="cql-wizard-select-code-input-grid" border="secondary">
                 <Form
                     className="cql-wizard-select-code-input-form"
@@ -103,45 +78,67 @@ export const CqlWizardSelectCodes: React.FunctionComponent<CqlWizardSelectCodesP
                         e.preventDefault();
                         e.stopPropagation();
                         setIsSearching(true);
-                        FHIRClient.getCode(code, systemDisplayToUrl[system]).then((res: VsacResponse | null) => {
-                            setVsacResponse(res ? [res, {...res, code: res.code + 1}, {...res, code: res.code + 2}, {...res, code: res.code + 3}, {...res, code: res.code + 4}] : []);
+                        const system = searchSystem === ALL_SYSTEMS ? undefined : [searchSystem];
+                        Bioportal.searchForText(searchInput, system).then(v => {
+                            setSearchResults(v);
                             setIsSearching(false);
-                        });
+                        })
                     }}
                 >
                     <Form.Control autoFocus
-                        onChange={(e) => setCode(e.target.value)}
-                        value={code}
+                        onChange={(e) => setSearchInput(e.target.value)}
+                        value={searchInput}
                     />
                     <Form.Control as="select"
-                        onChange={(e) => setSystem(e.target.value as keyof (typeof systemDisplayToUrl))} 
-                        value={system}
+                        onChange={(e) => setSearchSystem(e.target.value)} 
+                        value={searchSystem}
                         custom
                     >
-                        {Object.entries(systemDisplayToUrl).map((option) => {
-                            return <option key={option[0]} value={option[0]}>{option[0]}</option>
+                        <option key={ALL_SYSTEMS} value={ALL_SYSTEMS}>All Systems</option>
+                        {Object.keys(Bioportal.ontologyToSystemAndVersion).map((system) => {
+                            return <option key={system} value={system}>{system}</option>
                         })}
                     </Form.Control>
                     <Button
                         variant="secondary"
                         size="sm"
                         type="submit"
-                        disabled={code == ""}
+                        disabled={searchInput == ""}
                     >
                         <FontAwesomeIcon icon={faSearch} />
                     </Button>
                     {isSearching && <Spinner animation="border" variant="secondary" role="status" />}
                 </Form>
                 <div className="cql-wizard-select-code-input-result">
-                    {vsacResponse.map(v =>
-                        <Card key={`${v.systemOID} ${v.code} ${v.version}`}>
+                    {searchResults.map(v =>
+                        <Card key={`${v.system} ${v.code} ${v.version}`}>
                             <Card.Body>
-                                <Card.Title>{v.display}</Card.Title>
-                                <Card.Subtitle className="mb-2 text-muted">{v.code} <i>{v.systemName}</i></Card.Subtitle>
+                                <Card.Title>
+                                    {v.display}
+                                    {v.__sageDefinitions !== undefined || v.__sageSynonyms !== undefined ?
+                                        <HoverOverlay
+                                            placement="right"
+                                            overlay={
+                                                <Popover id={`search-result-popover-${v.system}-${v.code}`}>
+                                                    <Popover.Content>
+                                                        {v.__sageDefinitions ? [`Definition(s): ${v.__sageDefinitions.join(", ")}`, <br key="__sageDefinitions-br" />] : null}
+                                                        {v.__sageSynonyms ? `Synonym(s): ${v.__sageSynonyms.join(", ")}` : null}
+                                                    </Popover.Content>
+                                                </Popover>
+                                            }
+                                        >
+                                            <FontAwesomeIcon style={{marginLeft: '10px'}} icon={faQuestionCircle} />
+                                        </HoverOverlay> :
+                                        null
+                                    }
+                                </Card.Title>
+                                <Card.Subtitle className="mb-2 text-muted">
+                                    {v.code} <i>{v.system}</i>
+                                </Card.Subtitle>
                                 <Button
                                     variant="outline-secondary"
                                     size="sm"
-                                    disabled={wizState.codes.some(vCode => (vCode.code === v.code && vCode.systemOID === v.systemOID && vCode.version === v.version)) !== false}
+                                    disabled={wizState.codes.some(existingCode => (existingCode.code === v.code && existingCode.system === v.system && existingCode.version === v.version)) !== false}
                                     onClick={()=>{
                                         wizDispatch(['setCodes', wizState.codes.concat([v])]);
                                     }}

@@ -10,6 +10,7 @@ import State, { SageFreezerNode, SageNodeInitializedFreezerNode } from '../state
 import PrimitiveValidator from './primitive-validator';
 import { Bundle, Resource, Element, ElementDefinition, ElementDefinitionType, ActivityDefinition, PlanDefinition, Questionnaire, Library, ValueSet, FhirResource, CodeSystem } from 'fhir/r4';
 import { defaultProfileUriOfResourceType, FriendlyResourceFormElement, FriendlyResourceProps, profileToFriendlyResourceListEntry, STRUCTURE_DEFINITION, VALUE_SET } from '../simplified/nameHelpers';
+import * as Bioportal from "../simplified/cql-wizard/bioportal";
 
 // Template of a SageNode for a specific element/resource
 export type SageNode = {
@@ -1035,7 +1036,7 @@ export interface SageCodeConcept {
 	definition?: string,
 }
 // Based off of rules at https://www.hl7.org/fhir/valueset.html
-export function getConceptsOfValueSet(valueSet: ValueSet, valueSetDefs: SimplifiedValuesets, codeSystemDefs: SimplifiedCodesystems): SageCodeConcept[] {
+export async function getConceptsOfValueSet(valueSet: ValueSet, valueSetDefs: SimplifiedValuesets, codeSystemDefs: SimplifiedCodesystems): Promise<SageCodeConcept[]> {
 	function warningText(reason: string) {
 		return `Warning: Tried to get codes of valueset "${valueSet.url ?? "[no url found in valueset]"}", but ${reason}`;
 	}
@@ -1051,13 +1052,11 @@ export function getConceptsOfValueSet(valueSet: ValueSet, valueSetDefs: Simplifi
 
 	for (const include of valueSet.compose.include) {
 		if (include.valueSet) {
-			codesOfValueSet.concat(
-				include.valueSet.flatMap(vsUrl =>
-					vsUrl in valueSetDefs ?
-						getConceptsOfValueSet(valueSetDefs[vsUrl].rawElement, valueSetDefs, codeSystemDefs) :
-						[]
-				)
-			);
+			for (const vsUrl of include.valueSet) {
+				if (vsUrl in valueSetDefs) {
+					codesOfValueSet.concat(await getConceptsOfValueSet(valueSetDefs[vsUrl].rawElement, valueSetDefs, codeSystemDefs));
+				}
+			}
 		}
 		if (include.system) {
 			if (include.concept) {
@@ -1077,8 +1076,30 @@ export function getConceptsOfValueSet(valueSet: ValueSet, valueSetDefs: Simplifi
 				)
 			}
 			else if (include.filter) {
-				// TODO: support `include.filter`
-				console.log(warningText(`SAGE does not support reading "include.filter". Some codes may be missing`));
+				if (include.system !== "http://snomed.info/sct") {
+					console.log(warningText(`SAGE only supports "include.filter" for SNOMEDCT. Some codes may be missing`));
+					continue;
+				}
+				let filteredElements: SageCodeConcept[] = [];
+				let firstFilter = true;
+				for (const filter of include.filter) {
+					if (filter.property === "concept") {
+						const codes = await Bioportal.searchForSNOMEDConcept(filter.value);
+						if (firstFilter) {
+							filteredElements.push(...codes);
+						}
+						else {
+							filteredElements.filter(v => codes.some(code => code.code === v.code));
+						}
+					}
+					else {
+						console.log(warningText(`SAGE only supports filtering based on SNOMEDCT concepts. Some codes may be missing`));
+						filteredElements = [];
+						break;
+					}
+					firstFilter = false;
+				}
+				codesOfValueSet.push(...filteredElements)
 			}
 			else {
 				// Add everything from system

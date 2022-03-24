@@ -8,4 +8,7 @@ module.exports = {
       isolatedModules: true, // speeds up tests considerably but disables type-checking (try it)
     },
   },
+  moduleNameMapper: {
+    "\\.css$": "<rootDir>/test/__mocks__/styleMock.js"
+  }
 };

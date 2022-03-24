@@ -1,6 +1,7 @@
 import React, { useRef, useState } from "react";
+import { Overlay } from "react-bootstrap";
+import { OverlayChildren, Placement } from "react-bootstrap/esm/Overlay";
 import CSSTransition, { CSSTransitionProps } from "react-transition-group/CSSTransition";
-import Overlay, { OverlayChildren, Placement } from "react-bootstrap/esm/Overlay";
 
 type CSSTransitionStrictModeProps = CSSTransitionProps & {
     children: React.ReactElement | React.ReactPortal; // Only allows a single element since CSSTransition errors out when given multiple
@@ -31,19 +32,23 @@ interface HoverOverlayProps {
     className?: string, // For the wrapper div
 }
 /**
- * Sort of like react-bootstrap's OverlayTrigger but with ref forwarding (this is needed if it's being nested under CSSTransitionStrictMode)
+ * Sort of like react-bootstrap's OverlayTrigger but React-Strict-Mode-compliant
+ *  with ref forwarding (this is needed if it's being nested under CSSTransitionStrictMode)
  * https://github.com/react-bootstrap/react-bootstrap/issues/5023 (OverlayTrigger will not accept a ref)
  */
 export const HoverOverlay = React.forwardRef<HTMLDivElement, HoverOverlayProps>(function HoverOverlay(props, ref) {
     const hoverTargetRef = useRef(null);
     const [showOverlay, setShowOverlay] = useState(false);
     
+    // Using spans to try to avoid breaking existing styles
     return (
-        <div ref={ref} className={props.className} onMouseOver={() => setShowOverlay(true)} onMouseOut={() => setShowOverlay(false)} >
-            {React.cloneElement(props.children, { ref: hoverTargetRef })}
+        <span ref={ref} className={props.className} onMouseOver={() => setShowOverlay(true)} onMouseOut={() => setShowOverlay(false)} >
+            <span ref={hoverTargetRef} >
+                {props.children}
+            </span>
             <Overlay target={hoverTargetRef.current} show={showOverlay} placement={props.placement}>
                 {props.overlay}
             </Overlay>
-        </div>
+        </span>
     );
 })
