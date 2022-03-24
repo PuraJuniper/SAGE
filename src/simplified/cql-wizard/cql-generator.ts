@@ -96,7 +96,8 @@ export async function generateCqlFromConditions(conditionStates: EditableStateFo
                         }
                     }
 
-                    case "date":{
+                   
+                    case "date":  case "age": {
                         const dateFilter = filter.filter as DateFilter;
                         switch (dateFilter.filteredDate.filterType) {
                             case DateFilterType.None:
@@ -138,6 +139,9 @@ export async function generateCqlFromConditions(conditionStates: EditableStateFo
                                 return null;
                         }
                     }
+
+                    case "boolean":
+                        return null;
 
                     case "unknown":
                         return null;

@@ -50,6 +50,7 @@ export interface StateVars {
 	profiles: SimplifiedProfiles,
 	valuesets: SimplifiedValuesets,
 	codesystems: SimplifiedCodesystems,
+	bioportalApikey?: string,
 }
 
 export interface GeneratedLibraries {
@@ -137,6 +138,7 @@ const defaultStateVars: StateVars = {
 	profiles: {},
 	valuesets: {},
 	codesystems: {},
+	bioportalApikey: process.env.BIOPORTAL_APIKEY ?? undefined
 }
 
 const State = new Freezer<StateVars, SageReactions>(defaultStateVars);

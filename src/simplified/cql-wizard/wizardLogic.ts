@@ -1,10 +1,9 @@
 import State from "../../state";
-import { VsacResponse } from "./cqlWizardSelectCodes";
-import { ACTIVITY_DEFINITION, defaultProfileUriOfResourceType, getFhirSelf, friendlyResourceRoot } from "../nameHelpers";
 import { Moment } from "moment";
 import { SageCondition } from "../medicationRequestForm";
 import { EditableStateForCondition, AggregateType } from "../cardEditor";
 import { getConceptsOfValueSet, SageCodeConcept } from "../../helpers/schema-utils";
+import { Coding } from "fhir/r4";
 
 // Pages of the wizard
 export enum WizardPage {
@@ -20,17 +19,41 @@ export enum StepStatus {
 }
 export const WizardPagesArr: WizardPage[] = [WizardPage.SelectResource, WizardPage.SelectCodes, WizardPage.SelectFilters];
 
+export interface SageCoding extends Coding {
+    code: NonNullable<Coding['code']>
+    display: NonNullable<Coding['display']>
+    system: NonNullable<Coding['system']>
+    version: NonNullable<Coding['version']>
+    __sageDefinitions?: string[],
+    __sageSynonyms?: string[],
+}
+
 // Wizard state and its reducer function
 export interface WizardState {
     page: WizardPage,
-    pageStatus: {[key in WizardPage]: StepStatus},
+    pageStatus: { [key in WizardPage]: StepStatus },
     resType: string,
-    codes: VsacResponse[],
+    codes: SageCoding[],
     filters: ElementFilter[],
+    actionsDisabled: boolean,
 }
-export type WizardAction = ['changePage', WizardPage ] | ['selectExprType', string] | ['setCodes', VsacResponse[]] | ['setFilters', ElementFilter[]] | ['setState', WizardState];
+export type WizardAction = ['changePage', WizardPage ] | ['selectExprType', string, ElementFilter[]] | ['setCodes', SageCoding[]] | ['setFilters', ElementFilter[]] | ['setState', WizardState] | ['disableActions'] | ['enableActions'];
 export function WizardReducer(prevWizState: WizardState, action: WizardAction): WizardState {
+    // If some asynchronous action is being performed, use 'disableActions' and 'enableActions' to drop all events that occur before it is complete
+    if (prevWizState.actionsDisabled && action[0] !== "enableActions") {
+        return prevWizState;
+    }
     switch(action[0]) {
+        case 'disableActions':
+            return {
+                ...prevWizState,
+                actionsDisabled: true,
+            }
+        case 'enableActions':
+            return {
+                ...prevWizState,
+                actionsDisabled: false,
+            }
         case 'setState':
             return {
                 ...action[1]
@@ -53,15 +76,15 @@ export function WizardReducer(prevWizState: WizardState, action: WizardAction): 
                 // Reset selected codes and filters if the selected resource type has changed
                 if (prevWizState.resType != action[1]) {
                     newCodes = [];
-                    newFilters = createExpectedFiltersForResType(action[1]);
+                    newFilters = action[2];
                     newPageStatus[WizardPage.SelectFilters] = newFilters.some(v=>v.filter.error) ? StepStatus.Incomplete : StepStatus.Complete;
                 }
 
                 // Set status of SelectCodes page
                 newPageStatus[WizardPage.SelectCodes] = newCodes.length === 0 ? StepStatus.Incomplete : StepStatus.Complete;
 
-                // Skip code selection if we're filtering for age or gender
-                if (['Gender', 'Age'].includes(action[1])) {
+                // Skip code selection if we're filtering for Patient
+                if (['Patient'].includes(action[1])) {
                     newPageStatus[WizardPage.SelectCodes] = StepStatus.Skipped;
                     newPage = WizardPage.SelectFilters;
                 }
@@ -71,7 +94,7 @@ export function WizardReducer(prevWizState: WizardState, action: WizardAction): 
                         newPageStatus[WizardPage.SelectFilters] = StepStatus.Disabled;
                     }
                 }
-                
+
                 return {
                     ...prevWizState,
                     page: newPage,
@@ -89,12 +112,12 @@ export function WizardReducer(prevWizState: WizardState, action: WizardAction): 
                 }
 
                 // Disable filters page if no code has been selected, unless the resource cannot be filtered by code
-                if (action[1].length === 0 && !(['Gender', 'Age'].includes(prevWizState.resType))) {
-                    newPageStatus[WizardPage.SelectFilters] = StepStatus.Disabled;
-                }
-                else { // Enable filters page otherwise
-                    newPageStatus[WizardPage.SelectFilters] = prevWizState.filters.some(v=>v.filter.error) ? StepStatus.Incomplete : StepStatus.Complete;
-                }
+                // if (action[1].length === 0 && !(['Gender', 'Age'].includes(prevWizState.resType))) {
+                //     newPageStatus[WizardPage.SelectFilters] = StepStatus.Disabled;
+                // }
+                // else { // Enable filters page otherwise
+                    newPageStatus[WizardPage.SelectFilters] = prevWizState.filters.some(v => v.filter.error) ? StepStatus.Incomplete : StepStatus.Complete;
+                // }
 
                 return {
                     ...prevWizState,
@@ -106,7 +129,7 @@ export function WizardReducer(prevWizState: WizardState, action: WizardAction): 
             {
                 const newPageStatus = {
                     ...prevWizState.pageStatus,
-                    [WizardPage.SelectFilters]: action[1].some(v=>v.filter.error) ? StepStatus.Incomplete : StepStatus.Complete,
+                    [WizardPage.SelectFilters]: action[1].some(v => v.filter.error) ? StepStatus.Incomplete : StepStatus.Complete,
                 }
                 return {
                     ...prevWizState,
@@ -137,6 +160,7 @@ export function initFromState(state: WizardState | null): WizardState {
             resType: "",
             codes: [],
             filters: [],
+            actionsDisabled: false,
         }
     }
 }
@@ -144,8 +168,9 @@ export function initFromState(state: WizardState | null): WizardState {
 // Various types for filtering by FHIR element
 export interface ElementFilter {
     elementName: string,
-    filter: CodingFilter | DateFilter | UnknownFilter,
+    filter: CodingFilter | DateFilter | BooleanFilter |  UnknownFilter,
 }
+
 export interface CodingFilter {
     type: "coding",
     filteredCoding: {
@@ -166,7 +191,7 @@ interface CodeBinding {
     definition: string | undefined
 }
 export interface DateFilter {
-    type: "date",
+    type: "date" | "age",
     filteredDate: {
         filterType: DateFilterType,
         absoluteDate1: Moment | null,
@@ -196,7 +221,11 @@ export enum RelativeDateUnit {
     Months = "months",
     Years = "years",
 }
-
+export interface BooleanFilter {
+    type: "boolean",
+    filteredBoolean: boolean | null,
+    error: false, // All possibilities for this filter are accepted
+}
 export interface UnknownFilter {
     type: "unknown",
     curValue: unknown,
@@ -206,7 +235,7 @@ export interface UnknownFilter {
 // Returns a filter type for the given element path in the profile identified by `url`
 // These filter types should include all information needed by the UI to know what controls should be displayed
 //  to the user for the element.
-function getFilterType(url: string, elementFhirPath: string): CodingFilter | DateFilter | UnknownFilter {
+async function getFilterType(url: string, elementFhirPath: string): Promise<CodingFilter | DateFilter | BooleanFilter | UnknownFilter> {
     const unknownFilter: UnknownFilter = {
         type: "unknown",
         curValue: "test",
@@ -218,7 +247,7 @@ function getFilterType(url: string, elementFhirPath: string): CodingFilter | Dat
         return unknownFilter;
     }
 
-    if (elementSchema.type[0]?.code === "code" || elementSchema.type[0]?.code === "CodeableConcept") {
+    if (elementSchema.type[0]?.code === "code" || elementSchema.type[0]?.code === "CodeableConcept" || elementSchema.type[0]?.code === "Coding") {
         const valueSetReference = elementSchema.binding?.reference;
         if (valueSetReference === undefined) {
             console.log(`No code bindings exist for ${elementFhirPath}`);
@@ -229,7 +258,7 @@ function getFilterType(url: string, elementFhirPath: string): CodingFilter | Dat
             console.log(`ValueSet ${valueSetReference} could not be found`);
             return unknownFilter
         }
-        const codes = getConceptsOfValueSet(valueSet.rawElement, State.get().valuesets, State.get().codesystems);
+        const codes = await getConceptsOfValueSet(valueSet.rawElement, State.get().valuesets, State.get().codesystems);
 
         const codingFilter: CodingFilter = {
             type: 'coding',
@@ -247,9 +276,9 @@ function getFilterType(url: string, elementFhirPath: string): CodingFilter | Dat
         }
         return codingFilter;
     }
-    else if (elementSchema.type[0]?.code === "dateTime") {
-        const dateFilter: DateFilter = {
-            type: "date",
+    else if (["dateTime", "date"].includes(elementSchema.type[0]?.code)) {
+        const filter: DateFilter = {
+            type: elementFhirPath.endsWith(".birthDate") ? "age" : "date",
             dateBinding: {
                 definition: elementSchema.rawElement.definition,
             },
@@ -261,35 +290,84 @@ function getFilterType(url: string, elementFhirPath: string): CodingFilter | Dat
             },
             error: false,
         }
-        return dateFilter;
+        return filter;
+    }
+    else if (elementSchema.type[0]?.code === "boolean") {
+        const booleanFilter: BooleanFilter = {
+            type: "boolean",
+            filteredBoolean: null,
+            error: false,
+        }
+        return booleanFilter;
     }
     else {
+        console.debug("unknown", elementSchema);
         return unknownFilter;
     }
 }
 
 // Should be rewritten to use friendly-names
-function createExpectedFiltersForResType(resType: string): ElementFilter[] {
+export async function createExpectedFiltersForResType(resType: string): Promise<ElementFilter[]> {
+    let expectedElements: string[] = [];
+    let schemaResType = resType;
+    let url = "";
     switch(resType) {
         case "MedicationRequest": {
-            const expectedElements = ['status', 'intent', 'category', 'authoredOn']
+            expectedElements = ['status', 'statusReason', 'intent', 'category', 'doNotPerform', 'authoredOn']
             // const url = friendlyResourceRoot.RESOURCES.find(v => v.SELF.FHIR === ACTIVITY_DEFINITION)?.LIST?.find(lv => lv.FHIR === resType)?.DEFAULT_PROFILE_URI;
-            const url = "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-medicationrequest"; // temporary
-            return expectedElements.map(expectedElement => {
-                return {
-                    elementName: expectedElement,
-                    filter: getFilterType(url, `${resType}.${expectedElement}`)
-                }
-            })
+            url = "http://hl7.org/fhir/StructureDefinition/MedicationRequest"; // temporary
+            break;
         }
-        default:
-            return []
+        case "MedicationStatement": {
+            expectedElements = ['status', 'statusReason', 'category', 'effective[x]']
+            url = "http://hl7.org/fhir/StructureDefinition/MedicationStatement"; // temporary
+            break;
+        }
+        case "AllergyIntolerance":
+            expectedElements = ['clinicalStatus', 'verificationStatus', 'type', 'category', 'criticality', 'onset[x]', 'recordedDate', 'reaction'];
+            url = "http://hl7.org/fhir/StructureDefinition/AllergyIntolerance"; // temporary
+            break;
+        case "Condition":
+            expectedElements = ['clinicalStatus', 'verificationStatus', 'category', 'onset[x]', 'abatement[x]', 'recordedDate', 'stage']
+            url = "http://hl7.org/fhir/StructureDefinition/Condition"
+            break;
+        case "Encounter":
+            expectedElements = ['status', 'statusHistory', 'class', 'classHistory', 'serviceType', 'priority', 'period', 'hospitalization']
+            url = "http://hl7.org/fhir/StructureDefinition/Encounter"
+            break;
+        case "Immunization":
+            expectedElements = ['status', 'occurrence[x]', 'recorded']
+            url = "http://hl7.org/fhir/StructureDefinition/Immunization"
+            break;
+        case "Observation":
+            expectedElements = ['status', 'category', 'effective[x]', 'value[x]']
+            url = "http://hl7.org/fhir/StructureDefinition/Observation"
+            break;
+        case "Procedure":
+            expectedElements = ['status', 'statusReason', 'category', 'performed[x]']
+            url = "http://hl7.org/fhir/StructureDefinition/Procedure"
+            break;
+        case "ServiceRequest":
+            expectedElements = ['status', 'intent', 'category', 'priority', 'doNotPerform', 'occurrence[x]', 'authoredOn']
+            url = "http://hl7.org/fhir/StructureDefinition/ServiceRequest"
+            break;
+        case "Patient":
+            expectedElements = ['birthDate','gender'];
+            schemaResType = "Patient";
+            url = "http://hl7.org/fhir/StructureDefinition/Patient";
+            break;
     }
+    return Promise.all(expectedElements.map(async (expectedElement) => {
+        return {
+            elementName: expectedElement,
+            filter: await getFilterType(url, `${schemaResType}.${expectedElement}`)
+        }
+    }));
 }
 
 // Should be rewritten to use friendly-names
 export function getSelectableResourceTypes() {
-    return ['AllergyIntolerance', 'Condition', 'Age', 'Gender', 'Device', 'Encounter', 'Immunization', 'MedicationStatement', 'MedicationRequest', 'Observation', 'Procedure', 'ServiceRequest']
+    return ['AllergyIntolerance', 'Condition', 'Device', 'Encounter', 'Immunization', 'MedicationStatement', 'MedicationRequest', 'Observation', 'Procedure', 'ServiceRequest', 'Patient']
 }
 
 export function getNextPage(curPage: WizardPage, stepStatus: WizardState["pageStatus"]): [true, WizardPage | null] | [false, WizardPage | null] {
@@ -327,16 +405,16 @@ export function getPrevPage(curPage: WizardPage, stepStatus: WizardState["pageSt
 }
 
 // Temporary storage/loading of wizard states for purpose of cql export feature
-const exprToWizStateMap: {[key: string]: EditableStateForCondition} = {};
+const exprToWizStateMap: { [key: string]: EditableStateForCondition } = {};
 export function buildEditableStateFromCondition(condition: SageCondition): EditableStateForCondition {
     return exprToWizStateMap[condition.id] !== undefined ?
         exprToWizStateMap[condition.id] :
-        { 
-            conditionId: condition.id, 
+        {
+            conditionId: condition.id,
             exprAggregate: {
                 aggregate: AggregateType.Exists
             },
-            curWizState: initFromState(null) 
+            curWizState: initFromState(null)
         };
 }
 export function saveEditableStateForConditionId(conditionId: string, stateToSave: EditableStateForCondition) {
