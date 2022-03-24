@@ -1,5 +1,4 @@
 import State from "../../state";
-import { ACTIVITY_DEFINITION, defaultProfileUriOfResourceType, getFhirSelf, friendlyResourceRoot } from "../nameHelpers";
 import { Moment } from "moment";
 import { SageCondition } from "../medicationRequestForm";
 import { EditableStateForCondition, AggregateType } from "../cardEditor";
@@ -32,7 +31,7 @@ export interface SageCoding extends Coding {
 // Wizard state and its reducer function
 export interface WizardState {
     page: WizardPage,
-    pageStatus: {[key in WizardPage]: StepStatus},
+    pageStatus: { [key in WizardPage]: StepStatus },
     resType: string,
     codes: SageCoding[],
     filters: ElementFilter[],
@@ -84,8 +83,8 @@ export function WizardReducer(prevWizState: WizardState, action: WizardAction): 
                 // Set status of SelectCodes page
                 newPageStatus[WizardPage.SelectCodes] = newCodes.length === 0 ? StepStatus.Incomplete : StepStatus.Complete;
 
-                // Skip code selection if we're filtering for age or gender
-                if (['Gender', 'Age'].includes(action[1])) {
+                // Skip code selection if we're filtering for Patient
+                if (['Patient'].includes(action[1])) {
                     newPageStatus[WizardPage.SelectCodes] = StepStatus.Skipped;
                     newPage = WizardPage.SelectFilters;
                 }
@@ -95,7 +94,7 @@ export function WizardReducer(prevWizState: WizardState, action: WizardAction): 
                         newPageStatus[WizardPage.SelectFilters] = StepStatus.Disabled;
                     }
                 }
-                
+
                 return {
                     ...prevWizState,
                     page: newPage,
@@ -113,12 +112,12 @@ export function WizardReducer(prevWizState: WizardState, action: WizardAction): 
                 }
 
                 // Disable filters page if no code has been selected, unless the resource cannot be filtered by code
-                if (action[1].length === 0 && !(['Gender', 'Age'].includes(prevWizState.resType))) {
-                    newPageStatus[WizardPage.SelectFilters] = StepStatus.Disabled;
-                }
-                else { // Enable filters page otherwise
-                    newPageStatus[WizardPage.SelectFilters] = prevWizState.filters.some(v=>v.filter.error) ? StepStatus.Incomplete : StepStatus.Complete;
-                }
+                // if (action[1].length === 0 && !(['Gender', 'Age'].includes(prevWizState.resType))) {
+                //     newPageStatus[WizardPage.SelectFilters] = StepStatus.Disabled;
+                // }
+                // else { // Enable filters page otherwise
+                    newPageStatus[WizardPage.SelectFilters] = prevWizState.filters.some(v => v.filter.error) ? StepStatus.Incomplete : StepStatus.Complete;
+                // }
 
                 return {
                     ...prevWizState,
@@ -130,7 +129,7 @@ export function WizardReducer(prevWizState: WizardState, action: WizardAction): 
             {
                 const newPageStatus = {
                     ...prevWizState.pageStatus,
-                    [WizardPage.SelectFilters]: action[1].some(v=>v.filter.error) ? StepStatus.Incomplete : StepStatus.Complete,
+                    [WizardPage.SelectFilters]: action[1].some(v => v.filter.error) ? StepStatus.Incomplete : StepStatus.Complete,
                 }
                 return {
                     ...prevWizState,
@@ -169,8 +168,9 @@ export function initFromState(state: WizardState | null): WizardState {
 // Various types for filtering by FHIR element
 export interface ElementFilter {
     elementName: string,
-    filter: CodingFilter | DateFilter | BooleanFilter | UnknownFilter,
+    filter: CodingFilter | DateFilter | BooleanFilter |  UnknownFilter,
 }
+
 export interface CodingFilter {
     type: "coding",
     filteredCoding: {
@@ -191,7 +191,7 @@ interface CodeBinding {
     definition: string | undefined
 }
 export interface DateFilter {
-    type: "date",
+    type: "date" | "age",
     filteredDate: {
         filterType: DateFilterType,
         absoluteDate1: Moment | null,
@@ -276,9 +276,9 @@ async function getFilterType(url: string, elementFhirPath: string): Promise<Codi
         }
         return codingFilter;
     }
-    else if (elementSchema.type[0]?.code === "dateTime" || elementSchema.type[0]?.code === "date") {
-        const dateFilter: DateFilter = {
-            type: "date",
+    else if (["dateTime", "date"].includes(elementSchema.type[0]?.code)) {
+        const filter: DateFilter = {
+            type: elementFhirPath.endsWith(".birthDate") ? "age" : "date",
             dateBinding: {
                 definition: elementSchema.rawElement.definition,
             },
@@ -290,7 +290,7 @@ async function getFilterType(url: string, elementFhirPath: string): Promise<Codi
             },
             error: false,
         }
-        return dateFilter;
+        return filter;
     }
     else if (elementSchema.type[0]?.code === "boolean") {
         const booleanFilter: BooleanFilter = {
@@ -351,13 +351,8 @@ export async function createExpectedFiltersForResType(resType: string): Promise<
             expectedElements = ['status', 'intent', 'category', 'priority', 'doNotPerform', 'occurrence[x]', 'authoredOn']
             url = "http://hl7.org/fhir/StructureDefinition/ServiceRequest"
             break;
-        case "Age":
-            expectedElements = ['birthDate'];
-            schemaResType = "Patient";
-            url = "http://hl7.org/fhir/StructureDefinition/Patient";
-            break;
-        case "Gender":
-            expectedElements = ['gender'];
+        case "Patient":
+            expectedElements = ['birthDate','gender'];
             schemaResType = "Patient";
             url = "http://hl7.org/fhir/StructureDefinition/Patient";
             break;
@@ -372,7 +367,7 @@ export async function createExpectedFiltersForResType(resType: string): Promise<
 
 // Should be rewritten to use friendly-names
 export function getSelectableResourceTypes() {
-    return ['AllergyIntolerance', 'Condition', 'Age', 'Gender', 'Device', 'Encounter', 'Immunization', 'MedicationStatement', 'MedicationRequest', 'Observation', 'Procedure', 'ServiceRequest']
+    return ['AllergyIntolerance', 'Condition', 'Device', 'Encounter', 'Immunization', 'MedicationStatement', 'MedicationRequest', 'Observation', 'Procedure', 'ServiceRequest', 'Patient']
 }
 
 export function getNextPage(curPage: WizardPage, stepStatus: WizardState["pageStatus"]): [true, WizardPage | null] | [false, WizardPage | null] {
@@ -410,16 +405,16 @@ export function getPrevPage(curPage: WizardPage, stepStatus: WizardState["pageSt
 }
 
 // Temporary storage/loading of wizard states for purpose of cql export feature
-const exprToWizStateMap: {[key: string]: EditableStateForCondition} = {};
+const exprToWizStateMap: { [key: string]: EditableStateForCondition } = {};
 export function buildEditableStateFromCondition(condition: SageCondition): EditableStateForCondition {
     return exprToWizStateMap[condition.id] !== undefined ?
         exprToWizStateMap[condition.id] :
-        { 
-            conditionId: condition.id, 
+        {
+            conditionId: condition.id,
             exprAggregate: {
                 aggregate: AggregateType.Exists
             },
-            curWizState: initFromState(null) 
+            curWizState: initFromState(null)
         };
 }
 export function saveEditableStateForConditionId(conditionId: string, stateToSave: EditableStateForCondition) {

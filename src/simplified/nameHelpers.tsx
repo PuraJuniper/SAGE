@@ -46,6 +46,7 @@ export const PLAN_DEFINITION = getType("PlanDefinition");
 export const ACTIVITY_DEFINITION = getType("ActivityDefinition");
 export const LIBRARY = getType("Library");
 export const QUESTIONNAIRE = getType("Questionnaire");
+export const PATIENT = getType("Patient")
 export const DATA_ELEMENT = getType("DataElement");
 export const VALUE_SET = getType("ValueSet");
 export const STRUCTURE_DEFINITION = getType("StructureDefinition");
