@@ -120,12 +120,9 @@ const createTextBoxElement = (fieldKey: string, friendlyFieldName: string, textP
 const createDropdownElement = (fieldKey: string, fieldFriendlyName: string, fieldElements: string[], fieldHandlers: any[][], node: SageNodeInitializedFreezerNode): JSX.Element => {
     const [fieldName, fieldContents, setField, fieldSaveHandler] = simpleCardField(fieldKey, node);
     fieldHandlers.push([fieldName, fieldContents, setField, fieldSaveHandler]);
-    let isInvalid;
-    //console.log(document.getElementsByClassName('form-control')[8].value)
-    //console.log(document.getElementById('resource').value)
+    
     function checkIfActive(fieldName: string){
-        return (fieldName == "type") ?  (relatedArtifactIsValid == true && fieldHandlers[9][1] != ''
-        ? false : true) :false
+        return (fieldName == "type") ?  (relatedArtifactIsValid == true && fieldHandlers[7][1] != '' ? false : true) :false
     }
     return (
         <Form.Group key={fieldName + "-fromGroup"} as={Col} controlId={fieldKey}>
