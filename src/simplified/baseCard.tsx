@@ -52,7 +52,6 @@ export const BaseCard = (props: BaseCardProps) => {
                 if (e.target instanceof Element && e.target.tagName !== "svg" && e.target.tagName !== "path" && props.clickable) {
                     setShow(false);
                     if (State.get().bundle?.resources.length) {
-                        State.emit("save_changes_to_bundle_json");
                         State.get().bundle.set("pos", State.get().bundle.resources.length-1);
                         State.get().ui.set("openMode", "insert");
                     }
@@ -73,16 +72,12 @@ export const BaseCard = (props: BaseCardProps) => {
                             {
                                 resource: {
                                     resourceType: PLAN_DEFINITION,
-                                    library: [],
+                                    library: "", // r4 expects library as an array, cpg expects a single value (we are always using the cpg spec in basic view)
                                     action: [
                                         {
                                             title: "",
                                             description: "",
-                                            condition: [
-                                                {
-                                                    kind: "applicability",
-                                                }
-                                            ],
+                                            condition: [],
                                             definitionCanonical: referencedResourceUrl
                                         }
                                     ]
@@ -91,6 +86,8 @@ export const BaseCard = (props: BaseCardProps) => {
                         ]
                     };
                     State.emit("load_json_resource", json);
+                    // Set current editor position to the last resource (should be the PlanDefinition in `json` after the "load_json_resource" call)
+                    State.emit("set_bundle_pos", State.get().bundle.resources.length-1);
                 }
             }}
         >

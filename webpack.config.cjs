@@ -17,7 +17,11 @@ module.exports = (env) => {
 				'/structor': 'http://localhost:9001',
 				'/iframe': 'http://localhost:9001', // also for structor
 			},
-			port: 8080
+			port: 8083,
+			allowedHosts: [
+				'localhost:8083',
+				'dev.sage.junipercds.com'
+			]
 		},
 		entry: {
 			bundle: './src/index.tsx',
@@ -51,6 +55,10 @@ module.exports = (env) => {
 					],
 					exclude: /node_modules/,
 				},
+				{
+					test:[ /react-datepicker.css/,  /_datepicker.css/],
+					use: ["style-loader", "css-loader"],
+				}
 			]
 		},
 		resolve: {
@@ -58,6 +66,6 @@ module.exports = (env) => {
 			modules: ["node_modules"]
 		}
 	};
-	
+
 	return config;
 }

@@ -115,7 +115,7 @@ class RootComponent extends React.Component<RootProps, RootState> {
 		const prevStatus = this.state.prevStatus;
 		
 
-		if (state.bundle && state.mode !== "basic") {
+		if (state.bundle.resources.length > 0 && state.mode !== "basic") {
 			bundleBar = <BundleBar bundle={state.bundle} />;
 		}
 
@@ -128,13 +128,13 @@ class RootComponent extends React.Component<RootProps, RootState> {
 		} else if (state.ui.status === "collection" || 
 				prevStatus === "collection" && changeLessContentStatuses.includes(state.ui.status)) {
 			return <Collection />
-		} else if (state.bundle) {
+		} else if (state.bundle.resources.length > 0) {
 			return (
 					state.mode === "basic" ? 
-					<PlanDefEditor planDefNode={state.bundle.resources[state.bundle.pos+1]} /> :
+					<PlanDefEditor planDefNode={state.bundle.resources[state.bundle.pos]} planDefPos={state.bundle.pos} /> :
 					<DomainResource node={state.bundle.resources[state.bundle.pos]} errFields={state.errFields}/>
 			);
-		} else if (!state.bundle && (state.ui.status.indexOf("error") === -1)) {
+		} else if (state.ui.status.indexOf("error") === -1) {
 			return <div className="row" style={{marginTop: "60px", marginBottom: "60px"}}><div className="col-xs-offset-4 col-xs-4">
 				<button className="btn btn-primary btn-block" onClick={this.handleOpen.bind(this)}>
 					Create Resource
@@ -219,14 +219,17 @@ class RootComponent extends React.Component<RootProps, RootState> {
 				<ExportDialog show={state.ui.status === "export"} bundle={state.bundle} />
 				<ChangeProfileDialog show={state.ui.status === "change_profile"} nodeToChange={state.bundle.resources[state.bundle.pos]}
 					profiles={state.profiles}/>
-				<ValueSetDialog show={state.ui.status === "valueSet"} node={state.ui.selectedNode} 
-					profile={state.bundle.resources[state.bundle.pos].profile} valueset={state.valuesets} />
-				<SelectResourceDialog show={state.ui.status === "select"} node={state.ui.selectedNode} 
-					bundle = {state.bundle} resourceTypeFilter={state.ui.selectCanonicalResourceTypeFilter} /> 
-				<CodePickerDialog show={state.ui.status === "codePicker"} node={state.ui.selectedNode} />
 			</>
-			: ""
-			}
+			: null}
+			{state.ui.selectedNode ? 
+				<>
+					<ValueSetDialog show={state.ui.status === "valueSet"} node={state.ui.selectedNode} 
+						profile={state.bundle.resources[state.bundle.pos].profile} valueset={state.valuesets} />
+					<SelectResourceDialog show={state.ui.status === "select"} node={state.ui.selectedNode} 
+						bundle = {state.bundle} resourceTypeFilter={state.ui.selectCanonicalResourceTypeFilter} /> 
+					<CodePickerDialog show={state.ui.status === "codePicker"} node={state.ui.selectedNode} />
+				</> :
+				null}
 			<UserSettingsDialog show={state.ui.status === "settings"} />
 		</div>;
 	}

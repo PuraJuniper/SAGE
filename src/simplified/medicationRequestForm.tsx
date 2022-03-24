@@ -1,9 +1,17 @@
-import { Resource } from "fhir/r4";
-import React from "react";
-import { Col, Form, Row } from "react-bootstrap";
-import { ICardForm } from "./cardEditor";
+import React, { useState } from "react";
+import { Col, Form, ListGroup, Row, Button, Card, InputGroup } from "react-bootstrap";
+import { EditableStateForCondition, ICardForm, AggregateType, WizExprAggregate } from "./cardEditor";
 import { FriendlyResourceProps } from "./nameHelpers";
 import { textBoxProps } from "./outerCardForm";
+import { CqlWizardModal } from "./cql-wizard/cqlWizardModal"
+import { PlanDefinitionActionCondition } from "fhir/r4";
+import { CodeFilterType, DateFilterType, saveEditableStateForConditionId, WizardState } from "./cql-wizard/wizardLogic";
+import { convertFormInputToNumber } from "./cql-wizard/cqlWizardSelectFilters";
+
+// Make `id` a required property
+export interface SageCondition extends PlanDefinitionActionCondition {
+    id: NonNullable<PlanDefinitionActionCondition['id']>
+}
 
 export class MedicationRequestForm implements ICardForm {
 
@@ -127,7 +135,7 @@ export class MedicationRequestForm implements ICardForm {
             <Form.Group key='freeTextplaceholder-formGroup' as={Col} style={{'margin': 0, 'flex': '0 0 35%'}}>
             </Form.Group>;
         return (
-            <div>{
+            <>{
                 ...this.cardFieldLayout.cardColumns.map((cr, i: number) => {
                     return (
                         <Row key={"row-" + i} style={{'marginLeft': -100}}>
@@ -141,13 +149,131 @@ export class MedicationRequestForm implements ICardForm {
                         </Row>
                     )
                 })
-            }</div>
+            }</>
         );
     }
 
     pageTwo: ICardForm['pageTwo'] = (props) => {
+        const [showWiz, setShowWiz] = useState(false);
+        const [currentlyEditedState, setCurrentlyEditedState] = useState<EditableStateForCondition>(()=>props.generateNewCondition());
+
+        // Various callbacks for CQL Wizard Dialog
+        function handleEditExpression(editedExpr: EditableStateForCondition) {
+            setCurrentlyEditedState(editedExpr);
+            setShowWiz(true);
+        }
+        function handleCreateExpression() {
+            setCurrentlyEditedState(props.generateNewCondition());
+            setShowWiz(true);
+        }
+        function handleClose() {
+            setShowWiz(false);
+        }
+        function handleSaveAndClose(newWizState: WizardState) {
+            const newEditedState: EditableStateForCondition = {
+                ...currentlyEditedState,
+                curWizState: newWizState,
+            }
+            saveEditableStateForConditionId(currentlyEditedState.conditionId, newEditedState); // Temp
+            props.persistEditedCondition(newEditedState)
+            handleClose();
+        }
+
+        function handleConditionAggregate(draftCondition: EditableStateForCondition, newAggregate: WizExprAggregate) {
+            saveEditableStateForConditionId(draftCondition.conditionId, {
+                ...draftCondition,
+                exprAggregate: newAggregate,
+            }); // Temp
+            props.persistEditedCondition({
+                ...draftCondition,
+                exprAggregate: newAggregate,
+            });
+        }
+
         return (
-            <div key="page2">{props.conditions}</div>
+            <>
+            <React.StrictMode>
+                <CqlWizardModal show={showWiz} initialWizState={currentlyEditedState.curWizState} onClose={handleClose} onSaveAndClose={handleSaveAndClose} />
+                <Button onClick={() => handleCreateExpression()} >
+                    New Expression..
+                </Button>
+                <ListGroup>
+                    {props.draftConditions.flatMap(draft => {
+                        return draft.curWizState !== null ? [
+                            <Card key={draft.conditionId}>
+                                <Card.Body>
+                                    <Card.Title>{draft.curWizState.resType}</Card.Title>
+                                    <Card.Subtitle className="mb-2 text-muted">{`With one of the codes ${draft.curWizState.codes.map(code=>code.code).join(', ')}`}</Card.Subtitle>
+                                    <Card.Text>
+                                        With the following restrictions:
+                                        <br />
+                                        {draft.curWizState.filters.flatMap(v => {
+                                            switch(v.filter.type) {
+                                                case "coding":
+                                                    if (v.filter.filteredCoding.filterType === CodeFilterType.None) {
+                                                        return [];
+                                                    }
+                                                    else {
+                                                        const codes = v.filter.codeBinding.codes;
+                                                        return [`${v.elementName} is one of [${v.filter.filteredCoding.selectedIndexes.map(index => codes[index].display ?? codes[index].code).join(', ')}]`];
+                                                    }
+                                                case "date":
+                                                    if (v.filter.filteredDate.filterType === DateFilterType.None) {
+                                                        return [];
+                                                    }
+                                                    else {
+                                                        return ['some date (display WIP)'];
+                                                    }
+                                                default:
+                                                    return [];
+                                            }
+                                        }).join(', and ')}
+                                    </Card.Text>
+                                    <Button onClick={() => handleEditExpression(draft)}>Edit</Button>
+                                </Card.Body>
+                                <Card.Footer>
+                                    <div className="cql-wizard-result-should-exist">
+                                        <Button variant="outline-danger" active={draft.exprAggregate.aggregate === AggregateType.DoesNotExist}
+                                            onClick={()=>handleConditionAggregate(draft, { ...draft.exprAggregate, aggregate: AggregateType.DoesNotExist })}
+                                        >
+                                            Should Not Exist
+                                        </Button>
+                                        <Button variant="outline-success" active={draft.exprAggregate.aggregate === AggregateType.Exists}
+                                            onClick={()=>handleConditionAggregate(draft, { ...draft.exprAggregate, aggregate: AggregateType.Exists })}
+                                        >
+                                            Should Exist
+                                        </Button>
+                                        <InputGroup>
+                                            <InputGroup.Prepend>
+                                                <Button variant="outline-primary" active={draft.exprAggregate.aggregate === AggregateType.AtLeast}
+                                                    onClick={()=>handleConditionAggregate(draft, { ...draft.exprAggregate, aggregate: AggregateType.AtLeast })}
+                                                >
+                                                    At Least
+                                                </Button>
+                                                <Button variant="outline-primary" active={draft.exprAggregate.aggregate === AggregateType.NoMoreThan}
+                                                    onClick={()=>handleConditionAggregate(draft, { ...draft.exprAggregate, aggregate: AggregateType.NoMoreThan })}
+                                                >
+                                                    No More Than
+                                                </Button>
+                                            </InputGroup.Prepend>
+                                            <Form.Control
+                                                placeholder="Count for aggregate"
+                                                type="number"
+                                                disabled={!([AggregateType.AtLeast, AggregateType.NoMoreThan].includes(draft.exprAggregate.aggregate))}
+                                                defaultValue={1}
+                                                min={0}
+                                                onChange={e => handleConditionAggregate(draft, { aggregate: draft.exprAggregate.aggregate, count: convertFormInputToNumber(e.target.value, 1) })}
+                                            />
+                                        </InputGroup>
+                                    </div>
+                                </Card.Footer>
+                            </Card>
+                        ] : 
+                        [];
+                    })}
+                </ListGroup>
+            </React.StrictMode>
+            </>
         );
     }
 

@@ -423,6 +423,18 @@ a {
   background-color: #296a90;
 } */
 
+.folder .basic-collection-library-loading {
+  position:absolute;
+  top:100px;
+  left:213px;
+  width:30px;
+  height:30px;
+  border-radius:30px;
+  border: 0px;
+  /* background-color:#25a5f5; */
+  font-size:17px;
+}
+
 /* BUTTONS */
 
 .navigate {
@@ -619,4 +631,194 @@ a {
 .basic-page-titles{
   font-weight: bold;
   font-size: large;
+}
+
+/* CQL Wizard */
+.cql-wizard-modal {
+  height: 50rem;
+}
+.cql-wizard-modal-body {
+  padding: initial;
+  overflow: hidden;
+}
+.cql-wizard-nav-button {
+  height: 100%;
+  border-radius: 0;
+}
+
+.cql-wizard-header-content {
+  width: 100%;
+  display: grid;
+  grid-template-columns: min-content 1fr; /* Pagination, Title */
+  place-items: center;
+}
+.cql-wizard-pagination {
+  margin: 10px; /* Override bootstrap pagination's `margin-bottom: 16px` */
+}
+.cql-wizard-pagination-text {
+  text-align: center;
+}
+
+.cql-wizard-body-content {
+  height: 100%;
+  width: 100%;
+  display: grid;
+  grid-template-columns: 10% 1fr 10%; /* Back Button, Page Content, Forward Button */
+}
+.cql-wizard-page-content-closest-positioned-ancestor {
+  /* https://developer.mozilla.org/en-US/docs/Web/CSS/position - See positioning details for "absolute"*/
+  position: relative;
+}
+.cql-wizard-page-content {
+  overflow-y: auto;
+  margin: 15px;
+  padding: 5px;
+  position: absolute;
+  /* https://keithjgrant.com/posts/2016/01/width-and-absolute-positioning/ */
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+}
+
+.cql-wizard-content-transition-enter { /* cql-wizard-content-transition usable by CSSTransition */
+  opacity: 0;
+  transform: scale(0.9);
+}
+.cql-wizard-content-transition-enter-active {
+  opacity: 1;
+  transform: translateX(0);
+  transition: opacity 300ms, transform 300ms;
+}
+.cql-wizard-content-transition-exit {
+  opacity: 1;
+}
+.cql-wizard-content-transition-exit-active {
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.9);
+  transition: opacity 300ms, transform 300ms;
+}
+
+.cql-wizard-select-resource-container {
+  height: 100%;
+  width: 100%;
+  position: relative;
+}
+.cql-wizard-select-resource-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 215px);
+  gap: 10px;
+  place-content: center;
+  height: 100%;
+}
+.cql-wizard-select-resource-warning {
+  position: absolute;
+  background-color: rgba(255,255,255,0.85);
+  height: 100%;
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  place-items: center;
+}
+.cql-wizard-select-resource-warning-text {
+  grid-column: 1 / 3;
+  text-align: center;
+}
+
+.cql-wizard-select-code-grid {
+  display: grid;
+  grid-template-columns: 50% 50%; /* Selected codes, Search area */
+  grid-template-rows: 100%;
+  gap: 5px;
+  height: 100%; /* We're fixing the height here so that we have control over which child containers are scrollable */
+}
+.cql-wizard-select-code-input-grid {
+  display: grid;
+  grid-template-rows: 50px 1fr; /* Search bar, Search results */
+  padding: 10px;
+}
+.cql-wizard-select-code-input-form {
+  display: grid;
+  grid-template-columns: 5fr 4fr 1fr 1.5fr; /* Code search, System select, Submit button, Loading indicator*/
+  gap: 5px;
+  place-items: center;
+  place-content: space-around;
+}
+.cql-wizard-select-code-input-result {
+  display: grid;
+  grid-auto-rows: min-content;
+  gap: 10px;
+  overflow-y: auto;
+}
+.cql-wizard-code-selection-item-remove-btn {
+  margin-right: 0.5rem;
+}
+.cql-wizard-code-transition-enter { /* cql-wizard-code-transition usable by CSSTransition */
+  opacity: 0;
+}
+.cql-wizard-code-transition-enter-active {
+  opacity: 1;
+  transition: opacity 250ms ease-in;
+}
+.cql-wizard-code-transition-exit {
+  opacity: 1;
+}
+.cql-wizard-code-transition-exit-active {
+  opacity: 0;
+  transition: opacity 250ms ease-in;
+}
+.cql-wizard-select-code-selection-grid {
+  overflow-y: auto;
+  padding: 10px;
+}
+.cql-wizard-select-code-selection-empty {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  justify-content: center;
+  align-content: center;
+  flex-direction: column;
+  text-align: center;
+}
+
+.cql-wizard-select-filters-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.cql-wizard-element-filters-button-group {
+  display: grid;
+  grid-auto-flow: column;
+}
+.cql-wizard-element-filters-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.cql-wizard-element-filters-button-ignored {
+  opacity: 0.5;
+}
+.cql-wizard-element-filters-relative-date-controls {
+  display: grid;
+  grid-auto-columns: 100px 1fr; /* Number input field, Relative unit button group */
+  grid-auto-flow: column;
+  gap: 3px;
+  justify-content: start;
+  align-items: center;
+}
+
+.cql-wizard-result-should-exist {
+  float: right;
+  display: grid;
+  grid-auto-flow: column;
+  gap: 10px;
+}
+
+.text-dotted-underline {
+  text-decoration-line: underline;
+  text-decoration-style: dotted;
 }
