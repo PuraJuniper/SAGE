@@ -168,12 +168,7 @@ export function initFromState(state: WizardState | null): WizardState {
 // Various types for filtering by FHIR element
 export interface ElementFilter {
     elementName: string,
-    filter: CodingFilter | DateFilter | AgeFilter | BooleanFilter |  UnknownFilter,
-}
-
-export interface AgeFilter extends DateFilter {
-    type: "age"
-    filter: CodingFilter | DateFilter | AgeFilter | BooleanFilter | UnknownFilter,
+    filter: CodingFilter | DateFilter | BooleanFilter |  UnknownFilter,
 }
 
 export interface CodingFilter {
@@ -282,7 +277,7 @@ async function getFilterType(url: string, elementFhirPath: string): Promise<Codi
         return codingFilter;
     }
     else if (["dateTime", "date"].includes(elementSchema.type[0]?.code)) {
-        const filter: DateFilter | AgeFilter = {
+        const filter: DateFilter = {
             type: elementFhirPath.endsWith(".birthDate") ? "age" : "date",
             dateBinding: {
                 definition: elementSchema.rawElement.definition,
