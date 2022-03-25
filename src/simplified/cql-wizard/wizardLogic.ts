@@ -2,7 +2,7 @@ import State from "../../state";
 import { Moment } from "moment";
 import { SageCondition } from "../medicationRequestForm";
 import { EditableStateForCondition, AggregateType } from "../cardEditor";
-import { getConceptsOfValueSet, SageCodeConcept } from "../../helpers/schema-utils";
+import { getConceptsOfValueSet, ProfileDefs, SageCodeConcept, SimplifiedProfiles } from "../../helpers/schema-utils";
 import { Coding } from "fhir/r4";
 
 // Pages of the wizard
@@ -166,9 +166,18 @@ export function initFromState(state: WizardState | null): WizardState {
 }
 
 // Various types for filtering by FHIR element
+
+type GenericFilter = {
+    error: boolean
+};
 export interface ElementFilter {
     elementName: string,
-    filter: CodingFilter | DateFilter | BooleanFilter |  UnknownFilter,
+    filter: CodingFilter | DateFilter | BooleanFilter | BackboneFilter |  UnknownFilter,
+}
+
+export interface BackboneFilter extends GenericFilter {
+    type: "backbone",
+    subFilters: GenericFilter[]
 }
 
 export interface CodingFilter {
@@ -235,7 +244,7 @@ export interface UnknownFilter {
 // Returns a filter type for the given element path in the profile identified by `url`
 // These filter types should include all information needed by the UI to know what controls should be displayed
 //  to the user for the element.
-async function getFilterType(url: string, elementFhirPath: string): Promise<CodingFilter | DateFilter | BooleanFilter | UnknownFilter> {
+async function getFilterType(url: string, elementFhirPath: string): Promise<CodingFilter | DateFilter | BooleanFilter | BackboneFilter | UnknownFilter> {
     const unknownFilter: UnknownFilter = {
         type: "unknown",
         curValue: "test",
@@ -299,6 +308,17 @@ async function getFilterType(url: string, elementFhirPath: string): Promise<Codi
             error: false,
         }
         return booleanFilter;
+    }
+    else if (elementSchema.type[0]?.code === "BackboneElement") {
+        console.debug("BackboneElement", elementSchema);
+        const reactionExpectedElems = ["severity"];
+        const expectedFilters =  await Promise.all(reactionExpectedElems.map(ee => getFilterType(url, elementFhirPath.concat(".", ee))));
+        const BackboneFilter: BackboneFilter = {
+            type: "backbone",
+            subFilters: expectedFilters,
+            error: false
+        }
+        return unknownFilter;
     }
     else {
         console.debug("unknown", elementSchema);

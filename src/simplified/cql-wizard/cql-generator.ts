@@ -145,6 +145,9 @@ export async function generateCqlFromConditions(conditionStates: EditableStateFo
 
                     case "unknown":
                         return null;
+                    
+                    default:
+                        return null;
                 }
             }
             const clauses = conditionState.curWizState.filters.flatMap(filter => {

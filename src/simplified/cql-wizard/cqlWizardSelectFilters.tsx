@@ -562,6 +562,13 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
                                 Unknown Filter {elementFilter.elementName}
                             </div>
                         )
+                
+                    default:
+                        return (
+                            <div key={elementFilter.elementName}>
+                                Unhandled {elementFilter.elementName}
+                            </div>
+                        )
                 }
             })}
             <div className="cql-wizard-filters-overscroll-excess" />
