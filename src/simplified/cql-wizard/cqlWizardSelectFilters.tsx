@@ -188,15 +188,19 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
                                 </div>
                             );
                         case "backbone":
-                            // const backBoneFilter = elementFilter.filter;
                             return (
+
+                                            //TODO: make this work
                                 <Card>
                                     <Card.Body>
                                         <Card.Title className="cql-wizard-element-filters-header">
                                             {`${elemFilter.elementName[0].toUpperCase()}${elemFilter.elementName.slice(1)}`}
-                                            {/* {
-                        backBoneFilter.subFilters.map(sf => )
-                    } */}
+                                            {(() => {
+                                                elemFilter.filter.subFilters.map(sf => {
+                                                    return getFilterUI(sf)
+                                                });
+                                            
+                                            })()}
                                         </Card.Title>
                                     </Card.Body>
                                 </Card>
