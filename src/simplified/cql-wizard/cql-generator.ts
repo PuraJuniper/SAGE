@@ -140,6 +140,9 @@ export async function generateCqlFromConditions(conditionStates: EditableStateFo
                         }
                     }
 
+                    case "BackboneElement":
+                        return null;
+
                     case "boolean":
                         return null;
 

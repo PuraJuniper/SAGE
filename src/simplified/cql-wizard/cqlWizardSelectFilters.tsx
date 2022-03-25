@@ -1,5 +1,5 @@
 import React, { Dispatch, useEffect, useState } from "react";
-import { BooleanFilter, CodeFilterType, CodingFilter, DateFilter, DateFilterType, RelativeDateUnit, WizardAction, WizardState } from './wizardLogic';
+import { BooleanFilter, CodeFilterType, CodingFilter, DateFilter, DateFilterType,HospitalizationFilter, HospitalizationFilterType, RelativeDateUnit, WizardAction, WizardState } from './wizardLogic';
 import { ToggleButtonGroup, ToggleButton, Card, Form, Container, InputGroup, FormControl, DropdownButton, Dropdown } from 'react-bootstrap';
 import { ElementFilter } from './wizardLogic';
 import 'react-dates/initialize';
@@ -527,6 +527,33 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
                                 </Card>
                             </div>
                         );
+                    }
+                    case "BackboneElement": {
+                        const booleanFilter = elementFilter.filter;
+                        return (
+                            <div key={elementFilter.elementName}>
+                                <Card>
+                                    <Card.Body>
+                                        <Card.Title className="cql-wizard-element-filters-header">
+                                            {`${elementFilter.elementName[0].toUpperCase()}${elementFilter.elementName.slice(1)}`}
+                                            
+                                            <ToggleButtonGroup
+                                                type="radio"
+                                                name={`${elementFilter.elementName}-boolean`}
+                                                onChange={newBoolOption => {
+                                                    const newBool = newBoolOption === BooleanSelectOptions.Any ? null : newBoolOption === BooleanSelectOptions.True ? true : false;
+                                                    dispatchNewBooleanFilter(elementFilter.elementName, newBool)
+                                                }}
+                                            >
+                                                <ToggleButton variant="outline-secondary" value={BooleanSelectOptions.Any}>Any</ToggleButton>
+                                                <ToggleButton variant="outline-secondary" value={BooleanSelectOptions.True}>True</ToggleButton>
+                                                <ToggleButton variant="outline-secondary" value={BooleanSelectOptions.False}>False</ToggleButton>
+                                            </ToggleButtonGroup>
+                                        </Card.Title>
+                                    </Card.Body>
+                                </Card>
+                            </div>
+                        )
                     }
                     case "boolean": {
                         const booleanFilter = elementFilter.filter;
