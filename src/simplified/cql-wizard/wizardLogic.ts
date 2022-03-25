@@ -168,7 +168,7 @@ export function initFromState(state: WizardState | null): WizardState {
 // Various types for filtering by FHIR element
 export interface ElementFilter {
     elementName: string,
-    filter: CodingFilter | DateFilter | BooleanFilter |  UnknownFilter,
+    filter: CodingFilter | DateFilter | BooleanFilter | PeriodFilter | UnknownFilter,
 }
 
 export interface CodingFilter {
@@ -221,6 +221,24 @@ export enum RelativeDateUnit {
     Months = "months",
     Years = "years",
 }
+export interface PeriodFilter {
+    type: "period",
+    filteredDate: {
+        periodType: PeriodFilterType,
+        startDate: Moment | null,
+        endDate: Moment | null,
+    },
+    dateBinding: {
+        definition: string | undefined
+    },
+    error: boolean,
+}
+export enum PeriodFilterType {
+    None = "any_period",
+    Until = "unknown_start",
+    Ongoing = "unknown_end",
+    Between = "between_dates"
+}
 export interface BooleanFilter {
     type: "boolean",
     filteredBoolean: boolean | null,
@@ -235,7 +253,7 @@ export interface UnknownFilter {
 // Returns a filter type for the given element path in the profile identified by `url`
 // These filter types should include all information needed by the UI to know what controls should be displayed
 //  to the user for the element.
-async function getFilterType(url: string, elementFhirPath: string): Promise<CodingFilter | DateFilter | BooleanFilter | UnknownFilter> {
+async function getFilterType(url: string, elementFhirPath: string): Promise<CodingFilter | DateFilter | BooleanFilter | PeriodFilter | UnknownFilter> {
     const unknownFilter: UnknownFilter = {
         type: "unknown",
         curValue: "test",
@@ -287,6 +305,21 @@ async function getFilterType(url: string, elementFhirPath: string): Promise<Codi
                 absoluteDate1: null,
                 absoluteDate2: null,
                 relativeAmount: 0,
+            },
+            error: false,
+        }
+        return filter;
+    }
+    else if (["Period"].includes(elementSchema.type[0]?.code)) {
+        const filter: PeriodFilter = {
+            type: "period",
+            dateBinding: {
+                definition: elementSchema.rawElement.definition,
+            },
+            filteredDate: {
+                periodType: PeriodFilterType.None,
+                startDate: null,
+                endDate: null,
             },
             error: false,
         }
