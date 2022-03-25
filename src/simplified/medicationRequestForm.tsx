@@ -7,6 +7,7 @@ import { CqlWizardModal } from "./cql-wizard/cqlWizardModal"
 import { PlanDefinitionActionCondition } from "fhir/r4";
 import { CodeFilterType, DateFilterType, saveEditableStateForConditionId, WizardState } from "./cql-wizard/wizardLogic";
 import { convertFormInputToNumber } from "./cql-wizard/cqlWizardSelectFilters";
+import { CodeableConceptEditorProps } from "./codeableConceptEditor";
 
 // Make `id` a required property
 export interface SageCondition extends PlanDefinitionActionCondition {
@@ -85,10 +86,12 @@ export class MedicationRequestForm implements ICardForm {
             ['active', 'on-hold', 'cancelled', 'completed', 'entered-in-error', 'stopped', 'draft', 'unknown']],
         ['intent',
             ['proposal', 'plan', 'order', 'original-order', 'reflex-order', 'filler-order', 'instance-order', 'option']],
-        ['productReference',
-            ['proposal', 'plan', 'order', 'original-order', 'reflex-order', 'filler-order', 'instance-order', 'option']],
         ['periodUnit',
             ['s', 'min', 'h', 'd', 'wk', 'mo', 'a']]
+    ]);
+
+    codeableConceptFields: Map<string, Partial<CodeableConceptEditorProps>> = new Map<string, Partial<CodeableConceptEditorProps>>([
+        ['productCodeableConcept', {}]
     ]);
 
     resourceFields = ['dosage', 'timing', 'repeat', 'relatedArtifact', 'doseAndRate', 'doseQuantity'];
@@ -97,7 +100,7 @@ export class MedicationRequestForm implements ICardForm {
         {
             cardColumns: [
                 ['placeholder', 'placeholder'],
-                ['title', 'productReference'],
+                ['title', 'productCodeableConcept'],
                 ['description', 'productDescription'],
                 ['status', 'value'],
                 ['intent', 'unit'],
@@ -116,7 +119,7 @@ export class MedicationRequestForm implements ICardForm {
             ['title'],
             ['description'],
             ['relatedArtifact'],
-            ['productReference'],
+            ['productCodeableConcept'],
             ['text']
         ]
 
