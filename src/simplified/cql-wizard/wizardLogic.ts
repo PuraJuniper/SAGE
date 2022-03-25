@@ -313,12 +313,12 @@ async function getFilterType(url: string, elementFhirPath: string): Promise<Codi
         console.debug("BackboneElement", elementSchema);
         const reactionExpectedElems = ["severity"];
         const expectedFilters =  await Promise.all(reactionExpectedElems.map(ee => getFilterType(url, elementFhirPath.concat(".", ee))));
-        const BackboneFilter: BackboneFilter = {
+        const backboneFilter: BackboneFilter = {
             type: "backbone",
             subFilters: expectedFilters,
             error: false
         }
-        return unknownFilter;
+        return backboneFilter;
     }
     else {
         console.debug("unknown", elementSchema);
