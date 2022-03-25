@@ -180,7 +180,7 @@ const createCodeableConceptElement = (fieldKey: string, fieldFriendlyName: strin
             <Row className="page1-row-element">
                 <Form.Label key={fieldName + "-label"}>{fieldFriendlyName}</Form.Label>
                 <Col key={fieldName + "-col"} className = 'page1-input-fields'>
-                    <CodeableConceptEditor {...codeableConceptEditorPropsOverrides} curCodeableConcept={codeableConcept} setCurCodeableConcept={setCodeableConcept} />
+                    <CodeableConceptEditor {...codeableConceptEditorPropsOverrides} curCodeableConcept={codeableConcept} setCurCodeableConcept={setCodeableConcept} codeValueSetUrl={"http://hl7.org/fhir/ValueSet/medication-codes"} />
                 </Col>
             </Row>
         </Form.Group>
