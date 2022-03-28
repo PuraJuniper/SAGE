@@ -93,7 +93,7 @@ export class MedicationRequestForm implements ICardForm {
         ['intent',
             ['proposal', 'plan', 'order', 'original-order', 'reflex-order', 'filler-order', 'instance-order', 'option']],
         ['periodUnit',
-            ['s', 'min', 'h', 'd', 'wk', 'mo', 'a']],
+            ['h', 'd', 'wk', 'mo', 'a']],
         ['type',
             ['documentation', 'justification', 'citation', 'predecessor', 'successor', 'derived-from', 'depends-on', 'composed-of']]
     ]);
