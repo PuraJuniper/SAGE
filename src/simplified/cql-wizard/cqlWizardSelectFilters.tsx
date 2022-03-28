@@ -154,453 +154,465 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
         });
     }
 
-    return (
-        //TODO: add filter to group backbone elems into different handling
-        <div className="cql-wizard-select-filters-grid">
-            {props.wizState.filters.map((elementFilter): JSX.Element => {
-                return getFilterUI(elementFilter);
+    function getFilterUI(elemFilter: ElementFilter) {
+        switch (elemFilter.filter.type) {
+            case "coding": {
+                return (
+                    codingFilterUI(elemFilter)
+                );
+            }
+            case "date": {
+                return (
+                    dateFilterUI(elemFilter)
+                );
+            }
+            case "age": {
+                return (
+                    ageFilterUI(elemFilter)
+                );
+            }
+            case "boolean": {
+                return (
+                    booleanFilterUI(elemFilter)
+                );
+            }
+            case "unknown":
+                return (
+                    <div key={elemFilter.elementName}>
+                        Unknown Filter {elemFilter.elementName}
+                    </div>
+                );
 
-                function getFilterUI(elemFilter: ElementFilter) {
-                    switch (elemFilter.filter.type) {
-                        case "coding": {
-                            return (
-                                codingFilterUI(elemFilter)
-                            );
-                        }
-                        case "date": {
-                            return (
-                                dateFilterUI(elemFilter)
-                            );
-                        }
-                        case "age": {
-                            return (
-                                ageFilterUI(elemFilter)
-                            );
-                        }
-                        case "boolean": {
-                            return (
-                                booleanFilterUI(elemFilter)
-                            );
-                        }
-                        case "unknown":
-                            return (
-                                <div key={elemFilter.elementName}>
-                                    Unknown Filter {elemFilter.elementName}
-                                </div>
-                            );
-                        // case "backbone":
-                        //     return (
-                        //         <div key={elemFilter.elementName}>
-                        //         {/* <Card>
-                        //             <Card.Body>
-                        //                 <Card.Title className="cql-wizard-element-filters-header"> */}
-                        //                     {`${elemFilter.elementName[0].toUpperCase()}${elemFilter.elementName.slice(1)}`}
-                        //                     {
-                        //                         elemFilter.filter.subFilters.map(sf => {
-                        //                             return getFilterUI(sf)
-                        //                         })
-                        //                     }
-                        //                 {/* </Card.Title>
-                        //             </Card.Body>
-                        //         </Card> */}
-                        //         {/* </div>
-                        //     ); */}
+            default:
+                return (
+                    <div key={elemFilter.elementName}>
+                        Unhandled {elemFilter.elementName}
+                    </div>
+                );
+        }
+    }
 
-                        default:
-                            return (
-                                <div key={elementFilter.elementName}>
-                                    Unhandled {elementFilter.elementName}
-                                </div>
-                            );
-                    }
-                }
+    function booleanFilterUI(elementFilter: ElementFilter): JSX.Element {
+        const booleanFilter = elementFilter.filter as BooleanFilter
+        return <div key={elementFilter.elementName}>
+            <Card>
+                <Card.Body>
+                    <Card.Title className="cql-wizard-element-filters-header">
+                        {`${elementFilter.elementName[0].toUpperCase()}${elementFilter.elementName.slice(1)}`}
 
-                function booleanFilterUI(elemFilter: ElementFilter): JSX.Element {
-                    const booleanFilter = elemFilter.filter as BooleanFilter
-                    return <div key={elementFilter.elementName}>
-                        <Card>
-                            <Card.Body>
-                                <Card.Title className="cql-wizard-element-filters-header">
-                                    {`${elementFilter.elementName[0].toUpperCase()}${elementFilter.elementName.slice(1)}`}
-
-                                    <ToggleButtonGroup
-                                        type="radio"
-                                        name={`${elementFilter.elementName}-boolean`}
-                                        value={booleanFilter.filteredBoolean === null ? BooleanSelectOptions.Any : booleanFilter.filteredBoolean ? BooleanSelectOptions.True : BooleanSelectOptions.False}
-                                        onChange={newBoolOption => {
-                                            const newBool = newBoolOption === BooleanSelectOptions.Any ? null : newBoolOption === BooleanSelectOptions.True ? true : false;
-                                            dispatchNewBooleanFilter(elementFilter.elementName, newBool);
-                                        } }
-                                    >
-                                        <ToggleButton variant="outline-secondary" value={BooleanSelectOptions.Any}>Any</ToggleButton>
-                                        <ToggleButton variant="outline-secondary" value={BooleanSelectOptions.True}>True</ToggleButton>
-                                        <ToggleButton variant="outline-secondary" value={BooleanSelectOptions.False}>False</ToggleButton>
-                                    </ToggleButtonGroup>
-                                </Card.Title>
-                            </Card.Body>
-                        </Card>
-                    </div>;
-                }
-
-                function ageFilterUI(elemFilter: ElementFilter): JSX.Element {
-                    const ageFilter = elemFilter.filter as DateFilter
-                    return <div key={elementFilter.elementName}>
-                        <Card>
-                            <Card.Body>
-                                <Card.Title className="cql-wizard-element-filters-header">
-                                    {`${elementFilter.elementName[0].toUpperCase()}${elementFilter.elementName.slice(1)}`}
-                                    <ToggleButtonGroup
-                                        type="radio"
-                                        name={`${elementFilter.elementName}-age-type`}
-                                        value={getDateTypeFromFilterType(ageFilter.filteredDate.filterType)}
-                                        onChange={newDateType => {
-                                            const newFilterType = newDateType === DateType.None ? DateFilterType.None : newDateType === DateType.Relative ? DateFilterType.OlderThan : DateFilterType.Before;
-                                            dispatchNewDateFilter(elementFilter.elementName, newFilterType);
-                                        } }
-                                    >
-                                        <ToggleButton variant="outline-secondary" value={DateType.None}>Any</ToggleButton>
-                                        <ToggleButton variant="outline-secondary" value={DateType.Absolute}>Date</ToggleButton>
-                                        <ToggleButton variant="outline-secondary" value={DateType.Relative}>Age</ToggleButton>
-                                    </ToggleButtonGroup>
-                                    <ToggleButtonGroup
-                                        type="radio"
-                                        name={`${elementFilter.elementName}-age-filter-type`}
-                                        value={ageFilter.filteredDate.filterType}
-                                        onChange={newFilterType => dispatchNewDateFilter(elementFilter.elementName, newFilterType)}
-                                    >
-                                        {(() => {
-                                            switch (getDateTypeFromFilterType(ageFilter.filteredDate.filterType)) {
-                                                case DateType.Absolute:
-                                                    return [
-                                                        <ToggleButton key={DateFilterType.Before} variant="outline-secondary" value={DateFilterType.Before}>Before</ToggleButton>,
-                                                        <ToggleButton key={DateFilterType.After} variant="outline-secondary" value={DateFilterType.After}>After</ToggleButton>,
-                                                        <ToggleButton key={DateFilterType.Between} variant="outline-secondary" value={DateFilterType.Between}>Between</ToggleButton>
-                                                    ];
-                                                case DateType.Relative:
-                                                    return [
-                                                        <ToggleButton key={DateFilterType.OlderThan} variant="outline-secondary" value={DateFilterType.OlderThan}>Older than</ToggleButton>,
-                                                        <ToggleButton key={DateFilterType.NewerThan} variant="outline-secondary" value={DateFilterType.NewerThan}>Younger than</ToggleButton>
-                                                    ];
-                                                case DateType.None:
-                                                    return undefined;
-                                            }
-                                        })()}
-                                    </ToggleButtonGroup>
-                                </Card.Title>
-
-                                {(() => {
-                                    switch (ageFilter.filteredDate.filterType) {
-                                        case DateFilterType.Before:
-                                        case DateFilterType.After:
-                                            return (
-                                                <SingleDatePicker
-                                                    openDirection="down"
-                                                    numberOfMonths={1}
-                                                    showClearDate
-                                                    reopenPickerOnClearDate
-                                                    onClose={({ date }) => dispatchNewDateFilter(elementFilter.elementName, ageFilter.filteredDate.filterType, date)}
-                                                    isOutsideRange={() => false}
-                                                    id={`${elementFilter.elementName}-date-1`}
-                                                    date={datePickerStates[elementFilter.elementName].dateOne}
-                                                    onDateChange={date => setDatePickerStates((oldState) => {
-                                                        return {
-                                                            ...oldState,
-                                                            [elementFilter.elementName]: {
-                                                                ...oldState[elementFilter.elementName],
-                                                                dateOne: date,
-                                                            }
-                                                        };
-                                                    })}
-                                                    focused={datePickerStates[elementFilter.elementName].focusDateOne}
-                                                    onFocusChange={({ focused }) => setDatePickerStates((oldState) => {
-                                                        return {
-                                                            ...oldState,
-                                                            [elementFilter.elementName]: {
-                                                                ...oldState[elementFilter.elementName],
-                                                                focusDateOne: focused,
-                                                            }
-                                                        };
-                                                    })} />
-                                            );
-                                        case DateFilterType.Between:
-                                            return (
-                                                <DateRangePicker
-                                                    openDirection="down"
-                                                    showClearDates
-                                                    reopenPickerOnClearDates
-                                                    onClose={({ startDate, endDate }) => dispatchNewDateFilter(elementFilter.elementName, ageFilter.filteredDate.filterType, startDate, endDate)}
-                                                    isOutsideRange={() => false}
-                                                    startDate={datePickerStates[elementFilter.elementName].dateOne}
-                                                    startDateId={`${elementFilter.elementName}-date-between-start`}
-                                                    endDate={datePickerStates[elementFilter.elementName].dateTwo}
-                                                    endDateId={`${elementFilter.elementName}-date-between-end`}
-                                                    onDatesChange={({ startDate, endDate }) => setDatePickerStates((oldState) => {
-                                                        return {
-                                                            ...oldState,
-                                                            [elementFilter.elementName]: {
-                                                                ...oldState[elementFilter.elementName],
-                                                                dateOne: startDate,
-                                                                dateTwo: endDate,
-                                                            }
-                                                        };
-                                                    })}
-                                                    focusedInput={datePickerStates[elementFilter.elementName].focusDateOne ? 'startDate' : datePickerStates[elementFilter.elementName].focusDateTwo ? 'endDate' : null}
-                                                    onFocusChange={focusedInput => setDatePickerStates((oldState) => {
-                                                        return {
-                                                            ...oldState,
-                                                            [elementFilter.elementName]: {
-                                                                ...oldState[elementFilter.elementName],
-                                                                focusDateOne: focusedInput === 'startDate',
-                                                                focusDateTwo: focusedInput === 'endDate',
-                                                            }
-                                                        };
-                                                    })} />
-                                            );
-                                        case DateFilterType.NewerThan:
-                                        case DateFilterType.OlderThan:
-                                            return (
-                                                <div className="cql-wizard-element-filters-relative-date-controls">
-                                                    <Form.Control
-                                                        placeholder="Amount of time"
-                                                        type="number"
-                                                        defaultValue={ageFilter.filteredDate.relativeAmount}
-                                                        min={0}
-                                                        onChange={e => dispatchNewDateFilter(
-                                                            elementFilter.elementName, ageFilter.filteredDate.filterType, undefined, undefined,
-                                                            ageFilter.filteredDate.relativeUnit, convertFormInputToNumber(e.target.value, ageFilter.filteredDate.relativeAmount))} />
-                                                    <ToggleButtonGroup
-                                                        type="radio"
-                                                        name={`${elementFilter.elementName}-date-relative-unit`}
-                                                        value={ageFilter.filteredDate.relativeUnit}
-                                                        onChange={newUnit => dispatchNewDateFilter(elementFilter.elementName, ageFilter.filteredDate.filterType, undefined, undefined, newUnit, ageFilter.filteredDate.relativeAmount)}
-                                                    >
-                                                        <ToggleButton variant="outline-primary" value={RelativeDateUnit.Weeks}>Week(s)</ToggleButton>
-                                                        <ToggleButton variant="outline-primary" value={RelativeDateUnit.Months}>Month(s)</ToggleButton>
-                                                        <ToggleButton variant="outline-primary" value={RelativeDateUnit.Years}>Year(s)</ToggleButton>
-                                                    </ToggleButtonGroup>
-                                                </div>
-                                            );
-                                    }
-                                })()}
-                            </Card.Body>
-                        </Card>
-                    </div>;
-                }
-
-                function dateFilterUI(elemFilter: ElementFilter): JSX.Element {
-                    const dateFilter = elemFilter.filter as DateFilter
-                    return <div key={elementFilter.elementName}>
-                        <Card>
-                            <Card.Body>
-                                <Card.Title className="cql-wizard-element-filters-header">
-                                    {`${elementFilter.elementName[0].toUpperCase()}${elementFilter.elementName.slice(1)}`}
-
-                                    <ToggleButtonGroup
-                                        type="radio"
-                                        name={`${elementFilter.elementName}-date-type`}
-                                        value={getDateTypeFromFilterType(dateFilter.filteredDate.filterType)}
-                                        onChange={newDateType => {
-                                            const newFilterType = newDateType === DateType.None ? DateFilterType.None : newDateType === DateType.Relative ? DateFilterType.OlderThan : DateFilterType.Before;
-                                            dispatchNewDateFilter(elementFilter.elementName, newFilterType);
-                                        } }
-                                    >
-                                        <ToggleButton variant="outline-secondary" value={DateType.None}>Any Date</ToggleButton>
-                                        <ToggleButton variant="outline-secondary" value={DateType.Relative}>Relative</ToggleButton>
-                                        <ToggleButton variant="outline-secondary" value={DateType.Absolute}>Absolute</ToggleButton>
-                                    </ToggleButtonGroup>
-
-                                    <ToggleButtonGroup
-                                        type="radio"
-                                        name={`${elementFilter.elementName}-date-filter-type`}
-                                        value={dateFilter.filteredDate.filterType}
-                                        onChange={newFilterType => dispatchNewDateFilter(elementFilter.elementName, newFilterType)}
-                                    >
-                                        {(() => {
-                                            switch (getDateTypeFromFilterType(dateFilter.filteredDate.filterType)) {
-                                                case DateType.Absolute:
-                                                    return [
-                                                        <ToggleButton key={DateFilterType.Before} variant="outline-secondary" value={DateFilterType.Before}>Before</ToggleButton>,
-                                                        <ToggleButton key={DateFilterType.After} variant="outline-secondary" value={DateFilterType.After}>After</ToggleButton>,
-                                                        <ToggleButton key={DateFilterType.Between} variant="outline-secondary" value={DateFilterType.Between}>Between</ToggleButton>
-                                                    ];
-                                                case DateType.Relative:
-                                                    return [
-                                                        <ToggleButton key={DateFilterType.OlderThan} variant="outline-secondary" value={DateFilterType.OlderThan}>Older than</ToggleButton>,
-                                                        <ToggleButton key={DateFilterType.NewerThan} variant="outline-secondary" value={DateFilterType.NewerThan}>Within last</ToggleButton>
-                                                    ];
-                                                case DateType.None:
-                                                    return undefined;
-                                            }
-                                        })()}
-                                    </ToggleButtonGroup>
-                                </Card.Title>
-                                {(() => {
-                                    switch (dateFilter.filteredDate.filterType) {
-                                        case DateFilterType.Before:
-                                        case DateFilterType.After:
-                                            return (
-                                                <SingleDatePicker
-                                                    openDirection="down"
-                                                    numberOfMonths={1}
-                                                    showClearDate
-                                                    reopenPickerOnClearDate
-                                                    onClose={({ date }) => dispatchNewDateFilter(elementFilter.elementName, dateFilter.filteredDate.filterType, date)}
-                                                    isOutsideRange={() => false}
-                                                    id={`${elementFilter.elementName}-date-1`}
-                                                    date={datePickerStates[elementFilter.elementName].dateOne}
-                                                    onDateChange={date => setDatePickerStates((oldState) => {
-                                                        return {
-                                                            ...oldState,
-                                                            [elementFilter.elementName]: {
-                                                                ...oldState[elementFilter.elementName],
-                                                                dateOne: date,
-                                                            }
-                                                        };
-                                                    })}
-                                                    focused={datePickerStates[elementFilter.elementName].focusDateOne}
-                                                    onFocusChange={({ focused }) => setDatePickerStates((oldState) => {
-                                                        return {
-                                                            ...oldState,
-                                                            [elementFilter.elementName]: {
-                                                                ...oldState[elementFilter.elementName],
-                                                                focusDateOne: focused,
-                                                            }
-                                                        };
-                                                    })} />
-                                            );
-                                        case DateFilterType.Between:
-                                            return (
-                                                <DateRangePicker
-                                                    openDirection="down"
-                                                    showClearDates
-                                                    reopenPickerOnClearDates
-                                                    onClose={({ startDate, endDate }) => dispatchNewDateFilter(elementFilter.elementName, dateFilter.filteredDate.filterType, startDate, endDate)}
-                                                    isOutsideRange={() => false}
-                                                    startDate={datePickerStates[elementFilter.elementName].dateOne}
-                                                    startDateId={`${elementFilter.elementName}-date-between-start`}
-                                                    endDate={datePickerStates[elementFilter.elementName].dateTwo}
-                                                    endDateId={`${elementFilter.elementName}-date-between-end`}
-                                                    onDatesChange={({ startDate, endDate }) => setDatePickerStates((oldState) => {
-                                                        return {
-                                                            ...oldState,
-                                                            [elementFilter.elementName]: {
-                                                                ...oldState[elementFilter.elementName],
-                                                                dateOne: startDate,
-                                                                dateTwo: endDate,
-                                                            }
-                                                        };
-                                                    })}
-                                                    focusedInput={datePickerStates[elementFilter.elementName].focusDateOne ? 'startDate' : datePickerStates[elementFilter.elementName].focusDateTwo ? 'endDate' : null}
-                                                    onFocusChange={focusedInput => setDatePickerStates((oldState) => {
-                                                        return {
-                                                            ...oldState,
-                                                            [elementFilter.elementName]: {
-                                                                ...oldState[elementFilter.elementName],
-                                                                focusDateOne: focusedInput === 'startDate',
-                                                                focusDateTwo: focusedInput === 'endDate',
-                                                            }
-                                                        };
-                                                    })} />
-                                            );
-                                        case DateFilterType.NewerThan:
-                                        case DateFilterType.OlderThan:
-                                            return (
-                                                <div className="cql-wizard-element-filters-relative-date-controls">
-                                                    <Form.Control
-                                                        placeholder="Amount of time"
-                                                        type="number"
-                                                        defaultValue={dateFilter.filteredDate.relativeAmount}
-                                                        min={0}
-                                                        onChange={e => dispatchNewDateFilter(
-                                                            elementFilter.elementName, dateFilter.filteredDate.filterType, undefined, undefined,
-                                                            dateFilter.filteredDate.relativeUnit, convertFormInputToNumber(e.target.value, dateFilter.filteredDate.relativeAmount))} />
-                                                    <ToggleButtonGroup
-                                                        type="radio"
-                                                        name={`${elementFilter.elementName}-date-relative-unit`}
-                                                        value={dateFilter.filteredDate.relativeUnit}
-                                                        onChange={newUnit => dispatchNewDateFilter(elementFilter.elementName, dateFilter.filteredDate.filterType, undefined, undefined, newUnit, dateFilter.filteredDate.relativeAmount)}
-                                                    >
-                                                        <ToggleButton variant="outline-primary" value={RelativeDateUnit.Minutes}>Minute(s)</ToggleButton>
-                                                        <ToggleButton variant="outline-primary" value={RelativeDateUnit.Hours}>Hour(s)</ToggleButton>
-                                                        <ToggleButton variant="outline-primary" value={RelativeDateUnit.Days}>Day(s)</ToggleButton>
-                                                        <ToggleButton variant="outline-primary" value={RelativeDateUnit.Weeks}>Week(s)</ToggleButton>
-                                                        <ToggleButton variant="outline-primary" value={RelativeDateUnit.Months}>Month(s)</ToggleButton>
-                                                        <ToggleButton variant="outline-primary" value={RelativeDateUnit.Years}>Year(s)</ToggleButton>
-                                                    </ToggleButtonGroup>
-                                                </div>
-                                            );
-                                    }
-                                })()}
-                            </Card.Body>
-                        </Card>
-                    </div>;
-                }
-
-                function codingFilterUI(elementFilter: ElementFilter): JSX.Element {
-                    const codeFilter = elementFilter.filter as CodingFilter;
-                    return <>
-                        {(() => {
-                            const codeBinding = codeFilter.codeBinding;
-                            if (!codeBinding) {
-                                return (
-                                    <div key={`${elementFilter.elementName}-no-binding`}>No binding found for {elementFilter.elementName}</div>
-                                );
-                            } else {
-                                return (<div key={elementFilter.elementName}>
-                                    <Card>
-                                        <Card.Body>
-                                            <Card.Title className={`cql-wizard-element-filters-header-${elementFilter.elementName}`}>
-                                                {`${elementFilter.elementName[0].toUpperCase()}${elementFilter.elementName.slice(1)}`}
-
-                                                {/* Need to nest ToggleButton in ToggleButtonGroup to prevent a checkbox appearing inside the ToggleButton (bug in react-bootstrap?) */}
-                                                <ToggleButtonGroup
-                                                    type="radio"
-                                                    name={`${elementFilter.elementName}-code-filter-type`}
-                                                    value={codeFilter.filteredCoding.filterType === CodeFilterType.None ? "Any" : "Specific"}
-                                                    onChange={selected => dispatchNewCodingFilter(elementFilter.elementName, selected === "Any" ? CodeFilterType.None : CodeFilterType.Filtered, codeFilter.filteredCoding.selectedIndexes)}
-                                                >
-                                                    <ToggleButton type="radio" variant="outline-secondary" value="Any">
-                                                        Any Value
-                                                    </ToggleButton>
-                                                    <ToggleButton type="radio" variant="outline-secondary" value="Specific">
-                                                        Specific Value
-                                                    </ToggleButton>
-                                                </ToggleButtonGroup>
-                                            </Card.Title>
-                                            <Select<{ idx: number; }, true>
-                                                options={codeBinding.codes.map((code, i) => {
-                                                    return { idx: i };
-                                                })}
-                                                isMulti={true}
-                                                getOptionValue={codeIdx => `${codeIdx.idx}`}
-                                                getOptionLabel={codeIdx => codeBinding.codes[codeIdx.idx].display ?? codeBinding.codes[codeIdx.idx].code}
-                                                onChange={newValue => dispatchNewCodingFilter(elementFilter.elementName, CodeFilterType.Filtered, newValue.map(v => v.idx))}
-                                                value={codeFilter.filteredCoding.selectedIndexes.map(v => {
-                                                    return { idx: v };
-                                                })}
-                                                styles={{ menu: provided => ({ ...provided, zIndex: 9999 }) }} // https://stackoverflow.com/a/55831990
-                                                isSearchable={true}
-                                                closeMenuOnSelect={false}
-                                                isDisabled={codeFilter.filteredCoding.filterType === CodeFilterType.None} />
-                                            {/* <ToggleButtonGroup type="checkbox" value={codeFilter.filteredCoding.selectedIndexes} className="cql-wizard-element-filters-button-group"
-                    onChange={selectedIndexes => dispatchNewCodingFilter(elementFilter.elementName, CodeFilterType.Filtered, selectedIndexes)}
-                >
-                    {codeBinding.codes.map((code, i) => {
-                        return <ToggleButton key={i} value={i} variant='outline-primary'
-                            className={codeFilter.filteredCoding.filterType === CodeFilterType.None ? "cql-wizard-element-filters-button-ignored" : undefined}
+                        <ToggleButtonGroup
+                            type="radio"
+                            name={`${elementFilter.elementName}-boolean`}
+                            value={booleanFilter.filteredBoolean === null ? BooleanSelectOptions.Any : booleanFilter.filteredBoolean ? BooleanSelectOptions.True : BooleanSelectOptions.False}
+                            onChange={newBoolOption => {
+                                const newBool = newBoolOption === BooleanSelectOptions.Any ? null : newBoolOption === BooleanSelectOptions.True ? true : false;
+                                dispatchNewBooleanFilter(elementFilter.elementName, newBool);
+                            }}
                         >
-                            {code.display}
-                        </ToggleButton>
-                    })}
-                </ToggleButtonGroup> */}
-                                        </Card.Body>
-                                    </Card>
-                                </div>
+                            <ToggleButton variant="outline-secondary" value={BooleanSelectOptions.Any}>Any</ToggleButton>
+                            <ToggleButton variant="outline-secondary" value={BooleanSelectOptions.True}>True</ToggleButton>
+                            <ToggleButton variant="outline-secondary" value={BooleanSelectOptions.False}>False</ToggleButton>
+                        </ToggleButtonGroup>
+                    </Card.Title>
+                </Card.Body>
+            </Card>
+        </div>;
+    }
+
+    function ageFilterUI(elementFilter: ElementFilter): JSX.Element {
+        const ageFilter = elementFilter.filter as DateFilter
+        return <div key={elementFilter.elementName}>
+            <Card>
+                <Card.Body>
+                    <Card.Title className="cql-wizard-element-filters-header">
+                        {`${elementFilter.elementName[0].toUpperCase()}${elementFilter.elementName.slice(1)}`}
+                        <ToggleButtonGroup
+                            type="radio"
+                            name={`${elementFilter.elementName}-age-type`}
+                            value={getDateTypeFromFilterType(ageFilter.filteredDate.filterType)}
+                            onChange={newDateType => {
+                                const newFilterType = newDateType === DateType.None ? DateFilterType.None : newDateType === DateType.Relative ? DateFilterType.OlderThan : DateFilterType.Before;
+                                dispatchNewDateFilter(elementFilter.elementName, newFilterType);
+                            }}
+                        >
+                            <ToggleButton variant="outline-secondary" value={DateType.None}>Any</ToggleButton>
+                            <ToggleButton variant="outline-secondary" value={DateType.Absolute}>Date</ToggleButton>
+                            <ToggleButton variant="outline-secondary" value={DateType.Relative}>Age</ToggleButton>
+                        </ToggleButtonGroup>
+                        <ToggleButtonGroup
+                            type="radio"
+                            name={`${elementFilter.elementName}-age-filter-type`}
+                            value={ageFilter.filteredDate.filterType}
+                            onChange={newFilterType => dispatchNewDateFilter(elementFilter.elementName, newFilterType)}
+                        >
+                            {(() => {
+                                switch (getDateTypeFromFilterType(ageFilter.filteredDate.filterType)) {
+                                    case DateType.Absolute:
+                                        return [
+                                            <ToggleButton key={DateFilterType.Before} variant="outline-secondary" value={DateFilterType.Before}>Before</ToggleButton>,
+                                            <ToggleButton key={DateFilterType.After} variant="outline-secondary" value={DateFilterType.After}>After</ToggleButton>,
+                                            <ToggleButton key={DateFilterType.Between} variant="outline-secondary" value={DateFilterType.Between}>Between</ToggleButton>
+                                        ];
+                                    case DateType.Relative:
+                                        return [
+                                            <ToggleButton key={DateFilterType.OlderThan} variant="outline-secondary" value={DateFilterType.OlderThan}>Older than</ToggleButton>,
+                                            <ToggleButton key={DateFilterType.NewerThan} variant="outline-secondary" value={DateFilterType.NewerThan}>Younger than</ToggleButton>
+                                        ];
+                                    case DateType.None:
+                                        return undefined;
+                                }
+                            })()}
+                        </ToggleButtonGroup>
+                    </Card.Title>
+
+                    {(() => {
+                        switch (ageFilter.filteredDate.filterType) {
+                            case DateFilterType.Before:
+                            case DateFilterType.After:
+                                return (
+                                    <SingleDatePicker
+                                        openDirection="down"
+                                        numberOfMonths={1}
+                                        showClearDate
+                                        reopenPickerOnClearDate
+                                        onClose={({ date }) => dispatchNewDateFilter(elementFilter.elementName, ageFilter.filteredDate.filterType, date)}
+                                        isOutsideRange={() => false}
+                                        id={`${elementFilter.elementName}-date-1`}
+                                        date={datePickerStates[elementFilter.elementName].dateOne}
+                                        onDateChange={date => setDatePickerStates((oldState) => {
+                                            return {
+                                                ...oldState,
+                                                [elementFilter.elementName]: {
+                                                    ...oldState[elementFilter.elementName],
+                                                    dateOne: date,
+                                                }
+                                            };
+                                        })}
+                                        focused={datePickerStates[elementFilter.elementName].focusDateOne}
+                                        onFocusChange={({ focused }) => setDatePickerStates((oldState) => {
+                                            return {
+                                                ...oldState,
+                                                [elementFilter.elementName]: {
+                                                    ...oldState[elementFilter.elementName],
+                                                    focusDateOne: focused,
+                                                }
+                                            };
+                                        })} />
                                 );
-                            }
-                        })()}
-                    </>;
+                            case DateFilterType.Between:
+                                return (
+                                    <DateRangePicker
+                                        openDirection="down"
+                                        showClearDates
+                                        reopenPickerOnClearDates
+                                        onClose={({ startDate, endDate }) => dispatchNewDateFilter(elementFilter.elementName, ageFilter.filteredDate.filterType, startDate, endDate)}
+                                        isOutsideRange={() => false}
+                                        startDate={datePickerStates[elementFilter.elementName].dateOne}
+                                        startDateId={`${elementFilter.elementName}-date-between-start`}
+                                        endDate={datePickerStates[elementFilter.elementName].dateTwo}
+                                        endDateId={`${elementFilter.elementName}-date-between-end`}
+                                        onDatesChange={({ startDate, endDate }) => setDatePickerStates((oldState) => {
+                                            return {
+                                                ...oldState,
+                                                [elementFilter.elementName]: {
+                                                    ...oldState[elementFilter.elementName],
+                                                    dateOne: startDate,
+                                                    dateTwo: endDate,
+                                                }
+                                            };
+                                        })}
+                                        focusedInput={datePickerStates[elementFilter.elementName].focusDateOne ? 'startDate' : datePickerStates[elementFilter.elementName].focusDateTwo ? 'endDate' : null}
+                                        onFocusChange={focusedInput => setDatePickerStates((oldState) => {
+                                            return {
+                                                ...oldState,
+                                                [elementFilter.elementName]: {
+                                                    ...oldState[elementFilter.elementName],
+                                                    focusDateOne: focusedInput === 'startDate',
+                                                    focusDateTwo: focusedInput === 'endDate',
+                                                }
+                                            };
+                                        })} />
+                                );
+                            case DateFilterType.NewerThan:
+                            case DateFilterType.OlderThan:
+                                return (
+                                    <div className="cql-wizard-element-filters-relative-date-controls">
+                                        <Form.Control
+                                            placeholder="Amount of time"
+                                            type="number"
+                                            defaultValue={ageFilter.filteredDate.relativeAmount}
+                                            min={0}
+                                            onChange={e => dispatchNewDateFilter(
+                                                elementFilter.elementName, ageFilter.filteredDate.filterType, undefined, undefined,
+                                                ageFilter.filteredDate.relativeUnit, convertFormInputToNumber(e.target.value, ageFilter.filteredDate.relativeAmount))} />
+                                        <ToggleButtonGroup
+                                            type="radio"
+                                            name={`${elementFilter.elementName}-date-relative-unit`}
+                                            value={ageFilter.filteredDate.relativeUnit}
+                                            onChange={newUnit => dispatchNewDateFilter(elementFilter.elementName, ageFilter.filteredDate.filterType, undefined, undefined, newUnit, ageFilter.filteredDate.relativeAmount)}
+                                        >
+                                            <ToggleButton variant="outline-primary" value={RelativeDateUnit.Weeks}>Week(s)</ToggleButton>
+                                            <ToggleButton variant="outline-primary" value={RelativeDateUnit.Months}>Month(s)</ToggleButton>
+                                            <ToggleButton variant="outline-primary" value={RelativeDateUnit.Years}>Year(s)</ToggleButton>
+                                        </ToggleButtonGroup>
+                                    </div>
+                                );
+                        }
+                    })()}
+                </Card.Body>
+            </Card>
+        </div>;
+    }
+
+    function dateFilterUI(elementFilter: ElementFilter): JSX.Element {
+        const dateFilter = elementFilter.filter as DateFilter
+        return <div key={elementFilter.elementName}>
+            <Card>
+                <Card.Body>
+                    <Card.Title className="cql-wizard-element-filters-header">
+                        {`${elementFilter.elementName[0].toUpperCase()}${elementFilter.elementName.slice(1)}`}
+
+                        <ToggleButtonGroup
+                            type="radio"
+                            name={`${elementFilter.elementName}-date-type`}
+                            value={getDateTypeFromFilterType(dateFilter.filteredDate.filterType)}
+                            onChange={newDateType => {
+                                const newFilterType = newDateType === DateType.None ? DateFilterType.None : newDateType === DateType.Relative ? DateFilterType.OlderThan : DateFilterType.Before;
+                                dispatchNewDateFilter(elementFilter.elementName, newFilterType);
+                            }}
+                        >
+                            <ToggleButton variant="outline-secondary" value={DateType.None}>Any Date</ToggleButton>
+                            <ToggleButton variant="outline-secondary" value={DateType.Relative}>Relative</ToggleButton>
+                            <ToggleButton variant="outline-secondary" value={DateType.Absolute}>Absolute</ToggleButton>
+                        </ToggleButtonGroup>
+
+                        <ToggleButtonGroup
+                            type="radio"
+                            name={`${elementFilter.elementName}-date-filter-type`}
+                            value={dateFilter.filteredDate.filterType}
+                            onChange={newFilterType => dispatchNewDateFilter(elementFilter.elementName, newFilterType)}
+                        >
+                            {(() => {
+                                switch (getDateTypeFromFilterType(dateFilter.filteredDate.filterType)) {
+                                    case DateType.Absolute:
+                                        return [
+                                            <ToggleButton key={DateFilterType.Before} variant="outline-secondary" value={DateFilterType.Before}>Before</ToggleButton>,
+                                            <ToggleButton key={DateFilterType.After} variant="outline-secondary" value={DateFilterType.After}>After</ToggleButton>,
+                                            <ToggleButton key={DateFilterType.Between} variant="outline-secondary" value={DateFilterType.Between}>Between</ToggleButton>
+                                        ];
+                                    case DateType.Relative:
+                                        return [
+                                            <ToggleButton key={DateFilterType.OlderThan} variant="outline-secondary" value={DateFilterType.OlderThan}>Older than</ToggleButton>,
+                                            <ToggleButton key={DateFilterType.NewerThan} variant="outline-secondary" value={DateFilterType.NewerThan}>Within last</ToggleButton>
+                                        ];
+                                    case DateType.None:
+                                        return undefined;
+                                }
+                            })()}
+                        </ToggleButtonGroup>
+                    </Card.Title>
+                    {(() => {
+                        switch (dateFilter.filteredDate.filterType) {
+                            case DateFilterType.Before:
+                            case DateFilterType.After:
+                                return (
+                                    <SingleDatePicker
+                                        openDirection="down"
+                                        numberOfMonths={1}
+                                        showClearDate
+                                        reopenPickerOnClearDate
+                                        onClose={({ date }) => dispatchNewDateFilter(elementFilter.elementName, dateFilter.filteredDate.filterType, date)}
+                                        isOutsideRange={() => false}
+                                        id={`${elementFilter.elementName}-date-1`}
+                                        date={datePickerStates[elementFilter.elementName].dateOne}
+                                        onDateChange={date => setDatePickerStates((oldState) => {
+                                            return {
+                                                ...oldState,
+                                                [elementFilter.elementName]: {
+                                                    ...oldState[elementFilter.elementName],
+                                                    dateOne: date,
+                                                }
+                                            };
+                                        })}
+                                        focused={datePickerStates[elementFilter.elementName].focusDateOne}
+                                        onFocusChange={({ focused }) => setDatePickerStates((oldState) => {
+                                            return {
+                                                ...oldState,
+                                                [elementFilter.elementName]: {
+                                                    ...oldState[elementFilter.elementName],
+                                                    focusDateOne: focused,
+                                                }
+                                            };
+                                        })} />
+                                );
+                            case DateFilterType.Between:
+                                return (
+                                    <DateRangePicker
+                                        openDirection="down"
+                                        showClearDates
+                                        reopenPickerOnClearDates
+                                        onClose={({ startDate, endDate }) => dispatchNewDateFilter(elementFilter.elementName, dateFilter.filteredDate.filterType, startDate, endDate)}
+                                        isOutsideRange={() => false}
+                                        startDate={datePickerStates[elementFilter.elementName].dateOne}
+                                        startDateId={`${elementFilter.elementName}-date-between-start`}
+                                        endDate={datePickerStates[elementFilter.elementName].dateTwo}
+                                        endDateId={`${elementFilter.elementName}-date-between-end`}
+                                        onDatesChange={({ startDate, endDate }) => setDatePickerStates((oldState) => {
+                                            return {
+                                                ...oldState,
+                                                [elementFilter.elementName]: {
+                                                    ...oldState[elementFilter.elementName],
+                                                    dateOne: startDate,
+                                                    dateTwo: endDate,
+                                                }
+                                            };
+                                        })}
+                                        focusedInput={datePickerStates[elementFilter.elementName].focusDateOne ? 'startDate' : datePickerStates[elementFilter.elementName].focusDateTwo ? 'endDate' : null}
+                                        onFocusChange={focusedInput => setDatePickerStates((oldState) => {
+                                            return {
+                                                ...oldState,
+                                                [elementFilter.elementName]: {
+                                                    ...oldState[elementFilter.elementName],
+                                                    focusDateOne: focusedInput === 'startDate',
+                                                    focusDateTwo: focusedInput === 'endDate',
+                                                }
+                                            };
+                                        })} />
+                                );
+                            case DateFilterType.NewerThan:
+                            case DateFilterType.OlderThan:
+                                return (
+                                    <div className="cql-wizard-element-filters-relative-date-controls">
+                                        <Form.Control
+                                            placeholder="Amount of time"
+                                            type="number"
+                                            defaultValue={dateFilter.filteredDate.relativeAmount}
+                                            min={0}
+                                            onChange={e => dispatchNewDateFilter(
+                                                elementFilter.elementName, dateFilter.filteredDate.filterType, undefined, undefined,
+                                                dateFilter.filteredDate.relativeUnit, convertFormInputToNumber(e.target.value, dateFilter.filteredDate.relativeAmount))} />
+                                        <ToggleButtonGroup
+                                            type="radio"
+                                            name={`${elementFilter.elementName}-date-relative-unit`}
+                                            value={dateFilter.filteredDate.relativeUnit}
+                                            onChange={newUnit => dispatchNewDateFilter(elementFilter.elementName, dateFilter.filteredDate.filterType, undefined, undefined, newUnit, dateFilter.filteredDate.relativeAmount)}
+                                        >
+                                            <ToggleButton variant="outline-primary" value={RelativeDateUnit.Minutes}>Minute(s)</ToggleButton>
+                                            <ToggleButton variant="outline-primary" value={RelativeDateUnit.Hours}>Hour(s)</ToggleButton>
+                                            <ToggleButton variant="outline-primary" value={RelativeDateUnit.Days}>Day(s)</ToggleButton>
+                                            <ToggleButton variant="outline-primary" value={RelativeDateUnit.Weeks}>Week(s)</ToggleButton>
+                                            <ToggleButton variant="outline-primary" value={RelativeDateUnit.Months}>Month(s)</ToggleButton>
+                                            <ToggleButton variant="outline-primary" value={RelativeDateUnit.Years}>Year(s)</ToggleButton>
+                                        </ToggleButtonGroup>
+                                    </div>
+                                );
+                        }
+                    })()}
+                </Card.Body>
+            </Card>
+        </div>;
+    }
+
+    function codingFilterUI(elementFilter: ElementFilter): JSX.Element {
+        const codeFilter = elementFilter.filter as CodingFilter;
+        return <>
+            {(() => {
+                const codeBinding = codeFilter.codeBinding;
+                if (!codeBinding) {
+                    return (
+                        <div key={`${elementFilter.elementName}-no-binding`}>No binding found for {elementFilter.elementName}</div>
+                    );
+                } else {
+                    return (<div key={elementFilter.elementName}>
+                        <Card>
+                            <Card.Body>
+                                <Card.Title className={`cql-wizard-element-filters-header-${elementFilter.elementName}`}>
+                                    {`${elementFilter.elementName.split(".").pop()?.charAt(0).toUpperCase()}${elementFilter.elementName.split(".").pop()?.slice(1)}`}
+
+                                    {/* Need to nest ToggleButton in ToggleButtonGroup to prevent a checkbox appearing inside the ToggleButton (bug in react-bootstrap?) */}
+                                    <ToggleButtonGroup
+                                        type="radio"
+                                        name={`${elementFilter.elementName}-code-filter-type`}
+                                        value={codeFilter.filteredCoding.filterType === CodeFilterType.None ? "Any" : "Specific"}
+                                        onChange={selected => dispatchNewCodingFilter(elementFilter.elementName, selected === "Any" ? CodeFilterType.None : CodeFilterType.Filtered, codeFilter.filteredCoding.selectedIndexes)}
+                                    >
+                                        <ToggleButton type="radio" variant="outline-secondary" value="Any">
+                                            Any Value
+                                        </ToggleButton>
+                                        <ToggleButton type="radio" variant="outline-secondary" value="Specific">
+                                            Specific Value
+                                        </ToggleButton>
+                                    </ToggleButtonGroup>
+                                </Card.Title>
+                                <Select<{ idx: number; }, true>
+                                    options={codeBinding.codes.map((code, i) => {
+                                        return { idx: i };
+                                    })}
+                                    isMulti={true}
+                                    getOptionValue={codeIdx => `${codeIdx.idx}`}
+                                    getOptionLabel={codeIdx => codeBinding.codes[codeIdx.idx].display ?? codeBinding.codes[codeIdx.idx].code}
+                                    onChange={newValue => dispatchNewCodingFilter(elementFilter.elementName, CodeFilterType.Filtered, newValue.map(v => v.idx))}
+                                    value={codeFilter.filteredCoding.selectedIndexes.map(v => {
+                                        return { idx: v };
+                                    })}
+                                    styles={{ menu: provided => ({ ...provided, zIndex: 9999 }) }} // https://stackoverflow.com/a/55831990
+                                    isSearchable={true}
+                                    closeMenuOnSelect={false}
+                                    isDisabled={codeFilter.filteredCoding.filterType === CodeFilterType.None} />
+                                {/* <ToggleButtonGroup type="checkbox" value={codeFilter.filteredCoding.selectedIndexes} className="cql-wizard-element-filters-button-group"
+        onChange={selectedIndexes => dispatchNewCodingFilter(elementFilter.elementName, CodeFilterType.Filtered, selectedIndexes)}
+    >
+        {codeBinding.codes.map((code, i) => {
+            return <ToggleButton key={i} value={i} variant='outline-primary'
+                className={codeFilter.filteredCoding.filterType === CodeFilterType.None ? "cql-wizard-element-filters-button-ignored" : undefined}
+            >
+                {code.display}
+            </ToggleButton>
+        })}
+    </ToggleButtonGroup> */}
+                            </Card.Body>
+                        </Card>
+                    </div>
+                    );
                 }
+            })()}
+        </>;
+    }
+
+
+    function containsSubResource(elemFilt: ElementFilter): boolean {
+        return elemFilt.elementName.split(".").length > 1
+    }
+    function getParent(elemFilt: ElementFilter) {
+        return elemFilt.elementName.split(".")[0]
+    }
+    function getChildren(parentString: string) {
+        function childHasThisParent(parent: string, child: ElementFilter): boolean {
+            return getParent(child) === parent;
+        }
+        return allParentsAndChildren.filter(child => childHasThisParent(parentString, child))
+    }
+
+    const allParentsAndChildren = props.wizState.filters.filter(containsSubResource);
+    const onlyParents = allParentsAndChildren.map(getParent)
+    const noParents = props.wizState.filters.filter(filter => !allParentsAndChildren.includes(filter))
+    return (
+        <div className="cql-wizard-select-filters-grid">
+            {noParents.map((elementFilter): JSX.Element => {
+                return getFilterUI(elementFilter);
+            })}
+
+            {onlyParents.map((parent): JSX.Element => {
+                return (
+                    <Card key={parent}>
+                        <Card.Body>
+                            <Card.Title>
+                                {`${parent[0].toUpperCase()}${parent.slice(1)}`}
+                            </Card.Title>
+                            {getChildren(parent).map(getFilterUI)}
+                        </Card.Body>
+                    </Card>
+                );
             })}
             <div className="cql-wizard-filters-overscroll-excess" />
         </div>
