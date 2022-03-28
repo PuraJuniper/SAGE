@@ -22,6 +22,10 @@ export type textBoxProps = {
     isLink: boolean;
     caption: string;
 }
+export type displayBoxProps = {
+    className: string;
+    displayFieldTitle: boolean;
+}
 export interface CardFormState {
     step: number;
 }

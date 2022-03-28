@@ -7,12 +7,13 @@ import hypertensionLibraryJson from "../../public/samples/hypertension-library.j
 import * as SageUtils from "../helpers/sage-utils";
 import * as SchemaUtils from "../helpers/schema-utils";
 import State, { SageNodeInitializedFreezerNode } from "../state";
-import { OuterCardForm, textBoxProps, cardLayout } from "./outerCardForm";
+import { OuterCardForm, textBoxProps, cardLayout, displayBoxProps } from "./outerCardForm";
 import { ACTIVITY_DEFINITION, allFormElems, convertFormElementToObject, formElemtoResourceProp, FriendlyResourceFormElement, FriendlyResourceProps, getFormElementListForResource, PLAN_DEFINITION, profileToFriendlyResourceListEntry } from "./nameHelpers";
 import { MedicationRequestForm, SageCondition } from "./medicationRequestForm";
 import { buildEditableStateFromCondition, WizardState } from "./cql-wizard/wizardLogic";
 import { generateCqlFromConditions, makeCQLtoELMRequest } from "./cql-wizard/cql-generator";
 import { buildFredId } from "../helpers/bundle-utils";
+import { fhirToFriendly } from '../simplified/nameHelpers';
 
 
 
@@ -47,6 +48,7 @@ export interface pageThreeProps {
 export interface ICardForm {
     resourceType: FriendlyResourceProps;
     textBoxFields: Map<string, textBoxProps>;
+    displayBoxFields: Map<string, displayBoxProps>;
     dropdownFields: Map<string, string[]>;
     resourceFields: string[];
     cardFieldLayout: cardLayout;
@@ -143,24 +145,39 @@ const createDropdownElement = (fieldKey: string, fieldFriendlyName: string, fiel
     );
 }
 
-const createDisplayElement = (fieldHandlers: any, friendlyFields: any, i: number): JSX.Element => {
+const createDisplayElement = ( displayProps: displayBoxProps,friendlyFields: any,fieldHandlers: any, i: number): JSX.Element => {
     let friendly;
     for (let j = 0; j < friendlyFields.length; j++) {
-        if (friendlyFields[j].FHIR === fieldHandlers[i][0]) friendly = friendlyFields[j].FRIENDLY
+        if(friendlyFields[j].SELF.FHIR === fieldHandlers[i][0]){
+            friendly = friendlyFields[j].SELF.FRIENDLY
+        }
     }
-    return (
-        <Form.Group key={fieldHandlers[i][0] + "-fromGroup"} as={Col} controlId={fieldHandlers[i][0]}>
-            <Form.Label key={fieldHandlers[i][0] + "-label"}>{friendly} {fieldHandlers[i][1]}</Form.Label>
-        </Form.Group>
-    )
+    if (displayProps.displayFieldTitle === true){
+        return (
+            <Form.Group key={fieldHandlers[i][0] + "-fromGroup"} as={Col} controlId={fieldHandlers[i][0]} className = {displayProps.className}>
+                <Form.Label key={fieldHandlers[i][0] + "-label"} > <b>{friendly}</b> {fieldHandlers[i][1]}</Form.Label>
+            </Form.Group>
+        )
+    }
+    else{
+        return (
+            <Form.Group key={fieldHandlers[i][0] + "-fromGroup"} as={Col} controlId={fieldHandlers[i][0]}>
+                <Form.Label key={fieldHandlers[i][0] + "-label"} className = {displayProps.className}>{fieldHandlers[i][1]}</Form.Label>
+            </Form.Group>
+        )
+    }
+   
 }
 
-const createDisplayElementList = (fieldHandlers: any, resourceType: FriendlyResourceProps): JSX.Element[] => {
+const createDisplayElementList = (innerCardForm: ICardForm,fieldHandlers: any, resourceType: FriendlyResourceProps): JSX.Element[] => {
     const friendlyFields = getFormElementListForResource(resourceType.FHIR);
-    const list: JSX.Element[] = [];
+    const flattenFriendlyFields = allFormElems(friendlyFields);
+    const defaultBoxProps: displayBoxProps = {className: "", displayFieldTitle: true }
 
+    const list: JSX.Element[] = [];
     for (let i = 0; i < fieldHandlers.length; i++) {
-        list[i] = createDisplayElement(fieldHandlers, friendlyFields, i);
+        list[i] = createDisplayElement(innerCardForm.displayBoxFields.get(fieldHandlers[i][0])?? defaultBoxProps,
+        flattenFriendlyFields,fieldHandlers, i);
     }
 
     return list;
@@ -317,7 +334,7 @@ export const CardEditor = (props: CardEditorProps) => {
                     generateNewCondition={generateEditableCondition}
                     resourceType={actResourceType}
                     elementList={fieldElementListForType(innerCardForm, getFormElementListForResource(innerCardForm.resourceType.FHIR), fieldHandlers, actNode)}
-                    displayList={createDisplayElementList(fieldHandlers, actResourceType)}
+                    displayList={createDisplayElementList(innerCardForm,fieldHandlers, actResourceType)}
                     innerCardForm={innerCardForm}
                     handleSaveResource={handleSaveResource}
                     handleDeleteResource={props.handleDeleteResource}
