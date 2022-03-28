@@ -168,7 +168,7 @@ export function initFromState(state: WizardState | null): WizardState {
 // Various types for filtering by FHIR element
 
 type GenericFilter = {
-    error: boolean
+    error: false
 };
 export interface ElementFilter {
     elementName: string,
@@ -335,6 +335,7 @@ async function getFilterType(url: string, elementFhirPath: string): Promise<Codi
 // Should be rewritten to use friendly-names
 export async function createExpectedFiltersForResType(resType: string): Promise<ElementFilter[]> {
     let expectedElements: string[] = [];
+    // let expectedBackboneElements: {[key: string]: string[]} = {}
     let schemaResType = resType;
     let url = "";
     switch(resType) {
@@ -350,7 +351,8 @@ export async function createExpectedFiltersForResType(resType: string): Promise<
             break;
         }
         case "AllergyIntolerance":
-            expectedElements = ['clinicalStatus', 'verificationStatus', 'type', 'category', 'criticality', 'onset[x]', 'recordedDate', 'reaction', 'reaction.severity'];
+            expectedElements = ['clinicalStatus', 'verificationStatus', 'type', 'category', 'criticality', 'onset[x]', 'recordedDate', 'reaction.severity'];
+            // expectedBackboneElements['reaction'] = ['severity'];
             url = "http://hl7.org/fhir/StructureDefinition/AllergyIntolerance"; // temporary
             break;
         case "Condition":
@@ -383,7 +385,25 @@ export async function createExpectedFiltersForResType(resType: string): Promise<
             url = "http://hl7.org/fhir/StructureDefinition/Patient";
             break;
     }
+
     return Promise.all(expectedElements.map(async (expectedElement) => {
+        // const filterType: CodingFilter | DateFilter | BooleanFilter | BackboneFilter | UnknownFilter = undefined;
+        // const backboneSubElems = expectedBackboneElements[expectedElement]
+        //     async function returnVal(): Promise<BackboneFilter> {
+        //         const subFilters = Promise.all(backboneSubElems.map(async (se) => {
+        //             const name = `${expectedElement}.${se}`;
+        //             return {
+        //                 elementName: name,
+        //                 filter: await getFilterType(url, `${schemaResType}.${name}`)
+        //             };
+        //         }
+        //         ));
+        //         return {
+        //             type: "backbone",
+        //             subFilters: await subFilters,
+        //             error: false
+        //         };
+        //     }
         return {
             elementName: expectedElement,
             filter: await getFilterType(url, `${schemaResType}.${expectedElement}`)

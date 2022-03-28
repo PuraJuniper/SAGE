@@ -155,6 +155,7 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
     }
 
     return (
+        //TODO: add filter to group backbone elems into different handling
         <div className="cql-wizard-select-filters-grid">
             {props.wizState.filters.map((elementFilter): JSX.Element => {
                 return getFilterUI(elementFilter);
@@ -187,21 +188,23 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
                                     Unknown Filter {elemFilter.elementName}
                                 </div>
                             );
-                        case "backbone":
-                            return (
-                                <Card>
-                                    <Card.Body>
-                                        <Card.Title className="cql-wizard-element-filters-header">
-                                            {`${elemFilter.elementName[0].toUpperCase()}${elemFilter.elementName.slice(1)}`}
-                                            {
-                                                elemFilter.filter.subFilters.map(sf => {
-                                                    return getFilterUI(sf)
-                                                })
-                                            }
-                                        </Card.Title>
-                                    </Card.Body>
-                                </Card>
-                            );
+                        // case "backbone":
+                        //     return (
+                        //         <div key={elemFilter.elementName}>
+                        //         {/* <Card>
+                        //             <Card.Body>
+                        //                 <Card.Title className="cql-wizard-element-filters-header"> */}
+                        //                     {`${elemFilter.elementName[0].toUpperCase()}${elemFilter.elementName.slice(1)}`}
+                        //                     {
+                        //                         elemFilter.filter.subFilters.map(sf => {
+                        //                             return getFilterUI(sf)
+                        //                         })
+                        //                     }
+                        //                 {/* </Card.Title>
+                        //             </Card.Body>
+                        //         </Card> */}
+                        //         {/* </div>
+                        //     ); */}
 
                         default:
                             return (
