@@ -152,7 +152,7 @@ export class MedicationRequestForm implements ICardForm {
             cardColumns: [
                 ['placeholder', 'placeholder'],
                 ['title', 'productCodeableConcept'],
-                ['description', 'productDescription'],
+                ['description', 'placeholder'],
                 ['status', 'value'],
                 ['intent', 'unit'],
                 ['resource', 'frequency'],
@@ -169,7 +169,6 @@ export class MedicationRequestForm implements ICardForm {
         cardColumns: [
             ['title'],
             ['description'],
-            ['productReference','productDescription'],
             ['value','unit','frequency','period','periodUnit'],
             ['resource'],
             ['text'],
