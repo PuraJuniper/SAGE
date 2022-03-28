@@ -1,5 +1,5 @@
 import React, { Dispatch, useEffect, useState } from "react";
-import { BooleanFilter, CodeFilterType, CodingFilter, DateFilter, DateFilterType,HospitalizationFilter, HospitalizationFilterType, RelativeDateUnit, WizardAction, WizardState } from './wizardLogic';
+import { BooleanFilter, CodeFilterType, CodingFilter, DateFilter, DateFilterType,BackboneFilter, BackboneFilterType, RelativeDateUnit, WizardAction, WizardState } from './wizardLogic';
 import { ToggleButtonGroup, ToggleButton, Card, Form, Container, InputGroup, FormControl, DropdownButton, Dropdown } from 'react-bootstrap';
 import { ElementFilter } from './wizardLogic';
 import 'react-dates/initialize';
@@ -529,7 +529,8 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
                         );
                     }
                     case "BackboneElement": {
-                        const booleanFilter = elementFilter.filter;
+                        const backboneFilter = elementFilter.filter;
+                        console.log(backboneFilter)
                         return (
                             <div key={elementFilter.elementName}>
                                 <Card>

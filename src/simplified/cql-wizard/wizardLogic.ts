@@ -168,7 +168,7 @@ export function initFromState(state: WizardState | null): WizardState {
 // Various types for filtering by FHIR element
 export interface ElementFilter {
     elementName: string,
-    filter: CodingFilter | DateFilter | BooleanFilter |HospitalizationFilter|  UnknownFilter,
+    filter: CodingFilter | DateFilter | BooleanFilter |BackboneFilter|  UnknownFilter,
 }
 
 export interface CodingFilter {
@@ -221,10 +221,10 @@ export enum RelativeDateUnit {
     Months = "months",
     Years = "years",
 }
-export interface HospitalizationFilter{
+export interface BackboneFilter{
     type: "BackboneElement",
     filteredDate: {
-        periodType: HospitalizationFilterType,
+        periodType: BackboneFilterType,
         startDate: Moment | null,
         endDate: Moment | null,
     },
@@ -233,18 +233,13 @@ export interface HospitalizationFilter{
     },
     error: boolean,
 }
-export enum HospitalizationFilterType {
+export enum BackboneFilterType {
     None = "any_period",
     Until = "unknown_start",
     Ongoing = "unknown_end",
     Between = "between_dates"
 }
 export interface BooleanFilter {
-    type: "boolean",
-    filteredBoolean: boolean | null,
-    error: false, // All possibilities for this filter are accepted
-}
-export interface hospitalization {
     type: "boolean",
     filteredBoolean: boolean | null,
     error: false, // All possibilities for this filter are accepted
@@ -258,7 +253,7 @@ export interface UnknownFilter {
 // Returns a filter type for the given element path in the profile identified by `url`
 // These filter types should include all information needed by the UI to know what controls should be displayed
 //  to the user for the element.
-async function getFilterType(url: string, elementFhirPath: string): Promise<CodingFilter | DateFilter | BooleanFilter | HospitalizationFilter| UnknownFilter> {
+async function getFilterType(url: string, elementFhirPath: string): Promise<CodingFilter | DateFilter | BooleanFilter | BackboneFilter| UnknownFilter> {
     const unknownFilter: UnknownFilter = {
         type: "unknown",
         curValue: "test",
@@ -316,7 +311,6 @@ async function getFilterType(url: string, elementFhirPath: string): Promise<Codi
         return filter;
     }
     else if (["BackboneElement"].includes(elementSchema.type[0]?.code)) {
-        console.log(elementFhirPath.substring(10))
         const filter: DateFilter = {
             type: elementFhirPath.endsWith(".birthDate") ? "age" : "date",
             dateBinding: {
