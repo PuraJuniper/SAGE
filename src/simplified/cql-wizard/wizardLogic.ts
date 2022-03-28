@@ -311,6 +311,7 @@ async function getFilterType(url: string, elementFhirPath: string): Promise<Codi
         return filter;
     }
     else if (["BackboneElement"].includes(elementSchema.type[0]?.code)) {
+        //console.log(elementSchema)
         const filter: DateFilter = {
             type: elementFhirPath.endsWith(".birthDate") ? "age" : "date",
             dateBinding: {
