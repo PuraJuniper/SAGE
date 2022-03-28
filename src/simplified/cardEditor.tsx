@@ -70,6 +70,7 @@ const simpleCardField = (fieldName: string, actNode: SageNodeInitializedFreezerN
     return [fieldName, fieldContents, setField, fieldSaveHandler]
 }
 
+
 const createTextBoxElement = (fieldKey: string, friendlyFieldName: string, textProps: textBoxProps, fieldHandlers: any[][], node: SageNodeInitializedFreezerNode): JSX.Element => {
     const [fieldName, fieldContents, setField, fieldSaveHandler] = simpleCardField(fieldKey, node);
     function validURL(urlInput: string) {
@@ -117,6 +118,7 @@ const createTextBoxElement = (fieldKey: string, friendlyFieldName: string, textP
 const createDropdownElement = (fieldKey: string, fieldFriendlyName: string, fieldElements: string[], fieldHandlers: any[][], node: SageNodeInitializedFreezerNode): JSX.Element => {
     const [fieldName, fieldContents, setField, fieldSaveHandler] = simpleCardField(fieldKey, node);
     fieldHandlers.push([fieldName, fieldContents, setField, fieldSaveHandler]);
+    
     return (
         <Form.Group key={fieldName + "-fromGroup"} as={Col} controlId={fieldKey}>
             <Row className="page1-row-element">
@@ -126,10 +128,11 @@ const createDropdownElement = (fieldKey: string, fieldFriendlyName: string, fiel
                         <Form.Control
                             key={fieldName + "formControl"}
                             as="select"
-                            defaultValue={fieldContents}
+                            defaultValue = {fieldContents}
                             onChange={(e) => setField(e.currentTarget.value)}
                         >
-                            {fieldElements.map(sType => {
+                            <option hidden disabled value=''>{'--Please Select an Option--'}</option>
+                            {fieldElements.map((sType) => {
                                 return <option key={fieldKey + "-" + sType} value={sType}>{sType}</option>;
                             })}
                         </Form.Control>
