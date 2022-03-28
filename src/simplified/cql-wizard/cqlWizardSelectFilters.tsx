@@ -1,11 +1,12 @@
 import React, { Dispatch, useEffect, useState } from "react";
-import { BooleanFilter, CodeFilterType, CodingFilter, DateFilter, DateFilterType, PeriodFilter, PeriodFilterType, RelativeDateUnit, WizardAction, WizardState } from './wizardLogic';
+import { BooleanFilter, CodeFilterType, CodingFilter, DateFilter, DateFilterType, PeriodFilter, PeriodDateFilterType, RelativeDateUnit, WizardAction, WizardState, PeriodDateType, PeriodDateFilter } from './wizardLogic';
 import { ToggleButtonGroup, ToggleButton, Card, Form, Container, InputGroup, FormControl, DropdownButton, Dropdown } from 'react-bootstrap';
 import { ElementFilter } from './wizardLogic';
 import 'react-dates/initialize';
 import { DateRangePicker, SingleDatePicker, DayPickerRangeController } from 'react-dates';
 // import { START_DATE, END_DATE } from 'react-dates/constants';
 import 'react-dates/lib/css/_datepicker.css';
+import './react-dates-overrides.css';
 import moment, { Moment } from 'moment';
 import Select, { ActionMeta, InputActionMeta, SingleValue } from "react-select";
 
@@ -22,8 +23,8 @@ enum BooleanSelectOptions {
 }
 
 // Dealing with HTML Form input
-export function convertFormInputToNumber(input: string | undefined, lastValue: number): number {
-    return typeof(input) === 'undefined' ? lastValue : (typeof(input) === 'string' ? (isNaN(parseInt(input, 10)) ? 0 : parseInt(input, 10)) : input)
+export function convertFormInputToNumber(input: string | undefined, lastValue?: number): number {
+    return typeof(input) === 'undefined' ? (lastValue ?? 0) : (typeof(input) === 'string' ? (isNaN(parseInt(input, 10)) ? 0 : parseInt(input, 10)) : input)
 }
 
 export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
@@ -432,17 +433,22 @@ const DateFilterCard: React.FC<DateFilterCardProps> = (props) => {
     )
 }
 
-function checkPeriodFilterErrors(filter: PeriodFilter, filterType: PeriodFilterType): boolean {
-    switch(filterType) {
-        case PeriodFilterType.Ongoing:
-            return filter.filteredDate.startDate === null;
-        case PeriodFilterType.Until:
-            return filter.filteredDate.endDate === null;
-        case PeriodFilterType.Between:
-            return filter.filteredDate.startDate === null || filter.filteredDate.endDate === null || filter.filteredDate.endDate <= filter.filteredDate.startDate;
-        case PeriodFilterType.None:
-            return false;
+function checkPeriodFilterErrors(filter: PeriodDateFilter<PeriodDateType>): boolean {
+    if (filter.endDateType !== PeriodDateFilterType.None && filter.startDateType !== PeriodDateFilterType.None) {
+        // Check that the range is valid (startDate < endDate)
+        if (filter.dateType === PeriodDateType.Absolute) {
+            return filter.endDate !== null && filter.startDate !== null && filter.endDate <= filter.startDate;
+        }
+        else {
+            return false; // Todo: figure out how to compare this
+        }
     }
+    return false;
+}
+
+enum PeriodDatePart {
+    Start = "start",
+    End = "end",
 }
 interface PeriodFilterCardProps {
     elementFilter: ElementFilter,
@@ -454,9 +460,9 @@ const PeriodFilterCard: React.FC<PeriodFilterCardProps> = (props) => {
     // Mutable dates used by react-date components
     const [datePickerState, setDatePickerState] = useState<{ dateOne: Moment | null, focusDateOne: boolean, dateTwo: Moment | null, focusDateTwo: boolean }>(() => {
         return {
-            dateOne: props.periodFilter.filteredDate.startDate?.clone() || null,
+            dateOne: null,
             focusDateOne: false,
-            dateTwo: props.periodFilter.filteredDate.endDate?.clone() || null,
+            dateTwo: null,
             focusDateTwo: false,
         }
     });
@@ -465,32 +471,36 @@ const PeriodFilterCard: React.FC<PeriodFilterCardProps> = (props) => {
      * Reset mutable dates used by react-date components to match any upstream changes to the date
      */
     useEffect(() => {
-        setDatePickerState({
-            dateOne: props.periodFilter.filteredDate.startDate?.clone() || null,
-            focusDateOne: false,
-            dateTwo: props.periodFilter.filteredDate.endDate?.clone() || null,
-            focusDateTwo: false,
-        });
+        if (props.periodFilter.filteredDate.dateType === PeriodDateType.Absolute) {
+            setDatePickerState({
+                dateOne: props.periodFilter.filteredDate.startDate?.clone() || null,
+                focusDateOne: false,
+                dateTwo: props.periodFilter.filteredDate.endDate?.clone() || null,
+                focusDateTwo: false,
+            });
+        }
+        else {
+            setDatePickerState({
+                dateOne: null,
+                focusDateOne: false,
+                dateTwo: null,
+                focusDateTwo: false,
+            });
+        }
     }, [props.periodFilter])
 
-    function dispatchNewPeriodFilter(elementName: string, newPeriodType: PeriodFilterType, newStartDate?: Moment | null, newEndDate?: Moment | null) {
+    function dispatchNewPeriodFilter(elementName: string, newPeriodFilter: PeriodDateFilter<PeriodDateType>) {
         props.dispatchNewFilters(elementName, v => {
-            const oldFilter = v.filter as PeriodFilter;
-            const newElementFilter: ElementFilter = {
-                ...v,
-                filter: {
-                    ...oldFilter,
-                    filteredDate: {
-                        ...oldFilter.filteredDate,
-                        periodType: newPeriodType,
-                        startDate: newStartDate === undefined ? oldFilter.filteredDate.startDate : (newStartDate?.clone() || null),
-                        endDate: newEndDate === undefined ? oldFilter.filteredDate.endDate : (newEndDate?.clone() || null),
-                    }
-                }
+            const newFilter: PeriodFilter = {
+                ...v.filter as PeriodFilter,
+                filteredDate: newPeriodFilter,
+                error: checkPeriodFilterErrors(newPeriodFilter),
             }
 
-            const newFilter = newElementFilter.filter as PeriodFilter;
-            newFilter.error = checkPeriodFilterErrors(newFilter, newPeriodType);
+            const newElementFilter: ElementFilter = {
+                ...v,
+                filter: newFilter,
+            }
 
             return newElementFilter;
         });
@@ -505,82 +515,123 @@ const PeriodFilterCard: React.FC<PeriodFilterCardProps> = (props) => {
                     <ToggleButtonGroup
                         type="radio"
                         name={`${props.elementFilter.elementName}-date-type`}
-                        value={props.periodFilter.filteredDate.periodType}
-                        onChange={newPeriodType => {
-                            dispatchNewPeriodFilter(props.elementFilter.elementName, newPeriodType)
+                        value={props.periodFilter.filteredDate.dateType}
+                        onChange={newDateType => {
+                            if (newDateType === props.periodFilter.filteredDate.dateType) {
+                                return;
+                            }
+                            dispatchNewPeriodFilter(props.elementFilter.elementName, {
+                                ...props.periodFilter.filteredDate,
+                                startDate: null,
+                                endDate: null,
+                                dateType: newDateType,
+                            })
                         }}
                     >
-                        <ToggleButton variant="outline-secondary" value={PeriodFilterType.None}>Any Period</ToggleButton>
-                        <ToggleButton variant="outline-secondary" value={PeriodFilterType.Between}>Between</ToggleButton>
-                        <ToggleButton variant="outline-secondary" value={PeriodFilterType.Ongoing}>Ongoing From</ToggleButton>
-                        <ToggleButton variant="outline-secondary" value={PeriodFilterType.Until}>Ends On</ToggleButton>
+                        <ToggleButton variant="outline-secondary" value={PeriodDateType.Relative}>Relative</ToggleButton>
+                        <ToggleButton variant="outline-secondary" value={PeriodDateType.Absolute}>Absolute</ToggleButton>
                     </ToggleButtonGroup>
                 </Card.Title>
-                {(() => {
-                    const periodType = props.periodFilter.filteredDate.periodType;
-                    switch(periodType) {
-                        case PeriodFilterType.None:
-                            return null;
-                        case PeriodFilterType.Until:
-                        case PeriodFilterType.Ongoing:
-                            return (
+                {[PeriodDatePart.Start, PeriodDatePart.End].map(v => {
+                    const filteredDate = props.periodFilter.filteredDate;
+                    const displayText = v === PeriodDatePart.Start ? "Starts": "Ends";
+                    const dateFilterType = v === PeriodDatePart.Start ? filteredDate.startDateType : filteredDate.endDateType;
+                    return (
+                        <Card key={v} body>
+                            <InputGroup className="mb-3">
+                                <InputGroup.Prepend>
+                                    <InputGroup.Text id="basic-addon1">{displayText}</InputGroup.Text>
+                                </InputGroup.Prepend>
+                                <ToggleButtonGroup
+                                    type="radio"
+                                    name={`${props.elementFilter.elementName}-${v}-date-type`}
+                                    value={dateFilterType}
+                                    onChange={newDateType => {
+                                        dispatchNewPeriodFilter(props.elementFilter.elementName, {
+                                            ...filteredDate,
+                                            startDateType: v === PeriodDatePart.Start ? newDateType : filteredDate.startDateType,
+                                            endDateType: v === PeriodDatePart.Start ? filteredDate.endDateType : newDateType,
+                                        })
+                                    }}
+                                >
+                                    <ToggleButton variant="outline-secondary" value={PeriodDateFilterType.None}>At Any Time</ToggleButton>
+                                    <ToggleButton variant="outline-secondary" value={PeriodDateFilterType.Before}>Before</ToggleButton>
+                                    <ToggleButton variant="outline-secondary" value={PeriodDateFilterType.After}>After</ToggleButton>
+                                </ToggleButtonGroup>
+                            </InputGroup>
+                            {props.periodFilter.filteredDate.dateType === PeriodDateType.Relative ?
+                                <div className="cql-wizard-element-filters-relative-date-controls">
+                                    <Form.Control
+                                        placeholder="Amount of time"
+                                        type="number"
+                                        defaultValue={props.periodFilter.filteredDate.startDate?.amount ?? 0}
+                                        min={0}
+                                        disabled={dateFilterType === PeriodDateFilterType.None}
+                                        onChange={e => 
+                                            dispatchNewPeriodFilter(props.elementFilter.elementName, {
+                                                ...props.periodFilter.filteredDate,
+                                                startDate: {
+                                                    ...props.periodFilter.filteredDate.startDate,
+                                                    amount: convertFormInputToNumber(e.target.value, (props.periodFilter.filteredDate as PeriodDateFilter<PeriodDateType.Relative>).startDate?.amount)
+                                                }} as PeriodDateFilter<PeriodDateType.Relative>)
+                                        }
+                                    />
+                                    <ToggleButtonGroup
+                                        type="radio"
+                                        name={`${props.elementFilter.elementName}-date-relative-unit`}
+                                        value={props.periodFilter.filteredDate.startDate?.unit}
+                                        onChange={newUnit => dispatchNewPeriodFilter(props.elementFilter.elementName, {
+                                            ...props.periodFilter.filteredDate,
+                                            startDate: {
+                                                ...props.periodFilter.filteredDate.startDate,
+                                                unit: newUnit
+                                            }} as PeriodDateFilter<PeriodDateType.Relative>)
+                                        }
+                                    >
+                                        <ToggleButton key="mins" variant="outline-primary" value={RelativeDateUnit.Minutes}>Minute(s)</ToggleButton>
+                                        <ToggleButton key="hours" variant="outline-primary" value={RelativeDateUnit.Hours}>Hour(s)</ToggleButton>
+                                        <ToggleButton key="days" variant="outline-primary" value={RelativeDateUnit.Days}>Day(s)</ToggleButton>
+                                        <ToggleButton variant="outline-primary" value={RelativeDateUnit.Weeks}>Week(s)</ToggleButton>
+                                        <ToggleButton variant="outline-primary" value={RelativeDateUnit.Months}>Month(s)</ToggleButton>
+                                        <ToggleButton variant="outline-primary" value={RelativeDateUnit.Years}>Year(s)</ToggleButton>
+                                    </ToggleButtonGroup>
+                                </div> :
                                 <SingleDatePicker
                                     openDirection="down"
                                     numberOfMonths={1}
                                     showClearDate
                                     reopenPickerOnClearDate
-                                    onClose={({date}) => dispatchNewPeriodFilter(props.elementFilter.elementName, periodType, periodType === PeriodFilterType.Ongoing ? date : undefined, periodType === PeriodFilterType.Until ? date : undefined)}
+                                    disabled={dateFilterType === PeriodDateFilterType.None}
+                                    onClose={({date}) => dispatchNewPeriodFilter(
+                                        props.elementFilter.elementName, {
+                                            ...props.periodFilter.filteredDate,
+                                            startDate: date
+                                        } as PeriodDateFilter<PeriodDateType.Absolute>)
+                                    }
                                     isOutsideRange={() => false}
-                                    id={`${props.elementFilter.elementName}-date-1`}
-                                    date={periodType === PeriodFilterType.Ongoing ? datePickerState.dateOne : datePickerState.dateTwo}
+                                    id={`${props.elementFilter.elementName}-date-${v}`}
+                                    date={v === PeriodDatePart.Start ? datePickerState.dateOne : datePickerState.dateTwo}
                                     onDateChange={date => setDatePickerState((oldState) => {
                                         return {
                                             ...oldState,
-                                            dateOne: periodType === PeriodFilterType.Ongoing ? date : null,
-                                            dateTwo: periodType === PeriodFilterType.Until ? date : null,
+                                            dateOne: v === PeriodDatePart.Start ? date : oldState.dateOne,
+                                            dateTwo: v === PeriodDatePart.Start ? oldState.dateTwo : date,
                                         }
                                     })}
-                                    focused={periodType === PeriodFilterType.Ongoing ? datePickerState.focusDateOne : datePickerState.focusDateTwo}
+                                    focused={v === PeriodDatePart.Start ? datePickerState.focusDateOne : datePickerState.focusDateTwo}
                                     onFocusChange={({ focused }) => setDatePickerState((oldState) => {
                                         return {
                                             ...oldState,
-                                            focusDateOne: periodType === PeriodFilterType.Ongoing ? focused : false,
-                                            focusDateTwo: periodType === PeriodFilterType.Until ? focused : false,
+                                            focusDateOne: v === PeriodDatePart.Start ? focused : false,
+                                            focusDateTwo: v === PeriodDatePart.Start ? false : focused,
                                         };
                                     })}
                                 />
-                            );
-                        case PeriodFilterType.Between:
-                            return (
-                                <DateRangePicker
-                                    openDirection="down"
-                                    showClearDates
-                                    reopenPickerOnClearDates
-                                    onClose={({startDate, endDate}) => dispatchNewPeriodFilter(props.elementFilter.elementName, periodType, startDate, endDate)}
-                                    isOutsideRange={() => false}
-                                    startDate={datePickerState.dateOne}
-                                    startDateId={`${props.elementFilter.elementName}-date-between-start`}
-                                    endDate={datePickerState.dateTwo}
-                                    endDateId={`${props.elementFilter.elementName}-date-between-end`}
-                                    onDatesChange={({ startDate, endDate }) => setDatePickerState((oldState) => {
-                                        return {
-                                            ...oldState,
-                                            dateOne: startDate,
-                                            dateTwo: endDate,
-                                        };
-                                    })}
-                                    focusedInput={datePickerState.focusDateOne ? 'startDate' : datePickerState.focusDateTwo ? 'endDate' : null}
-                                    onFocusChange={focusedInput => setDatePickerState((oldState) => {
-                                        return {
-                                            ...oldState,
-                                            focusDateOne: focusedInput === 'startDate',
-                                            focusDateTwo: focusedInput === 'endDate',
-                                        };
-                                    })}
-                                />
-                            );
-                    }
-                })()}
+                            }
+                        </Card>
+                    );
+                })}
+                
             </Card.Body>
         </Card>
     )

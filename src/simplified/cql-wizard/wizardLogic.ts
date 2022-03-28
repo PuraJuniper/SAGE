@@ -223,21 +223,37 @@ export enum RelativeDateUnit {
 }
 export interface PeriodFilter {
     type: "period",
-    filteredDate: {
-        periodType: PeriodFilterType,
-        startDate: Moment | null,
-        endDate: Moment | null,
-    },
+    filteredDate: PeriodDateFilter<PeriodDateType>,
     dateBinding: {
         definition: string | undefined
     },
     error: boolean,
 }
-export enum PeriodFilterType {
-    None = "any_period",
-    Until = "unknown_start",
-    Ongoing = "unknown_end",
-    Between = "between_dates"
+export type PeriodDateFilter<DateType extends PeriodDateType> = DateType extends PeriodDateType.Absolute ? {
+    dateType: DateType,
+    startDateType: PeriodDateFilterType,
+    startDate: Moment | null,
+    endDateType: PeriodDateFilterType,
+    endDate: Moment | null,
+} : {
+    dateType: DateType,
+    startDateType: PeriodDateFilterType,
+    startDate: RelativeDate | null,
+    endDateType: PeriodDateFilterType,
+    endDate: RelativeDate | null,
+}
+export interface RelativeDate {
+    amount: number,
+    unit: RelativeDateUnit,
+}
+export enum PeriodDateType { // Both dates must be the same type or else the CQL would not be valid
+    Relative = "relative",
+    Absolute = "absolute",
+}
+export enum PeriodDateFilterType {
+    None = "any",
+    Before = "before",
+    After = "after",
 }
 export interface BooleanFilter {
     type: "boolean",
@@ -317,8 +333,10 @@ async function getFilterType(url: string, elementFhirPath: string): Promise<Codi
                 definition: elementSchema.rawElement.definition,
             },
             filteredDate: {
-                periodType: PeriodFilterType.None,
+                dateType: PeriodDateType.Relative,
+                startDateType: PeriodDateFilterType.None,
                 startDate: null,
+                endDateType: PeriodDateFilterType.None,
                 endDate: null,
             },
             error: false,
