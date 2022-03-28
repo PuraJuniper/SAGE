@@ -163,22 +163,22 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
                     switch (elemFilter.filter.type) {
                         case "coding": {
                             return (
-                                codingFilterUI(elemFilter.filter)
+                                codingFilterUI(elemFilter)
                             );
                         }
                         case "date": {
                             return (
-                                dateFilterUI(elemFilter.filter)
+                                dateFilterUI(elemFilter)
                             );
                         }
                         case "age": {
                             return (
-                                ageFilterUI(elemFilter.filter)
+                                ageFilterUI(elemFilter)
                             );
                         }
                         case "boolean": {
                             return (
-                                booleanFilterUI(elemFilter.filter)
+                                booleanFilterUI(elemFilter)
                             );
                         }
                         case "unknown":
@@ -212,7 +212,8 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
                     }
                 }
 
-                function booleanFilterUI(booleanFilter: BooleanFilter): JSX.Element {
+                function booleanFilterUI(elemFilter: ElementFilter): JSX.Element {
+                    const booleanFilter = elemFilter.filter as BooleanFilter
                     return <div key={elementFilter.elementName}>
                         <Card>
                             <Card.Body>
@@ -238,7 +239,8 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
                     </div>;
                 }
 
-                function ageFilterUI(ageFilter: DateFilter): JSX.Element {
+                function ageFilterUI(elemFilter: ElementFilter): JSX.Element {
+                    const ageFilter = elemFilter.filter as DateFilter
                     return <div key={elementFilter.elementName}>
                         <Card>
                             <Card.Body>
@@ -382,7 +384,8 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
                     </div>;
                 }
 
-                function dateFilterUI(dateFilter: DateFilter): JSX.Element {
+                function dateFilterUI(elemFilter: ElementFilter): JSX.Element {
+                    const dateFilter = elemFilter.filter as DateFilter
                     return <div key={elementFilter.elementName}>
                         <Card>
                             <Card.Body>
@@ -530,7 +533,8 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
                     </div>;
                 }
 
-                function codingFilterUI(codeFilter: CodingFilter): JSX.Element {
+                function codingFilterUI(elementFilter: ElementFilter): JSX.Element {
+                    const codeFilter = elementFilter.filter as CodingFilter;
                     return <>
                         {(() => {
                             const codeBinding = codeFilter.codeBinding;
@@ -542,7 +546,7 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
                                 return (<div key={elementFilter.elementName}>
                                     <Card>
                                         <Card.Body>
-                                            <Card.Title className="cql-wizard-element-filters-header">
+                                            <Card.Title className={`cql-wizard-element-filters-header-${elementFilter.elementName}`}>
                                                 {`${elementFilter.elementName[0].toUpperCase()}${elementFilter.elementName.slice(1)}`}
 
                                                 {/* Need to nest ToggleButton in ToggleButtonGroup to prevent a checkbox appearing inside the ToggleButton (bug in react-bootstrap?) */}

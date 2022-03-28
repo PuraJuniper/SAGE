@@ -350,7 +350,7 @@ export async function createExpectedFiltersForResType(resType: string): Promise<
             break;
         }
         case "AllergyIntolerance":
-            expectedElements = ['clinicalStatus', 'verificationStatus', 'type', 'category', 'criticality', 'onset[x]', 'recordedDate', 'reaction'];
+            expectedElements = ['clinicalStatus', 'verificationStatus', 'type', 'category', 'criticality', 'onset[x]', 'recordedDate', 'reaction', 'reaction.severity'];
             url = "http://hl7.org/fhir/StructureDefinition/AllergyIntolerance"; // temporary
             break;
         case "Condition":
