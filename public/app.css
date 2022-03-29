@@ -714,11 +714,10 @@ a {
 }
 .cql-wizard-select-resource-warning {
   position: absolute;
-  background-color: rgba(255,255,255,0.85);
+  background-color: rgba(255,255,255,0.92);
   height: 100%;
   width: 100%;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  display: flex;
   place-items: center;
 }
 .cql-wizard-select-resource-warning-text {
