@@ -22,6 +22,11 @@ enum BooleanSelectOptions {
     False = "false",
 }
 
+function cardTitleCapitalizing(ef: ElementFilter) {
+    const elemSplit = ef.elementName.split(".").pop() ?? "";
+    return ef.elementName.split(".").pop()?.charAt(0).toUpperCase().concat(elemSplit.slice(1));
+}
+
 // Dealing with HTML Form input
 export function convertFormInputToNumber(input: string | undefined, lastValue?: number): number {
     return typeof(input) === 'undefined' ? (lastValue ?? 0) : (typeof(input) === 'string' ? (isNaN(parseInt(input, 10)) ? 0 : parseInt(input, 10)) : input)
@@ -152,11 +157,6 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
                 <DateFilterCard elementFilter={elementFilter} dateFilter={dateFilter} dispatchNewFilters={dispatchNewFilters} />
             </div>
         );
-    }
-
-    function cardTitleCapitalizing(ef: ElementFilter) {
-        const elemSplit = ef.elementName.split(".").pop() ?? "";
-        return ef.elementName.split(".").pop()?.charAt(0).toUpperCase().concat(elemSplit.slice(1));
     }
 
     function codingFilterUI(elementFilter: ElementFilter): JSX.Element {
@@ -364,7 +364,7 @@ const DateFilterCard: React.FC<DateFilterCardProps> = (props) => {
         <Card>
             <Card.Body>
                 <Card.Title className="cql-wizard-element-filters-header">
-                    {`${props.elementFilter.elementName[0].toUpperCase()}${props.elementFilter.elementName.slice(1)}`}
+                    {cardTitleCapitalizing(props.elementFilter)}
                     
                     <ToggleButtonGroup
                         type="radio"
