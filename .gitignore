@@ -10,3 +10,4 @@ editor.iml
 .classpath
 .firebase
 .env
+public/bundle.js.LICENSE.txt
