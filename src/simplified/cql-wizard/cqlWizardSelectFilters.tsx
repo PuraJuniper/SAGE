@@ -535,7 +535,10 @@ const PeriodFilterCard: React.FC<PeriodFilterCardProps> = (props) => {
                 {[PeriodDatePart.Start, PeriodDatePart.End].map(v => {
                     const filteredDate = props.periodFilter.filteredDate;
                     const displayText = v === PeriodDatePart.Start ? "Starts": "Ends";
-                    const dateFilterType = v === PeriodDatePart.Start ? filteredDate.startDateType : filteredDate.endDateType;
+                    const dateTypeKey: keyof typeof filteredDate = v === PeriodDatePart.Start ? "startDateType" : "endDateType";
+                    const dateKey: keyof typeof filteredDate = v === PeriodDatePart.Start ? "startDate" : "endDate";
+                    const dateStateKey: keyof typeof datePickerState = v === PeriodDatePart.Start ? "dateOne" : "dateTwo";
+                    const dateStateFocusKey: keyof typeof datePickerState = v === PeriodDatePart.Start ? "focusDateOne" : "focusDateTwo";
                     return (
                         <Card key={v} body>
                             <InputGroup className="mb-3">
@@ -545,12 +548,11 @@ const PeriodFilterCard: React.FC<PeriodFilterCardProps> = (props) => {
                                 <ToggleButtonGroup
                                     type="radio"
                                     name={`${props.elementFilter.elementName}-${v}-date-type`}
-                                    value={dateFilterType}
+                                    value={filteredDate[dateTypeKey]}
                                     onChange={newDateType => {
                                         dispatchNewPeriodFilter(props.elementFilter.elementName, {
                                             ...filteredDate,
-                                            startDateType: v === PeriodDatePart.Start ? newDateType : filteredDate.startDateType,
-                                            endDateType: v === PeriodDatePart.Start ? filteredDate.endDateType : newDateType,
+                                            [dateTypeKey]: newDateType,
                                         })
                                     }}
                                 >
@@ -559,33 +561,36 @@ const PeriodFilterCard: React.FC<PeriodFilterCardProps> = (props) => {
                                     <ToggleButton variant="outline-secondary" value={PeriodDateFilterType.After}>After</ToggleButton>
                                 </ToggleButtonGroup>
                             </InputGroup>
-                            {props.periodFilter.filteredDate.dateType === PeriodDateType.Relative ?
+                            {filteredDate.dateType === PeriodDateType.Relative ?
                                 <div className="cql-wizard-element-filters-relative-date-controls">
                                     <Form.Control
                                         placeholder="Amount of time"
                                         type="number"
-                                        defaultValue={props.periodFilter.filteredDate.startDate?.amount ?? 0}
+                                        defaultValue={filteredDate[dateKey]?.amount ?? 0}
                                         min={0}
-                                        disabled={dateFilterType === PeriodDateFilterType.None}
+                                        disabled={filteredDate[dateTypeKey] === PeriodDateFilterType.None}
                                         onChange={e => 
                                             dispatchNewPeriodFilter(props.elementFilter.elementName, {
-                                                ...props.periodFilter.filteredDate,
-                                                startDate: {
-                                                    ...props.periodFilter.filteredDate.startDate,
-                                                    amount: convertFormInputToNumber(e.target.value, (props.periodFilter.filteredDate as PeriodDateFilter<PeriodDateType.Relative>).startDate?.amount)
-                                                }} as PeriodDateFilter<PeriodDateType.Relative>)
+                                                ...filteredDate,
+                                                [dateKey]: {
+                                                    ...filteredDate[dateKey],
+                                                    amount: convertFormInputToNumber(e.target.value, filteredDate[dateKey]?.amount)
+                                                },
+                                            } as PeriodDateFilter<PeriodDateType.Relative>)
                                         }
                                     />
                                     <ToggleButtonGroup
                                         type="radio"
                                         name={`${props.elementFilter.elementName}-date-relative-unit`}
-                                        value={props.periodFilter.filteredDate.startDate?.unit}
-                                        onChange={newUnit => dispatchNewPeriodFilter(props.elementFilter.elementName, {
-                                            ...props.periodFilter.filteredDate,
-                                            startDate: {
-                                                ...props.periodFilter.filteredDate.startDate,
-                                                unit: newUnit
-                                            }} as PeriodDateFilter<PeriodDateType.Relative>)
+                                        value={filteredDate[dateKey]?.unit}
+                                        onChange={newUnit => 
+                                            dispatchNewPeriodFilter(props.elementFilter.elementName, {
+                                                ...filteredDate,
+                                                [dateKey]: {
+                                                    ...filteredDate[dateKey],
+                                                    unit: newUnit
+                                                }
+                                            } as PeriodDateFilter<PeriodDateType.Relative>)
                                         }
                                     >
                                         <ToggleButton key="mins" variant="outline-primary" value={RelativeDateUnit.Minutes}>Minute(s)</ToggleButton>
@@ -601,29 +606,27 @@ const PeriodFilterCard: React.FC<PeriodFilterCardProps> = (props) => {
                                     numberOfMonths={1}
                                     showClearDate
                                     reopenPickerOnClearDate
-                                    disabled={dateFilterType === PeriodDateFilterType.None}
+                                    disabled={filteredDate[dateTypeKey] === PeriodDateFilterType.None}
                                     onClose={({date}) => dispatchNewPeriodFilter(
                                         props.elementFilter.elementName, {
-                                            ...props.periodFilter.filteredDate,
-                                            startDate: date
+                                            ...filteredDate,
+                                            [dateKey]: date
                                         } as PeriodDateFilter<PeriodDateType.Absolute>)
                                     }
                                     isOutsideRange={() => false}
                                     id={`${props.elementFilter.elementName}-date-${v}`}
-                                    date={v === PeriodDatePart.Start ? datePickerState.dateOne : datePickerState.dateTwo}
+                                    date={datePickerState[dateStateKey]}
                                     onDateChange={date => setDatePickerState((oldState) => {
                                         return {
                                             ...oldState,
-                                            dateOne: v === PeriodDatePart.Start ? date : oldState.dateOne,
-                                            dateTwo: v === PeriodDatePart.Start ? oldState.dateTwo : date,
+                                            [dateStateKey]: date,
                                         }
                                     })}
-                                    focused={v === PeriodDatePart.Start ? datePickerState.focusDateOne : datePickerState.focusDateTwo}
+                                    focused={datePickerState[dateStateFocusKey]}
                                     onFocusChange={({ focused }) => setDatePickerState((oldState) => {
                                         return {
                                             ...oldState,
-                                            focusDateOne: v === PeriodDatePart.Start ? focused : false,
-                                            focusDateTwo: v === PeriodDatePart.Start ? false : focused,
+                                            [dateStateFocusKey]: focused,
                                         };
                                     })}
                                 />
