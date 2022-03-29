@@ -351,8 +351,8 @@ export async function createExpectedFiltersForResType(resType: string): Promise<
             break;
         }
         case "AllergyIntolerance":
-            expectedElements = ['clinicalStatus', 'verificationStatus', 'type', 'category', 'criticality', 'onset[x]', 'recordedDate', 'reaction.severity'];
-            // expectedBackboneElements['reaction'] = ['severity'];
+            expectedElements = ['clinicalStatus', 'verificationStatus', 'type', 'category', 'criticality', 'onset[x]', 'recordedDate',
+             'reaction.severity', 'reaction.onset', 'reaction.substance', 'reaction.exposureRoute'];
             url = "http://hl7.org/fhir/StructureDefinition/AllergyIntolerance"; // temporary
             break;
         case "Condition":
@@ -387,23 +387,6 @@ export async function createExpectedFiltersForResType(resType: string): Promise<
     }
 
     return Promise.all(expectedElements.map(async (expectedElement) => {
-        // const filterType: CodingFilter | DateFilter | BooleanFilter | BackboneFilter | UnknownFilter = undefined;
-        // const backboneSubElems = expectedBackboneElements[expectedElement]
-        //     async function returnVal(): Promise<BackboneFilter> {
-        //         const subFilters = Promise.all(backboneSubElems.map(async (se) => {
-        //             const name = `${expectedElement}.${se}`;
-        //             return {
-        //                 elementName: name,
-        //                 filter: await getFilterType(url, `${schemaResType}.${name}`)
-        //             };
-        //         }
-        //         ));
-        //         return {
-        //             type: "backbone",
-        //             subFilters: await subFilters,
-        //             error: false
-        //         };
-        //     }
         return {
             elementName: expectedElement,
             filter: await getFilterType(url, `${schemaResType}.${expectedElement}`)
