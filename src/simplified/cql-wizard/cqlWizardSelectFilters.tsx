@@ -370,7 +370,7 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
             <Card>
                 <Card.Body>
                     <Card.Title className="cql-wizard-element-filters-header">
-                        {`${elementFilter.elementName[0].toUpperCase()}${elementFilter.elementName.slice(1)}`}
+                        {cardTitleCapitalizing(elementFilter)}
 
                         <ToggleButtonGroup
                             type="radio"
@@ -513,6 +513,11 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
         </div>;
     }
 
+    function cardTitleCapitalizing(ef: ElementFilter) {
+        const elemSplit = ef.elementName.split(".").pop() ?? "";
+        return ef.elementName.split(".").pop()?.charAt(0).toUpperCase().concat(elemSplit.slice(1));
+    }
+
     function codingFilterUI(elementFilter: ElementFilter): JSX.Element {
         const codeFilter = elementFilter.filter as CodingFilter;
         return <>
@@ -527,7 +532,7 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
                         <Card>
                             <Card.Body>
                                 <Card.Title className={`cql-wizard-element-filters-header-${elementFilter.elementName}`}>
-                                    {`${elementFilter.elementName.split(".").pop()?.charAt(0).toUpperCase()}${elementFilter.elementName.split(".").pop()?.slice(1)}`}
+                                    {cardTitleCapitalizing(elementFilter)}
 
                                     {/* Need to nest ToggleButton in ToggleButtonGroup to prevent a checkbox appearing inside the ToggleButton (bug in react-bootstrap?) */}
                                     <ToggleButtonGroup
@@ -592,9 +597,12 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
         }
         return allParentsAndChildren.filter(child => childHasThisParent(parentString, child))
     }
+    function onlyUnique(value: any, index: any, self: string | any[]) {
+        return self.indexOf(value) === index;
+    }
 
     const allParentsAndChildren = props.wizState.filters.filter(containsSubResource);
-    const onlyParents = allParentsAndChildren.map(getParent)
+    const onlyParents = allParentsAndChildren.map(getParent).filter(onlyUnique)
     const noParents = props.wizState.filters.filter(filter => !allParentsAndChildren.includes(filter))
     return (
         <div className="cql-wizard-select-filters-grid">
