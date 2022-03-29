@@ -2,7 +2,7 @@ import State from "../../state";
 import { Moment } from "moment";
 import { SageCondition } from "../medicationRequestForm";
 import { EditableStateForCondition, AggregateType } from "../cardEditor";
-import { getConceptsOfValueSet, ProfileDefs, SageCodeConcept, SimplifiedProfiles } from "../../helpers/schema-utils";
+import { getConceptsOfValueSet, SageCodeConcept, SimplifiedProfiles } from "../../helpers/schema-utils";
 import { Coding } from "fhir/r4";
 
 // Pages of the wizard
@@ -172,7 +172,7 @@ type GenericFilter = {
 };
 export interface ElementFilter {
     elementName: string,
-    filter: CodingFilter | DateFilter | BooleanFilter | BackboneFilter |  UnknownFilter,
+    filter: CodingFilter | DateFilter | BooleanFilter | BackboneFilter | PeriodFilter |  UnknownFilter,
 }
 
 export interface BackboneFilter extends GenericFilter {
@@ -230,6 +230,40 @@ export enum RelativeDateUnit {
     Months = "months",
     Years = "years",
 }
+export interface PeriodFilter {
+    type: "period",
+    filteredDate: PeriodDateFilter<PeriodDateType>,
+    dateBinding: {
+        definition: string | undefined
+    },
+    error: boolean,
+}
+export type PeriodDateFilter<DateType extends PeriodDateType> = DateType extends PeriodDateType.Absolute ? {
+    dateType: DateType,
+    startDateType: PeriodDateFilterType,
+    startDate: Moment | null,
+    endDateType: PeriodDateFilterType,
+    endDate: Moment | null,
+} : {
+    dateType: DateType,
+    startDateType: PeriodDateFilterType,
+    startDate: RelativeDate | null,
+    endDateType: PeriodDateFilterType,
+    endDate: RelativeDate | null,
+}
+export interface RelativeDate {
+    amount: number,
+    unit: RelativeDateUnit,
+}
+export enum PeriodDateType { // Both dates must be the same type or else the CQL would not be valid
+    Relative = "relative",
+    Absolute = "absolute",
+}
+export enum PeriodDateFilterType {
+    None = "any",
+    Before = "before",
+    After = "after",
+}
 export interface BooleanFilter {
     type: "boolean",
     filteredBoolean: boolean | null,
@@ -244,7 +278,7 @@ export interface UnknownFilter {
 // Returns a filter type for the given element path in the profile identified by `url`
 // These filter types should include all information needed by the UI to know what controls should be displayed
 //  to the user for the element.
-async function getFilterType(url: string, elementFhirPath: string): Promise<CodingFilter | DateFilter | BooleanFilter | BackboneFilter | UnknownFilter> {
+async function getFilterType(url: string, elementFhirPath: string): Promise<CodingFilter | DateFilter | BooleanFilter | BackboneFilter | PeriodFilter | UnknownFilter> {
     const unknownFilter: UnknownFilter = {
         type: "unknown",
         curValue: "test",
@@ -296,6 +330,23 @@ async function getFilterType(url: string, elementFhirPath: string): Promise<Codi
                 absoluteDate1: null,
                 absoluteDate2: null,
                 relativeAmount: 0,
+            },
+            error: false,
+        }
+        return filter;
+    }
+    else if (["Period"].includes(elementSchema.type[0]?.code)) {
+        const filter: PeriodFilter = {
+            type: "period",
+            dateBinding: {
+                definition: elementSchema.rawElement.definition,
+            },
+            filteredDate: {
+                dateType: PeriodDateType.Relative,
+                startDateType: PeriodDateFilterType.None,
+                startDate: null,
+                endDateType: PeriodDateFilterType.None,
+                endDate: null,
             },
             error: false,
         }

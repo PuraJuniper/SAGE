@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Col, Form, ListGroup, Row, Button, Card, InputGroup } from "react-bootstrap";
 import { EditableStateForCondition, ICardForm, AggregateType, WizExprAggregate } from "./cardEditor";
 import { FriendlyResourceProps } from "./nameHelpers";
-import { textBoxProps } from "./outerCardForm";
+import { textBoxProps, displayBoxProps } from "./outerCardForm";
 import { CqlWizardModal } from "./cql-wizard/cqlWizardModal"
 import { PlanDefinitionActionCondition } from "fhir/r4";
 import { CodeFilterType, DateFilterType, saveEditableStateForConditionId, WizardState } from "./cql-wizard/wizardLogic";
@@ -76,6 +76,12 @@ export class MedicationRequestForm implements ICardForm {
             isReadOnly: false,
             isLink: false,
             caption: ""
+        }],
+        ['productReference', {
+            boxSize: 1,
+            isReadOnly: false,
+            isLink: false,
+            caption: ""
 
         }]
     ]);
@@ -85,11 +91,55 @@ export class MedicationRequestForm implements ICardForm {
             ['active', 'on-hold', 'cancelled', 'completed', 'entered-in-error', 'stopped', 'draft', 'unknown']],
         ['intent',
             ['proposal', 'plan', 'order', 'original-order', 'reflex-order', 'filler-order', 'instance-order', 'option']],
-        ['productReference',
-            ['proposal', 'plan', 'order', 'original-order', 'reflex-order', 'filler-order', 'instance-order', 'option']],
         ['periodUnit',
-            ['s', 'min', 'h', 'd', 'wk', 'mo', 'a']]
+            ['s', 'min', 'h', 'd', 'wk', 'mo', 'a']],
+        ['type',
+            ['documentation', 'justification', 'citation', 'predecessor', 'successor', 'derived-from', 'depends-on', 'composed-of']]
     ]);
+    displayBoxFields = new Map<string, displayBoxProps>([
+        ['title', {
+            className: "display-page-title",
+            displayFieldTitle: false,
+        }],
+        ['description', {
+            className: "",
+            displayFieldTitle: false,
+        }],
+        ['resource', {
+            className: "",
+            displayFieldTitle: true,
+        }],
+        ['text', {
+            className: "",
+            displayFieldTitle: true,
+
+        }],
+        ['frequency', {
+            className: "display-page-dosage-small",
+            displayFieldTitle: true,
+        }],
+        ['period', {
+            className: "display-page-dosage-small",
+            displayFieldTitle: true,
+        }],
+        ['value', {
+            className: "display-page-dosage-medium",
+            displayFieldTitle: true,
+        }],
+        ['unit', {
+            className: "display-page-dosage-small",
+            displayFieldTitle: true,
+        }],
+        ['productDescription', {
+            className: "",
+            displayFieldTitle: true,
+        }],
+        ['productReference', {
+            className: "display-page-productRefernce",
+            displayFieldTitle: true,
+        }],
+    ]);
+
 
     resourceFields = ['dosage', 'timing', 'repeat', 'relatedArtifact', 'doseAndRate', 'doseQuantity'];
 
@@ -102,7 +152,7 @@ export class MedicationRequestForm implements ICardForm {
                 ['status', 'value'],
                 ['intent', 'unit'],
                 ['resource', 'frequency'],
-                ['placeholder', 'period'],
+                ['type', 'period'],
                 ['placeholder', 'periodUnit'],
                 ['freeTextplaceholder', 'text'],
                 ['placeholder', 'placeholder'],
@@ -115,9 +165,10 @@ export class MedicationRequestForm implements ICardForm {
         cardColumns: [
             ['title'],
             ['description'],
-            ['relatedArtifact'],
-            ['productReference'],
-            ['text']
+            ['productReference','productDescription'],
+            ['value','unit','frequency','period','periodUnit'],
+            ['resource'],
+            ['text'],
         ]
 
     };

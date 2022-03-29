@@ -140,6 +140,9 @@ export async function generateCqlFromConditions(conditionStates: EditableStateFo
                         }
                     }
 
+                    case "period":
+                        return null;
+
                     case "boolean":
                         return null;
 
