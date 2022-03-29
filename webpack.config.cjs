@@ -64,7 +64,7 @@ module.exports = (env) => {
 					exclude: /node_modules/,
 				},
 				{
-					test:[ /react-datepicker.css/,  /_datepicker.css/],
+					test:[ /react-datepicker.css/,  /_datepicker.css/, /react-dates-overrides.css/],
 					use: ["style-loader", "css-loader"],
 				}
 			]
