@@ -5,10 +5,16 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "command": "npm run dev",
+            "name": "npm run dev",
+            "request": "launch",
+            "type": "node-terminal"
+        },
+        {
             "type": "firefox",
             "request": "launch",
             "reAttach": true,
-            "name": "Launch localhost",
+            "name": "ffLaunch",
             "url": "http://localhost:8083",
             "pathMappings": [
                 {
@@ -17,5 +23,12 @@
                 }
             ]
         }
-    ]
+    ],
+    "compounds": [
+        {
+          "name": "Debug",
+          "configurations": ["npm run dev", "ffLaunch"],
+          "stopAll": true
+        }
+      ]
 }

@@ -22,6 +22,11 @@ enum BooleanSelectOptions {
     False = "false",
 }
 
+function cardTitleCapitalizing(ef: ElementFilter) {
+    const elemSplit = ef.elementName.split(".").pop() ?? "";
+    return ef.elementName.split(".").pop()?.charAt(0).toUpperCase().concat(elemSplit.slice(1));
+}
+
 // Dealing with HTML Form input
 export function convertFormInputToNumber(input: string | undefined, lastValue?: number): number {
     return typeof(input) === 'undefined' ? (lastValue ?? 0) : (typeof(input) === 'string' ? (isNaN(parseInt(input, 10)) ? 0 : parseInt(input, 10)) : input)
@@ -70,126 +75,193 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
         });
     }
 
+    function getFilterUI(elemFilter: ElementFilter) {
+        switch (elemFilter.filter.type) {
+            case "coding": {
+                return (
+                    codingFilterUI(elemFilter)
+                );
+            }
+            case "date":
+            case "age": {
+                return (
+                    dateFilterUI(elemFilter)
+                );
+            }
+            case "boolean": {
+                return (
+                    booleanFilterUI(elemFilter)
+                );
+            }
+            case "period": {
+                return (
+                    periodFilterUI(elemFilter)
+                );
+            }
+            case "unknown":
+                return (
+                    <div key={elemFilter.elementName}>
+                        Unknown Filter {elemFilter.elementName}
+                    </div>
+                );
+
+            default:
+                return (
+                    <div key={elemFilter.elementName}>
+                        Unhandled {elemFilter.elementName}
+                    </div>
+                );
+        }
+    }
+
+    function booleanFilterUI(elementFilter: ElementFilter): JSX.Element {
+        const booleanFilter = elementFilter.filter as BooleanFilter
+        return <div key={elementFilter.elementName}>
+        <Card>
+            <Card.Body>
+                <Card.Title className="cql-wizard-element-filters-header">
+                    {`${elementFilter.elementName[0].toUpperCase()}${elementFilter.elementName.slice(1)}`}
+                    
+                    <ToggleButtonGroup
+                        type="radio"
+                        name={`${elementFilter.elementName}-boolean`}
+                        value={booleanFilter.filteredBoolean === null ? BooleanSelectOptions.Any : booleanFilter.filteredBoolean ? BooleanSelectOptions.True : BooleanSelectOptions.False}
+                        onChange={newBoolOption => {
+                            const newBool = newBoolOption === BooleanSelectOptions.Any ? null : newBoolOption === BooleanSelectOptions.True ? true : false;
+                            dispatchNewBooleanFilter(elementFilter.elementName, newBool)
+                        }}
+                    >
+                        <ToggleButton variant="outline-secondary" value={BooleanSelectOptions.Any}>Any</ToggleButton>
+                        <ToggleButton variant="outline-secondary" value={BooleanSelectOptions.True}>True</ToggleButton>
+                        <ToggleButton variant="outline-secondary" value={BooleanSelectOptions.False}>False</ToggleButton>
+                    </ToggleButtonGroup>
+                </Card.Title>
+            </Card.Body>
+        </Card>
+    </div>
+    }
+
+    function periodFilterUI(elementFilter: ElementFilter): JSX.Element {
+        const periodFilter = elementFilter.filter as PeriodFilter;
+        return (
+            <div key={elementFilter.elementName}>
+                <PeriodFilterCard elementFilter={elementFilter} periodFilter={periodFilter} dispatchNewFilters={dispatchNewFilters} />
+            </div>
+        );
+    }
+
+    function dateFilterUI(elementFilter: ElementFilter): JSX.Element {
+        const dateFilter = elementFilter.filter as DateFilter
+        return (
+            <div key={elementFilter.elementName}>
+                <DateFilterCard elementFilter={elementFilter} dateFilter={dateFilter} dispatchNewFilters={dispatchNewFilters} />
+            </div>
+        );
+    }
+
+    function codingFilterUI(elementFilter: ElementFilter): JSX.Element {
+        const codeFilter = elementFilter.filter as CodingFilter;
+        return <>
+            {(() => {
+                const codeBinding = codeFilter.codeBinding;
+                if (!codeBinding) {
+                    return (
+                        <div key={`${elementFilter.elementName}-no-binding`}>No binding found for {elementFilter.elementName}</div>
+                    );
+                } else {
+                    return (<div key={elementFilter.elementName}>
+                        <Card>
+                            <Card.Body>
+                                <Card.Title className={`cql-wizard-element-filters-header-${elementFilter.elementName}`}>
+                                    {cardTitleCapitalizing(elementFilter)}
+
+                                    {/* Need to nest ToggleButton in ToggleButtonGroup to prevent a checkbox appearing inside the ToggleButton (bug in react-bootstrap?) */}
+                                    <ToggleButtonGroup
+                                        type="radio"
+                                        name={`${elementFilter.elementName}-code-filter-type`}
+                                        value={codeFilter.filteredCoding.filterType === CodeFilterType.None ? "Any" : "Specific"}
+                                        onChange={selected => dispatchNewCodingFilter(elementFilter.elementName, selected === "Any" ? CodeFilterType.None : CodeFilterType.Filtered, codeFilter.filteredCoding.selectedIndexes)}
+                                    >
+                                        <ToggleButton type="radio" variant="outline-secondary" value="Any">
+                                            Any Value
+                                        </ToggleButton>
+                                        <ToggleButton type="radio" variant="outline-secondary" value="Specific">
+                                            Specific Value
+                                        </ToggleButton>
+                                    </ToggleButtonGroup>
+                                </Card.Title>
+                                <Select<{ idx: number; }, true>
+                                    options={codeBinding.codes.map((code, i) => {
+                                        return { idx: i };
+                                    })}
+                                    isMulti={true}
+                                    getOptionValue={codeIdx => `${codeIdx.idx}`}
+                                    getOptionLabel={codeIdx => codeBinding.codes[codeIdx.idx].display ?? codeBinding.codes[codeIdx.idx].code}
+                                    onChange={newValue => dispatchNewCodingFilter(elementFilter.elementName, CodeFilterType.Filtered, newValue.map(v => v.idx))}
+                                    value={codeFilter.filteredCoding.selectedIndexes.map(v => {
+                                        return { idx: v };
+                                    })}
+                                    styles={{ menu: provided => ({ ...provided, zIndex: 9999 }) }} // https://stackoverflow.com/a/55831990
+                                    isSearchable={true}
+                                    closeMenuOnSelect={false}
+                                    isDisabled={codeFilter.filteredCoding.filterType === CodeFilterType.None} />
+                                {/* <ToggleButtonGroup type="checkbox" value={codeFilter.filteredCoding.selectedIndexes} className="cql-wizard-element-filters-button-group"
+        onChange={selectedIndexes => dispatchNewCodingFilter(elementFilter.elementName, CodeFilterType.Filtered, selectedIndexes)}
+    >
+        {codeBinding.codes.map((code, i) => {
+            return <ToggleButton key={i} value={i} variant='outline-primary'
+                className={codeFilter.filteredCoding.filterType === CodeFilterType.None ? "cql-wizard-element-filters-button-ignored" : undefined}
+            >
+                {code.display}
+            </ToggleButton>
+        })}
+    </ToggleButtonGroup> */}
+                            </Card.Body>
+                        </Card>
+                    </div>
+                    );
+                }
+            })()}
+        </>;
+    }
+
+
+    function containsSubResource(elemFilt: ElementFilter): boolean {
+        return elemFilt.elementName.split(".").length > 1
+    }
+    function getParent(elemFilt: ElementFilter) {
+        return elemFilt.elementName.split(".")[0]
+    }
+    function getChildren(parentString: string) {
+        function childHasThisParent(parent: string, child: ElementFilter): boolean {
+            return getParent(child) === parent;
+        }
+        return allParentsAndChildren.filter(child => childHasThisParent(parentString, child))
+    }
+    function onlyUnique(value: any, index: any, self: string | any[]) {
+        return self.indexOf(value) === index;
+    }
+
+    const allParentsAndChildren = props.wizState.filters.filter(containsSubResource);
+    const onlyParents = allParentsAndChildren.map(getParent).filter(onlyUnique)
+    const noParents = props.wizState.filters.filter(filter => !allParentsAndChildren.includes(filter))
     return (
         <div className="cql-wizard-select-filters-grid">
-            {props.wizState.filters.map((elementFilter): JSX.Element => {
-                switch (elementFilter.filter.type) {
-                    case "coding": {
-                        const codeBinding = elementFilter.filter.codeBinding;
-                        const codeFilter = elementFilter.filter;
-                        if (!codeBinding) {
-                            return (
-                                <div key={`${elementFilter.elementName}-no-binding`}>No binding found for {elementFilter.elementName}</div>
-                            );
-                        }
-                        return (
-                            <div key={elementFilter.elementName}>
-                                <Card>
-                                    <Card.Body>
-                                        <Card.Title className="cql-wizard-element-filters-header">
-                                            {`${elementFilter.elementName[0].toUpperCase()}${elementFilter.elementName.slice(1)}`}
-                                            
-                                            {/* Need to nest ToggleButton in ToggleButtonGroup to prevent a checkbox appearing inside the ToggleButton (bug in react-bootstrap?) */}
-                                            <ToggleButtonGroup
-                                                type="radio"
-                                                name={`${elementFilter.elementName}-code-filter-type`}
-                                                value={codeFilter.filteredCoding.filterType === CodeFilterType.None ? "Any" : "Specific"}
-                                                onChange={selected => 
-                                                    dispatchNewCodingFilter(elementFilter.elementName, selected === "Any" ? CodeFilterType.None : CodeFilterType.Filtered, codeFilter.filteredCoding.selectedIndexes)
-                                                }
-                                            >
-                                                <ToggleButton type="radio" variant="outline-secondary" value="Any">
-                                                    Any Value
-                                                </ToggleButton>
-                                                <ToggleButton type="radio" variant="outline-secondary" value="Specific">
-                                                    Specific Value
-                                                </ToggleButton>
-                                            </ToggleButtonGroup>
-                                        </Card.Title>
-                                        <Select<{ idx: number }, true> // This { idx: number } business is just so that this component can be interchangeable with the ToggleButtonGroup below
-                                            options={codeBinding.codes.map((code, i) => {
-                                                return { idx: i };
-                                            })}
-                                            isMulti={true}
-                                            getOptionValue={codeIdx => `${codeIdx.idx}`}
-                                            getOptionLabel={codeIdx => codeBinding.codes[codeIdx.idx].display ?? codeBinding.codes[codeIdx.idx].code}
-                                            onChange={newValue => dispatchNewCodingFilter(elementFilter.elementName, CodeFilterType.Filtered, newValue.map(v => v.idx))}
-                                            value={codeFilter.filteredCoding.selectedIndexes.map(v => {
-                                                return { idx: v }
-                                            })}
-                                            styles={{ menu: provided => ({ ...provided, zIndex: 9999 }) }} // https://stackoverflow.com/a/55831990
-                                            isSearchable={true}
-                                            closeMenuOnSelect={false}
-                                            isDisabled={codeFilter.filteredCoding.filterType === CodeFilterType.None}
-                                        />
-                                        {/* <ToggleButtonGroup type="checkbox" value={codeFilter.filteredCoding.selectedIndexes} className="cql-wizard-element-filters-button-group"
-                                            onChange={selectedIndexes => dispatchNewCodingFilter(elementFilter.elementName, CodeFilterType.Filtered, selectedIndexes)}
-                                        >
-                                            {codeBinding.codes.map((code, i) => {
-                                                return <ToggleButton key={i} value={i} variant='outline-primary'
-                                                    className={codeFilter.filteredCoding.filterType === CodeFilterType.None ? "cql-wizard-element-filters-button-ignored" : undefined}
-                                                >
-                                                    {code.display}
-                                                </ToggleButton>
-                                            })}
-                                        </ToggleButtonGroup> */}
-                                    </Card.Body>
-                                </Card>
-                            </div>
-                        );
-                    }
-                    case "date":
-                    case "age": {
-                        const dateFilter = elementFilter.filter;
-                        return (
-                            <div key={elementFilter.elementName}>
-                                <DateFilterCard elementFilter={elementFilter} dateFilter={dateFilter} dispatchNewFilters={dispatchNewFilters} />
-                            </div>
-                        );
-                    }
-                    case "period": {
-                        const periodFilter = elementFilter.filter;
-                        return (
-                            <div key={elementFilter.elementName}>
-                                <PeriodFilterCard elementFilter={elementFilter} periodFilter={periodFilter} dispatchNewFilters={dispatchNewFilters} />
-                            </div>
-                        );
-                    }
-                    case "boolean": {
-                        const booleanFilter = elementFilter.filter;
-                        return (
-                            <div key={elementFilter.elementName}>
-                                <Card>
-                                    <Card.Body>
-                                        <Card.Title className="cql-wizard-element-filters-header">
-                                            {`${elementFilter.elementName[0].toUpperCase()}${elementFilter.elementName.slice(1)}`}
-                                            
-                                            <ToggleButtonGroup
-                                                type="radio"
-                                                name={`${elementFilter.elementName}-boolean`}
-                                                value={booleanFilter.filteredBoolean === null ? BooleanSelectOptions.Any : booleanFilter.filteredBoolean ? BooleanSelectOptions.True : BooleanSelectOptions.False}
-                                                onChange={newBoolOption => {
-                                                    const newBool = newBoolOption === BooleanSelectOptions.Any ? null : newBoolOption === BooleanSelectOptions.True ? true : false;
-                                                    dispatchNewBooleanFilter(elementFilter.elementName, newBool)
-                                                }}
-                                            >
-                                                <ToggleButton variant="outline-secondary" value={BooleanSelectOptions.Any}>Any</ToggleButton>
-                                                <ToggleButton variant="outline-secondary" value={BooleanSelectOptions.True}>True</ToggleButton>
-                                                <ToggleButton variant="outline-secondary" value={BooleanSelectOptions.False}>False</ToggleButton>
-                                            </ToggleButtonGroup>
-                                        </Card.Title>
-                                    </Card.Body>
-                                </Card>
-                            </div>
-                        )
-                    }
-                    case "unknown":
-                        return (
-                            <div key={elementFilter.elementName}>
-                                Unknown Filter {elementFilter.elementName}
-                            </div>
-                        )
-                }
+            {noParents.map((elementFilter): JSX.Element => {
+                return getFilterUI(elementFilter);
+            })}
+
+            {onlyParents.map((parent): JSX.Element => {
+                return (
+                    <Card key={parent}>
+                        <Card.Body>
+                            <Card.Title>
+                                {`${parent[0].toUpperCase()}${parent.slice(1)}`}
+                            </Card.Title>
+                            {getChildren(parent).map(getFilterUI)}
+                        </Card.Body>
+                    </Card>
+                );
             })}
             <div className="cql-wizard-filters-overscroll-excess" />
         </div>
@@ -292,7 +364,7 @@ const DateFilterCard: React.FC<DateFilterCardProps> = (props) => {
         <Card>
             <Card.Body>
                 <Card.Title className="cql-wizard-element-filters-header">
-                    {`${props.elementFilter.elementName[0].toUpperCase()}${props.elementFilter.elementName.slice(1)}`}
+                    {cardTitleCapitalizing(props.elementFilter)}
                     
                     <ToggleButtonGroup
                         type="radio"
