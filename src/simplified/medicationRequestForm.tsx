@@ -7,6 +7,7 @@ import { CqlWizardModal } from "./cql-wizard/cqlWizardModal"
 import { PlanDefinitionActionCondition } from "fhir/r4";
 import { CodeFilterType, DateFilterType, saveEditableStateForConditionId, WizardState } from "./cql-wizard/wizardLogic";
 import { convertFormInputToNumber } from "./cql-wizard/cqlWizardSelectFilters";
+import { CodeableConceptEditorProps } from "./codeableConceptEditor";
 
 // Make `id` a required property
 export interface SageCondition extends PlanDefinitionActionCondition {
@@ -92,7 +93,7 @@ export class MedicationRequestForm implements ICardForm {
         ['intent',
             ['proposal', 'plan', 'order', 'original-order', 'reflex-order', 'filler-order', 'instance-order', 'option']],
         ['periodUnit',
-            ['s', 'min', 'h', 'd', 'wk', 'mo', 'a']],
+            ['h', 'd', 'wk', 'mo', 'a']],
         ['type',
             ['documentation', 'justification', 'citation', 'predecessor', 'successor', 'derived-from', 'depends-on', 'composed-of']]
     ]);
@@ -140,6 +141,9 @@ export class MedicationRequestForm implements ICardForm {
         }],
     ]);
 
+    codeableConceptFields: Map<string, Partial<CodeableConceptEditorProps>> = new Map<string, Partial<CodeableConceptEditorProps>>([
+        ['productCodeableConcept', {}]
+    ]);
 
     resourceFields = ['dosage', 'timing', 'repeat', 'relatedArtifact', 'doseAndRate', 'doseQuantity'];
 
@@ -147,8 +151,8 @@ export class MedicationRequestForm implements ICardForm {
         {
             cardColumns: [
                 ['placeholder', 'placeholder'],
-                ['title', 'productReference'],
-                ['description', 'productDescription'],
+                ['title', 'productCodeableConcept'],
+                ['description', 'placeholder'],
                 ['status', 'value'],
                 ['intent', 'unit'],
                 ['resource', 'frequency'],
@@ -165,7 +169,6 @@ export class MedicationRequestForm implements ICardForm {
         cardColumns: [
             ['title'],
             ['description'],
-            ['productReference','productDescription'],
             ['value','unit','frequency','period','periodUnit'],
             ['resource'],
             ['text'],

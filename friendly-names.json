@@ -93,7 +93,7 @@
             },
             {
               "SELF": {
-                "FHIR": "productReference", "FRIENDLY": "Medication Code: "}
+                "FHIR": "productCodeableConcept", "FRIENDLY": "Medication Code: "}
             },
             {
               "SELF": {
