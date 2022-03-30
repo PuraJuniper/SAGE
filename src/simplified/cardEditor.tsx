@@ -1,22 +1,17 @@
-import * as cql from "cql-execution";
-import { Library, Dosage, PlanDefinition, PlanDefinitionActionCondition } from "fhir/r4";
-import { ExtractTypeOfFN } from "freezer-js";
+import { Library, Dosage, PlanDefinition, PlanDefinitionActionCondition, CodeableConcept } from "fhir/r4";
 import React, { ElementType, useEffect, useState } from "react";
 import { Button, Col, Form, InputGroup, Modal, Row } from 'react-bootstrap';
-import hypertensionLibraryJson from "../../public/samples/hypertension-library.json";
-import * as SageUtils from "../helpers/sage-utils";
 import * as SchemaUtils from "../helpers/schema-utils";
 import State, { SageNodeInitializedFreezerNode } from "../state";
-import { OuterCardForm, textBoxProps, cardLayout } from "./outerCardForm";
+import { OuterCardForm, textBoxProps, cardLayout, displayBoxProps } from "./outerCardForm";
 import { ACTIVITY_DEFINITION, allFormElems, convertFormElementToObject, formElemtoResourceProp, FriendlyResourceFormElement, FriendlyResourceProps, getFormElementListForResource, PLAN_DEFINITION, profileToFriendlyResourceListEntry } from "./nameHelpers";
 import { MedicationRequestForm, SageCondition } from "./medicationRequestForm";
 import { buildEditableStateFromCondition, WizardState } from "./cql-wizard/wizardLogic";
 import { generateCqlFromConditions, makeCQLtoELMRequest } from "./cql-wizard/cql-generator";
 import { buildFredId } from "../helpers/bundle-utils";
+import { fhirToFriendly } from '../simplified/nameHelpers';
+import CodeableConceptEditor, { CodeableConceptEditorProps } from "./codeableConceptEditor";
 
-
-
-const hypertensionLibrary: Library = hypertensionLibraryJson as Library;
 
 interface ExpressionOptionDict {
     [expression: string]: ExpressionOption // The key is exactly what's written in the Condition's "expression" element
@@ -47,7 +42,9 @@ export interface pageThreeProps {
 export interface ICardForm {
     resourceType: FriendlyResourceProps;
     textBoxFields: Map<string, textBoxProps>;
+    displayBoxFields: Map<string, displayBoxProps>;
     dropdownFields: Map<string, string[]>;
+    codeableConceptFields: Map<string, Partial<CodeableConceptEditorProps>>;
     resourceFields: string[];
     cardFieldLayout: cardLayout;
     pageOne: React.FunctionComponent<pageOneProps> | React.ComponentClass<pageOneProps>;
@@ -68,6 +65,43 @@ const simpleCardField = (fieldName: string, actNode: SageNodeInitializedFreezerN
         State.emit("value_change", SchemaUtils.getChildOfNode(plan, name), contents, false);
     }
     return [fieldName, fieldContents, setField, fieldSaveHandler]
+}
+
+/**
+ * CodeableConcept as defined here https://www.hl7.org/fhir/datatypes.html#CodeableConcept
+ * @param fieldName Name of element in `actNode` that is of type CodeableConcept
+ * @param parentNode Node of parent element to `fieldName`
+ * @returns \{ Name of field, Contents of field, (function) Set contents of field, (function) Save contents back into the SAGE node \}
+ */
+const codeableConceptCardField = (fieldName: string, parentNode: SageNodeInitializedFreezerNode) => {
+    const fieldNode = SchemaUtils.getChildOfNodePath(parentNode, [fieldName]);
+
+    // Normally dangerous
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const [codeableConcept, setCodeableConcept] = useState<CodeableConcept>(() => {
+        if (fieldNode) {
+            // Initialize with existing value
+            return SchemaUtils.toFhir(fieldNode, false)
+        }
+        return {}
+    });
+    
+    function codeableConceptSaveHandler(name: string, contents: any, act: any, plan: any) {
+        if (fieldNode) {
+            State.emit("load_json_into", fieldNode, codeableConcept);
+        }
+        else {
+            State.emit("load_json_into", parentNode, {
+                [fieldName]: codeableConcept
+            });
+        }
+    }
+    return {
+        fieldName,
+        codeableConcept,
+        setCodeableConcept,
+        codeableConceptSaveHandler
+    };
 }
 
 const createTextBoxElement = (fieldKey: string, friendlyFieldName: string, textProps: textBoxProps, fieldHandlers: any[][], node: SageNodeInitializedFreezerNode): JSX.Element => {
@@ -117,6 +151,7 @@ const createTextBoxElement = (fieldKey: string, friendlyFieldName: string, textP
 const createDropdownElement = (fieldKey: string, fieldFriendlyName: string, fieldElements: string[], fieldHandlers: any[][], node: SageNodeInitializedFreezerNode): JSX.Element => {
     const [fieldName, fieldContents, setField, fieldSaveHandler] = simpleCardField(fieldKey, node);
     fieldHandlers.push([fieldName, fieldContents, setField, fieldSaveHandler]);
+    
     return (
         <Form.Group key={fieldName + "-fromGroup"} as={Col} controlId={fieldKey}>
             <Row className="page1-row-element">
@@ -126,10 +161,11 @@ const createDropdownElement = (fieldKey: string, fieldFriendlyName: string, fiel
                         <Form.Control
                             key={fieldName + "formControl"}
                             as="select"
-                            defaultValue={fieldContents}
+                            defaultValue = {fieldContents}
                             onChange={(e) => setField(e.currentTarget.value)}
                         >
-                            {fieldElements.map(sType => {
+                            <option hidden disabled value=''>{'--Please Select an Option--'}</option>
+                            {fieldElements.map((sType) => {
                                 return <option key={fieldKey + "-" + sType} value={sType}>{sType}</option>;
                             })}
                         </Form.Control>
@@ -140,24 +176,54 @@ const createDropdownElement = (fieldKey: string, fieldFriendlyName: string, fiel
     );
 }
 
-const createDisplayElement = (fieldHandlers: any, friendlyFields: any, i: number): JSX.Element => {
-    let friendly;
-    for (let j = 0; j < friendlyFields.length; j++) {
-        if (friendlyFields[j].FHIR === fieldHandlers[i][0]) friendly = friendlyFields[j].FRIENDLY
-    }
+const createCodeableConceptElement = (fieldKey: string, fieldFriendlyName: string, codeableConceptEditorPropsOverrides: Partial<CodeableConceptEditorProps>, fieldHandlers: any[][], node: SageNodeInitializedFreezerNode): JSX.Element => {
+    const { fieldName, codeableConcept, setCodeableConcept, codeableConceptSaveHandler } = codeableConceptCardField(fieldKey, node);
+    fieldHandlers.push([fieldName, codeableConcept, setCodeableConcept, codeableConceptSaveHandler]);
     return (
-        <Form.Group key={fieldHandlers[i][0] + "-fromGroup"} as={Col} controlId={fieldHandlers[i][0]}>
-            <Form.Label key={fieldHandlers[i][0] + "-label"}>{friendly} {fieldHandlers[i][1]}</Form.Label>
+        <Form.Group key={fieldName + "-fromGroup"} as={Col} controlId={fieldKey}>
+            <Row className="page1-row-element">
+                <Form.Label key={fieldName + "-label"}>{fieldFriendlyName}</Form.Label>
+                <Col key={fieldName + "-col"} className = 'page1-input-fields'>
+                    <CodeableConceptEditor {...codeableConceptEditorPropsOverrides} curCodeableConcept={codeableConcept} setCurCodeableConcept={setCodeableConcept} />
+                </Col>
+            </Row>
         </Form.Group>
-    )
+    );
 }
 
-const createDisplayElementList = (fieldHandlers: any, resourceType: FriendlyResourceProps): JSX.Element[] => {
-    const friendlyFields = getFormElementListForResource(resourceType.FHIR);
-    const list: JSX.Element[] = [];
+const createDisplayElement = ( displayProps: displayBoxProps,friendlyFields: any,fieldHandlers: any, i: number): JSX.Element => {
+    let friendly;
+    for (let j = 0; j < friendlyFields.length; j++) {
+        if(friendlyFields[j].SELF.FHIR === fieldHandlers[i][0]){
+            friendly = friendlyFields[j].SELF.FRIENDLY
+        }
+    }
+    if (displayProps.displayFieldTitle === true){
+        return (
+            <Form.Group key={fieldHandlers[i][0] + "-fromGroup"} as={Col} controlId={fieldHandlers[i][0]} className = {displayProps.className}>
+                <Form.Label key={fieldHandlers[i][0] + "-label"} > <b>{friendly}</b> {fieldHandlers[i][1]}</Form.Label>
+            </Form.Group>
+        )
+    }
+    else{
+        return (
+            <Form.Group key={fieldHandlers[i][0] + "-fromGroup"} as={Col} controlId={fieldHandlers[i][0]}>
+                <Form.Label key={fieldHandlers[i][0] + "-label"} className = {displayProps.className}>{fieldHandlers[i][1]}</Form.Label>
+            </Form.Group>
+        )
+    }
+   
+}
 
+const createDisplayElementList = (innerCardForm: ICardForm,fieldHandlers: any, resourceType: FriendlyResourceProps): JSX.Element[] => {
+    const friendlyFields = getFormElementListForResource(resourceType.FHIR);
+    const flattenFriendlyFields = allFormElems(friendlyFields);
+    const defaultBoxProps: displayBoxProps = {className: "", displayFieldTitle: true }
+
+    const list: JSX.Element[] = [];
     for (let i = 0; i < fieldHandlers.length; i++) {
-        list[i] = createDisplayElement(fieldHandlers, friendlyFields, i);
+        list[i] = createDisplayElement(innerCardForm.displayBoxFields.get(fieldHandlers[i][0])?? defaultBoxProps,
+        flattenFriendlyFields,fieldHandlers, i);
     }
 
     return list;
@@ -181,11 +247,20 @@ const createDropdownElementList = (innerCardForm: ICardForm, friendlyFields: Fri
         })
 }
 
+const createCodeableConceptElementList = (innerCardForm: ICardForm, friendlyFields: FriendlyResourceFormElement[], fieldHandlers: any, node: SageNodeInitializedFreezerNode): JSX.Element[] => {
+    return friendlyFields
+        .filter(ff => innerCardForm.codeableConceptFields.has(ff.SELF.FHIR))
+        .map(ff => {
+            return createCodeableConceptElement(ff.SELF.FHIR, ff.SELF.FRIENDLY, innerCardForm.codeableConceptFields.get(ff.SELF.FHIR) ?? {}, fieldHandlers, node)
+        })
+}
+
 const fieldElementListForType = (innerCardForm: ICardForm, friendlyFields: FriendlyResourceFormElement[], fieldHandlers: any, node: SageNodeInitializedFreezerNode): JSX.Element[] => {
     const flattenFriendlyFields = allFormElems(friendlyFields);
     return [
         ...createTextBoxElementList(innerCardForm, flattenFriendlyFields, fieldHandlers, node),
-        ...createDropdownElementList(innerCardForm, flattenFriendlyFields, fieldHandlers, node)
+        ...createDropdownElementList(innerCardForm, flattenFriendlyFields, fieldHandlers, node),
+        ...createCodeableConceptElementList(innerCardForm, flattenFriendlyFields, fieldHandlers, node),
     ]
 }
 
@@ -314,7 +389,7 @@ export const CardEditor = (props: CardEditorProps) => {
                     generateNewCondition={generateEditableCondition}
                     resourceType={actResourceType}
                     elementList={fieldElementListForType(innerCardForm, getFormElementListForResource(innerCardForm.resourceType.FHIR), fieldHandlers, actNode)}
-                    displayList={createDisplayElementList(fieldHandlers, actResourceType)}
+                    displayList={createDisplayElementList(innerCardForm,fieldHandlers, actResourceType)}
                     innerCardForm={innerCardForm}
                     handleSaveResource={handleSaveResource}
                     handleDeleteResource={props.handleDeleteResource}

@@ -22,6 +22,10 @@ export type textBoxProps = {
     isLink: boolean;
     caption: string;
 }
+export type displayBoxProps = {
+    className: string;
+    displayFieldTitle: boolean;
+}
 export interface CardFormState {
     step: number;
 }
@@ -116,8 +120,7 @@ export class OuterCardForm extends React.Component<CardFormProps, CardFormState>
                                         </Card> : null}
                 <div><>
                     {this.state.step > 1 ? this.leftNavButton() : null}
-                    {this.state.step <= 2 ? this.rightNavButton() : null}
-                    {this.saveButton}
+                    {this.state.step <= 2 ? this.rightNavButton() : this.saveButton}
                     {this.deleteCardButton}
                 </></div>
             </div>

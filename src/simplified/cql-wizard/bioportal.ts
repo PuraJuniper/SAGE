@@ -2,6 +2,7 @@ import axios from "axios";
 import State from "../../state";
 import { SageCoding } from "./wizardLogic";
 
+// These ontology names are from Bioportal
 export const ontologyToSystemAndVersion: {[key: string]: {system: string, version: string} | undefined} = {
     'SNOMEDCT': {
         system: "http://snomed.info/sct",
@@ -28,6 +29,10 @@ export const ontologyToSystemAndVersion: {[key: string]: {system: string, versio
         version: "03072022",
     },
 };
+
+// Map urls back to their name on Bioportal
+export const systemUrlToOntology: {[systemUrl: string]: string | undefined} = {};
+Object.entries(ontologyToSystemAndVersion).forEach(v => v[1] ? (systemUrlToOntology[v[1].system] = v[0]) : null)
 
 /**
  * Search Bioportal for codes matching the query

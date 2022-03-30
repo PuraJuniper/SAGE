@@ -2,7 +2,7 @@ import State from "../../state";
 import { Moment } from "moment";
 import { SageCondition } from "../medicationRequestForm";
 import { EditableStateForCondition, AggregateType } from "../cardEditor";
-import { getConceptsOfValueSet, SageCodeConcept } from "../../helpers/schema-utils";
+import { getConceptsOfValueSet, SageCodeConcept, SimplifiedProfiles } from "../../helpers/schema-utils";
 import { Coding } from "fhir/r4";
 
 // Pages of the wizard
@@ -166,9 +166,18 @@ export function initFromState(state: WizardState | null): WizardState {
 }
 
 // Various types for filtering by FHIR element
+
+type GenericFilter = {
+    error: false
+};
 export interface ElementFilter {
     elementName: string,
-    filter: CodingFilter | DateFilter | BooleanFilter |BackboneFilter|  UnknownFilter,
+    filter: CodingFilter | DateFilter | BooleanFilter | BackboneFilter | PeriodFilter |  UnknownFilter,
+}
+
+export interface BackboneFilter extends GenericFilter {
+    type: "backbone",
+    subFilters: ElementFilter[]
 }
 
 export interface CodingFilter {
@@ -221,23 +230,39 @@ export enum RelativeDateUnit {
     Months = "months",
     Years = "years",
 }
-export interface BackboneFilter{
-    type: "BackboneElement",
-    filteredDate: {
-        periodType: BackboneFilterType,
-        startDate: Moment | null,
-        endDate: Moment | null,
-    },
+export interface PeriodFilter {
+    type: "period",
+    filteredDate: PeriodDateFilter<PeriodDateType>,
     dateBinding: {
         definition: string | undefined
     },
     error: boolean,
 }
-export enum BackboneFilterType {
-    None = "any_period",
-    Until = "unknown_start",
-    Ongoing = "unknown_end",
-    Between = "between_dates"
+export type PeriodDateFilter<DateType extends PeriodDateType> = DateType extends PeriodDateType.Absolute ? {
+    dateType: DateType,
+    startDateType: PeriodDateFilterType,
+    startDate: Moment | null,
+    endDateType: PeriodDateFilterType,
+    endDate: Moment | null,
+} : {
+    dateType: DateType,
+    startDateType: PeriodDateFilterType,
+    startDate: RelativeDate | null,
+    endDateType: PeriodDateFilterType,
+    endDate: RelativeDate | null,
+}
+export interface RelativeDate {
+    amount: number,
+    unit: RelativeDateUnit,
+}
+export enum PeriodDateType { // Both dates must be the same type or else the CQL would not be valid
+    Relative = "relative",
+    Absolute = "absolute",
+}
+export enum PeriodDateFilterType {
+    None = "any",
+    Before = "before",
+    After = "after",
 }
 export interface BooleanFilter {
     type: "boolean",
@@ -253,7 +278,7 @@ export interface UnknownFilter {
 // Returns a filter type for the given element path in the profile identified by `url`
 // These filter types should include all information needed by the UI to know what controls should be displayed
 //  to the user for the element.
-async function getFilterType(url: string, elementFhirPath: string): Promise<CodingFilter | DateFilter | BooleanFilter | BackboneFilter| UnknownFilter> {
+async function getFilterType(url: string, elementFhirPath: string): Promise<CodingFilter | DateFilter | BooleanFilter | BackboneFilter | PeriodFilter | UnknownFilter> {
     const unknownFilter: UnknownFilter = {
         type: "unknown",
         curValue: "test",
@@ -310,18 +335,18 @@ async function getFilterType(url: string, elementFhirPath: string): Promise<Codi
         }
         return filter;
     }
-    else if (["BackboneElement"].includes(elementSchema.type[0]?.code)) {
-        //console.log(elementSchema)
-        const filter: DateFilter = {
-            type: elementFhirPath.endsWith(".birthDate") ? "age" : "date",
+    else if (["Period"].includes(elementSchema.type[0]?.code)) {
+        const filter: PeriodFilter = {
+            type: "period",
             dateBinding: {
                 definition: elementSchema.rawElement.definition,
             },
             filteredDate: {
-                filterType: DateFilterType.None,
-                absoluteDate1: null,
-                absoluteDate2: null,
-                relativeAmount: 0,
+                dateType: PeriodDateType.Relative,
+                startDateType: PeriodDateFilterType.None,
+                startDate: null,
+                endDateType: PeriodDateFilterType.None,
+                endDate: null,
             },
             error: false,
         }
@@ -335,6 +360,23 @@ async function getFilterType(url: string, elementFhirPath: string): Promise<Codi
         }
         return booleanFilter;
     }
+    else if (elementSchema.type[0]?.code === "BackboneElement") {
+        console.debug("BackboneElement", elementSchema);
+        const reactionExpectedElems: string[] = ["severity"];
+        const subFilters = Promise.all(reactionExpectedElems.map(async ee => {
+            return {
+                elementName: ee,
+                filter: await getFilterType(url, elementFhirPath.concat(".", ee))
+            }
+        }
+        ))
+        const backboneFilter: BackboneFilter = {
+            type: "backbone",
+            subFilters: await subFilters,
+            error: false
+        }
+        return backboneFilter;
+    }
     else {
         console.debug("unknown", elementSchema);
         return unknownFilter;
@@ -344,6 +386,7 @@ async function getFilterType(url: string, elementFhirPath: string): Promise<Codi
 // Should be rewritten to use friendly-names
 export async function createExpectedFiltersForResType(resType: string): Promise<ElementFilter[]> {
     let expectedElements: string[] = [];
+    // let expectedBackboneElements: {[key: string]: string[]} = {}
     let schemaResType = resType;
     let url = "";
     switch(resType) {
@@ -359,7 +402,8 @@ export async function createExpectedFiltersForResType(resType: string): Promise<
             break;
         }
         case "AllergyIntolerance":
-            expectedElements = ['clinicalStatus', 'verificationStatus', 'type', 'category', 'criticality', 'onset[x]', 'recordedDate', 'reaction'];
+            expectedElements = ['clinicalStatus', 'verificationStatus', 'type', 'category', 'criticality', 'onset[x]', 'recordedDate',
+             'reaction.severity', 'reaction.onset', 'reaction.substance', 'reaction.exposureRoute'];
             url = "http://hl7.org/fhir/StructureDefinition/AllergyIntolerance"; // temporary
             break;
         case "Condition":
@@ -392,6 +436,7 @@ export async function createExpectedFiltersForResType(resType: string): Promise<
             url = "http://hl7.org/fhir/StructureDefinition/Patient";
             break;
     }
+
     return Promise.all(expectedElements.map(async (expectedElement) => {
         return {
             elementName: expectedElement,

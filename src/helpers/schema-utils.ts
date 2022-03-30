@@ -57,7 +57,7 @@ export type SageNewResource = {
 
 // type fhirTypeValues = "decimal" | "boolean" | "xhtml" | "base64Binary" | "code" | "uri" | "canonical";
 
-type ProfileDefs = {
+export type ProfileDefs = {
 	'__meta': {
 		baseDefinition: string,
 		id: string,

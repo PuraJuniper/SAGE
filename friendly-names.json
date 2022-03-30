@@ -63,29 +63,6 @@
                   ]
                 },
                 {
-                  "SELF":{"FHIR":"doseAndRate", "FRIENDLY":"Dose&Rate:"},
-                  "FORM_ELEMENTS":[
-                    {
-                      "SELF":{"FHIR": "doseQuantity","FRIENDLY": "Dose Amount and UOM:"},
-                      "FORM_ELEMENTS":[
-                        {
-                          "SELF":{
-                            "FHIR":"value",
-                            "FRIENDLY":"Dose Quantity:"
-                          }
-                        },
-                        {
-                          "SELF":{
-                            "FHIR":"unit",
-                            "FRIENDLY":"Dose UOM:"
-                          }
-                        }
-                      ]
-                    }
-                  ]
-
-                },
-                {
                   "SELF": { "FHIR": "text", "FRIENDLY": "Free text dosage instructions: " }
                 }
               ]
@@ -107,13 +84,16 @@
               "DEFAULT_PROFILE_URI": "http://hl7.org/fhir/StructureDefinition/RelatedArtifact"},
               "FORM_ELEMENTS": [
                 {
+                  "SELF": { "FHIR": "type", "FRIENDLY": "Related artifact type: " }
+                },
+                {
                   "SELF": { "FHIR": "resource", "FRIENDLY": "Related artifact: " }
                 }
               ]
             },
             {
               "SELF": {
-                "FHIR": "productReference", "FRIENDLY": "Medication Code: "}
+                "FHIR": "productCodeableConcept", "FRIENDLY": "Medication Code: "}
             },
             {
               "SELF": {

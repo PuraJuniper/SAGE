@@ -714,11 +714,10 @@ a {
 }
 .cql-wizard-select-resource-warning {
   position: absolute;
-  background-color: rgba(255,255,255,0.85);
+  background-color: rgba(255,255,255,0.92);
   height: 100%;
   width: 100%;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  display: flex;
   place-items: center;
 }
 .cql-wizard-select-resource-warning-text {
@@ -824,4 +823,20 @@ a {
 .text-dotted-underline {
   text-decoration-line: underline;
   text-decoration-style: dotted;
+}
+.display-page-title{
+  font-size: large;
+  margin: 0;
+  font-weight: bold;
+}
+.display-page-dosage-small{
+  margin: 0;
+  flex: 0 0 15%;
+}
+.display-page-dosage-medium{
+  margin: 0;
+  flex: 0 0 25%;
+}
+.display-page-productRefernce{
+  flex: 0 0 35%;
 }
