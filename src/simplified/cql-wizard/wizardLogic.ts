@@ -168,8 +168,10 @@ export function initFromState(state: WizardState | null): WizardState {
 // Various types for filtering by FHIR element
 export interface ElementFilter {
     elementName: string,
-    filter: CodingFilter | DateFilter | BooleanFilter | PeriodFilter |  UnknownFilter,
+    filter: ElementFilterType,
 }
+
+export type ElementFilterType = CodingFilter | DateFilter | BooleanFilter | PeriodFilter |  UnknownFilter
 
 export interface CodingFilter {
     type: "coding",
@@ -269,7 +271,7 @@ export interface UnknownFilter {
 // Returns a filter type for the given element path in the profile identified by `url`
 // These filter types should include all information needed by the UI to know what controls should be displayed
 //  to the user for the element.
-async function getFilterType(url: string, elementFhirPath: string): Promise<CodingFilter | DateFilter | BooleanFilter | PeriodFilter | UnknownFilter> {
+async function getFilterType(url: string, elementFhirPath: string): Promise<ElementFilterType> {
     const unknownFilter: UnknownFilter = {
         type: "unknown",
         curValue: "test",
