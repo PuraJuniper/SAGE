@@ -405,7 +405,7 @@ export const buildChildNode = function (profiles: SimplifiedProfiles, parentNode
 		name = name.replace("[x]", capType);
 	}
 
-	if ((schema.max !== "1") && !["valueArray", "objectArray", "resource"].includes(parentNode.nodeType)) {
+	if ((schema.max !== "1") && !["valueArray", "objectArray"].includes(parentNode.nodeType)) {
 		const result: SageNodeInitialized = {
 			id: nextId++,
 			name,
