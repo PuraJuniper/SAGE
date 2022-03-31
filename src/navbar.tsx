@@ -6,6 +6,7 @@
 import React from 'react';
 import State, { SageUiStatus } from './state';
 import {Navbar, Nav, NavItem} from 'react-bootstrap';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 interface NavbarFredProps {
 	hasResource: boolean,
@@ -37,35 +38,7 @@ class NavbarFred extends React.Component<NavbarFredProps> {
 		return reader.readAsText(file);
 	}
 
-	renderButtons() {	
-		const navItems = [
-			<Nav.Link key="open" onClick={this.handleUiChange.bind(this, "open")}>
-				Create Resource
-			</Nav.Link>
-		];
 
-		return navItems;
-	}
-
-	renderExtraButtons() {
-		const navCpg = [
-			<Nav.Link key="bas-cpg" onClick={this.handleUiChange.bind(this, "basic-cpg")}>
-				Basic CPG
-			</Nav.Link>,
-			<Nav.Link key="adv-cpg" onClick={this.handleUiChange.bind(this, "advanced-cpg")}>
-				Advanced CPG
-			</Nav.Link>,
-			this.props.hasResource && <Nav.Link 
-			key="resource_json" 
-			onClick={this.handleUiChange.bind(this, "export")}>
-				Export JSON
-			</Nav.Link>,
-			<Nav.Link key="settings" onClick={this.handleUiChange.bind(this, "settings")}>
-				User Settings
-			</Nav.Link>
-		];
-		return navCpg;
-	}
 
 	render() {
 		return <Navbar fixed="top" className="navbar-custom"
@@ -74,18 +47,10 @@ class NavbarFred extends React.Component<NavbarFredProps> {
 			onDrop={this.handleDrag.bind(this)}
 			onDragLeave={this.handleDrag.bind(this)}
 		>
-			<div className="pull-left" style={{margin: "10px"}}>
-			</div>
-			<Navbar.Brand>
-				Forking FRED
-			</Navbar.Brand>
-			<Navbar.Toggle />
-			<Navbar.Collapse>
-				<Nav>
-					{this.renderButtons()}
-					{this.renderExtraButtons()}
-				</Nav>
-			</Navbar.Collapse>
+			<Navbar.Brand>SAGE Basic</Navbar.Brand>
+			<Nav.Link key='home-button' onClick={this.handleUiChange.bind(this, 'basic-cpg')}>
+					<img style={{'height':'40px'}} src="../img/house-chimney-solid.svg" alt="" />
+			</Nav.Link>
 		</Navbar>;
 	}
 }
