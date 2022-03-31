@@ -51,7 +51,7 @@ class NavbarFred extends React.Component<NavbarFredProps> {
 		>
 			<Navbar.Brand>SAGE Basic</Navbar.Brand>
 			<Nav.Link key='home-button' onClick={this.handleUiChange.bind(this, 'basic-cpg')}>
-			<FontAwesomeIcon key="butSaveIcon" icon={faHomeLgAlt} style={{'color':'white'}} />
+			<FontAwesomeIcon key="butSaveIcon" icon={faHomeLgAlt} style={{'color':'white','height':'30px','marginRight':'3rem'}} />
 			</Nav.Link>
 		</Navbar>;
 	}

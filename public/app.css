@@ -192,6 +192,9 @@ span.fhir-element-value {
 }
 .navbar-custom .navbar-brand {
   color: #65BE67;
+  font-size: x-large;
+  font-weight: bold;
+  margin-left: 3rem;
 }
 
 .navbar-custom .navbar-brand:hover,
