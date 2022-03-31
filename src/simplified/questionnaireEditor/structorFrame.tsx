@@ -1,28 +1,30 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
 import { Questionnaire } from "fhir/r4";
 
-// // Events from Structor
-export interface StructorSendToSAGEEvData {
-    questionnaireStr: string
+export enum SAGEMessageID {
+    TriggerSend = "SAGETriggerSend",
+    SendToStructor = "SAGESendToStructor",
 }
-export const StructorSendToSAGEEvName = "StructorSendToSAGE"
-export type StructorSendToSAGEEv = CustomEvent<StructorSendToSAGEEvData>;
-
-export interface StructorReadyEvNameData {
-    readyType: "start" | "load"
+export interface SAGESendToStructorMsg {
+    msgId: SAGEMessageID.SendToStructor,
+    questionnaireResource: Questionnaire,
 }
-export const StructorReadyEvName = "StructorReady";
-export type StructorReadyEv = CustomEvent<StructorReadyEvNameData>;
-
-// // Events to Structor
-export interface SAGESendToStructorEvData {
-    questionnaireResource: Questionnaire // Hope this is the same as @types/fhir/r4 which is used by SAGE
+export interface SAGETriggerSendMsg {
+    msgId: SAGEMessageID.TriggerSend,
 }
-export const SAGESendToStructorEvName = "SAGESendToStructor";
-export type SAGESendToStructorEv = CustomEvent<SAGESendToStructorEvData>;
 
-export const SAGETriggerSendEvName = "SAGETriggerSend";
-export type SAGETriggerSendEv = CustomEvent<unknown>;
+export enum StructorMessageID {
+    Ready = "StructorReady",
+    SendToSAGE = "StructorSendToSAGE",
+}
+export interface StructorReadyMsg {
+    msgId: StructorMessageID.Ready,
+    readyType: "start" | "load",
+}
+export interface StructorSendToSAGEMsg {
+    msgId: StructorMessageID.SendToSAGE,
+    questionnaireStr: string,
+}
 
 export interface StructorFrameRef {
 	triggerStructorSend: () => void;
@@ -31,7 +33,7 @@ export interface StructorFrameRef {
 interface StructorFrameProps {
 	questionnaireFromSage: Questionnaire, // Questionnaire to import into Structor on load
 	questionnaireSavedCallback: (arg0: Questionnaire) => boolean, // Callback when Structor initiates a save event
-	structorReadyCallback: (arg0: StructorReadyEvNameData) => void,
+	structorReadyCallback: (arg0: StructorReadyMsg['readyType']) => void,
 }
 
 const StructorFrame = forwardRef<StructorFrameRef, StructorFrameProps>(function StructorFrame(props, ref) {
@@ -42,8 +44,10 @@ const StructorFrame = forwardRef<StructorFrameRef, StructorFrameProps>(function 
 		triggerStructorSend: () => {
 			if (structorFullyLoaded) {
 				console.log("Sage: sending trigger send event");
-				const sendToStructorEvent = new CustomEvent(SAGETriggerSendEvName)
-				console.log(structorIFrameRef.current?.contentDocument?.dispatchEvent(sendToStructorEvent));
+				const triggerSendEvent: SAGETriggerSendMsg = {
+					msgId: SAGEMessageID.TriggerSend,
+				}
+				console.log(structorIFrameRef.current?.contentWindow?.postMessage(triggerSendEvent, "*"));
 			}
 		}
 	}), [structorFullyLoaded])
@@ -51,43 +55,48 @@ const StructorFrame = forwardRef<StructorFrameRef, StructorFrameProps>(function 
 	// Capture ready event from Structor
 	const { structorReadyCallback } = props;
 	useEffect(() => {
-		const readyEventHandler = ((event: StructorReadyEv) => {
-			console.log('sage: structor ready event');
-			if (event.detail.readyType == 'start') {
-				// Send current Questionnaire resource to Structor
-				const sendToStructorEvent = new CustomEvent<SAGESendToStructorEvData>(SAGESendToStructorEvName, {
-					detail: {
-						questionnaireResource: props.questionnaireFromSage
-					}
-				})
-				structorIFrameRef.current?.contentDocument?.dispatchEvent(sendToStructorEvent);
-				structorReadyCallback(event.detail);
-			}
-			else if (event.detail.readyType == 'load') {
-				// Show frame since questionnaire has been loaded
-				structorReadyCallback(event.detail);
-				setStructorFullyLoaded(true);
+		const readyEventHandler = ((event: MessageEvent<StructorReadyMsg>) => {
+			console.log(event);
+			if (event.data.msgId === StructorMessageID.Ready) {
+				console.log('sage: structor ready event');
+				if (event.data.readyType === 'start') {
+					// Send current Questionnaire resource to Structor
+					const sendToStructorMsg: SAGESendToStructorMsg = {
+						msgId: SAGEMessageID.SendToStructor,
+						questionnaireResource: props.questionnaireFromSage,
+					};
+					structorIFrameRef.current?.contentWindow?.postMessage(sendToStructorMsg, "*");
+					structorReadyCallback(event.data.readyType);
+				}
+				else if (event.data.readyType === 'load') {
+					// Show frame since questionnaire has been loaded
+					structorReadyCallback(event.data.readyType);
+					setStructorFullyLoaded(true);
+				}
 			}
 		}) as EventListener;
 
-		window.document.addEventListener(StructorReadyEvName, readyEventHandler, false)
+		window.addEventListener("message", readyEventHandler, false)
+		console.log('added event listener');
 	
-		return () => window.document.removeEventListener(StructorReadyEvName, readyEventHandler)
+		return () => window.removeEventListener("message", readyEventHandler)
 	}, [structorReadyCallback, props.questionnaireFromSage])
 
 	// Capture output from Structor
 	const { questionnaireSavedCallback } = props;
 	useEffect(() => {
-		const handler = ((event: StructorSendToSAGEEv) => {
-			console.log(event);
-            const questionnaire = JSON.parse(event.detail.questionnaireStr) as Questionnaire; // trusting this is a valid Questionnaire
-            console.log(questionnaire);
-			questionnaireSavedCallback(questionnaire);
+		const sendToSAGEMsgHandler = ((event: MessageEvent<StructorSendToSAGEMsg>) => {
+			if (event.data.msgId === StructorMessageID.SendToSAGE) {
+				console.log(event);
+				const questionnaire = JSON.parse(event.data.questionnaireStr) as Questionnaire; // trusting this is a valid Questionnaire
+				console.log(questionnaire);
+				questionnaireSavedCallback(questionnaire);
+			}
 		}) as EventListener;
 
-		window.document.addEventListener(StructorSendToSAGEEvName, handler, false)
+		window.addEventListener("message", sendToSAGEMsgHandler, false)
 	
-		return () => window.document.removeEventListener(StructorSendToSAGEEvName, handler)
+		return () => window.removeEventListener("message", sendToSAGEMsgHandler)
 	}, [questionnaireSavedCallback])
 	
 	return (
@@ -96,7 +105,7 @@ const StructorFrame = forwardRef<StructorFrameRef, StructorFrameProps>(function 
 				<div style={{height: "75vh"}} role="progressbar" aria-label="loading-symbol" className="spinner"><img src="../img/ajax-loader.gif" /></div>}
 
             <iframe style={{display: structorFullyLoaded ? 'inline' : 'none', border: "none", height: "75vh"}} ref={structorIFrameRef} width="100%"
-                src={"./structor"}
+                src={"https://structor-for-sage.web.app/"}
             />
 		</div>
 		);
