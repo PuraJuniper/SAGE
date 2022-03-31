@@ -7,6 +7,8 @@ import React from 'react';
 import State, { SageUiStatus } from './state';
 import {Navbar, Nav, NavItem} from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {faCaretRight, faCaretLeft, faHomeLgAlt} from  '@fortawesome/pro-solid-svg-icons';
+
 
 interface NavbarFredProps {
 	hasResource: boolean,
@@ -49,7 +51,7 @@ class NavbarFred extends React.Component<NavbarFredProps> {
 		>
 			<Navbar.Brand>SAGE Basic</Navbar.Brand>
 			<Nav.Link key='home-button' onClick={this.handleUiChange.bind(this, 'basic-cpg')}>
-					<img style={{'height':'40px'}} src="../img/house-chimney-solid.svg" alt="" />
+			<FontAwesomeIcon key="butSaveIcon" icon={faHomeLgAlt} style={{'color':'white'}} />
 			</Nav.Link>
 		</Navbar>;
 	}
