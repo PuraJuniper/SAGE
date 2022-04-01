@@ -1,7 +1,7 @@
 import { BaseCard } from "./baseCard";
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faCaretRight, faInfoCircle } from '@fortawesome/pro-solid-svg-icons';
+import { faCaretRight, faInfoCircle, faUserDoctor } from '@fortawesome/pro-solid-svg-icons';
 import State from "../state";
 import { Container, Row, Col } from "react-bootstrap";
 import friendlyNames from "../../friendly-names.json";
@@ -32,23 +32,17 @@ const SelectView = () => {
                                                     <div style={{ padding: "10px" }} key={resource.FHIR}>
                                                         <Col>
                                                             <BaseCard
-                                                                bsBg="sage-white"
-                                                                bsText="sage-blue"
+                                                                bsBg="sage-beige"
                                                                 bsBorder={getBorderPropsForType(resourceType.SELF.FHIR)}
+                                                                cardImage= {faUserDoctor}
+                                                                IconColor = 'black'
                                                                 header={resourceType.SELF.FRIENDLY}
                                                                 title={resource.FRIENDLY}
-                                                                content={
-                                                                    <span style={{ fontSize: "20px", textAlign: "right" }}>
-                                                                        <a href={resource.DEFAULT_PROFILE_URI} target="_blank" rel="noreferrer" className="c-tooltip">
-                                                                            <FontAwesomeIcon icon={faInfoCircle} />
-                                                                            <span className="c-tooltiptext">FHIR Docs</span>
-                                                                        </a>
-                                                                    </span>
-                                                                }
+                                                                hideHeader = {true}
                                                                 wait={i * 25}
                                                                 clickable={true}
                                                                 profile={resource.DEFAULT_PROFILE_URI}
-                                                            />
+                                                            /> 
                                                         </Col>
                                                     </div>);
                                             }
@@ -63,5 +57,4 @@ const SelectView = () => {
         </div>
     );
 }
-
 export default SelectView
