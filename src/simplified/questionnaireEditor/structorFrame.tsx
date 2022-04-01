@@ -1,5 +1,6 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
 import { Questionnaire } from "fhir/r4";
+import _ from "lodash";
 
 export enum SAGEMessageID {
     TriggerSend = "SAGETriggerSend",
@@ -27,7 +28,7 @@ export interface StructorSendToSAGEMsg {
 }
 
 export interface StructorFrameRef {
-	triggerStructorSend: () => void;
+	throttledTriggerStructorSend: () => void;
 }
 
 interface StructorFrameProps {
@@ -41,7 +42,7 @@ const StructorFrame = forwardRef<StructorFrameRef, StructorFrameProps>(function 
 
 	const structorIFrameRef = useRef<HTMLIFrameElement>(null);
 	useImperativeHandle(ref, () => ({
-		triggerStructorSend: () => {
+		throttledTriggerStructorSend: _.throttle(() => {
 			if (structorFullyLoaded) {
 				console.log("Sage: sending trigger send event");
 				const triggerSendEvent: SAGETriggerSendMsg = {
@@ -49,7 +50,7 @@ const StructorFrame = forwardRef<StructorFrameRef, StructorFrameProps>(function 
 				}
 				console.log(structorIFrameRef.current?.contentWindow?.postMessage(triggerSendEvent, "*"));
 			}
-		}
+		}, 1000),
 	}), [structorFullyLoaded])
 
 	// Capture ready event from Structor
