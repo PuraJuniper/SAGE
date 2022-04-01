@@ -33,7 +33,7 @@ class NavbarFred extends React.Component<NavbarFredProps> {
 			}
 		};
 
-		State.emit("set_ui", "loading");
+		State.emit("set_ui", "loading_sage_data");
 		return reader.readAsText(file);
 	}
 

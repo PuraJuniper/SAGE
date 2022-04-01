@@ -52,17 +52,6 @@ class RootComponent extends React.Component<RootProps, RootState> {
 		this.state = {
 			prevStatus: ""
 		}
-		
-	}
-
-	getQs() {
-		const data: any = {};
-		const params = window.document.location.search?.substr(1).split("&");
-		for (const param of params) {
-			const [k,v] = param.split("=");
-			data[k] = decodeURIComponent(v);
-		}
-		return data;
 	}
 
 	shouldComponentUpdate() {
@@ -70,25 +59,7 @@ class RootComponent extends React.Component<RootProps, RootState> {
 	}
 
 	componentDidMount() {
-		const qs = this.getQs();
-
-		if (qs.remote === "1") {
-			this.isRemote = true;
-		}
-
-		if (qs.warn !== "0") {
-			window.onbeforeunload = () => {
-				if (State.get().bundle) {
-					return "If you leave this page you will lose any unsaved changes.";
-				}
-			};
-		}
-
-		const defaultProfilePath = "profiles/cpg.json";
-
-		return (State.on("update", () => this.forceUpdate())).emit("load_initial_json",
-			qs.profiles || defaultProfilePath,
-			qs.resource, this.isRemote);
+		State.on("update", () => this.forceUpdate());
 	}
 
 	getSnapshotBeforeUpdate() {
@@ -121,7 +92,7 @@ class RootComponent extends React.Component<RootProps, RootState> {
 		}
 
 		const resourceContent = (() => {
-			if (state.ui.status === "loading") {
+			if (state.ui.status === "loading_sage_data") {
 			return <div role="progressbar" aria-label="loading-symbol" className="spinner"><img src="../img/ajax-loader.gif" /></div>;
 		} else if (state.ui.status === "basic-home" || 
 				prevStatus === "basic-home" && changeLessContentStatuses.includes(state.ui.status)) {
