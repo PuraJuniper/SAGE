@@ -1,9 +1,8 @@
 import State from "../../state";
 import { Moment } from "moment";
-import { SageCondition } from "../medicationRequestForm";
-import { EditableStateForCondition, AggregateType } from "../cardEditor";
 import { getConceptsOfValueSet, SageCodeConcept, SimplifiedProfiles } from "../../helpers/schema-utils";
 import { Coding } from "fhir/r4";
+import { AggregateType, EditableStateForCondition, SageCondition } from "./conditionEditor";
 
 // Pages of the wizard
 export enum WizardPage {
@@ -463,7 +462,7 @@ export function getPrevPage(curPage: WizardPage, stepStatus: WizardState["pageSt
 }
 
 // Temporary storage/loading of wizard states for purpose of cql export feature
-const exprToWizStateMap: { [key: string]: EditableStateForCondition } = {};
+export const exprToWizStateMap: { [key: string]: EditableStateForCondition } = {};
 export function buildEditableStateFromCondition(condition: SageCondition): EditableStateForCondition {
     return exprToWizStateMap[condition.id] !== undefined ?
         exprToWizStateMap[condition.id] :
