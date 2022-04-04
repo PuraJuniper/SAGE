@@ -51,7 +51,7 @@ const SelectView = () => {
                     
         <button key="butDel" type='button' className="navigate col-lg-2 col-md-3"
         >
-            Delete Card
+            Back
         </button>
                 </Container>
         </div>
