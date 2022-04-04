@@ -1,3 +1,4 @@
+import React from 'react';
 import {useState, useEffect} from "react";
 import {BaseCard} from"./baseCard";
 import { CSSTransition } from 'react-transition-group';

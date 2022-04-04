@@ -1,3 +1,4 @@
+import React from 'react';
 import {Card, Row} from "react-bootstrap";
 import {useState, useEffect} from "react";
 import { CSSTransition } from 'react-transition-group';

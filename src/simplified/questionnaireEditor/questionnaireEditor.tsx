@@ -1,3 +1,4 @@
+import React from 'react';
 import { Questionnaire } from "fhir/r4";
 import { decorateFhirData, getChildOfNode, getChildOfNodePath, toFhir } from "../../helpers/schema-utils";
 import { SageNodeInitializedFreezerNode } from "../../state";
