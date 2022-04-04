@@ -1,3 +1,4 @@
+import React from 'react';
 import State, { SageNodeInitializedFreezerNode } from "../state"
 import * as SchemaUtils from "../helpers/schema-utils"
 import { ACTIVITY_DEFINITION, QUESTIONNAIRE } from "./nameHelpers";
@@ -155,7 +156,7 @@ export const PlanDefEditor = (props: PlanDefEditorProps) => {
                 return <QuestionnaireEditor planDefNode={props.planDefNode} questionnareNode={linkedResourceNode} handleDeleteResource={handleDeleteResource}  handleSaveResource={handleSaveResource} conditionEditor={conditionEditor} />
             default:
                 return (
-                    <div>        
+                    <div>
                         <button className="navigate col-lg-2 col-md-3" 
                             onClick={() => State.get().set("ui", {status:"collection"})}>
                             Saved Cards&nbsp;<FontAwesomeIcon icon={faCaretRight} />    
