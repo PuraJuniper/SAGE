@@ -77,9 +77,9 @@ export class OuterCardForm extends React.Component<CardFormProps, CardFormState>
         };
 
         this.pageTitles = new Map([
-            [1, "Page 1: Filling in the basics"],
-            [2, "Page 2: Adding Conditions"],
-            [3, "Page 3: Card Preview"]
+            [1, "What does the card do?"],
+            [2, "When is the card played?"],
+            [3, "Review card"]
         ])
 
     }
