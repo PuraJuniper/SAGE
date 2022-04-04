@@ -1,6 +1,5 @@
 {
     "compilerOptions": {
-        "outDir": "./public",
         "allowJs": true,
         "module": "ES6",
         "target": "ES6",
@@ -9,7 +8,10 @@
         "strict": true,
         "jsx": "react-jsx",
         "resolveJsonModule": true,
-        "sourceMap": true
+        "noEmit": true,
+        "isolatedModules": true,
+        "incremental": true,
     },
-    "include": ["./src/**/*", "./test/**/*"]
+    "include": ["./src/**/*"],
+    "exclude": ["**/*.test.*"],
 }

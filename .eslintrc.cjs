@@ -51,7 +51,6 @@ module.exports = {
                 "react-hooks",
             ],
             "rules": {
-                "react/react-in-jsx-scope": 0,
                 "@typescript-eslint/no-unused-vars": 0,
                 "@typescript-eslint/no-explicit-any": 0, //[1, { "ignoreRestArgs": true }],
                 "prefer-const": 1,
@@ -78,7 +77,7 @@ module.exports = {
             ],
             "parser": "@typescript-eslint/parser",
             "parserOptions": {
-                "project": "./tsconfig.json"
+                // "project": "./tsconfig.json"
             },
             "plugins": [
                 "jest",
