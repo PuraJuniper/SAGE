@@ -375,7 +375,24 @@ a {
 .bg-sage-white {
   background-color: #ffffff;
 }
-
+.bg-sage-purple {
+  background-color: #5E5FBF;
+}
+.bg-sage-darkblue {
+  background-color: #373ABF;
+}
+.bg-sage-green {
+  background-color: #65BE67;
+}
+.bg-sage-beige {
+  background-color: #E0C758;
+}
+.text-sage-white {
+  color: #ffffff;
+}
+.text-sage-green {
+  color: #65BE67;
+}
 .text-sage-blue {
   color: #2a6b92;
 }

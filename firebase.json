@@ -1,5 +1,6 @@
 {
   "hosting": {
+    "site": "fred-ca431",
     "public": "public",
     "ignore": [
       "firebase.json",

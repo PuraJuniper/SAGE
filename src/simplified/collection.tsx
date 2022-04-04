@@ -18,7 +18,7 @@ const Collection = () => {
             <div className="row">
                 <h3 className="col-lg-10 col-md-9" style={{ color: "#2a6b92" }}><b>Saved Cards</b></h3>
                 <button className="navigate-reverse col-lg-2 col-md-3"
-                    onClick={() => State.get().set("ui", { status: "cards" })}>
+                    onClick={() => State.get().set("ui", { status: "basic-home" })}>
                     <FontAwesomeIcon icon={faCaretLeft} />
                     &nbsp;New Card
                 </button>
