@@ -1,3 +1,4 @@
+import React from 'react';
 import AsyncSelect from "react-select/async";
 import { SageCoding } from "./cql-wizard/wizardLogic";
 import * as Bioportal from './cql-wizard/bioportal';
