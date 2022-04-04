@@ -1,4 +1,3 @@
-import { useState, useEffect } from "react";
 import { Folder } from "./folder";
 import State, { SageReactions } from "../state";
 import * as SchemaUtils from "../helpers/schema-utils"
@@ -7,10 +6,11 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faDownload, faCaretLeft } from '@fortawesome/pro-solid-svg-icons';
 import { SageNodeInitialized } from "../helpers/schema-utils";
 import { PLAN_DEFINITION } from "./nameHelpers";
+import { useNavigate } from "react-router-dom";
 
 
 const Collection = () => {
-
+    const navigate = useNavigate();
     const resources = State.get().bundle?.resources ?? [];
 
     return (
@@ -18,7 +18,7 @@ const Collection = () => {
             <div className="row">
                 <h3 className="col-lg-10 col-md-9" style={{ color: "#2a6b92" }}><b>Saved Cards</b></h3>
                 <button className="navigate-reverse col-lg-2 col-md-3"
-                    onClick={() => State.get().set("ui", { status: "basic-home" })}>
+                    onClick={() => navigate('/create')}>
                     <FontAwesomeIcon icon={faCaretLeft} />
                     &nbsp;New Card
                 </button>

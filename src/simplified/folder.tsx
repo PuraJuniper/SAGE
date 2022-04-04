@@ -7,6 +7,7 @@ import {getBorderPropsForType, PLAN_DEFINITION, profileToFriendlyResourceListEnt
 import * as SchemaUtils from '../helpers/schema-utils';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faExclamationTriangle, faQuestionCircle } from "@fortawesome/pro-solid-svg-icons";
+import { useNavigate } from "react-router-dom";
 
 interface FolderProps {
     actTitle: string,
@@ -22,6 +23,8 @@ interface FolderProps {
 }
 
 export const Folder = (props: FolderProps) => {
+    const navigate = useNavigate();
+
     const [show, setShow] = useState(false);
     const friendlyName = profileToFriendlyResourceListEntry(props.profile)?.SELF.FRIENDLY ?? "Unknown";
     const resourceType = profileToFriendlyResourceSelf(props.profile)?.FHIR ?? "";
@@ -82,7 +85,7 @@ export const Folder = (props: FolderProps) => {
     <div className="folder" style={{position:"relative", marginBottom:"100px", marginTop: "10px"}}
         onClick={(e) => {
             setShow(false);
-            State.emit("set_bundle_pos", props.pdIndex);
+            navigate(`/edit/${props.pdIndex}`);
         }}>
         <BaseCard header="_" title={PLAN_DEFINITION} hideHeader={false}/>
         <div className="folder-type" style={{position:"absolute", top:"-18px", left:"20px", maxWidth:"90%"}}>
@@ -112,7 +115,6 @@ export const Folder = (props: FolderProps) => {
                     else {
                         State.emit("remove_from_bundle", props.pdIndex);
                     }
-                    State.get().set("ui", {status:"collection"})
                 }}
             />
         </div>

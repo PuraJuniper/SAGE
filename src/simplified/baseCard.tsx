@@ -7,8 +7,7 @@ import { ACTIVITY_DEFINITION, friendlyToFhir, PLAN_DEFINITION, QUESTIONNAIRE } f
 import { incrementNextId } from "../helpers/schema-utils";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faInfoCircle,faGrid,faBookMedical,faCirclePlus, IconDefinition } from '@fortawesome/pro-solid-svg-icons';
-
-
+import { useNavigate } from "react-router-dom";
 
 interface BaseCardProps {
     header: string,
@@ -29,6 +28,8 @@ interface BaseCardProps {
 
 export const BaseCard = (props: BaseCardProps) => {
     const [show, setShow] = useState(false);
+    
+    const navigate = useNavigate();
     
     useEffect(() => {
         const timeoutId = setTimeout(() => {
@@ -94,6 +95,7 @@ export const BaseCard = (props: BaseCardProps) => {
                     State.emit("load_json_resource", json);
                     // Set current editor position to the last resource (should be the PlanDefinition in `json` after the "load_json_resource" call)
                     State.emit("set_bundle_pos", State.get().bundle.resources.length-1);
+                    navigate(`/edit/${State.get().bundle.resources.length-1}`);
                 }
             }}
         >

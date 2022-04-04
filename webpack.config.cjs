@@ -14,6 +14,7 @@ module.exports = (env) => {
 			client: {
 				progress: true,
 			},
+			historyApiFallback: true,
 			proxy: {
 				// '/authoring': 'http://localhost:9000',
 				// '/structor': 'http://localhost:9001',

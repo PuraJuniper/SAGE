@@ -52,17 +52,6 @@ class RootComponent extends React.Component<RootProps, RootState> {
 		this.state = {
 			prevStatus: ""
 		}
-		
-	}
-
-	getQs() {
-		const data: any = {};
-		const params = window.document.location.search?.substr(1).split("&");
-		for (const param of params) {
-			const [k,v] = param.split("=");
-			data[k] = decodeURIComponent(v);
-		}
-		return data;
 	}
 
 	shouldComponentUpdate() {
@@ -70,25 +59,7 @@ class RootComponent extends React.Component<RootProps, RootState> {
 	}
 
 	componentDidMount() {
-		const qs = this.getQs();
-
-		if (qs.remote === "1") {
-			this.isRemote = true;
-		}
-
-		if (qs.warn !== "0") {
-			window.onbeforeunload = () => {
-				if (State.get().bundle) {
-					return "If you leave this page you will lose any unsaved changes.";
-				}
-			};
-		}
-
-		const defaultProfilePath = "profiles/cpg.json";
-
-		return (State.on("update", () => this.forceUpdate())).emit("load_initial_json",
-			qs.profiles || defaultProfilePath,
-			qs.resource, this.isRemote);
+		State.on("update", () => this.forceUpdate());
 	}
 
 	getSnapshotBeforeUpdate() {
@@ -121,7 +92,7 @@ class RootComponent extends React.Component<RootProps, RootState> {
 		}
 
 		const resourceContent = (() => {
-			if (state.ui.status === "loading") {
+			if (state.ui.status === "loading_sage_data") {
 			return <div role="progressbar" aria-label="loading-symbol" className="spinner"><img src="../img/ajax-loader.gif" /></div>;
 		} else if (state.ui.status === "basic-home" || 
 				prevStatus === "basic-home" && changeLessContentStatuses.includes(state.ui.status)) {
@@ -139,44 +110,22 @@ class RootComponent extends React.Component<RootProps, RootState> {
 					<DomainResource node={state.bundle.resources[state.bundle.pos]} errFields={state.errFields}/>
 			);
 		} else if (state.ui.status.indexOf("error") === -1) {
-			return <div className="container">
-				<div className="row justify-content-md-center" style={{marginBottom: 40}}>
-					<div className="col-lg-1"></div>
-					<div className="col-lg-2 ">
-						<img src="../img/Juniper-CDS-colour.png" className="img-thumbnail"/>
-					</div>
-					<div className="col-lg-1"></div>
-				</div>
-				<div className="row justify-content-md-center">
-					<div className="col col-lg-1 bg-secondary"></div>
-					<div className="col-lg-2 bg-secondary text-center">
-						<p style={{marginTop: 60}}><span style={{color: "#E0C758", textAlign: "center", fontWeight: "bold"}}>Choose Account</span></p>
-					</div>
-					<div className="col col-lg-1 bg-secondary"></div>
-				</div>
-				<div className="row justify-content-md-center">
-					<div className="col-lg-1 bg-secondary"></div>
-					<div className="col-lg-2 bg-secondary">
-						<button className="btn btn-secondary btn-block" style={{marginTop: 60}} onClick={(e) => {
-							State.emit("set_ui", "basic-cpg");
-							}}>
-							Basic CPG
-						</button>
-					</div>
-					<div className="col-lg-1 bg-secondary" ></div>
-				</div>
-				<div className="row justify-content-md-center">
-					<div className="col-lg-1 bg-secondary"></div>
-					<div className="col-lg-2 bg-secondary">
-						<button className="btn btn-secondary btn-block" style={{marginTop: 10, marginBottom: 100}} onClick={(e) => {
-							State.emit("set_ui", "advanced-cpg");
-						}}>
-							Advanced CPG
-						</button>
-					</div>
-					<div className="col-lg-1 bg-secondary"></div>
-				</div>
-			</div>
+			return <div className="row" style={{marginTop: "60px", marginBottom: "60px"}}><div className="col-xs-offset-4 col-xs-4">
+				<button className="btn btn-primary btn-block" onClick={this.handleOpen.bind(this)}>
+					Create Resource
+				</button>
+				<button className="btn btn-primary btn-block" onClick={(e) => {
+					State.emit("set_ui", "basic-cpg");
+					}}>
+					Basic CPG
+				</button>
+				<button className="btn btn-primary btn-block" onClick={(e) => {
+					State.emit("set_ui", "advanced-cpg");
+				}
+					}>
+					Advanced CPG
+				</button>
+			</div></div>;
 		}
 		})();
 

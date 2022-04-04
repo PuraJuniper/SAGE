@@ -70,7 +70,7 @@ export const QuestionnaireEditor = (props: QuestionnaireEditorProps) => {
         <button key="butDel" type='button' className="navigate col-lg-2 col-md-3"
             onClick={props.handleDeleteResource}
         >
-            Delete Card
+            Cancel
         </button>
     );
 
