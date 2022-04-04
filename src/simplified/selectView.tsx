@@ -18,7 +18,7 @@ const SelectView = () => {
             <div className="row">
                 <h3 className="col-lg-10 col-md-9"><b>What Is The Card Type?</b></h3>
             </div>
-                <Container fluid="lg" style={{ padding: "0", margin:"0" }}>
+                <Container fluid="lg">
                     <Row lg="4" md="3" sm="2" noGutters  style={{'justifyContent': 'center'}}>  
                         {
                             friendlyResourceRoot.RESOURCES
@@ -53,13 +53,11 @@ const SelectView = () => {
                             )
                         }
                     </Row>
-                    
-        <button key="butDel" type='button' className="navigate col-lg-2 col-md-3"
-            onClick={() => navigate('/basic-home')}
-            >
-            Back
-        </button>
                 </Container>
+            <button key="butDel" type='button' className="navigate col-lg-2 col-md-3"
+                onClick={() => navigate('/basic-home')}>
+                    Back
+            </button>
         </div>
     );
 }
