@@ -16,7 +16,7 @@ import RemoteNavbar from "./remote-navbar";
 import BundleBar from "./bundle-bar";
 import RefWarning from "./ref-warning";
 import Footer from "./footer";
-import BasicHomeView from "./simplified/home"
+//import BasicHomeView from "./simplified/home"
 import SelectView from "./simplified/selectView"
 import Collection from "./simplified/collection"
 
