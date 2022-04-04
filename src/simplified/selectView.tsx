@@ -6,8 +6,12 @@ import State from "../state";
 import { Container, Row, Col } from "react-bootstrap";
 import friendlyNames from "../../friendly-names.json";
 import { ACTIVITY_DEFINITION, allFormElems, friendlyResourceRoot, getBorderPropsForType, getFormElementListForResource } from "./nameHelpers";
+import { useNavigate } from "react-router-dom";
+
 
 const SelectView = () => {
+    const navigate = useNavigate();
+
     return (
         <div style={{ marginTop: "50px", paddingRight: "12px" }}>
             <div className="row">
@@ -50,7 +54,8 @@ const SelectView = () => {
                     </Row>
                     
         <button key="butDel" type='button' className="navigate col-lg-2 col-md-3"
-        >
+            onClick={() => navigate('/basic-home')}
+            >
             Back
         </button>
                 </Container>

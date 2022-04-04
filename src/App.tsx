@@ -59,7 +59,7 @@ export default function App() {
         if (sageMode === undefined) {
             return <LandingPage />
         }
-        else if (sageMode === "basic") {
+       else if (sageMode === "basic") {
             return <BasicView /> // new ui
         }
         else {

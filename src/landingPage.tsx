@@ -1,8 +1,11 @@
 import React from "react";
 import State from "./state";
+import { useNavigate } from "react-router-dom";
+
 
 export const LandingPage = () => {
-    
+    const navigate = useNavigate();
+
     return (
         <div className="container">
             <div className="row justify-content-md-center" style={{marginBottom: 40}}>
@@ -25,6 +28,7 @@ export const LandingPage = () => {
                     <button className="btn btn-secondary btn-block" style={{marginTop: 60}} onClick={(e) => {
                             State.get().bundle?.set("resources", []);
                             State.get().set("mode", "basic")
+                            navigate('/basic-home')
                         }}>
                         Basic CPG
                     </button>

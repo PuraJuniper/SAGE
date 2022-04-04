@@ -7,6 +7,7 @@ import { ACTIVITY_DEFINITION, friendlyToFhir, PLAN_DEFINITION, QUESTIONNAIRE } f
 import { incrementNextId } from "../helpers/schema-utils";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faInfoCircle,faGrid,faBookMedical,faCirclePlus, IconDefinition } from '@fortawesome/pro-solid-svg-icons';
+import { useNavigate } from "react-router-dom";
 
 
 
@@ -27,9 +28,11 @@ interface HomeCardProps {
     link?: string,
 }
 
+
 export const HomeCard = (props: HomeCardProps) => {
     const [show, setShow] = useState(false);
-    
+    const navigate = useNavigate();
+
     useEffect(() => {
         const timeoutId = setTimeout(() => {
             setShow(true);
@@ -56,6 +59,7 @@ export const HomeCard = (props: HomeCardProps) => {
             bg={props.bsBg}
             text={props.bsText as Color}
             border={props.bsBorder}
+            //onClick={() => navigate('/create')}
             onClick={(e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
 
                 if (e.target instanceof Element && e.target.tagName !== "svg" && e.target.tagName !== "path" && props.clickable && resourceType!='') {
@@ -100,10 +104,10 @@ export const HomeCard = (props: HomeCardProps) => {
                     return
                 }
                 if(props.title == 'Create Cards'){
-                    State.get().set("ui", {status:"cards"})
+                    navigate('/create')
                 }
                 if(props.title == 'View Cards'){
-                    State.get().set("ui", {status:"collection"})
+                    navigate('/')
                 }
 
             }}

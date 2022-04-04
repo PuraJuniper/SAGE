@@ -7,6 +7,7 @@ import Sidebar from "./sidebar";
 import { Header } from "./header";
 import { PlanDefLoader } from "./planDefLoader";
 import SelectView from "./selectView"
+import BasicHomeView from "./home"
 import State, { StateVars, SageFreezerNode } from "../state";
 
 export const StateContext = createContext<SageFreezerNode<StateVars>>(State.get());
@@ -55,6 +56,7 @@ export const BasicView = () => {
     return (
         <Routes>
             <Route element={basicViewLayout}>
+                <Route path="basic-home" element={<BasicHomeView />} />
                 <Route path="create" element={<SelectView />} />
                 <Route path="edit/:planDefPos" element={<PlanDefLoader />} />
                 <Route index element={<Collection />} />
