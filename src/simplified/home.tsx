@@ -13,7 +13,7 @@ console.log(friendlyResourceRoot.RESOURCES)
 
 const listOfHomePage = [
     {
-        'heading':'New Card',
+        'header':'New Card',
         'title':'Create Cards',
         'cardImage':faCirclePlus,
         'cardColor':'sage-purple',
@@ -21,15 +21,16 @@ const listOfHomePage = [
         'FHIR': '',
     },
     {
-        'heading':'List Of Questions',
+        'header':friendlyResourceRoot.RESOURCES[4].SELF.FRIENDLY,
         'title':'An Example Questionaire',
+        'profile': friendlyResourceRoot.RESOURCES[4].SELF.DEFAULT_PROFILE_URI,
         'cardImage':faBookMedical,
         'cardColor':'sage-darkblue',
         'textColor':'white',
-        'FHIR': 'ActivityDefinition'
+        'FHIR': friendlyResourceRoot.RESOURCES[4].SELF.FHIR
     },
     {
-        'heading':'Saved Cards',
+        'header':'Saved Cards',
         'title':'View Cards',
         'cardImage':faGrid,
         'cardColor':'sage-green',
@@ -52,14 +53,15 @@ const BasicHomeView = () => {
                                 (resource, i) => {
                                     return (
                                         <div style={{ padding: "10px" }} key={resource.FHIR}>
-                                        <h4 style={{'fontSize':'10px'}}>{resource.heading}</h4>
+                                        <h4 style={{'fontSize':'10px'}}>{resource.header}</h4>
                                             <Col style={{ padding: "0px" }}>
                                                 <HomeCard
                                                     bsBg={resource.cardColor}
                                                     bsText={resource.textColor}
                                                     cardImage={resource.cardImage}
                                                     title={resource.title}
-                                                    FHIR = {resource.FHIR}  
+                                                    FHIR = {resource.FHIR} 
+                                                    profile = {resource.profile} 
                                                     wait={i * 25}
                                                     clickable={true}
                                                 />

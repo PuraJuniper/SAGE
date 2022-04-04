@@ -45,6 +45,7 @@ export const HomeCard = (props: HomeCardProps) => {
     const resourceType = props.FHIR;
 
 
+    console.log(props.profile)
     return (
         <CSSTransition
         in={show}
