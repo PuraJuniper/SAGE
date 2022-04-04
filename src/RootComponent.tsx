@@ -97,7 +97,7 @@ class RootComponent extends React.Component<RootProps, RootState> {
 		} else if (state.ui.status === "basic-home" || 
 				prevStatus === "basic-home" && changeLessContentStatuses.includes(state.ui.status)) {
 			return <BasicHomeView />
-		}else if (state.ui.status === "cards" || 
+		} else if (state.ui.status === "cards" || 
 				prevStatus === "cards" && changeLessContentStatuses.includes(state.ui.status)) {
 			return <SelectView />
 		} else if (state.ui.status === "collection" || 
@@ -109,24 +109,7 @@ class RootComponent extends React.Component<RootProps, RootState> {
 					<PlanDefEditor planDefNode={state.bundle.resources[state.bundle.pos]} planDefPos={state.bundle.pos} /> :
 					<DomainResource node={state.bundle.resources[state.bundle.pos]} errFields={state.errFields}/>
 			);
-		} else if (state.ui.status.indexOf("error") === -1) {
-			return <div className="row" style={{marginTop: "60px", marginBottom: "60px"}}><div className="col-xs-offset-4 col-xs-4">
-				<button className="btn btn-primary btn-block" onClick={this.handleOpen.bind(this)}>
-					Create Resource
-				</button>
-				<button className="btn btn-primary btn-block" onClick={(e) => {
-					State.emit("set_ui", "basic-cpg");
-					}}>
-					Basic CPG
-				</button>
-				<button className="btn btn-primary btn-block" onClick={(e) => {
-					State.emit("set_ui", "advanced-cpg");
-				}
-					}>
-					Advanced CPG
-				</button>
-			</div></div>;
-		}
+		} 
 		})();
 
 		const error = (() => {
@@ -179,7 +162,6 @@ class RootComponent extends React.Component<RootProps, RootState> {
 				{bundleBar}
 				{error}
 				{resourceContent}
-				<Footer />
 			</div>
 			<OpenDialog 
 				show={state.ui.status === "open"}

@@ -11,7 +11,7 @@
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
 import React from "react";
-import {Container, Row, Col, Modal, Tabs, Tab, Button, Form} from "react-bootstrap";
+import {Container, Row, Col, Modal, Tabs, Tab, Button, Form, Card} from "react-bootstrap";
 import State from "../state";
 import * as SchemaUtils from "../helpers/schema-utils";
 import { PLAN_DEFINITION } from "../simplified/nameHelpers";
@@ -41,6 +41,7 @@ class CpgDialog extends React.Component {
             newResourceBundle: false
         };
     }
+
 
     handleSelectFile(e) {
         //return this.refs.fileReaderInput.click();
@@ -536,19 +537,25 @@ class CpgDialog extends React.Component {
             return null;
         }
 
-        const title = "Clinical Practice Guideline";
+        const title = "Authoring Information";
 
         const content = this.state.showSpinner
             ? this.renderSpinner()
             : this.renderTabs();
 
         return (
-            <Modal show={true} onHide={this.handleClose.bind(this)} animation={false} size="lg">
-                <Modal.Header closeButton={true}>
-                    <Modal.Title>{title}</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>{content}</Modal.Body>
-            </Modal>
+            // <Modal show={true} onHide={this.handleClose.bind(this)} animation={false} size="lg">
+            //     <Modal.Header closeButton={true}>
+            //         <Modal.Title>{title}</Modal.Title>
+            //     </Modal.Header>
+            //     <Modal.Body>{content}</Modal.Body>
+            // </Modal>
+            <Card>
+                <Card.Body>
+                    <h3>{title}</h3>
+                    {content}
+                </Card.Body>
+            </Card>
         );
     }
 }
