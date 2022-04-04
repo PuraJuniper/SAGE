@@ -8,7 +8,7 @@ import React from "react";
 import ReactDOM from "react-dom";
 import State from "./reactions";
 import * as SchemaUtils from "./helpers/schema-utils";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {faCaretRight, faCaretLeft} from  '@fortawesome/pro-solid-svg-icons';
 
 import NavbarFred from "./navbar";
@@ -135,22 +135,44 @@ class RootComponent extends React.Component<RootProps, RootState> {
 					<DomainResource node={state.bundle.resources[state.bundle.pos]} errFields={state.errFields}/>
 			);
 		} else if (state.ui.status.indexOf("error") === -1) {
-			return <div className="row" style={{marginTop: "60px", marginBottom: "60px"}}><div className="col-xs-offset-4 col-xs-4">
-				<button className="btn btn-primary btn-block" onClick={this.handleOpen.bind(this)}>
-					Create Resource
-				</button>
-				<button className="btn btn-primary btn-block" onClick={(e) => {
-					State.emit("set_ui", "basic-cpg");
-					}}>
-					Basic CPG
-				</button>
-				<button className="btn btn-primary btn-block" onClick={(e) => {
-					State.emit("set_ui", "advanced-cpg");
-				}
-					}>
-					Advanced CPG
-				</button>
-			</div></div>;
+			return <div className="container">
+				<div className="row justify-content-md-center" style={{marginBottom: 40}}>
+					<div className="col-lg-1"></div>
+					<div className="col-lg-2 ">
+						<img src="../img/Juniper-CDS-colour.png" className="img-thumbnail"/>
+					</div>
+					<div className="col-lg-1"></div>
+				</div>
+				<div className="row justify-content-md-center">
+					<div className="col col-lg-1 bg-secondary"></div>
+					<div className="col-lg-2 bg-secondary text-center">
+						<p style={{marginTop: 60}}><span style={{color: "#E0C758", textAlign: "center", fontWeight: "bold"}}>Choose Account</span></p>
+					</div>
+					<div className="col col-lg-1 bg-secondary"></div>
+				</div>
+				<div className="row justify-content-md-center">
+					<div className="col-lg-1 bg-secondary"></div>
+					<div className="col-lg-2 bg-secondary">
+						<button className="btn btn-secondary btn-block" style={{marginTop: 60}} onClick={(e) => {
+							State.emit("set_ui", "basic-cpg");
+							}}>
+							Basic CPG
+						</button>
+					</div>
+					<div className="col-lg-1 bg-secondary" ></div>
+				</div>
+				<div className="row justify-content-md-center">
+					<div className="col-lg-1 bg-secondary"></div>
+					<div className="col-lg-2 bg-secondary">
+						<button className="btn btn-secondary btn-block" style={{marginTop: 10, marginBottom: 100}} onClick={(e) => {
+							State.emit("set_ui", "advanced-cpg");
+						}}>
+							Advanced CPG
+						</button>
+					</div>
+					<div className="col-lg-1 bg-secondary"></div>
+				</div>
+			</div>
 		}
 		})();
 
