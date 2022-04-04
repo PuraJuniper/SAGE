@@ -9,7 +9,6 @@
         "jsx": "react-jsx",
         "resolveJsonModule": true,
         "sourceMap": true,
-        "noEmit": true,
         "isolatedModules": true,
         "incremental": true,
     },
