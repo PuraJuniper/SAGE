@@ -10,6 +10,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {faCaretRight, faCaretLeft, faHomeLgAlt} from  '@fortawesome/pro-solid-svg-icons';
 
 
+
 interface NavbarFredProps {
 	hasResource: boolean,
 	appVersion: string
@@ -50,7 +51,7 @@ class NavbarFred extends React.Component<NavbarFredProps> {
 			onDragLeave={this.handleDrag.bind(this)}
 		>
 			<Navbar.Brand>SAGE Basic</Navbar.Brand>
-			<Nav.Link key='home-button' onClick={this.handleUiChange.bind(this, 'basic-cpg')}>
+			<Nav.Link key='home-button'>
 			<FontAwesomeIcon key="butSaveIcon" icon={faHomeLgAlt} style={{'color':'white','height':'30px','marginRight':'3rem'}} />
 			</Nav.Link>
 		</Navbar>;
