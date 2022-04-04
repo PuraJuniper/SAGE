@@ -101,7 +101,7 @@ export const HomeCard = (props: HomeCardProps) => {
                     State.emit("load_json_resource", json);
                     // Set current editor position to the last resource (should be the PlanDefinition in `json` after the "load_json_resource" call)
                     State.emit("set_bundle_pos", State.get().bundle.resources.length-1);
-                    return
+                    navigate(`/edit/${State.get().bundle.resources.length-1}`);
                 }
                 if(props.title == 'Create Cards'){
                     navigate('/create')
