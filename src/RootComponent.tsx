@@ -16,7 +16,7 @@ import RemoteNavbar from "./remote-navbar";
 import BundleBar from "./bundle-bar";
 import RefWarning from "./ref-warning";
 import Footer from "./footer";
-//import BasicHomeView from "./simplified/home"
+import BasicHomeView from "./simplified/home"
 import SelectView from "./simplified/selectView"
 import Collection from "./simplified/collection"
 
@@ -123,7 +123,10 @@ class RootComponent extends React.Component<RootProps, RootState> {
 		const resourceContent = (() => {
 			if (state.ui.status === "loading") {
 			return <div role="progressbar" aria-label="loading-symbol" className="spinner"><img src="../img/ajax-loader.gif" /></div>;
-		} else if (state.ui.status === "cards" || 
+		} else if (state.ui.status === "basic-home" || 
+				prevStatus === "basic-home" && changeLessContentStatuses.includes(state.ui.status)) {
+			return <BasicHomeView />
+		}else if (state.ui.status === "cards" || 
 				prevStatus === "cards" && changeLessContentStatuses.includes(state.ui.status)) {
 			return <SelectView />
 		} else if (state.ui.status === "collection" || 

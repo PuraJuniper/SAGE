@@ -1,7 +1,7 @@
 import {Card, Row} from "react-bootstrap";
 import {useState, useEffect} from "react";
 import { CSSTransition } from 'react-transition-group';
-import State from "../state";
+import State, { SageUiStatus } from "../state";
 import { Color } from "react-bootstrap/esm/types";
 import { ACTIVITY_DEFINITION, friendlyToFhir, PLAN_DEFINITION, QUESTIONNAIRE } from "./nameHelpers";
 import { incrementNextId } from "../helpers/schema-utils";
@@ -11,7 +11,6 @@ import { faInfoCircle,faGrid,faBookMedical,faCirclePlus, IconDefinition } from '
 
 
 interface HomeCardProps {
-
     header?: string,
     title: string,
     cardText?:string,
@@ -24,9 +23,8 @@ interface HomeCardProps {
     FHIR: string,
     profile?: string,
     wait?: number,
-    clickable?: boolean
-    link?: string
-
+    clickable?: boolean,
+    link?: string,
 }
 
 export const HomeCard = (props: HomeCardProps) => {
@@ -100,7 +98,13 @@ export const HomeCard = (props: HomeCardProps) => {
                     State.emit("set_bundle_pos", State.get().bundle.resources.length-1);
                     return
                 }
-                State.get().set("ui", { status: "collection" })
+                if(props.title == 'Create Cards'){
+                    State.get().set("ui", {status:"cards"})
+                }
+                if(props.title == 'View Cards'){
+                    State.get().set("ui", {status:"collection"})
+                }
+
             }}
         >
 

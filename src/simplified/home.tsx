@@ -18,7 +18,7 @@ const listOfHomePage = [
         'cardImage':faCirclePlus,
         'cardColor':'sage-purple',
         'textColor':'white',
-        'FHIR': 'ActivityDefinition'
+        'FHIR': '',
     },
     {
         'heading':'List Of Questions',
@@ -34,8 +34,7 @@ const listOfHomePage = [
         'cardImage':faGrid,
         'cardColor':'sage-green',
         'textColor':'black',
-        'FHIR': ''
-
+        'FHIR': '',
     }
 ]
 
