@@ -100,7 +100,7 @@ export const BaseCard = (props: BaseCardProps) => {
             <Card.Header style={headerPadding} hidden = {props.hideHeader}>
                 {props.header}
             </Card.Header>
-            <Card.Body>
+            <Card.Body style={{'padding': '0px 0.5rem' }}>
                 <Row style={{'justifyContent': 'flex-end', 'margin':'0'}}>
                     <span style={{ fontSize: "20px", textAlign: "right" }}>
                         <a href='' target="_blank" rel="noreferrer" className="c-tooltip">
@@ -109,10 +109,10 @@ export const BaseCard = (props: BaseCardProps) => {
                         </a>
                     </span>
                 </Row>
-                <Card.Title style={{ fontSize: "20px", textAlign: "center" }}>{props.title}</Card.Title>
+                <Card.Title style={{ fontSize: "15px", textAlign: "center" }}>{props.title}</Card.Title>
                 <Card.Text>{content}</Card.Text>
                 <Row style={{'justifyContent': 'center', 'marginBottom':'30px'}}>
-                    <FontAwesomeIcon icon={props.cardImage} style={{'color':props.IconColor, 'height':'60px'}} />
+                    <FontAwesomeIcon icon={props.cardImage} style={{'color':props.IconColor, 'height':'50px'}} />
                 </Row>
             </Card.Body>
         </Card>

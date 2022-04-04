@@ -11,21 +11,17 @@ const SelectView = () => {
     return (
         <div style={{ marginTop: "50px", paddingRight: "12px" }}>
             <div className="row">
-                <h3 className="col-lg-10 col-md-9" style={{ color: "#2a6b92" }}><b>Home Page</b></h3>
-                <button className="navigate col-lg-2 col-md-3"
-                    onClick={() => State.get().set("ui", { status: "collection" })}>
-                    Saved Cards&nbsp;<FontAwesomeIcon icon={faCaretRight} />
-                </button>
+                <h3 className="col-lg-10 col-md-9"><b>What Is The Card Type?</b></h3>
             </div>
-            <div className="box">
                 <Container fluid="lg">
                     <Row lg="4" md="3" sm="2" noGutters>
                         {
-                            friendlyResourceRoot.RESOURCES.map(
+                            friendlyResourceRoot.RESOURCES
+                            .filter(subResType => subResType.SELF.FHIR === 'ActivityDefinition')
+                            .map(
                                 (resourceType) => {
                                     if (resourceType.LIST) {
                                         return resourceType.LIST
-                                        .filter(subResType => allFormElems(getFormElementListForResource(subResType.FHIR)).length > 0)
                                         .map(
                                             (resource, i) => {
                                                 return (
@@ -53,7 +49,6 @@ const SelectView = () => {
                         }
                     </Row>
                 </Container>
-            </div>
         </div>
     );
 }
