@@ -16,9 +16,9 @@ const Collection = () => {
     const resources = State.get().bundle?.resources ?? [];
 
     return (
-        <div style={{ marginTop: "50px" }}>
+        <div>
             <div className="row">
-                <h3 className="col-lg-10 col-md-9" style={{ color: "#2a6b92" }}><b>Saved Cards</b></h3>
+                <h3 className="col-lg-10 col-md-9"><b>Saved Cards</b></h3>
                 <button className="navigate-reverse col-lg-2 col-md-3"
                     onClick={() => navigate('/basic-home')}>
                     <FontAwesomeIcon icon={faCaretLeft} />
