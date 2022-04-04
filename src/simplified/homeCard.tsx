@@ -1,7 +1,7 @@
 import {Card, Row} from "react-bootstrap";
 import {useState, useEffect} from "react";
 import { CSSTransition } from 'react-transition-group';
-import State from "../state";
+import State, { SageUiStatus } from "../state";
 import { Color } from "react-bootstrap/esm/types";
 import { ACTIVITY_DEFINITION, friendlyToFhir, PLAN_DEFINITION, QUESTIONNAIRE } from "./nameHelpers";
 import { incrementNextId } from "../helpers/schema-utils";
@@ -9,28 +9,30 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faInfoCircle,faGrid,faBookMedical,faCirclePlus, IconDefinition } from '@fortawesome/pro-solid-svg-icons';
 import { useNavigate } from "react-router-dom";
 
-interface BaseCardProps {
-    header: string,
+
+
+interface HomeCardProps {
+    header?: string,
     title: string,
-    profile?: string,
-    wait?: number,
+    cardText?:string,
     content?: JSX.Element,
-    clickable?: boolean
-    link?: string
+    cardImage:any,
+    cardColor?:string,
     bsBg?: string,
     bsText?: Color | string,
     bsBorder?: string,
-    hideHeader:boolean,
-    cardImage?:any,
-    IconColor?:string,
-
+    FHIR: string,
+    profile?: string,
+    wait?: number,
+    clickable?: boolean,
+    link?: string,
 }
 
-export const BaseCard = (props: BaseCardProps) => {
+
+export const HomeCard = (props: HomeCardProps) => {
     const [show, setShow] = useState(false);
-    
     const navigate = useNavigate();
-    
+
     useEffect(() => {
         const timeoutId = setTimeout(() => {
             setShow(true);
@@ -43,8 +45,10 @@ export const BaseCard = (props: BaseCardProps) => {
     const content = props.content;
     let headerPadding = {};
     if (props.title == "") headerPadding = {padding:"7px"};
-    const resourceType = friendlyToFhir(props.header);
-    
+    const resourceType = props.FHIR;
+
+
+    console.log(props.profile)
     return (
         <CSSTransition
         in={show}
@@ -55,8 +59,10 @@ export const BaseCard = (props: BaseCardProps) => {
             bg={props.bsBg}
             text={props.bsText as Color}
             border={props.bsBorder}
+            //onClick={() => navigate('/create')}
             onClick={(e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-                if (e.target instanceof Element && e.target.tagName !== "svg" && e.target.tagName !== "path" && props.clickable) {
+
+                if (e.target instanceof Element && e.target.tagName !== "svg" && e.target.tagName !== "path" && props.clickable && resourceType!='') {
                     setShow(false);
                     if (State.get().bundle?.resources.length) {
                         State.get().bundle.set("pos", State.get().bundle.resources.length-1);
@@ -97,24 +103,28 @@ export const BaseCard = (props: BaseCardProps) => {
                     State.emit("set_bundle_pos", State.get().bundle.resources.length-1);
                     navigate(`/edit/${State.get().bundle.resources.length-1}`);
                 }
+                if(props.title == 'Create Cards'){
+                    navigate('/create')
+                }
+                if(props.title == 'View Cards'){
+                    navigate('/')
+                }
+
             }}
         >
-            <Card.Header style={headerPadding} hidden = {props.hideHeader}>
-                {props.header}
-            </Card.Header>
-            <Card.Body style={{'padding': '0px 0.5rem' }}>
+
+            <Card.Body>
                 <Row style={{'justifyContent': 'flex-end', 'margin':'0'}}>
                     <span style={{ fontSize: "20px", textAlign: "right" }}>
                         <a href='' target="_blank" rel="noreferrer" className="c-tooltip">
-                            <FontAwesomeIcon icon={faInfoCircle} style={{'color':props.IconColor}} />
+                            <FontAwesomeIcon icon={faInfoCircle} style={{'color':'white'}} />
                             <span className="c-tooltiptext">FHIR Docs</span>
                         </a>
                     </span>
                 </Row>
-                <Card.Title style={{ fontSize: "15px", textAlign: "center" }}>{props.title}</Card.Title>
-                <Card.Text>{content}</Card.Text>
+                <Card.Title style={{ fontSize: "20px", textAlign: "center" }}>{props.title}</Card.Title>
                 <Row style={{'justifyContent': 'center', 'marginBottom':'30px'}}>
-                    <FontAwesomeIcon icon={props.cardImage} style={{'color':props.IconColor, 'height':'50px'}} />
+                    <FontAwesomeIcon icon={props.cardImage} style={{'color':'white', 'height':'60px'}} />
                 </Row>
             </Card.Body>
         </Card>

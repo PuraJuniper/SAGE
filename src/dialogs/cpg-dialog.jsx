@@ -204,7 +204,7 @@ class CpgDialog extends React.Component {
         State.get().bundle?.set("resources", []);
         if (this.props.basic) {
             State.get().set("mode", "basic");
-            return State.get().set("ui", {status:"cards"});
+            return State.get().set("ui", {status:"basic-home"});
         }
         State.get().set("mode", "advanced");
         var resourceJson = {resourceType: PLAN_DEFINITION};

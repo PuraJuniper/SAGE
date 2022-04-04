@@ -7,6 +7,7 @@ import {getBorderPropsForType, PLAN_DEFINITION, profileToFriendlyResourceListEnt
 import * as SchemaUtils from '../helpers/schema-utils';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faExclamationTriangle, faQuestionCircle } from "@fortawesome/pro-solid-svg-icons";
+import { useNavigate } from "react-router-dom";
 
 interface FolderProps {
     actTitle: string,
@@ -22,6 +23,8 @@ interface FolderProps {
 }
 
 export const Folder = (props: FolderProps) => {
+    const navigate = useNavigate();
+
     const [show, setShow] = useState(false);
     const friendlyName = profileToFriendlyResourceListEntry(props.profile)?.SELF.FRIENDLY ?? "Unknown";
     const resourceType = profileToFriendlyResourceSelf(props.profile)?.FHIR ?? "";
@@ -82,19 +85,20 @@ export const Folder = (props: FolderProps) => {
     <div className="folder" style={{position:"relative", marginBottom:"100px", marginTop: "10px"}}
         onClick={(e) => {
             setShow(false);
-            State.emit("set_bundle_pos", props.pdIndex);
+            navigate(`/edit/${props.pdIndex}`);
         }}>
-        <BaseCard header="_" title={PLAN_DEFINITION} />
+        <BaseCard header="_" title={PLAN_DEFINITION} hideHeader={false}/>
         <div className="folder-type" style={{position:"absolute", top:"-18px", left:"20px", maxWidth:"90%"}}>
             <BaseCard
                 bsBg="sage-white"
                 bsText="sage-blue"
                 bsBorder={getBorderPropsForType(resourceType)}
                 header={friendlyName} title="" link={props.link}
+                hideHeader={false}
             />
         </div>
         <div style={{position:"absolute", top:"16px", left:"0px", width:"100%"}}>
-            <BaseCard header={PLAN_DEFINITION} title={props.planTitle}
+            <BaseCard header={PLAN_DEFINITION} title={props.planTitle} hideHeader={false}
             content={
                 <span>
                 {props.actDesc} {props.conditionExpressions.length > 0 ? `WHEN "${props.conditionExpressions.join('" AND "')}" IS TRUE` : ""}
@@ -111,7 +115,6 @@ export const Folder = (props: FolderProps) => {
                     else {
                         State.emit("remove_from_bundle", props.pdIndex);
                     }
-                    State.get().set("ui", {status:"collection"})
                 }}
             />
         </div>
