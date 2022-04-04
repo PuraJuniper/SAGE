@@ -107,7 +107,7 @@ export class OuterCardForm extends React.Component<CardFormProps, CardFormState>
         
         return (
             <div>
-                <div className='basic-page-titles'>{this.pageTitles.get(this.state.step)}</div>
+                <h3 className="col-lg-10 col-md-9"><b>{this.pageTitles.get(this.state.step)}</b></h3>
                 <div>{this.state.step == 1 ? <PageOne fieldElements={this.props.elementList} /> : null}</div>
                 {this.state.step == 2 ? <PageTwo conditionEditor={this.props.conditionEditor} /> : null}
                 {this.state.step == 3 ? <Card style={{ padding: "20px", margin: "10px", borderWidth: "2px", borderColor:'rgb(42, 107, 146)', borderRadius: '40px'}}>

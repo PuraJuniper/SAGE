@@ -42,9 +42,9 @@ const listOfHomePage = [
 
 const BasicHomeView = () => {
     return (
-        <div style={{ marginTop: "50px", paddingRight: "12px" }}>
+        <div>
             <div className="row">
-                <h3 className="col-lg-10 col-md-9" style={{ color: "#2a6b92" }}><b>Home Page</b></h3>
+                <h3 className="col-lg-10 col-md-9"><b>Home Page</b></h3>
             </div>
 
                 <Container fluid="lg">
