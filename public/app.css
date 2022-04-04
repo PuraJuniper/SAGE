@@ -868,3 +868,32 @@ a {
 .display-page-productRefernce{
   flex: 0 0 35%;
 }
+.left-nav-button{
+  background-color: white;
+  border-color: white;
+  border-radius: 5px;
+  color: black;
+  text-align: left;
+  width: 100%;
+  flex: 1 1 auto;
+}
+.left-nav-button-group{
+    min-width: 250px;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    position: relative;
+    display: inline-flex;
+    vertical-align: middle;
+    padding-bottom: 3rem;
+    padding-top: 1rem;
+
+
+}
+.left-nav-button-group-middle{
+  border-width: 1px;
+  border-bottom-color: black;
+  border-bottom-style: solid;
+  border-top-color: black;
+  border-top-style: solid;
+}
