@@ -27,6 +27,11 @@ span {
   border-color: #2e6da4;
 }
 
+.btn-secondary {
+  background-color: #64be66;
+  border-color: #64be66;
+}
+
 /* all of the following are required to clip text */
 span.fhir-element-value {
   width: 100%;
