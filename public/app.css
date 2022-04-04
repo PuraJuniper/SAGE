@@ -190,12 +190,18 @@ span.fhir-element-value {
 
 /* blue navbar */
 .navbar-custom {
-  background-color: #317eac;
+  background-color: #2D2E74;
   border-color: #2a6b92;
+  display: flex;
+  justify-content: space-between;
 }
 .navbar-custom .navbar-brand {
-  color: #ffffff;
+  color: #65BE67;
+  font-size: x-large;
+  font-weight: bold;
+  margin-left: 3rem;
 }
+
 .navbar-custom .navbar-brand:hover,
 .navbar-custom .navbar-brand:focus {
   color: #e6e6e6;

@@ -60,7 +60,6 @@ export const HomeCard = (props: HomeCardProps) => {
             bg={props.bsBg}
             text={props.bsText as Color}
             border={props.bsBorder}
-            //onClick={() => navigate('/create')}
             onClick={(e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
 
                 if (e.target instanceof Element && e.target.tagName !== "svg" && e.target.tagName !== "path" && props.clickable && resourceType!='') {
