@@ -1,23 +1,18 @@
 import React from "react";
-import {Navbar, Nav, NavItem, Breadcrumb} from 'react-bootstrap';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {faHomeLgAlt} from  '@fortawesome/pro-solid-svg-icons';
-import { useNavigate } from "react-router-dom";
+import "react-step-progress-bar/styles.css";
+import { ProgressBar, Step } from "react-step-progress-bar";
 
-
-export const Crumb: React.FC = () => {
-    
-    const navigate = useNavigate();
-
+export class Progress extends React.Component {
+  render() {
     return (
-        <Breadcrumb>
-            
-                <Breadcrumb.Item onClick={()=> navigate('/create')} >Select a card type</Breadcrumb.Item>
-                <span>test</span>
-                <Breadcrumb.Item >Enter what the card does</Breadcrumb.Item>
-                <Breadcrumb.Item >Enter when the card is played</Breadcrumb.Item>
-                <Breadcrumb.Item >Review and save the card</Breadcrumb.Item>
-            
-        </Breadcrumb>
-    )
+      <ProgressBar
+        percent={75}
+        filledBackground="linear-gradient(to right, #fefb72, #f0bb31)"
+      >
+        <Step transition="scale"></Step>
+        <Step transition="scale">  </Step>
+        <Step transition="scale"></Step>
+      </ProgressBar>
+    );
+  }
 }
