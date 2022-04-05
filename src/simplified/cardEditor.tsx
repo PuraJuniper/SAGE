@@ -310,7 +310,7 @@ export const CardEditor = (props: CardEditorProps) => {
 
     return (
         <div>
-            <div key={actResourceType.FHIR + "-form"} style={{ color: "#2a6b92" }} id="commonMetaDataForm">
+            <div key={actResourceType.FHIR + "-form"}  id="commonMetaDataForm">
                 <OuterCardForm
                     sageNode={actNode}
                     fieldHandlers={fieldHandlers}
