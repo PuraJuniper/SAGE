@@ -9,9 +9,6 @@ export class Progress extends React.Component {
         percent={75}
         filledBackground="linear-gradient(to right, #fefb72, #f0bb31)"
       >
-        <Step transition="scale"></Step>
-        <Step transition="scale">  </Step>
-        <Step transition="scale"></Step>
       </ProgressBar>
     );
   }
