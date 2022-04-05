@@ -8,7 +8,6 @@ import State from "../state";
 import { Container, Row, Col, Card } from "react-bootstrap";
 import friendlyNames from "../../friendly-names.json";
 import { ACTIVITY_DEFINITION, allFormElems, friendlyResourceRoot, getBorderPropsForType, getFormElementListForResource } from "./nameHelpers";
-import { HomeCard } from "./homeCard";
 
 console.log(friendlyResourceRoot.RESOURCES)
 
@@ -35,18 +34,17 @@ const listOfHomePage = [
         'title':'View Cards',
         'cardImage':faGrid,
         'cardColor':'sage-green',
-        'textColor':'black',
+        'textColor':'white',
         'FHIR': '',
     }
 ]
-
+console.log(friendlyResourceRoot.RESOURCES[4].SELF.FHIR)
 const BasicHomeView = () => {
     return (
         <div>
             <div className="row">
                 <h3 className="col-lg-10 col-md-9"><b>Home Page</b></h3>
             </div>
-
                 <Container fluid="lg">
                     <Row lg="4" md="3" sm="2" noGutters>
                         {
@@ -56,16 +54,20 @@ const BasicHomeView = () => {
                                         <div style={{ flex: '0 0 35%' , maxWidth: '35%' , padding: "10px" }} key={resource.FHIR}>
                                         <h4 style={{'fontSize':'10px'}}>{resource.header}</h4>
                                             <Col style={{ padding: "0px" }}>
-                                                <HomeCard
+                                                 <BaseCard
                                                     bsBg={resource.cardColor}
                                                     bsText={resource.textColor}
-                                                    cardImage={resource.cardImage}
+                                                    cardImage= {resource.cardImage}
+                                                    IconColor = 'white'
+                                                    IconSize= '60px'
+                                                    header={resource.FHIR}
                                                     title={resource.title}
-                                                    FHIR = {resource.FHIR} 
-                                                    profile = {resource.profile} 
+                                                    titleSize='20px'
+                                                    hideHeader = {true}
                                                     wait={i * 25}
                                                     clickable={true}
-                                                />
+                                                    profile={resource.profile}
+                                                /> 
                                             </Col>
                                         </div>);
                                 }

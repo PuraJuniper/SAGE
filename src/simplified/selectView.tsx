@@ -34,7 +34,6 @@ const SelectView = () => {
                                                         <Col>
                                                             <BaseCard
                                                                 bsBg="sage-beige"
-                                                                bsBorder={getBorderPropsForType(resourceType.SELF.FHIR)}
                                                                 cardImage= {faUserDoctor}
                                                                 IconColor = 'black'
                                                                 header={resourceType.SELF.FRIENDLY}
@@ -43,6 +42,8 @@ const SelectView = () => {
                                                                 wait={i * 25}
                                                                 clickable={true}
                                                                 profile={resource.DEFAULT_PROFILE_URI}
+                                                                titleSize='15px'
+                                                                IconSize= '50px'
                                                             /> 
                                                         </Col>
                                                     </div>);
