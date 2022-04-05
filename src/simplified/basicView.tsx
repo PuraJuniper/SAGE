@@ -60,7 +60,7 @@ export const BasicView = () => {
                 <Route path="create" element={<SelectView />} />
                 <Route path="edit/:planDefPos" element={<PlanDefLoader />} />
                 <Route index element={<Collection />} />
-                <Route path="*" element={<Collection />} /> {/* Fall back to collection view if no other path matches */}
+                <Route path="view-cards" element={<Collection />} /> {/* Fall back to collection view if no other path matches */}
             </Route>
         </Routes>
     );
