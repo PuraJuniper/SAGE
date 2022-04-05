@@ -103,7 +103,7 @@ export const BaseCard = (props: BaseCardProps) => {
                     navigate('/create')
                 }
                 if(props.title == 'View Cards'){
-                    navigate('/')
+                    navigate('/view-cards')
                 }
             }}
         >
