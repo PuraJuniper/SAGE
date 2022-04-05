@@ -466,18 +466,18 @@ a {
 /* BUTTONS */
 
 .navigate {
-  background: linear-gradient(to left, white 50%, #2a6b92 50%) right;
+  background: linear-gradient(to left, white 50%, #2D2E74 50%) right;
 }
 
 .navigate-reverse {
-  background: linear-gradient(to right, white 50%, #2a6b92 50%) left;
+  background: linear-gradient(to right, white 50%, #2D2E74 50%) left;
 }
 
 .navigate, .navigate-reverse {
   background-size: 200%;
   transition: .3s ease-out;
-  border: 2px solid #2a6b92;
-  color: #2a6b92;
+  border: 2px solid #2D2E74;
+  color: #2D2E74;
   text-align: center;
   text-decoration: none;
   display: inline-block;
@@ -897,3 +897,12 @@ a {
   border-top-color: black;
   border-top-style: solid;
 }
+.raise-card-animation:hover,
+.raise-card-animation:focus{
+  box-shadow: 0 0.5em 0.5em -0.4em var(--hover);
+  transform: translateY(-0.25em);
+  transition: 0.25s;
+  color: white;
+
+}
+

@@ -24,7 +24,8 @@ interface BaseCardProps {
     hideHeader:boolean,
     cardImage?:any,
     IconColor?:string,
-
+    IconSize?:string,
+    titleSize?:string
 }
 
 export const BaseCard = (props: BaseCardProps) => {
@@ -40,12 +41,11 @@ export const BaseCard = (props: BaseCardProps) => {
     }, [props.wait]);
     
     
-    
     const content = props.content;
     let headerPadding = {};
     if (props.title == "") headerPadding = {padding:"7px"};
-    const resourceType = friendlyToFhir(props.header);
-    
+    const resourceType = (props.header == "Questionnaire")? "Questionnaire":friendlyToFhir(props.header);
+
     return (
         <CSSTransition
         in={show}
@@ -53,11 +53,12 @@ export const BaseCard = (props: BaseCardProps) => {
         classNames="res-card"
         >
         <Card
+            className='raise-card-animation'
             bg={props.bsBg}
             text={props.bsText as Color}
             border={props.bsBorder}
             onClick={(e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-                if (e.target instanceof Element && e.target.tagName !== "svg" && e.target.tagName !== "path" && props.clickable) {
+                if (e.target instanceof Element && e.target.tagName !== "svg" && e.target.tagName !== "path" && props.clickable && resourceType!='') {
                     setShow(false);
                     if (State.get().bundle?.resources.length) {
                         State.get().bundle.set("pos", State.get().bundle.resources.length-1);
@@ -98,12 +99,18 @@ export const BaseCard = (props: BaseCardProps) => {
                     State.emit("set_bundle_pos", State.get().bundle.resources.length-1);
                     navigate(`/edit/${State.get().bundle.resources.length-1}`);
                 }
+                if(props.title == 'Create Cards'){
+                    navigate('/create')
+                }
+                if(props.title == 'View Cards'){
+                    navigate('/')
+                }
             }}
         >
             <Card.Header style={headerPadding} hidden = {props.hideHeader}>
                 {props.header}
             </Card.Header>
-            <Card.Body style={{'padding': '0px 0.5rem' }}>
+            <Card.Body >
                 <Row style={{'justifyContent': 'flex-end', 'margin':'0'}}>
                     <span style={{ fontSize: "20px", textAlign: "right" }}>
                         <a href='' target="_blank" rel="noreferrer" className="c-tooltip">
@@ -112,10 +119,10 @@ export const BaseCard = (props: BaseCardProps) => {
                         </a>
                     </span>
                 </Row>
-                <Card.Title style={{ fontSize: "15px", textAlign: "center" }}>{props.title}</Card.Title>
+                <Card.Title style={{ fontSize: props.titleSize, textAlign: "center" }}>{props.title}</Card.Title>
                 <Card.Text>{content}</Card.Text>
                 <Row style={{'justifyContent': 'center', 'marginBottom':'30px'}}>
-                    <FontAwesomeIcon icon={props.cardImage} style={{'color':props.IconColor, 'height':'50px'}} />
+                    <FontAwesomeIcon icon={props.cardImage} style={{'color':props.IconColor, 'height':props.IconSize}} />
                 </Row>
             </Card.Body>
         </Card>
