@@ -114,7 +114,7 @@ export const QuestionnaireEditor = (props: QuestionnaireEditorProps) => {
                 null}
             {step === 2 ? props.conditionEditor : null}
             {step === 3 ?
-                <Card style={{ padding: "20px", margin: "10px", borderWidth: "2px", borderColor:'rgb(42, 107, 146)', borderRadius: '40px'}}>
+                <Card style={{ padding: "20px", margin: "10px", borderWidth: "2px", borderColor:'#2D2E74', borderRadius: '40px'}}>
                     <Card.Title>QUESTIONNAIRE</Card.Title>
                     <Card.Body>
 
