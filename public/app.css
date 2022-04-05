@@ -905,4 +905,12 @@ a {
   color: white;
 
 }
+.breadcrumb{
+  background-color: white;
+  justify-content: space-evenly;
 
+}
+.top-bread-crumb{
+  height: 1px;
+  background-color: #2D2E74;
+}
