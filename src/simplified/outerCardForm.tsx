@@ -109,7 +109,7 @@ export class OuterCardForm extends React.Component<CardFormProps, CardFormState>
         return (
             <div>
                 <h3 className="col-lg-10 col-md-9"><b>{this.pageTitles.get(this.state.step)}</b></h3>
-                <Progress progress={50} pageTitle={this.pageTitles.get(this.state.step)} fhirType='activity'></Progress>
+                <Progress pageTitle={this.pageTitles.get(this.state.step)} fhirType='activity'></Progress>
                 <div>{this.state.step == 1 ? <PageOne fieldElements={this.props.elementList} /> : null}</div>
                 {this.state.step == 2 ? <PageTwo conditionEditor={this.props.conditionEditor} /> : null}
                 {this.state.step == 3 ? <Card style={{ padding: "20px", margin: "10px", borderWidth: "2px", borderColor:'#2D2E74', borderRadius: '40px'}}>
