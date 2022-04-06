@@ -49,7 +49,7 @@ export class Progress extends React.Component<ProgressProps> {
                           key={step.id}
                           transition="scale"
                         >
-                          {({ accomplished, index }) => (
+                          {({ accomplished }) => (
                               <div  className={`step-numbers ${accomplished ? "accomplished" : ""}`}></div>
                           )}
                         </Step>))
@@ -63,7 +63,7 @@ export class Progress extends React.Component<ProgressProps> {
                           <Step
                           key={step.id}
                           >
-                            {({ accomplished, index }) => (
+                            {() => (
                                 <div style={{fontSize: 'small', whiteSpace: 'nowrap'}}>{step.text}</div>
                             )}
                           </Step>))
