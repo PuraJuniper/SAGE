@@ -4,35 +4,36 @@ import { ProgressBar, Step } from "react-step-progress-bar";
 
 const activityPlanSteps =
 [
-	{ id: 1, accomplished: true, pageTitle: "Authoring Information",	text: "Enter Authoring Information"},
-	{ id: 2, accomplished: true, pageTitle: "What Is The Card Type?",	text: "Select Card Type"},
-	{ id: 3, accomplished: true, pageTitle: "What does the card do?",	text: "Enter What the card does", scale: 0.3 },
-	{ id: 4, accomplished: true, pageTitle: "When is the card played?",	text: "Enter When the card is played", scale: 1 },
-	{ id: 5, accomplished: true, pageTitle: "Review card",	text: "Review and Save", scale: 1 },
-];
+	{id: 1, pageTitle: "Authoring Information",	    text: "Enter Authoring Information"},
+	{id: 2, pageTitle: "What Is The Card Type?",	  text: "Select Card Type"},
+	{id: 3, pageTitle: "What does the card do?",	  text: "Enter What the card does"},
+	{id: 4, pageTitle: "When is the card played?",	text: "Enter When the card is played"},
+	{id: 5, pageTitle: "Review card",	              text: "Review and Save"},
+]
 const questionaireSteps =
 [
-	{ id: 1, accomplished: true, pageTitle:"Authoring Information",	text: "Enter Authoring Information", scale: 2 },
-	{ id: 2, accomplished: true, pageTitle:"Page 1: Creating a Questionnaire",	text: "Enter What the card does", scale: 0.3 },
-	{ id: 3, accomplished: true, pageTitle:"Page 2: Adding Conditions",	text: "Enter When the card is played", scale: 1 },
-	{ id: 4, accomplished: true, pageTitle:"Page 3: Card Preview",	text: "Review and Save", scale: 1 },
+	{ id: 1, pageTitle:"Authoring Information",	           text: "Enter Authoring Information"},
+	{ id: 2, pageTitle:"Page 1: Creating a Questionnaire", text: "Enter What the card does"},
+	{ id: 3, pageTitle:"Page 2: Adding Conditions",	       text: "Enter When the card is played"},
+	{ id: 4, pageTitle:"Page 3: Card Preview",	           text: "Review and Save"},
 ];
 export type ProgressProps = {fhirType: string, pageTitle: any };
 
 export class Progress extends React.Component<ProgressProps> {
 
+  constructor(props: ProgressProps){
+    super(props);
+  }
+
   render() {
     let steps;
     let progression;
-    const {fhirType} = this.props;
-    const {pageTitle} = this.props;
-    console.log(pageTitle);
-    (fhirType == 'questionaire')? steps = questionaireSteps : steps = activityPlanSteps;
+    (this.props.fhirType == 'questionaire')? steps = questionaireSteps : steps = activityPlanSteps;
     for (let i = 0; i < steps.length; i++) {
-      if(steps[i].pageTitle==pageTitle) {
+      if(steps[i].pageTitle==this.props.pageTitle) {
         const temp = steps.length-1;
         const temp2 = 100/temp;
-        progression = temp2 * i - 1;
+        progression = temp2 * i - 0.1;
         console.log(progression)
       }
     }

@@ -21,6 +21,6 @@ declare module 'react-step-progress-bar' {
       transition?: 'scale' | 'rotate' | 'skew';
       transitionDuration?: number;
     }
-    class ProgressBar extends React.Component<ProgressBarProps, any> {}
-    class Step extends React.Component<StepProps, any> {}
+    export class ProgressBar extends React.Component<ProgressBarProps, any> {}
+    export class Step extends React.Component<StepProps, any> {}
   }
