@@ -18,7 +18,7 @@ const SelectView = () => {
         <div>
            
                 <h3 className="col-lg-10 col-md-9"><b>What Is The Card Type?</b></h3>
-                <Progress progress={25} fhirType = 'activity'></Progress>
+                <Progress progress={25} pageTitle='What Is The Card Type?' fhirType = 'activity'></Progress>
             
                 <Container fluid="lg">
                     <Row lg="4" md="3" sm="2" noGutters  style={{'justifyContent': 'center'}}>  

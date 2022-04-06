@@ -108,7 +108,7 @@ export const QuestionnaireEditor = (props: QuestionnaireEditorProps) => {
     return (
         <div>
             <div className='basic-page-titles'>{pageTitles.get(step)}</div>
-            <Progress progress={66} fhirType='questionaire'></Progress>
+            <Progress progress={66} pageTitle={pageTitles.get(step)} fhirType='questionaire'></Progress>
             {step === 1 ?
                 <StructorFrame ref={structorRef} questionnaireFromSage={questionnaireResource} questionnaireSavedCallback={handleQuestionnaireSaved} 
                     structorReadyCallback={()=>{return 0;}}
