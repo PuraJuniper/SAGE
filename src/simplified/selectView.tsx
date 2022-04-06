@@ -8,7 +8,7 @@ import { Container, Row, Col } from "react-bootstrap";
 import friendlyNames from "../../friendly-names.json";
 import { ACTIVITY_DEFINITION, allFormElems, friendlyResourceRoot, getBorderPropsForType, getFormElementListForResource } from "./nameHelpers";
 import { useNavigate } from "react-router-dom";
-import { Progress } from './breadcrumb';
+import { Progress } from './topProgressBar';
 
 
 const SelectView = () => {

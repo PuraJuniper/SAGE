@@ -8,7 +8,7 @@ import {faCaretRight, faCaretLeft} from  '@fortawesome/pro-solid-svg-icons';
 import State from "../../state";
 import { useRef, useState } from "react";
 import { Card } from "react-bootstrap";
-import {Progress} from "../breadcrumb"
+import {Progress} from "../topProgressBar"
 
 interface QuestionnaireEditorProps {
     planDefNode: SageNodeInitializedFreezerNode,

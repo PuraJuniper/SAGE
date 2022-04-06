@@ -6,7 +6,7 @@ import State, { SageNodeInitializedFreezerNode } from '../state';
 import { ICardForm } from './cardEditor';
 import { FriendlyResourceProps } from './nameHelpers';
 import { Card } from "react-bootstrap";
-import { Progress } from './breadcrumb';
+import { Progress } from './topProgressBar';
 
 
 export type cardRow = string[];
