@@ -21,7 +21,7 @@ export class MedicationRequestForm implements ICardForm {
             caption: ""
         }],
         ['description', {
-            boxSize: 3,
+            boxSize: 4,
             isReadOnly: false,
             isLink: false,
             caption: ""
@@ -143,13 +143,12 @@ export class MedicationRequestForm implements ICardForm {
             cardColumns: [
                 ['placeholder', 'placeholder'],
                 ['title', 'productCodeableConcept'],
-                ['description', 'placeholder'],
+                ['description', 'text'],
                 ['status', 'value'],
                 ['intent', 'unit'],
                 ['resource', 'frequency'],
                 ['type', 'period'],
                 ['placeholder', 'periodUnit'],
-                ['freeTextplaceholder', 'text'],
                 ['placeholder', 'placeholder'],
             ]
 
@@ -172,19 +171,15 @@ export class MedicationRequestForm implements ICardForm {
 
     pageOne: ICardForm['pageOne'] = (props) => {
         const placeHolderElem =
-            <Form.Group key='placeholder-formGroup' as={Col}>
-            </Form.Group>;
-        const freeTextplaceHolderElem =
-            <Form.Group key='freeTextplaceholder-formGroup' as={Col} style={{'margin': 0, 'flex': '0 0 35%'}}>
+            <Form.Group style={{flexGrow: '0.4'}} key='placeholder-formGroup' as={Col}>
             </Form.Group>;
         return (
             <>{
                 ...this.cardFieldLayout.cardColumns.map((cr, i: number) => {
                     return (
-                        <Row key={"row-" + i} >
+                        <Row style={{justifyContent: 'center'}} key={"row-" + i} >
                             {cr.map(field =>
                                 [
-                                    freeTextplaceHolderElem,
                                     placeHolderElem,
                                     ...props.fieldElements
                                 ].find(elem =>
