@@ -7,6 +7,7 @@ import { ICardForm } from './cardEditor';
 import { FriendlyResourceProps } from './nameHelpers';
 import { Card } from "react-bootstrap";
 import { Progress } from './topProgressBar';
+import Sidebar from './sidebar';
 
 
 export type cardRow = string[];
@@ -107,8 +108,11 @@ export class OuterCardForm extends React.Component<CardFormProps, CardFormState>
         const PageTwo = this.props.innerCardForm.pageTwo;
         const PageThree = this.props.innerCardForm.pageThree;
         return (
-            <div>
-                <h3 className="col-lg-10 col-md-9"><b>{this.pageTitles.get(this.state.step)}</b></h3>
+            <div style={{display: "flex"}} >
+                <Sidebar pageType='create card' pageTitle={this.pageTitles.get(this.state.step)}></Sidebar>
+                <div style={{flexGrow: 1, margin: "50px"}}>
+
+                <h3 id='page-title' className="col-lg-10 col-md-9">{this.pageTitles.get(this.state.step)}</h3>
                 <Progress pageTitle={this.pageTitles.get(this.state.step)} fhirType='activity'></Progress>
                 <div>{this.state.step == 1 ? <PageOne fieldElements={this.props.elementList} /> : null}</div>
                 {this.state.step == 2 ? <PageTwo conditionEditor={this.props.conditionEditor} /> : null}
@@ -121,6 +125,7 @@ export class OuterCardForm extends React.Component<CardFormProps, CardFormState>
                     {this.state.step <= 2 ? this.rightNavButton() : this.saveButton}
                     {this.deleteCardButton}
                 </></div>
+                </div>
             </div>
         );
     }

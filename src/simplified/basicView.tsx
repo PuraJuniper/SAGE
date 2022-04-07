@@ -40,9 +40,8 @@ export const BasicView = () => {
                 <UiContext.Provider value={freezerUi}>
                     <BundleContext.Provider value={freezerBundle}>
                         <Header />
-                        <div style={{display: "flex"}} >
-                            <Sidebar />
-                            <div style={{flexGrow: 1, margin: "50px"}}> {/* Adding this margin helps deal with certain bootstrap classes that use negative margin values */}
+                        <div  >
+                            <div > {/* Adding this margin helps deal with certain bootstrap classes that use negative margin values */}
                                 <Outlet />
                             </div>
                         </div>

@@ -9,15 +9,18 @@ import friendlyNames from "../../friendly-names.json";
 import { ACTIVITY_DEFINITION, allFormElems, friendlyResourceRoot, getBorderPropsForType, getFormElementListForResource } from "./nameHelpers";
 import { useNavigate } from "react-router-dom";
 import { Progress } from './topProgressBar';
+import Sidebar from "./sidebar";
+
 
 
 const SelectView = () => {
     const navigate = useNavigate();
 
     return (
-        <div>
-           
-                <h3 className="col-lg-10 col-md-9"><b>What Is The Card Type?</b></h3>
+        <div style={{display: "flex"}} >
+                <Sidebar pageType='create card' pageTitle='What Is The Card Type?'></Sidebar>
+                <div style={{flexGrow: 1, margin: "50px"}}>
+                <h3  id='page-title' className="col-lg-10 col-md-9">What Is The Card Type?</h3>
                 <Progress pageTitle='What Is The Card Type?' fhirType = 'activity'></Progress>
             
                 <Container fluid="lg">
@@ -61,6 +64,7 @@ const SelectView = () => {
                 onClick={() => navigate('/basic-home')}>
                     Back
             </button>
+            </div>
         </div>
     );
 }
