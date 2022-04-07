@@ -171,7 +171,7 @@ export class MedicationRequestForm implements ICardForm {
 
     pageOne: ICardForm['pageOne'] = (props) => {
         const placeHolderElem =
-            <Form.Group style={{flexGrow: '0.4'}} key='placeholder-formGroup' as={Col}>
+            <Form.Group className="page1-formgroup" key='placeholder-formGroup' as={Col}>
             </Form.Group>;
         return (
             <>{

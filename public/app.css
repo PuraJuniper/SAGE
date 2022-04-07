@@ -647,6 +647,9 @@ a {
 .page1-input-fields-and-labels{
   flex: 0 0 90%
 }
+.page1-formgroup{
+  flex-grow: 0.4;
+}
 
 .basic-page-titles{
   font-weight: bold;

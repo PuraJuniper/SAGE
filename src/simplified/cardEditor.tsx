@@ -131,7 +131,7 @@ const createTextBoxElement = (fieldKey: string, friendlyFieldName: string, textP
     }
     fieldHandlers.push([fieldName, fieldContents, setField, fieldSaveHandler]);
     return (
-        <Form.Group style={{flexGrow: '0.4'}} key={fieldName + "-formGroup"} as={Col} controlId={fieldName}>
+        <Form.Group className="page1-formgroup" key={fieldName + "-formGroup"} as={Col} controlId={fieldName}>
             <Row style={{margin: '0'}}>
                 <Row style={{margin: '0', width: '100%'}}>
                     <Form.Label className="page1-input-fields-and-labels" key={fieldName + "-formLabel"} >{friendlyFieldName}</Form.Label>
@@ -148,7 +148,7 @@ const createDropdownElement = (fieldKey: string, fieldFriendlyName: string, fiel
     fieldHandlers.push([fieldName, fieldContents, setField, fieldSaveHandler]);
     
     return (
-        <Form.Group style={{flexGrow: '0.4'}} key={fieldName + "-fromGroup"} as={Col} controlId={fieldKey}>
+        <Form.Group className="page1-formgroup" key={fieldName + "-fromGroup"} as={Col} controlId={fieldKey}>
             <Row style={{margin: '0'}}>
                 <Form.Label className="page1-input-fields-and-labels" key={fieldName + "-label"}>{fieldFriendlyName}</Form.Label>
                 <InputGroup className="page1-input-fields-and-labels" key={fieldName + "-inputGroup"}>
@@ -173,7 +173,7 @@ const createCodeableConceptElement = (fieldKey: string, fieldFriendlyName: strin
     const { fieldName, codeableConcept, setCodeableConcept, codeableConceptSaveHandler } = codeableConceptCardField(fieldKey, node);
     fieldHandlers.push([fieldName, codeableConcept, setCodeableConcept, codeableConceptSaveHandler]);
     return (
-        <Form.Group style={{flexGrow: '0.4'}} key={fieldName + "-fromGroup"} as={Col} controlId={fieldKey}>
+        <Form.Group className="page1-formgroup" key={fieldName + "-fromGroup"} as={Col} controlId={fieldKey}>
             <Row style={{margin: '0'}}>
                     <Form.Label className="page1-input-fields-and-labels" key={fieldName + "-label"}>{fieldFriendlyName}</Form.Label>
                     <div className="page1-input-fields-and-labels">
