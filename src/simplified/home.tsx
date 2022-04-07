@@ -8,6 +8,7 @@ import State from "../state";
 import { Container, Row, Col, Card } from "react-bootstrap";
 import friendlyNames from "../../friendly-names.json";
 import { ACTIVITY_DEFINITION, allFormElems, friendlyResourceRoot, getBorderPropsForType, getFormElementListForResource } from "./nameHelpers";
+import Sidebar from './sidebar';
 
 console.log(friendlyResourceRoot.RESOURCES)
 
@@ -41,9 +42,11 @@ const listOfHomePage = [
 console.log(friendlyResourceRoot.RESOURCES[4].SELF.FHIR)
 const BasicHomeView = () => {
     return (
-        <div>
+        <div style={{display: "flex"}}>
+             <Sidebar pageType='generic' pageTitle='Home Page'></Sidebar>
+             <div style={{flexGrow: 1, margin: "50px"}}>
             <div className="row">
-                <h3 className="col-lg-10 col-md-9"><b>Home Page</b></h3>
+                <h3 id='page-title' className="col-lg-10 col-md-9">Home Page</h3>
             </div>
                 <Container fluid="lg">
                     <Row lg="4" md="3" sm="2" noGutters>
@@ -75,6 +78,7 @@ const BasicHomeView = () => {
                         }
                     </Row>
                 </Container>
+                </div>
         </div>
     );
 }
