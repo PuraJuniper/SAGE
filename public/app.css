@@ -938,4 +938,26 @@ a {
   color: white;
 
 }
+.breadcrumb{
+  background-color: white;
+  justify-content: space-evenly;
 
+}
+.top-bread-crumb{
+  height: 1px;
+  background-color: #2D2E74;
+}
+.step-numbers{
+  border-radius: 50%;
+  height: 20px;
+  width: 20px;
+  padding: 8px;
+  background: #fff;
+  border: 1px solid black;
+  color: #000;
+  text-align: center;
+}
+.accomplished{
+  background-color: #65BE67;
+  color: #FFFFFF;
+}

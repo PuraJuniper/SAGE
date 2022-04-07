@@ -6,6 +6,8 @@ import State, { SageNodeInitializedFreezerNode } from '../state';
 import { ICardForm } from './cardEditor';
 import { FriendlyResourceProps } from './nameHelpers';
 import { Card } from "react-bootstrap";
+import { Progress } from './topProgressBar';
+
 
 export type cardRow = string[];
 export type cardLayout = {
@@ -104,10 +106,10 @@ export class OuterCardForm extends React.Component<CardFormProps, CardFormState>
         const PageOne = this.props.innerCardForm.pageOne; // Variable name case matters (https://reactjs.org/docs/jsx-in-depth.html#choosing-the-type-at-runtime)
         const PageTwo = this.props.innerCardForm.pageTwo;
         const PageThree = this.props.innerCardForm.pageThree;
-        
         return (
             <div>
                 <h3 className="col-lg-10 col-md-9"><b>{this.pageTitles.get(this.state.step)}</b></h3>
+                <Progress pageTitle={this.pageTitles.get(this.state.step)} fhirType='activity'></Progress>
                 <div>{this.state.step == 1 ? <PageOne fieldElements={this.props.elementList} /> : null}</div>
                 {this.state.step == 2 ? <PageTwo conditionEditor={this.props.conditionEditor} /> : null}
                 {this.state.step == 3 ? <Card style={{ padding: "20px", margin: "10px", borderWidth: "2px", borderColor:'#2D2E74', borderRadius: '40px'}}>

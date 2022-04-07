@@ -8,6 +8,7 @@ import {faCaretRight, faCaretLeft} from  '@fortawesome/pro-solid-svg-icons';
 import State from "../../state";
 import { useRef, useState } from "react";
 import { Card } from "react-bootstrap";
+import {Progress} from "../topProgressBar"
 
 interface QuestionnaireEditorProps {
     planDefNode: SageNodeInitializedFreezerNode,
@@ -107,6 +108,7 @@ export const QuestionnaireEditor = (props: QuestionnaireEditorProps) => {
     return (
         <div>
             <div className='basic-page-titles'>{pageTitles.get(step)}</div>
+            <Progress pageTitle={pageTitles.get(step)} fhirType='questionaire'></Progress>
             {step === 1 ?
                 <StructorFrame ref={structorRef} questionnaireFromSage={questionnaireResource} questionnaireSavedCallback={handleQuestionnaireSaved} 
                     structorReadyCallback={()=>{return 0;}}

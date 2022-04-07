@@ -8,6 +8,7 @@ import { Container, Row, Col } from "react-bootstrap";
 import friendlyNames from "../../friendly-names.json";
 import { ACTIVITY_DEFINITION, allFormElems, friendlyResourceRoot, getBorderPropsForType, getFormElementListForResource } from "./nameHelpers";
 import { useNavigate } from "react-router-dom";
+import { Progress } from './topProgressBar';
 
 
 const SelectView = () => {
@@ -15,9 +16,10 @@ const SelectView = () => {
 
     return (
         <div>
-            <div className="row">
+           
                 <h3 className="col-lg-10 col-md-9"><b>What Is The Card Type?</b></h3>
-            </div>
+                <Progress pageTitle='What Is The Card Type?' fhirType = 'activity'></Progress>
+            
                 <Container fluid="lg">
                     <Row lg="4" md="3" sm="2" noGutters  style={{'justifyContent': 'center'}}>  
                         {
