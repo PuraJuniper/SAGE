@@ -9,6 +9,7 @@ import { PlanDefLoader } from "./planDefLoader";
 import SelectView from "./selectView"
 import BasicHomeView from "./home"
 import State, { StateVars, SageFreezerNode } from "../state";
+import Authoring from "./authoringInfo";
 
 export const StateContext = createContext<SageFreezerNode<StateVars>>(State.get());
 export const UiContext = createContext<SageFreezerNode<StateVars['ui']>>(State.get().ui);
@@ -56,6 +57,7 @@ export const BasicView = () => {
         <Routes>
             <Route element={basicViewLayout}>
                 <Route path="basic-home" element={<BasicHomeView />} />
+                <Route path="author" element={<Authoring />} />
                 <Route path="create" element={<SelectView />} />
                 <Route path="edit/:planDefPos" element={<PlanDefLoader />} />
                 <Route index element={<Collection />} />
