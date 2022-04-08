@@ -5,7 +5,7 @@ import State, { SageNodeInitializedFreezerNode } from '../state';
 
 import { ICardForm } from './cardEditor';
 import { FriendlyResourceProps } from './nameHelpers';
-import { Card } from "react-bootstrap";
+import { Card, Modal } from "react-bootstrap";
 import { Progress } from './topProgressBar';
 import Sidebar from './sidebar';
 
@@ -47,6 +47,7 @@ export class OuterCardForm extends React.Component<CardFormProps, CardFormState>
     sageState: any;
     cardHeader: JSX.Element;
     saveButton: JSX.Element;
+    saveDialog: JSX.Element;
     deleteCardButton: JSX.Element;
     pageTitles: Map<number, string>;
 
@@ -57,13 +58,31 @@ export class OuterCardForm extends React.Component<CardFormProps, CardFormState>
                 {this.props.resourceType ? this.props.resourceType?.FRIENDLY ?? "Unknown Resource Type" : ""}
             </b></h3>;
 
+        this.saveDialog =
+            <Modal show={true} size="sm">
+                <Modal.Header>
+                    Save Card?
+                </Modal.Header>
+                <Modal.Body>
+                    <button key="butSave" className="btn btn-secondary" type="button" onClick={()=> this.props.handleSaveResource()}>
+                    Save Card
+                    </button>
+                    <button key="butSave" className="btn btn-secondary" type="button" onClick={()=> this.props.handleSaveResource()}>
+                    Cancel
+                    </button>
+                </Modal.Body>
+            </Modal>;
+            
         this.saveButton =
-            <button key="butSave" className="navigate col-lg-2 col-md-3"
+            <button className="navigate col-lg-2 col-md-3"
                 type="button"
-                onClick={()=> this.props.handleSaveResource()}>
+                onClick={() => {
+                    this.saveDialog
+                }}>
                 Save Card&nbsp;
                 <FontAwesomeIcon key="butSaveIcon" icon={faCaretRight} />
             </button>;
+
 
         this.deleteCardButton =
             <button key="butDel" type='button' className="navigate col-lg-2 col-md-3"
