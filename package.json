@@ -99,6 +99,7 @@
     "react-dom": "^16.14.0",
     "react-router-dom": "^6.3.0",
     "react-select": "^5.2.2",
+    "react-step-progress-bar": "^1.0.3",
     "react-transition-group": "^4.4.2",
     "sanitize-caja": "^0.1.4",
     "url-loader": "^4.1.1",

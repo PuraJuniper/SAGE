@@ -9,6 +9,7 @@ import { faDownload, faCaretLeft } from '@fortawesome/pro-solid-svg-icons';
 import { SageNodeInitialized } from "../helpers/schema-utils";
 import { PLAN_DEFINITION } from "./nameHelpers";
 import { useNavigate } from "react-router-dom";
+import Sidebar from './sidebar';
 
 
 const Collection = () => {
@@ -16,7 +17,10 @@ const Collection = () => {
     const resources = State.get().bundle?.resources ?? [];
 
     return (
-        <div>
+        <div style={{display: "flex"}} >
+            <Sidebar pageType='generic' pageTitle='Saved Cards'></Sidebar>
+                <div style={{flexGrow: 1, margin: "50px"}}>
+
             <div className="row">
                 <h3 className="col-lg-10 col-md-9"><b>Saved Cards</b></h3>
                 <button className="navigate-reverse col-lg-2 col-md-3"
@@ -94,6 +98,7 @@ const Collection = () => {
                         })
                 }
                 {resources.length == 0 ? <div style={{ margin: "50px", marginTop: "40px" }}> <i>No Cards</i> </div> : undefined}
+            </div>
             </div>
         </div>
     );

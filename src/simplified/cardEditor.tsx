@@ -131,13 +131,11 @@ const createTextBoxElement = (fieldKey: string, friendlyFieldName: string, textP
     }
     fieldHandlers.push([fieldName, fieldContents, setField, fieldSaveHandler]);
     return (
-        <Form.Group key={fieldName + "-formGroup"} as={Col} controlId={fieldName}>
-            <Row className="page1-row-element">
-                <Row className="page1-label-and-input">
-                    <Form.Label key={fieldName + "-formLabel"} >{friendlyFieldName}</Form.Label>
-                    <Col className = 'page1-input-fields' key={fieldName + "-col"}>
-                            {returnVal()}
-                    </Col>
+        <Form.Group className="page1-formgroup" key={fieldName + "-formGroup"} as={Col} controlId={fieldName}>
+            <Row style={{margin: '0'}}>
+                <Row style={{margin: '0', width: '100%'}}>
+                    <Form.Label className="page1-input-fields-and-labels" key={fieldName + "-formLabel"} >{friendlyFieldName}</Form.Label>
+                    <InputGroup className="page1-input-fields-and-labels">{returnVal()}</InputGroup>     
                 </Row>
                 <Form.Text key={fieldName + "-formText"}>{textProps.caption}</Form.Text>
             </Row>
@@ -150,24 +148,22 @@ const createDropdownElement = (fieldKey: string, fieldFriendlyName: string, fiel
     fieldHandlers.push([fieldName, fieldContents, setField, fieldSaveHandler]);
     
     return (
-        <Form.Group key={fieldName + "-fromGroup"} as={Col} controlId={fieldKey}>
-            <Row className="page1-row-element">
-                <Form.Label key={fieldName + "-label"}>{fieldFriendlyName}</Form.Label>
-                <Col key={fieldName + "-col"} className = 'page1-input-fields'>
-                    <InputGroup key={fieldName + "-inputGroup"}>
-                        <Form.Control
-                            key={fieldName + "formControl"}
-                            as="select"
-                            defaultValue = {fieldContents}
-                            onChange={(e) => setField(e.currentTarget.value)}
-                        >
-                            <option hidden disabled value=''>{'--Please Select an Option--'}</option>
-                            {fieldElements.map((sType) => {
-                                return <option key={fieldKey + "-" + sType} value={sType}>{sType}</option>;
-                            })}
-                        </Form.Control>
-                    </InputGroup>
-                </Col>
+        <Form.Group className="page1-formgroup" key={fieldName + "-fromGroup"} as={Col} controlId={fieldKey}>
+            <Row style={{margin: '0'}}>
+                <Form.Label className="page1-input-fields-and-labels" key={fieldName + "-label"}>{fieldFriendlyName}</Form.Label>
+                <InputGroup className="page1-input-fields-and-labels" key={fieldName + "-inputGroup"}>
+                    <Form.Control
+                        key={fieldName + "formControl"}
+                        as="select"
+                        defaultValue = {fieldContents}
+                        onChange={(e) => setField(e.currentTarget.value)}
+                    >
+                        <option hidden disabled value=''>{'--Please Select an Option--'}</option>
+                        {fieldElements.map((sType) => {
+                            return <option key={fieldKey + "-" + sType} value={sType}>{sType}</option>;
+                        })}
+                    </Form.Control>
+                </InputGroup>
             </Row>
         </Form.Group>
     );
@@ -177,12 +173,12 @@ const createCodeableConceptElement = (fieldKey: string, fieldFriendlyName: strin
     const { fieldName, codeableConcept, setCodeableConcept, codeableConceptSaveHandler } = codeableConceptCardField(fieldKey, node);
     fieldHandlers.push([fieldName, codeableConcept, setCodeableConcept, codeableConceptSaveHandler]);
     return (
-        <Form.Group key={fieldName + "-fromGroup"} as={Col} controlId={fieldKey}>
-            <Row className="page1-row-element">
-                <Form.Label key={fieldName + "-label"}>{fieldFriendlyName}</Form.Label>
-                <Col key={fieldName + "-col"} className = 'page1-input-fields'>
+        <Form.Group className="page1-formgroup" key={fieldName + "-fromGroup"} as={Col} controlId={fieldKey}>
+            <Row style={{margin: '0'}}>
+                    <Form.Label className="page1-input-fields-and-labels" key={fieldName + "-label"}>{fieldFriendlyName}</Form.Label>
+                    <div className="page1-input-fields-and-labels">
                     <CodeableConceptEditor {...codeableConceptEditorPropsOverrides} curCodeableConcept={codeableConcept} setCurCodeableConcept={setCodeableConcept} />
-                </Col>
+                    </div>
             </Row>
         </Form.Group>
     );

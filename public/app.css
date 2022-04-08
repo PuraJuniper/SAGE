@@ -644,18 +644,13 @@ a {
   transition: all 500ms;
 }
 
-.page1-input-fields{
-  flex: 0 0 60%
+.page1-input-fields-and-labels{
+  flex: 0 0 90%
 }
-.page1-row-element{
-  padding: 0;
-  justify-content: flex-end
+.page1-formgroup{
+  flex-grow: 0.4;
 }
-.page1-label-and-input{
-  flex: 0 0 100%; 
-  margin: 0;
-  justify-content: flex-end
-}
+
 .basic-page-titles{
   font-weight: bold;
   font-size: large;
@@ -938,4 +933,26 @@ a {
   color: white;
 
 }
+.breadcrumb{
+  background-color: white;
+  justify-content: space-evenly;
 
+}
+.top-bread-crumb{
+  height: 1px;
+  background-color: #2D2E74;
+}
+.step-numbers{
+  border-radius: 50%;
+  height: 20px;
+  width: 20px;
+  padding: 8px;
+  background: #fff;
+  border: 1px solid black;
+  color: #000;
+  text-align: center;
+}
+.accomplished{
+  background-color: #65BE67;
+  color: #FFFFFF;
+}
