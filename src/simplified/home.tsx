@@ -46,7 +46,7 @@ const BasicHomeView = () => {
              <Sidebar pageType='generic' pageTitle='Home Page'></Sidebar>
              <div style={{flexGrow: 1, margin: "50px"}}>
             <div className="row">
-                <h3 id='page-title' className="col-lg-10 col-md-9">Home Page</h3>
+                <h3 id='page-title' className="col-lg-10 col-md-9">Home</h3>
             </div>
                 <Container fluid="lg">
                     <Row lg="4" md="3" sm="2" noGutters>
