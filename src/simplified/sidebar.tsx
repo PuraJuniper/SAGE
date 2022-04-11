@@ -18,7 +18,7 @@ const Sidebar = (props: SidebarProps) => {
                 <Card body style={{height: "100%"}}>
                     <div className="left-nav-button-group">
                         <Button className={(props.pageTitle == 'Authoring Information' ? "left-nav-button highlighted" : "left-nav-button")}>Authoring Information</Button>
-                        <Button className={(props.pageTitle == 'What Is The Card Type?' ? "left-nav-button highlighted" : "left-nav-button")}>What Is The Card Type?</Button>
+                        <Button className={(props.pageTitle == 'What is the card type?' ? "left-nav-button highlighted" : "left-nav-button")}>What is the card type?</Button>
                         <Button className={(props.pageTitle == 'What does the card do?' ? "left-nav-button highlighted" : "left-nav-button")}>What does the card do?</Button>
                         <Button className={(props.pageTitle == 'When is the card played?' ? "left-nav-button highlighted" : "left-nav-button")}>When is the card played?</Button>
                         <Button className={(props.pageTitle == 'Review card' ? "left-nav-button highlighted" : "left-nav-button")}>Review Card</Button>

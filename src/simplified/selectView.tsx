@@ -18,10 +18,10 @@ const SelectView = () => {
 
     return (
         <div style={{display: "flex"}} >
-                <Sidebar pageType='create card' pageTitle='What Is The Card Type?'></Sidebar>
+                <Sidebar pageType='create card' pageTitle='What is the card type?'></Sidebar>
                 <div style={{flexGrow: 1, margin: "50px"}}>
-                <h3  id='page-title' className="col-lg-10 col-md-9">What Is The Card Type?</h3>
-                <Progress pageTitle='What Is The Card Type?' fhirType = 'activity'></Progress>
+                <h3  id='page-title' className="col-lg-10 col-md-9">What is the card type?</h3>
+                <Progress pageTitle='What is the card type?' fhirType = 'activity'></Progress>
             
                 <Container fluid="lg">
                     <Row lg="4" md="3" sm="2" noGutters  style={{'justifyContent': 'center'}}>  
