@@ -100,7 +100,7 @@ export const BaseCard = (props: BaseCardProps) => {
                     navigate(`/edit/${State.get().bundle.resources.length-1}`);
                 }
                 if(props.title == 'Create Cards'){
-                    navigate('/create')
+                    navigate('/author')
                 }
                 if(props.title == 'View Cards'){
                     navigate('/view-cards')
