@@ -21,6 +21,16 @@ export const CqlWizardSelectCodes: React.FunctionComponent<CqlWizardSelectCodesP
     const [searchSystem, setSearchSystem] = useState<string>(ALL_SYSTEMS);
     const [isSearching, setIsSearching] = useState(false);
 
+    useEffect(() => {
+        if (props.wizState.codes.length === 0) {
+            wizDispatch(['setCodes', [{
+                code: 'test_code',
+                display: 'test code',
+                system: 'test',
+                version: 'test',
+            }]])
+        }
+    })
     const {
         wizState,
         wizDispatch,
@@ -28,7 +38,7 @@ export const CqlWizardSelectCodes: React.FunctionComponent<CqlWizardSelectCodesP
 
     return (
         <div className="cql-wizard-select-code-grid"> 
-            <Card className="cql-wizard-select-code-selection-grid" border="primary">
+            <Card className="cql-wizard-select-code-selection-grid" border="secondary">
                     <CSSTransition in={wizState.codes.length === 0} timeout={250} classNames="cql-wizard-content-transition" unmountOnExit>
                         <div className="cql-wizard-select-code-selection-empty text-muted">
                             <i>Search for a code on the right</i>

@@ -135,9 +135,7 @@ export const ConditionEditor: React.FC<ConditionEditorProps> = (props) => {
         <div>
         <React.StrictMode>
             <CqlWizardModal show={showWiz} initialWizState={currentlyEditedState.curWizState} onClose={handleClose} onSaveAndClose={handleSaveAndClose} />
-            <Button onClick={() => handleCreateExpression()} >
-                New Expression..
-            </Button>
+
             <ListGroup>
                 {draftConditions.flatMap(draft => {
                     return draft.curWizState !== null ? [
