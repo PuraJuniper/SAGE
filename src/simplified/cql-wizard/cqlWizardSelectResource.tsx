@@ -61,7 +61,7 @@ export const CqlWizardSelectResource: React.FunctionComponent<CqlWizardSelectRes
                 {rTypes.map(v => {
                     const selected = selectedRes == v;
                     return (
-                        <Button key={v} active={selected} variant={"outline-primary"} 
+                        <Button key={v} active={selected} variant={"outline-secondary"} 
                             onClick={async ()=>{
                                 if (isLoading) return;
                                 setIsLoading(true);
