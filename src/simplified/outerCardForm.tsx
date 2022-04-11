@@ -76,7 +76,6 @@ export class OuterCardForm extends React.Component<CardFormProps, CardFormState>
                 Cancel
             </button>;
 
-
         this.state = {
             step: 1,
             isOpen: false
@@ -130,14 +129,14 @@ export class OuterCardForm extends React.Component<CardFormProps, CardFormState>
                 </></div>
                 </div>
                 <Modal show={this.state.isOpen} size="sm">
-                    <Modal.Header>
+                    <Modal.Header className="justify-content-md-center">
                         Save Card?
                     </Modal.Header>
                     <Modal.Body>
                         <button key="butSave" className="btn btn-secondary" type="button" onClick={()=> this.props.handleSaveResource()}>
                         Save Card
                         </button>
-                        <button key="butSave" className="btn btn-secondary" type="button" onClick={()=> this.setState({ isOpen: false })}>
+                        <button key="butSave" className="btn btn-tertiary" style={{float: "right"}} type="button" onClick={()=> this.setState({ isOpen: false })}>
                         Cancel
                         </button>
                     </Modal.Body>
