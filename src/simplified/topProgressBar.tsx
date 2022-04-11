@@ -46,8 +46,8 @@ export class Progress extends React.Component<ProgressProps> {
             >
             {steps.map(step => (
                         <Step
+                          transitionDuration={1}
                           key={step.id}
-                          transition="scale"
                         >
                           {(props) => (
                               (props !== undefined)?
@@ -63,6 +63,7 @@ export class Progress extends React.Component<ProgressProps> {
           >
                 {steps.map(step => (
                           <Step
+                          transitionDuration={1}
                           key={step.id}
                           >
                             {() => (
