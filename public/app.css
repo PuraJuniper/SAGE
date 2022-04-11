@@ -32,6 +32,12 @@ span {
   border-color: #64be66;
 }
 
+.btn-tertiary {
+  background-color: white;
+  border-color: rgba(0,0,0,.2);
+  color: gray;
+}
+
 /* all of the following are required to clip text */
 span.fhir-element-value {
   width: 100%;
@@ -948,6 +954,7 @@ a {
   height: 1px;
   background-color: #2D2E74;
 }
+
 .step-numbers{
   border-radius: 50%;
   height: 20px;
