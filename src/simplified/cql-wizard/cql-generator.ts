@@ -1,5 +1,5 @@
 import axios, { AxiosRequestConfig } from "axios";
-import { EditableStateForCondition, AggregateType } from "../cardEditor";
+import { EditableStateForCondition, AggregateType } from "./conditionEditor";
 import { ElementFilter, CodeFilterType, DateFilterType, CodingFilter, DateFilter, RelativeDateUnit } from "./wizardLogic";
 
 interface CqlDefinition {

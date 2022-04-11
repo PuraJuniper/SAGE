@@ -1,9 +1,8 @@
 import State from "../../state";
 import { Moment } from "moment";
-import { SageCondition } from "../medicationRequestForm";
-import { EditableStateForCondition, AggregateType } from "../cardEditor";
 import { getConceptsOfValueSet, SageCodeConcept, SimplifiedProfiles } from "../../helpers/schema-utils";
 import { Coding } from "fhir/r4";
+import { AggregateType, EditableStateForCondition, SageCondition } from "./conditionEditor";
 
 // Pages of the wizard
 export enum WizardPage {
@@ -166,19 +165,12 @@ export function initFromState(state: WizardState | null): WizardState {
 }
 
 // Various types for filtering by FHIR element
-
-type GenericFilter = {
-    error: false
-};
 export interface ElementFilter {
     elementName: string,
-    filter: CodingFilter | DateFilter | BooleanFilter | BackboneFilter | PeriodFilter |  UnknownFilter,
+    filter: ElementFilterType,
 }
 
-export interface BackboneFilter extends GenericFilter {
-    type: "backbone",
-    subFilters: ElementFilter[]
-}
+export type ElementFilterType = CodingFilter | DateFilter | BooleanFilter | PeriodFilter |  UnknownFilter
 
 export interface CodingFilter {
     type: "coding",
@@ -278,7 +270,7 @@ export interface UnknownFilter {
 // Returns a filter type for the given element path in the profile identified by `url`
 // These filter types should include all information needed by the UI to know what controls should be displayed
 //  to the user for the element.
-async function getFilterType(url: string, elementFhirPath: string): Promise<CodingFilter | DateFilter | BooleanFilter | BackboneFilter | PeriodFilter | UnknownFilter> {
+async function getFilterType(url: string, elementFhirPath: string): Promise<ElementFilterType> {
     const unknownFilter: UnknownFilter = {
         type: "unknown",
         curValue: "test",
@@ -360,23 +352,6 @@ async function getFilterType(url: string, elementFhirPath: string): Promise<Codi
         }
         return booleanFilter;
     }
-    else if (elementSchema.type[0]?.code === "BackboneElement") {
-        console.debug("BackboneElement", elementSchema);
-        const reactionExpectedElems: string[] = ["severity"];
-        const subFilters = Promise.all(reactionExpectedElems.map(async ee => {
-            return {
-                elementName: ee,
-                filter: await getFilterType(url, elementFhirPath.concat(".", ee))
-            }
-        }
-        ))
-        const backboneFilter: BackboneFilter = {
-            type: "backbone",
-            subFilters: await subFilters,
-            error: false
-        }
-        return backboneFilter;
-    }
     else {
         console.debug("unknown", elementSchema);
         return unknownFilter;
@@ -411,9 +386,9 @@ export async function createExpectedFiltersForResType(resType: string): Promise<
             url = "http://hl7.org/fhir/StructureDefinition/Condition"
             break;
         case "Encounter":
-            expectedElements = ['status', 'statusHistory', 'class', 'classHistory', 'serviceType', 'priority', 'period', 
-            'hospitalization.admitSource','hospitalization.reAdmission','hospitalization.dietPreference','hospitalization.specialCourtesy',
-            'hospitalization.specialArrangement','hospitalization.dischargeDisposition']
+            expectedElements = ['status', 'class', 'serviceType', 'priority', 'period', 'hospitalization',
+                'classHistory.class', 'classHistory.period',
+                'statusHistory.status', 'statusHistory.period']
             url = "http://hl7.org/fhir/StructureDefinition/Encounter"
             break;
         case "Immunization":
@@ -487,7 +462,7 @@ export function getPrevPage(curPage: WizardPage, stepStatus: WizardState["pageSt
 }
 
 // Temporary storage/loading of wizard states for purpose of cql export feature
-const exprToWizStateMap: { [key: string]: EditableStateForCondition } = {};
+export const exprToWizStateMap: { [key: string]: EditableStateForCondition } = {};
 export function buildEditableStateFromCondition(condition: SageCondition): EditableStateForCondition {
     return exprToWizStateMap[condition.id] !== undefined ?
         exprToWizStateMap[condition.id] :

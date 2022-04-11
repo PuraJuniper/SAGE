@@ -1,10 +1,9 @@
 import { faCaretLeft, faCaretRight } from '@fortawesome/pro-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { PlanDefinitionActionCondition } from 'fhir/r4';
 import React from "react";
 import State, { SageNodeInitializedFreezerNode } from '../state';
 
-import { ICardForm, CardEditor, EditableStateForCondition } from './cardEditor';
+import { ICardForm } from './cardEditor';
 import { FriendlyResourceProps } from './nameHelpers';
 import { Card } from "react-bootstrap";
 
@@ -36,9 +35,7 @@ export type CardFormProps = {
     resourceType: FriendlyResourceProps,
     elementList: JSX.Element[],
     displayList: JSX.Element[],
-    draftConditions: EditableStateForCondition[],
-    persistEditedCondition: (newConditionState: EditableStateForCondition) => void,
-    generateNewCondition: () => EditableStateForCondition,
+    conditionEditor: JSX.Element,
     innerCardForm: ICardForm,
     handleSaveResource: ()=> void,
     handleDeleteResource: () => void,
@@ -65,7 +62,6 @@ export class OuterCardForm extends React.Component<CardFormProps, CardFormState>
                 <FontAwesomeIcon key="butSaveIcon" icon={faCaretRight} />
             </button>;
 
-        // TODO: fix this -- linked resources won't always be beside each other
         this.deleteCardButton =
             <button key="butDel" type='button' className="navigate col-lg-2 col-md-3"
                 onClick={() => {
@@ -113,7 +109,7 @@ export class OuterCardForm extends React.Component<CardFormProps, CardFormState>
             <div>
                 <div className='basic-page-titles'>{this.pageTitles.get(this.state.step)}</div>
                 <div>{this.state.step == 1 ? <PageOne fieldElements={this.props.elementList} /> : null}</div>
-                {this.state.step == 2 ? <PageTwo draftConditions={this.props.draftConditions} persistEditedCondition={this.props.persistEditedCondition} generateNewCondition={this.props.generateNewCondition} /> : null}
+                {this.state.step == 2 ? <PageTwo conditionEditor={this.props.conditionEditor} /> : null}
                 {this.state.step == 3 ? <Card style={{ padding: "20px", margin: "10px", borderWidth: "2px", borderColor:'rgb(42, 107, 146)', borderRadius: '40px'}}>
                                         <Card.Title>{this.props.resourceType.FRIENDLY}</Card.Title>
                                         <Card.Body><PageThree displayElements={this.props.displayList}/></Card.Body>

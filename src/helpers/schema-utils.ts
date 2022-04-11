@@ -405,7 +405,7 @@ export const buildChildNode = function (profiles: SimplifiedProfiles, parentNode
 		name = name.replace("[x]", capType);
 	}
 
-	if ((schema.max !== "1") && !["valueArray", "objectArray", "resource"].includes(parentNode.nodeType)) {
+	if ((schema.max !== "1") && !["valueArray", "objectArray"].includes(parentNode.nodeType)) {
 		const result: SageNodeInitialized = {
 			id: nextId++,
 			name,
@@ -1075,11 +1075,7 @@ export async function getConceptsOfValueSet(valueSet: ValueSet, valueSetDefs: Si
 					})
 				)
 			}
-			else if (include.filter) {
-				if (include.system !== "http://snomed.info/sct") {
-					console.log(warningText(`SAGE only supports "include.filter" for SNOMEDCT. Some codes may be missing`));
-					continue;
-				}
+			else if (include.filter && include.system == "http://snomed.info/sct") {
 				let filteredElements: SageCodeConcept[] = [];
 				let firstFilter = true;
 				for (const filter of include.filter) {
@@ -1102,6 +1098,9 @@ export async function getConceptsOfValueSet(valueSet: ValueSet, valueSetDefs: Si
 				codesOfValueSet.push(...filteredElements)
 			}
 			else {
+				if (include.filter) {
+					console.log(warningText(`SAGE only supports "include.filter" for SNOMEDCT. Some codes may be missing`));
+				}
 				// Add everything from system
 				const codeSystemDef = codeSystemDefs[include.system];
 				if (codeSystemDef) {

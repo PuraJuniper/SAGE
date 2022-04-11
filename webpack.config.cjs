@@ -16,8 +16,8 @@ module.exports = (env) => {
 			},
 			proxy: {
 				// '/authoring': 'http://localhost:9000',
-				'/structor': 'http://localhost:9001',
-				'/iframe': 'http://localhost:9001', // also for structor
+				// '/structor': 'http://localhost:9001',
+				// '/iframe': 'http://localhost:9001', // also for structor
 			},
 			port: 8083,
 			allowedHosts: [

@@ -582,7 +582,7 @@ const PeriodFilterCard: React.FC<PeriodFilterCardProps> = (props) => {
         <Card>
             <Card.Body>
                 <Card.Title className="cql-wizard-element-filters-header">
-                    {`${props.elementFilter.elementName[0].toUpperCase()}${props.elementFilter.elementName.slice(1)}`}
+                    {cardTitleCapitalizing(props.elementFilter)}
                     
                     <ToggleButtonGroup
                         type="radio"
