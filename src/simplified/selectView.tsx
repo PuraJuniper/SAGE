@@ -2,7 +2,7 @@ import React from 'react';
 import { BaseCard } from "./baseCard";
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faCaretRight, faInfoCircle, faUserDoctor } from '@fortawesome/pro-solid-svg-icons';
+import { faUserDoctor,faCaretLeft } from '@fortawesome/pro-solid-svg-icons';
 import State from "../state";
 import { Container, Row, Col } from "react-bootstrap";
 import friendlyNames from "../../friendly-names.json";
@@ -60,9 +60,9 @@ const SelectView = () => {
                         }
                     </Row>
                 </Container>
-            <button key="butDel" type='button' className="navigate col-lg-2 col-md-3"
-                onClick={() => navigate('/basic-home')}>
-                    Back
+            <button  type='button' className="navigate-reverse col-lg-2 col-md-3"
+                onClick={() => navigate('/author')}>
+                {<> <FontAwesomeIcon icon={faCaretLeft} /> {" Previous"} </>}
             </button>
             </div>
         </div>

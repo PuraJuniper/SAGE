@@ -681,6 +681,12 @@ a {
 .cql-wizard-pagination-text {
   text-align: center;
 }
+#cql-wizard-pagination-item{
+    color: black;
+    background-color: white;
+    border-color: #000;
+
+}
 
 .cql-wizard-body-content {
   height: 100%;
