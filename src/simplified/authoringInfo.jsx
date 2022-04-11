@@ -1,10 +1,11 @@
 import React from "react";
 import "react-step-progress-bar/styles.css";
-import { ProgressBar, Step } from "react-step-progress-bar";
 import { Col, Container, Row } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import Sidebar from "./sidebar";
 import { Progress } from "./topProgressBar";
+import { faCaretLeft, faCaretRight } from '@fortawesome/pro-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 
 const activityPlanSteps =
@@ -214,13 +215,13 @@ const NavButtons = () => {
 
     return (
         <div style={{display: "flex", marginTop: '1rem'}} >
-            <button  type='button' className="navigate col-lg-2 col-md-3"
+            <button  type='button' className="navigate-reverse col-lg-2 col-md-3"
                 onClick={() => navigate('/basic-home')}>
-                    Back
+                {<> <FontAwesomeIcon icon={faCaretLeft} /> {" Home"} </>}
             </button>
             <button  type='button' className="navigate col-lg-2 col-md-3"
                 onClick={() => navigate('/create')}>
-                    Next
+                {<> {"Next "} <FontAwesomeIcon icon={faCaretRight} /></>}
             </button>
             
         </div>

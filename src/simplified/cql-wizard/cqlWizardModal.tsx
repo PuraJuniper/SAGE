@@ -64,7 +64,7 @@ export const CqlWizardModal: React.FunctionComponent<CqlWizardModalProps> = (pro
     
     // Page items for header pagination
     const paginationItems = WizardPagesArr.map((v) => 
-        <Pagination.Item key={v} active={page==v}
+        <Pagination.Item key={v} active={page==v} id='cql-wizard-pagination-item'
             disabled={pageStatus[v] === StepStatus.Disabled || pageStatus[v] === StepStatus.Skipped}
             onClick={() => wizardDispatch(['changePage', v])}
         >
