@@ -30,6 +30,7 @@ export type displayBoxProps = {
 }
 export interface CardFormState {
     step: number;
+    isOpen: boolean;
 }
 
 export type CardFormProps = {
@@ -44,10 +45,8 @@ export type CardFormProps = {
     handleDeleteResource: () => void,
 }
 export class OuterCardForm extends React.Component<CardFormProps, CardFormState>{
-    sageState: any;
     cardHeader: JSX.Element;
     saveButton: JSX.Element;
-    saveDialog: JSX.Element;
     deleteCardButton: JSX.Element;
     pageTitles: Map<number, string>;
 
@@ -57,32 +56,16 @@ export class OuterCardForm extends React.Component<CardFormProps, CardFormState>
             <h3 key="cardName" style={{ marginTop: "20px", marginBottom: "10px" }}><b>
                 {this.props.resourceType ? this.props.resourceType?.FRIENDLY ?? "Unknown Resource Type" : ""}
             </b></h3>;
-
-        this.saveDialog =
-            <Modal show={true} size="sm">
-                <Modal.Header>
-                    Save Card?
-                </Modal.Header>
-                <Modal.Body>
-                    <button key="butSave" className="btn btn-secondary" type="button" onClick={()=> this.props.handleSaveResource()}>
-                    Save Card
-                    </button>
-                    <button key="butSave" className="btn btn-secondary" type="button" onClick={()=> this.props.handleSaveResource()}>
-                    Cancel
-                    </button>
-                </Modal.Body>
-            </Modal>;
             
         this.saveButton =
             <button className="navigate col-lg-2 col-md-3"
                 type="button"
                 onClick={() => {
-                    this.saveDialog
+                    this.setState({ isOpen: true })
                 }}>
                 Save Card&nbsp;
                 <FontAwesomeIcon key="butSaveIcon" icon={faCaretRight} />
             </button>;
-
 
         this.deleteCardButton =
             <button key="butDel" type='button' className="navigate col-lg-2 col-md-3"
@@ -95,7 +78,8 @@ export class OuterCardForm extends React.Component<CardFormProps, CardFormState>
 
 
         this.state = {
-            step: 1
+            step: 1,
+            isOpen: false
         };
 
         this.pageTitles = new Map([
@@ -145,6 +129,19 @@ export class OuterCardForm extends React.Component<CardFormProps, CardFormState>
                     {this.deleteCardButton}
                 </></div>
                 </div>
+                <Modal show={this.state.isOpen} size="sm">
+                    <Modal.Header>
+                        Save Card?
+                    </Modal.Header>
+                    <Modal.Body>
+                        <button key="butSave" className="btn btn-secondary" type="button" onClick={()=> this.props.handleSaveResource()}>
+                        Save Card
+                        </button>
+                        <button key="butSave" className="btn btn-secondary" type="button" onClick={()=> this.setState({ isOpen: false })}>
+                        Cancel
+                        </button>
+                    </Modal.Body>
+                </Modal>;
             </div>
         );
     }
