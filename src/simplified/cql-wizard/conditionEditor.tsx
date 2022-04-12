@@ -185,7 +185,6 @@ export const ConditionEditor: React.FC<ConditionEditorProps> = (props) => {
                                         Should Exist
                                     </Button>
                                     <InputGroup>
-                                        <InputGroup.Prepend>
                                             <Button variant="outline-primary" active={draft.exprAggregate.aggregate === AggregateType.AtLeast}
                                                 onClick={()=>handleConditionAggregate(draft, { ...draft.exprAggregate, aggregate: AggregateType.AtLeast })}
                                             >
@@ -196,7 +195,6 @@ export const ConditionEditor: React.FC<ConditionEditorProps> = (props) => {
                                             >
                                                 No More Than
                                             </Button>
-                                        </InputGroup.Prepend>
                                         <Form.Control
                                             placeholder="Count for aggregate"
                                             type="number"

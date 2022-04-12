@@ -614,9 +614,7 @@ const PeriodFilterCard: React.FC<PeriodFilterCardProps> = (props) => {
                     return (
                         <Card key={v} body>
                             <InputGroup className="mb-3">
-                                <InputGroup.Prepend>
                                     <InputGroup.Text id="basic-addon1">{displayText}</InputGroup.Text>
-                                </InputGroup.Prepend>
                                 <ToggleButtonGroup
                                     type="radio"
                                     name={`${props.elementFilter.elementName}-${v}-date-type`}
