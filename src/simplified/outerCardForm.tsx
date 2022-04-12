@@ -5,7 +5,7 @@ import State, { SageNodeInitializedFreezerNode } from '../state';
 
 import { ICardForm } from './cardEditor';
 import { FriendlyResourceProps } from './nameHelpers';
-import { Card } from "react-bootstrap";
+import { Card, Modal } from "react-bootstrap";
 import { Progress } from './topProgressBar';
 import Sidebar from './sidebar';
 
@@ -30,6 +30,7 @@ export type displayBoxProps = {
 }
 export interface CardFormState {
     step: number;
+    isOpen: boolean;
 }
 
 export type CardFormProps = {
@@ -44,7 +45,6 @@ export type CardFormProps = {
     handleDeleteResource: () => void,
 }
 export class OuterCardForm extends React.Component<CardFormProps, CardFormState>{
-    sageState: any;
     cardHeader: JSX.Element;
     saveButton: JSX.Element;
     deleteCardButton: JSX.Element;
@@ -56,11 +56,13 @@ export class OuterCardForm extends React.Component<CardFormProps, CardFormState>
             <h3 key="cardName" style={{ marginTop: "20px", marginBottom: "10px" }}><b>
                 {this.props.resourceType ? this.props.resourceType?.FRIENDLY ?? "Unknown Resource Type" : ""}
             </b></h3>;
-
+            
         this.saveButton =
-            <button key="butSave" className="navigate col-lg-2 col-md-3"
+            <button className="navigate col-lg-2 col-md-3"
                 type="button"
-                onClick={()=> this.props.handleSaveResource()}>
+                onClick={() => {
+                    this.setState({ isOpen: true })
+                }}>
                 Save Card&nbsp;
                 <FontAwesomeIcon key="butSaveIcon" icon={faCaretRight} />
             </button>;
@@ -74,9 +76,9 @@ export class OuterCardForm extends React.Component<CardFormProps, CardFormState>
                 Cancel
             </button>;
 
-
         this.state = {
-            step: 1
+            step: 1,
+            isOpen: false
         };
 
         this.pageTitles = new Map([
@@ -126,6 +128,19 @@ export class OuterCardForm extends React.Component<CardFormProps, CardFormState>
                     {this.deleteCardButton}
                 </></div>
                 </div>
+                <Modal show={this.state.isOpen} size="sm">
+                    <Modal.Header className="justify-content-md-center">
+                        Save Card?
+                    </Modal.Header>
+                    <Modal.Body>
+                        <button key="butSave" className="btn btn-secondary" type="button" onClick={()=> this.props.handleSaveResource()}>
+                        Save Card
+                        </button>
+                        <button key="butSave" className="btn btn-tertiary" style={{float: "right"}} type="button" onClick={()=> this.setState({ isOpen: false })}>
+                        Cancel
+                        </button>
+                    </Modal.Body>
+                </Modal>;
             </div>
         );
     }
