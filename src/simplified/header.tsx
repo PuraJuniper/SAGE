@@ -11,7 +11,9 @@ export const Header: React.FC = () => {
 
     return (
         <Navbar sticky="top" className="navbar-custom">
-            <Navbar.Brand>SAGE Basic</Navbar.Brand>
+            <Navbar.Brand>         
+            <img alt="Sage Logo" src="../img/WhiteSageLogo-colour.png" height="30"/> Basic
+            </Navbar.Brand>
 			<Nav.Link key='home-button' onClick={() => navigate('/basic-home')}>
 			<FontAwesomeIcon key="butSaveIcon" icon={faHomeLgAlt} style={{'color':'white','height':'30px','marginRight':'3rem'}} />
 			</Nav.Link>
