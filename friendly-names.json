@@ -63,7 +63,7 @@
                   ]
                 },
                 {
-                  "SELF": { "FHIR": "text", "FRIENDLY": "Free text dosage instructions: " }
+                  "SELF": { "FHIR": "text", "FRIENDLY": "Auto-generated dosage instructions: " }
                 }
               ]
             },

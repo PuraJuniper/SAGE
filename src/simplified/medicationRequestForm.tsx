@@ -33,10 +33,10 @@ export class MedicationRequestForm implements ICardForm {
             caption: ""
         }],
         ['text', {
-            boxSize: 4,
-            isReadOnly: false,
+            boxSize: 1,
+            isReadOnly: true,
             isLink: false,
-            caption: "NOTE: For advanced timing instructions, leave basic dosage sentence blank."
+            caption: ""
 
         }],
         ['frequency', {
@@ -107,19 +107,19 @@ export class MedicationRequestForm implements ICardForm {
 
         }],
         ['frequency', {
-            className: "display-page-dosage-small",
+            className: "",
             displayFieldTitle: true,
         }],
         ['period', {
-            className: "display-page-dosage-small",
+            className: "",
             displayFieldTitle: true,
         }],
         ['value', {
-            className: "display-page-dosage-medium",
+            className: "",
             displayFieldTitle: true,
         }],
         ['unit', {
-            className: "display-page-dosage-small",
+            className: "",
             displayFieldTitle: true,
         }],
         ['productDescription', {
@@ -143,12 +143,12 @@ export class MedicationRequestForm implements ICardForm {
             cardColumns: [
                 ['placeholder', 'placeholder'],
                 ['title', 'productCodeableConcept'],
-                ['description', 'text'],
-                ['status', 'value'],
-                ['intent', 'unit'],
-                ['resource', 'frequency'],
-                ['type', 'period'],
-                ['placeholder', 'periodUnit'],
+                ['description', 'value'],
+                ['status', 'unit'],
+                ['intent', 'frequency'],
+                ['resource', 'period'],
+                ['type', 'periodUnit'],
+                ['placeholder', 'text'],
                 ['placeholder', 'placeholder'],
             ]
 
