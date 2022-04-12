@@ -59,6 +59,7 @@ export default class Authoring extends React.Component {
             <h3  id='page-title' className="col-lg-10 col-md-9">Authoring Information</h3>
             <Progress pageTitle='Authoring Information' fhirType = 'activity'></Progress>
              
+             <p style={{fontSize: "12px", fontWeight: "bold"}}><span style={{color: "red"}}>*</span> represents required fields.</p>
             
             <Container>
                 <Row className="row">
