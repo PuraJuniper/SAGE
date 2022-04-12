@@ -107,19 +107,19 @@ export class MedicationRequestForm implements ICardForm {
 
         }],
         ['frequency', {
-            className: "",
+            className: "display-page-dosage-small",
             displayFieldTitle: true,
         }],
         ['period', {
-            className: "",
+            className: "display-page-dosage-small",
             displayFieldTitle: true,
         }],
         ['value', {
-            className: "",
+            className: "display-page-dosage-medium",
             displayFieldTitle: true,
         }],
         ['unit', {
-            className: "",
+            className: "display-page-dosage-small",
             displayFieldTitle: true,
         }],
         ['productDescription', {
