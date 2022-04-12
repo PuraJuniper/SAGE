@@ -42,14 +42,14 @@ export const CqlWizardSelectCodes: React.FunctionComponent<CqlWizardSelectCodesP
                                         placement="right"
                                         overlay={
                                             <Popover id={`code-popover-${v.display}`}>
-                                                <Popover.Title as="h3">{`${v.display}`}</Popover.Title>
-                                                <Popover.Content>
+                                                <Popover.Header as="h3">{`${v.display}`}</Popover.Header>
+                                                <Popover.Body>
                                                     {`System: ${v.system}`}
                                                     <br />
                                                     {`Code: ${v.code}`}
                                                     <br />
                                                     {v.version ? `Version: ${v.version}` : null}
-                                                </Popover.Content>
+                                                </Popover.Body>
                                             </Popover>
                                         }
                                     >
@@ -92,7 +92,6 @@ export const CqlWizardSelectCodes: React.FunctionComponent<CqlWizardSelectCodesP
                     <Form.Control as="select"
                         onChange={(e) => setSearchSystem(e.target.value)} 
                         value={searchSystem}
-                        custom
                     >
                         <option key={ALL_SYSTEMS} value={ALL_SYSTEMS}>All Systems</option>
                         {Object.keys(Bioportal.ontologyToSystemAndVersion).map((system) => {
@@ -120,10 +119,10 @@ export const CqlWizardSelectCodes: React.FunctionComponent<CqlWizardSelectCodesP
                                             placement="right"
                                             overlay={
                                                 <Popover id={`search-result-popover-${v.system}-${v.code}`}>
-                                                    <Popover.Content>
+                                                    <Popover.Body>
                                                         {v.__sageDefinitions ? [`Definition(s): ${v.__sageDefinitions.join(", ")}`, <br key="__sageDefinitions-br" />] : null}
                                                         {v.__sageSynonyms ? `Synonym(s): ${v.__sageSynonyms.join(", ")}` : null}
-                                                    </Popover.Content>
+                                                    </Popover.Body>
                                                 </Popover>
                                             }
                                         >

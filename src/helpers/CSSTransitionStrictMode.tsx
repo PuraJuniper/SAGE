@@ -1,6 +1,7 @@
 import React, { useRef, useState } from "react";
 import { Overlay } from "react-bootstrap";
-import { OverlayChildren, Placement } from "react-bootstrap/esm/Overlay";
+import { OverlayChildren} from "react-bootstrap/esm/Overlay";
+import { Placement } from "react-bootstrap/esm/types";
 import CSSTransition, { CSSTransitionProps } from "react-transition-group/CSSTransition";
 
 type CSSTransitionStrictModeProps = CSSTransitionProps & {
