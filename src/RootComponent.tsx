@@ -135,7 +135,7 @@ class RootComponent extends React.Component<RootProps, RootState> {
 					<DomainResource node={state.bundle.resources[state.bundle.pos]} errFields={state.errFields}/>
 			);
 		} else if (state.ui.status.indexOf("error") === -1) {
-			return <div className="row" style={{marginTop: "60px", marginBottom: "60px"}}><div className="col-xs-offset-4 col-xs-4">
+			return <div>
 				<button className="btn btn-primary btn-block" onClick={this.handleOpen.bind(this)}>
 					Create Resource
 				</button>
@@ -150,7 +150,7 @@ class RootComponent extends React.Component<RootProps, RootState> {
 					}>
 					Advanced CPG
 				</button>
-			</div></div>;
+			</div>;
 		}
 		})();
 
