@@ -656,6 +656,12 @@ a {
 .page1-formgroup{
   flex-grow: 0.4;
 }
+.page1-dosage-small{
+  flex: 0 0 12%;
+}
+.page1-dosage-medium{
+  flex: 0 0 40%;
+}
 
 .basic-page-titles{
   font-weight: bold;
@@ -875,6 +881,7 @@ a {
 .display-page-productRefernce{
   flex: 0 0 35%;
 }
+
 .left-nav-button{
   margin-top: 1.5px;
   margin-bottom: 1.5px;

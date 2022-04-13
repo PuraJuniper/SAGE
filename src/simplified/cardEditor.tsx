@@ -130,14 +130,24 @@ const createTextBoxElement = (fieldKey: string, friendlyFieldName: string, textP
         }
     }
     fieldHandlers.push([fieldName, fieldContents, setField, fieldSaveHandler]);
-    return (
-        <Form.Group className="page1-formgroup" key={fieldName + "-formGroup"} as={Col} controlId={fieldName}>
-            <Row style={{margin: '0'}}>
-                <Row style={{margin: '0', width: '100%'}}>
-                    <Form.Label className="page1-input-fields-and-labels" key={fieldName + "-formLabel"} >{friendlyFieldName}</Form.Label>
-                    <InputGroup className="page1-input-fields-and-labels">{returnVal()}</InputGroup>     
-                </Row>
+    if((fieldName == 'period' || fieldName == 'frequency' || fieldName == 'duration')){
+        return(
+        <Form.Group className={textProps.className} key={fieldName + "-formGroup"}  controlId={fieldName}>
+            <div style={{'display':'flex', 'flexDirection': 'row'}} >
                 <Form.Text key={fieldName + "-formText"}>{textProps.caption}</Form.Text>
+                <InputGroup  >{returnVal()}</InputGroup>  
+            </div>
+        </Form.Group>
+        )
+    }
+    return (
+        <Form.Group className= "page1-formgroup" key={fieldName + "-formGroup"} as={Col} controlId={fieldName}>
+            <Row style={{margin: '0'}}>
+                    <Form.Label hidden={(textProps.hideFieldTitle == true) ? true:false} className="page1-input-fields-and-labels" key={fieldName + "-formLabel"} >{friendlyFieldName}</Form.Label>
+                    <Row style={{margin: '0', width:'100%'}}>
+                    <Form.Text key={fieldName + "-formText"}>{textProps.caption}</Form.Text>
+                    <InputGroup className={`${textProps.className} page1-input-fields-and-labels`}>{returnVal()}</InputGroup>  
+                    </Row>
             </Row>
         </Form.Group>
     );
@@ -147,6 +157,28 @@ const createDropdownElement = (fieldKey: string, fieldFriendlyName: string, fiel
     const [fieldName, fieldContents, setField, fieldSaveHandler] = simpleCardField(fieldKey, node);
     fieldHandlers.push([fieldName, fieldContents, setField, fieldSaveHandler]);
     
+    console.log(fieldName)
+
+    if(fieldName == 'periodUnit' || fieldName == 'durationUnit'){
+        return(
+            <Form.Group className='page1-dosage-medium' key={fieldName + "-fromGroup"} controlId={fieldKey}>
+                    <InputGroup key={fieldName + "-inputGroup"}>
+                        <Form.Control
+                            key={fieldName + "formControl"}
+                            as="select"
+                            defaultValue = {fieldContents}
+                            onChange={(e) => setField(e.currentTarget.value)}
+                        >
+                            <option hidden disabled value=''>{'--Please Select an Option--'}</option>
+                            {fieldElements.map((sType) => {
+                                return <option key={fieldKey + "-" + sType} value={sType}>{sType}</option>;
+                            })}
+                        </Form.Control>
+                    </InputGroup>
+            </Form.Group>
+        )
+    }
+
     return (
         <Form.Group className="page1-formgroup" key={fieldName + "-fromGroup"} as={Col} controlId={fieldKey}>
             <Row style={{margin: '0'}}>

@@ -18,7 +18,7 @@ export class MedicationRequestForm implements ICardForm {
             boxSize: 1,
             isReadOnly: false,
             isLink: false,
-            caption: ""
+            caption: "",
         }],
         ['description', {
             boxSize: 3,
@@ -43,13 +43,17 @@ export class MedicationRequestForm implements ICardForm {
             boxSize: 1,
             isReadOnly: false,
             isLink: false,
-            caption: ""
+            caption: "",
+            className: "page1-dosage-small",
+            hideFieldTitle: true,
         }],
         ['period', {
             boxSize: 1,
             isReadOnly: false,
             isLink: false,
-            caption: ""
+            caption: "",
+            className: "page1-dosage-small",
+            hideFieldTitle: true,
         }],
         ['value', {
             boxSize: 1,
@@ -67,7 +71,9 @@ export class MedicationRequestForm implements ICardForm {
             boxSize: 1,
             isReadOnly: false,
             isLink: false,
-            caption: ""
+            caption: "",
+            className: "page1-dosage-small",
+            hideFieldTitle: true,
         }]
     ]);
 
@@ -137,14 +143,12 @@ export class MedicationRequestForm implements ICardForm {
         {
             cardColumns: [
                 ['placeholder', 'placeholder'],
-                ['title', 'value'],
-                ['description', 'unit'],
-                ['status', 'frequency'],
-                ['intent', 'period'],
-                ['resource', 'periodUnit'],
-                ['type', 'duration'],
-                ['productCodeableConcept', 'durationUnit'],
-                ['placeholder', 'text'],
+                ['title', 'productCodeableConcept'],
+                ['description', 'value'],
+                ['status', 'unit'],
+                ['intent','timing' ],
+                ['resource','duration' ],
+                ['type', 'text'],
                 ['placeholder', 'placeholder'],
             ]
 
@@ -169,6 +173,25 @@ export class MedicationRequestForm implements ICardForm {
         const placeHolderElem =
             <Form.Group className="page1-formgroup" key='placeholder-formGroup' as={Col}>
             </Form.Group>;
+        console.log(props)
+        const timingElem =
+        <Col className="page1-formgroup formGroup"  key='timing-formGroup'>
+            <label htmlFor="">E.g. 2 doses per day for a week would be enterd as:</label>
+            <div style={{'display':'flex', 'flexDirection': 'row', 'whiteSpace':'nowrap', 'justifyContent':'flex-end'}} >
+                {props.fieldElements[0]}
+                dose(s) every 
+                {props.fieldElements[1]}
+                {props.fieldElements[9]}
+            </div>
+        </Col>
+        const durationElem =
+        <Col className="page1-formgroup formGroup"  key='duration-formGroup'>
+            <div style={{'display':'flex', 'flexDirection': 'row', 'whiteSpace':'nowrap', 'justifyContent':'flex-end'}} >
+                for
+                {props.fieldElements[2]}
+                {props.fieldElements[10]}
+            </div>
+        </Col>
         return (
             <>{
                 ...this.cardFieldLayout.cardColumns.map((cr, i: number) => {
@@ -176,6 +199,8 @@ export class MedicationRequestForm implements ICardForm {
                         <Row style={{justifyContent: 'center'}} key={"row-" + i} >
                             {cr.map(field =>
                                 [
+                                    durationElem,
+                                    timingElem,
                                     placeHolderElem,
                                     ...props.fieldElements
                                 ].find(elem =>

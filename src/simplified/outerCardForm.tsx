@@ -23,6 +23,8 @@ export type textBoxProps = {
     isReadOnly: boolean;
     isLink: boolean;
     caption: string;
+    className?: string;
+    hideFieldTitle?: boolean;
 }
 export type displayBoxProps = {
     className: string;
