@@ -24,16 +24,22 @@
                       "SELF": { "FHIR": "repeat", "FRIENDLY": "Repeat: " },
                       "FORM_ELEMENTS": [
                         {
-                          "SELF": { "FHIR": "frequency", "FRIENDLY": " dose(s):"}
+                          "SELF": { "FHIR": "frequency", "FRIENDLY": " Dose(s):"}
                         },
                         {
-                          "SELF": { "FHIR": "period", "FRIENDLY": "per: " }
+                          "SELF": { "FHIR": "period", "FRIENDLY": "Per: " }
                         },
                         {
                           "SELF": {
                             "FHIR": "periodUnit",
                             "FRIENDLY": "Unit (day,week,month, etc.):"
                           }
+                        },
+                        {
+                          "SELF": { "FHIR": "duration", "FRIENDLY": "Duration: " }
+                        },
+                        {
+                          "SELF": { "FHIR": "durationUnit", "FRIENDLY": "Duration Unit (day,week,month, etc.): " }
                         }
                       ]
                     }

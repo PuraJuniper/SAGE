@@ -21,7 +21,7 @@ export class MedicationRequestForm implements ICardForm {
             caption: ""
         }],
         ['description', {
-            boxSize: 4,
+            boxSize: 3,
             isReadOnly: false,
             isLink: false,
             caption: ""
@@ -63,18 +63,11 @@ export class MedicationRequestForm implements ICardForm {
             isLink: false,
             caption: ""
         }],
-        ['productDescription', {
-            boxSize: 3,
-            isReadOnly: false,
-            isLink: false,
-            caption: ""
-        }],
-        ['productReference', {
+        ['duration', {
             boxSize: 1,
             isReadOnly: false,
             isLink: false,
             caption: ""
-
         }]
     ]);
 
@@ -84,6 +77,8 @@ export class MedicationRequestForm implements ICardForm {
         ['intent',
             ['proposal', 'plan', 'order', 'original-order', 'reflex-order', 'filler-order', 'instance-order', 'option']],
         ['periodUnit',
+            ['h', 'd', 'wk', 'mo', 'a']],
+        ['durationUnit',
             ['h', 'd', 'wk', 'mo', 'a']],
         ['type',
             ['documentation', 'justification', 'citation', 'predecessor', 'successor', 'derived-from', 'depends-on', 'composed-of']]
@@ -142,12 +137,13 @@ export class MedicationRequestForm implements ICardForm {
         {
             cardColumns: [
                 ['placeholder', 'placeholder'],
-                ['title', 'productCodeableConcept'],
-                ['description', 'value'],
-                ['status', 'unit'],
-                ['intent', 'frequency'],
-                ['resource', 'period'],
-                ['type', 'periodUnit'],
+                ['title', 'value'],
+                ['description', 'unit'],
+                ['status', 'frequency'],
+                ['intent', 'period'],
+                ['resource', 'periodUnit'],
+                ['type', 'duration'],
+                ['productCodeableConcept', 'durationUnit'],
                 ['placeholder', 'text'],
                 ['placeholder', 'placeholder'],
             ]
