@@ -181,7 +181,7 @@ export class MedicationRequestForm implements ICardForm {
             <>{
                 ...this.cardFieldLayout.cardColumns.map((cr, i: number) => {
                     return (
-                        <Row key={"row-" + i} style={{'marginLeft': -100}}>
+                        <Row key={"row-" + i} >
                             {cr.map(field =>
                                 [
                                     freeTextplaceHolderElem,

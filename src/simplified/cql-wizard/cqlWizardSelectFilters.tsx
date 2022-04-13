@@ -131,9 +131,9 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
                             dispatchNewBooleanFilter(elementFilter.elementName, newBool)
                         }}
                     >
-                        <ToggleButton variant="outline-secondary" value={BooleanSelectOptions.Any}>Any</ToggleButton>
-                        <ToggleButton variant="outline-secondary" value={BooleanSelectOptions.True}>True</ToggleButton>
-                        <ToggleButton variant="outline-secondary" value={BooleanSelectOptions.False}>False</ToggleButton>
+                        <ToggleButton id={`${BooleanSelectOptions.Any}-${elementFilter.elementName}`} variant="outline-secondary" value={BooleanSelectOptions.Any}>Any</ToggleButton>
+                        <ToggleButton id={`${BooleanSelectOptions.True}-${elementFilter.elementName}`} variant="outline-secondary" value={BooleanSelectOptions.True}>True</ToggleButton>
+                        <ToggleButton id={`${BooleanSelectOptions.False}-${elementFilter.elementName}`} variant="outline-secondary" value={BooleanSelectOptions.False}>False</ToggleButton>
                     </ToggleButtonGroup>
                 </Card.Title>
             </Card.Body>
@@ -182,10 +182,10 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
                                         value={codeFilter.filteredCoding.filterType === CodeFilterType.None ? "Any" : "Specific"}
                                         onChange={selected => dispatchNewCodingFilter(elementFilter.elementName, selected === "Any" ? CodeFilterType.None : CodeFilterType.Filtered, codeFilter.filteredCoding.selectedIndexes)}
                                     >
-                                        <ToggleButton type="radio" variant="outline-secondary" value="Any">
+                                        <ToggleButton id={`Any-${elementFilter.elementName}`} type="checkbox" variant="outline-secondary" value="Any">
                                             Any Value
                                         </ToggleButton>
-                                        <ToggleButton type="radio" variant="outline-secondary" value="Specific">
+                                        <ToggleButton id={`Specific-${elementFilter.elementName}`} type="checkbox" variant="outline-secondary" value="Specific">
                                             Specific Value
                                         </ToggleButton>
                                     </ToggleButtonGroup>
@@ -375,9 +375,9 @@ const DateFilterCard: React.FC<DateFilterCardProps> = (props) => {
                             dispatchNewDateFilter(props.elementFilter.elementName, newFilterType)
                         }}
                     >
-                        <ToggleButton variant="outline-secondary" value={DateType.None}>{isAge ? "Any" : "Any Date"}</ToggleButton>
-                        <ToggleButton variant="outline-secondary" value={DateType.Relative}>{isAge ? "Age" : "Relative"}</ToggleButton>
-                        <ToggleButton variant="outline-secondary" value={DateType.Absolute}>{isAge ? "Date" : "Absolute"}</ToggleButton>
+                        <ToggleButton id={`${DateType.None}-${props.elementFilter.elementName}`} variant="outline-secondary" value={DateType.None}>{isAge ? "Any" : "Any Date"}</ToggleButton>
+                        <ToggleButton id={`${DateType.Relative}-${props.elementFilter.elementName}`} variant="outline-secondary" value={DateType.Relative}>{isAge ? "Age" : "Relative"}</ToggleButton>
+                        <ToggleButton id={`${DateType.Absolute}-${props.elementFilter.elementName}`} variant="outline-secondary" value={DateType.Absolute}>{isAge ? "Date" : "Absolute"}</ToggleButton>
                     </ToggleButtonGroup>
 
                     <ToggleButtonGroup
@@ -390,14 +390,14 @@ const DateFilterCard: React.FC<DateFilterCardProps> = (props) => {
                             switch(getDateTypeFromFilterType(props.dateFilter.filteredDate.filterType)) {
                                 case DateType.Absolute:
                                     return [
-                                        <ToggleButton key={DateFilterType.Before} variant="outline-secondary" value={DateFilterType.Before}>Before</ToggleButton>,
-                                        <ToggleButton key={DateFilterType.After} variant="outline-secondary" value={DateFilterType.After}>After</ToggleButton>,
-                                        <ToggleButton key={DateFilterType.Between} variant="outline-secondary" value={DateFilterType.Between}>Between</ToggleButton>
+                                        <ToggleButton id={`${DateFilterType.Before}-${props.elementFilter.elementName}`} key={DateFilterType.Before} variant="outline-secondary" value={DateFilterType.Before}>Before</ToggleButton>,
+                                        <ToggleButton id={`${DateFilterType.After}-${props.elementFilter.elementName}`} key={DateFilterType.After} variant="outline-secondary" value={DateFilterType.After}>After</ToggleButton>,
+                                        <ToggleButton id={`${DateFilterType.Between}-${props.elementFilter.elementName}`} key={DateFilterType.Between} variant="outline-secondary" value={DateFilterType.Between}>Between</ToggleButton>
                                     ];
                                 case DateType.Relative: 
                                     return [
-                                        <ToggleButton key={DateFilterType.OlderThan} variant="outline-secondary" value={DateFilterType.OlderThan}>Older than</ToggleButton>,
-                                        <ToggleButton key={DateFilterType.NewerThan} variant="outline-secondary" value={DateFilterType.NewerThan}>{isAge ? "Younger Than" : "Within last"}</ToggleButton>
+                                        <ToggleButton id={`${DateFilterType.OlderThan}-${props.elementFilter.elementName}`} key={DateFilterType.OlderThan} variant="outline-secondary" value={DateFilterType.OlderThan}>Older than</ToggleButton>,
+                                        <ToggleButton id={`${DateFilterType.NewerThan}-${props.elementFilter.elementName}`}  key={DateFilterType.NewerThan} variant="outline-secondary" value={DateFilterType.NewerThan}>{isAge ? "Younger Than" : "Within last"}</ToggleButton>
                                     ];
                                 case DateType.None:
                                     return undefined;
@@ -486,15 +486,15 @@ const DateFilterCard: React.FC<DateFilterCardProps> = (props) => {
                                     >
                                         {props.dateFilter.type === "date" ?
                                             [
-                                                <ToggleButton key="mins" variant="outline-primary" value={RelativeDateUnit.Minutes}>Minute(s)</ToggleButton>,
-                                                <ToggleButton key="hours" variant="outline-primary" value={RelativeDateUnit.Hours}>Hour(s)</ToggleButton>,
-                                                <ToggleButton key="days" variant="outline-primary" value={RelativeDateUnit.Days}>Day(s)</ToggleButton>,
+                                                <ToggleButton id={`${RelativeDateUnit.Minutes}-${props.elementFilter.elementName}`}  key="mins" variant="outline-primary" value={RelativeDateUnit.Minutes}>Minute(s)</ToggleButton>,
+                                                <ToggleButton id={`${RelativeDateUnit.Hours}-${props.elementFilter.elementName}`} key="hours" variant="outline-primary" value={RelativeDateUnit.Hours}>Hour(s)</ToggleButton>,
+                                                <ToggleButton id={`${RelativeDateUnit.Days}-${props.elementFilter.elementName}`} key="days" variant="outline-primary" value={RelativeDateUnit.Days}>Day(s)</ToggleButton>,
                                             ] :
                                             null
                                         }
-                                        <ToggleButton variant="outline-primary" value={RelativeDateUnit.Weeks}>Week(s)</ToggleButton>
-                                        <ToggleButton variant="outline-primary" value={RelativeDateUnit.Months}>Month(s)</ToggleButton>
-                                        <ToggleButton variant="outline-primary" value={RelativeDateUnit.Years}>Year(s)</ToggleButton>
+                                        <ToggleButton id={`${RelativeDateUnit.Weeks}-${props.elementFilter.elementName}`} variant="outline-primary" value={RelativeDateUnit.Weeks}>Week(s)</ToggleButton>
+                                        <ToggleButton id={`${RelativeDateUnit.Months}-${props.elementFilter.elementName}`} variant="outline-primary" value={RelativeDateUnit.Months}>Month(s)</ToggleButton>
+                                        <ToggleButton id={`${RelativeDateUnit.Years}-${props.elementFilter.elementName}`} variant="outline-primary" value={RelativeDateUnit.Years}>Year(s)</ToggleButton>
                                     </ToggleButtonGroup>
                                 </div>
                             )
@@ -600,8 +600,8 @@ const PeriodFilterCard: React.FC<PeriodFilterCardProps> = (props) => {
                             })
                         }}
                     >
-                        <ToggleButton variant="outline-secondary" value={PeriodDateType.Relative}>Relative</ToggleButton>
-                        <ToggleButton variant="outline-secondary" value={PeriodDateType.Absolute}>Absolute</ToggleButton>
+                        <ToggleButton id={`${PeriodDateType.Relative}-${props.elementFilter.elementName}`} variant="outline-secondary" value={PeriodDateType.Relative}>Relative</ToggleButton>
+                        <ToggleButton id={`${PeriodDateType.Absolute}-${props.elementFilter.elementName}`} variant="outline-secondary" value={PeriodDateType.Absolute}>Absolute</ToggleButton>
                     </ToggleButtonGroup>
                 </Card.Title>
                 {[PeriodDatePart.Start, PeriodDatePart.End].map(v => {
@@ -614,9 +614,7 @@ const PeriodFilterCard: React.FC<PeriodFilterCardProps> = (props) => {
                     return (
                         <Card key={v} body>
                             <InputGroup className="mb-3">
-                                <InputGroup.Prepend>
                                     <InputGroup.Text id="basic-addon1">{displayText}</InputGroup.Text>
-                                </InputGroup.Prepend>
                                 <ToggleButtonGroup
                                     type="radio"
                                     name={`${props.elementFilter.elementName}-${v}-date-type`}
@@ -628,9 +626,9 @@ const PeriodFilterCard: React.FC<PeriodFilterCardProps> = (props) => {
                                         })
                                     }}
                                 >
-                                    <ToggleButton variant="outline-secondary" value={PeriodDateFilterType.None}>At Any Time</ToggleButton>
-                                    <ToggleButton variant="outline-secondary" value={PeriodDateFilterType.Before}>Before</ToggleButton>
-                                    <ToggleButton variant="outline-secondary" value={PeriodDateFilterType.After}>After</ToggleButton>
+                                    <ToggleButton id={`${PeriodDateFilterType.None}-${props.elementFilter.elementName}`} variant="outline-secondary" value={PeriodDateFilterType.None}>At Any Time</ToggleButton>
+                                    <ToggleButton id={`${PeriodDateFilterType.Before}-${props.elementFilter.elementName}`} variant="outline-secondary" value={PeriodDateFilterType.Before}>Before</ToggleButton>
+                                    <ToggleButton id={`${PeriodDateFilterType.After}-${props.elementFilter.elementName}`} variant="outline-secondary" value={PeriodDateFilterType.After}>After</ToggleButton>
                                 </ToggleButtonGroup>
                             </InputGroup>
                             {filteredDate.dateType === PeriodDateType.Relative ?
@@ -665,12 +663,12 @@ const PeriodFilterCard: React.FC<PeriodFilterCardProps> = (props) => {
                                             } as PeriodDateFilter<PeriodDateType.Relative>)
                                         }
                                     >
-                                        <ToggleButton key="mins" variant="outline-primary" value={RelativeDateUnit.Minutes}>Minute(s)</ToggleButton>
-                                        <ToggleButton key="hours" variant="outline-primary" value={RelativeDateUnit.Hours}>Hour(s)</ToggleButton>
-                                        <ToggleButton key="days" variant="outline-primary" value={RelativeDateUnit.Days}>Day(s)</ToggleButton>
-                                        <ToggleButton variant="outline-primary" value={RelativeDateUnit.Weeks}>Week(s)</ToggleButton>
-                                        <ToggleButton variant="outline-primary" value={RelativeDateUnit.Months}>Month(s)</ToggleButton>
-                                        <ToggleButton variant="outline-primary" value={RelativeDateUnit.Years}>Year(s)</ToggleButton>
+                                        <ToggleButton id={`${RelativeDateUnit.Minutes}-${props.elementFilter.elementName}`} key="mins" variant="outline-primary" value={RelativeDateUnit.Minutes}>Minute(s)</ToggleButton>
+                                        <ToggleButton id={`${RelativeDateUnit.Hours}-${props.elementFilter.elementName}`} key="hours" variant="outline-primary" value={RelativeDateUnit.Hours}>Hour(s)</ToggleButton>
+                                        <ToggleButton id={`${RelativeDateUnit.Days}-${props.elementFilter.elementName}`} key="days" variant="outline-primary" value={RelativeDateUnit.Days}>Day(s)</ToggleButton>
+                                        <ToggleButton id={`${RelativeDateUnit.Weeks}-${props.elementFilter.elementName}`} variant="outline-primary" value={RelativeDateUnit.Weeks}>Week(s)</ToggleButton>
+                                        <ToggleButton id={`${RelativeDateUnit.Months}-${props.elementFilter.elementName}`} variant="outline-primary" value={RelativeDateUnit.Months}>Month(s)</ToggleButton>
+                                        <ToggleButton id={`${RelativeDateUnit.Years}-${props.elementFilter.elementName}`} variant="outline-primary" value={RelativeDateUnit.Years}>Year(s)</ToggleButton>
                                     </ToggleButtonGroup>
                                 </div> :
                                 <SingleDatePicker
