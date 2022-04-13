@@ -382,7 +382,7 @@ export async function createExpectedFiltersForResType(resType: string): Promise<
             url = "http://hl7.org/fhir/StructureDefinition/AllergyIntolerance"; // temporary
             break;
         case "Condition":
-            expectedElements = ['clinicalStatus', 'verificationStatus', 'category', 'onset[x]', 'abatement[x]', 'recordedDate', 'stage', 'stage.summary','stage.assessment','stage.type']
+            expectedElements = ['clinicalStatus', 'verificationStatus', 'category', 'onset[x]', 'abatement[x]', 'recordedDate', 'stage.summary','stage.type']
             url = "http://hl7.org/fhir/StructureDefinition/Condition"
             break;
         case "Encounter":
