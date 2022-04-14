@@ -386,7 +386,9 @@ export async function createExpectedFiltersForResType(resType: string): Promise<
             url = "http://hl7.org/fhir/StructureDefinition/Condition"
             break;
         case "Encounter":
-            expectedElements = ['status', 'class', 'serviceType', 'priority', 'period', 'hospitalization',
+            expectedElements = ['status', 'class', 'serviceType', 'priority', 'period',
+            'hospitalization.admitSource','hospitalization.reAdmission','hospitalization.dietPreference','hospitalization.specialCourtesy',
+            'hospitalization.specialArrangement','hospitalization.dischargeDisposition',
                 'classHistory.class', 'classHistory.period',
                 'statusHistory.status', 'statusHistory.period']
             url = "http://hl7.org/fhir/StructureDefinition/Encounter"
