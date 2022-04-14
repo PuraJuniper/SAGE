@@ -142,7 +142,7 @@ export class OuterCardForm extends React.Component<CardFormProps, CardFormState>
                         Cancel
                         </button>
                     </Modal.Body>
-                </Modal>;
+                </Modal>
             </div>
         );
     }

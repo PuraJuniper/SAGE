@@ -135,7 +135,7 @@ const createTextBoxElement = (fieldKey: string, friendlyFieldName: string, textP
         <Form.Group className={textProps.className} key={fieldName + "-formGroup"}  controlId={fieldName}>
             <div style={{'display':'flex', 'flexDirection': 'row'}} >
                 <Form.Text key={fieldName + "-formText"}>{textProps.caption}</Form.Text>
-                <InputGroup  >{returnVal()}</InputGroup>  
+                <InputGroup >{returnVal()}</InputGroup>  
             </div>
         </Form.Group>
         )

@@ -4,6 +4,8 @@ import { ICardForm } from "./cardEditor";
 import { FriendlyResourceProps } from "./nameHelpers";
 import { textBoxProps, displayBoxProps } from "./outerCardForm";
 import { CodeableConceptEditorProps } from "./codeableConceptEditor";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faInfoCircle } from "@fortawesome/pro-solid-svg-icons";
 
 export class MedicationRequestForm implements ICardForm {
 
@@ -172,25 +174,53 @@ export class MedicationRequestForm implements ICardForm {
     pageOne: ICardForm['pageOne'] = (props) => {
         const placeHolderElem =
             <Form.Group className="page1-formgroup" key='placeholder-formGroup' as={Col}>
-            </Form.Group>;
+            </Form.Group>
         console.log(props)
         const timingElem =
-        <Col className="page1-formgroup formGroup"  key='timing-formGroup'>
-            <label htmlFor="">E.g. 2 doses per day for a week would be enterd as:</label>
-            <div style={{'display':'flex', 'flexDirection': 'row', 'whiteSpace':'nowrap', 'justifyContent':'flex-end'}} >
-                {props.fieldElements[0]}
-                dose(s) every 
-                {props.fieldElements[1]}
-                {props.fieldElements[9]}
-            </div>
+        <Col className="page1-formgroup form-group"  key='timing-formGroup'>
+            <Row style={{margin: '0'}}>
+                <div style={{'display':'flex', 'flexDirection': 'row', 'whiteSpace':'nowrap','justifyContent':'flex-end','flex': '0 0 90%'}} >
+                    <span style={{ fontSize: "20px"}}>
+                        <div className="page1-tooltip">
+                            <FontAwesomeIcon icon={faInfoCircle} />
+                            <Card className="page1-tooltiptext">
+                                <div>E.g. 2 doses per day for a week would be expressed as:</div> 
+                                <div style={{'margin': "10px 0px",'display':'flex', 'flexDirection': 'row', 'whiteSpace':'nowrap', 'justifyContent':'flex-end','flex': '0 0 90%'}} >
+                                    <div className="page1-dosage-small-example">2</div>
+                                    <div style={{'margin': "0 10px"}}>dose(s) every</div> 
+                                    <div className="page1-dosage-small-example">1</div>
+                                    <select className="page1-dosage-medium-example" disabled>
+                                        <option value="">d</option>
+                                    </select>          
+                                </div>
+                                <div style={{'display':'flex', 'flexDirection': 'row', 'whiteSpace':'nowrap', 'justifyContent':'flex-end', 'flex': '0 0 90%'}} >
+                                    <div style={{'margin': "0 10px"}}>for</div> 
+                                    <div className="page1-dosage-small-example">1</div>
+                                    <select className="page1-dosage-medium-example" disabled>
+                                        <option value="">wk</option>
+                                    </select>   
+                                </div>
+                            </Card>
+                        </div>
+                    </span>
+                </div>
+                <div style={{'display':'flex', 'flexDirection': 'row', 'whiteSpace':'nowrap', 'justifyContent':'flex-end','flex': '0 0 90%'}} >
+                    {props.fieldElements[0]}
+                    <div style={{'margin': "0 10px"}}>dose(s) every</div> 
+                    {props.fieldElements[1]}
+                    {props.fieldElements[9]}
+                </div>
+            </Row>
         </Col>
         const durationElem =
         <Col className="page1-formgroup formGroup"  key='duration-formGroup'>
-            <div style={{'display':'flex', 'flexDirection': 'row', 'whiteSpace':'nowrap', 'justifyContent':'flex-end'}} >
-                for
-                {props.fieldElements[2]}
-                {props.fieldElements[10]}
-            </div>
+            <Row style={{margin: '0'}}>
+                <div style={{'display':'flex', 'flexDirection': 'row', 'whiteSpace':'nowrap', 'justifyContent':'flex-end', 'flex': '0 0 90%'}} >
+                    <div style={{'margin': "0 10px"}}>for</div> 
+                    {props.fieldElements[2]}
+                    {props.fieldElements[10]}
+                </div>
+            </Row>
         </Col>
         return (
             <>{
