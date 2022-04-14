@@ -621,12 +621,10 @@ a {
 }
 .page1-row-element{
   padding: 0;
-  justify-content: flex-end
 }
 .page1-label-and-input{
   flex: 0 0 100%; 
   margin: 0;
-  justify-content: flex-end
 }
 .basic-page-titles{
   font-weight: bold;
