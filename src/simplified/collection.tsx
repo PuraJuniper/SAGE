@@ -10,11 +10,13 @@ import { SageNodeInitialized } from "../helpers/schema-utils";
 import { PLAN_DEFINITION } from "./nameHelpers";
 import { useNavigate } from "react-router-dom";
 import Sidebar from './sidebar';
+import ExportDialog from '../dialogs/export-dialog';
 
 
 const Collection = () => {
     const navigate = useNavigate();
     const resources = State.get().bundle?.resources ?? [];
+    const [showExport, setShowExport] = useState(false);
 
     return (
         <div style={{display: "flex"}} >
@@ -29,7 +31,7 @@ const Collection = () => {
                     &nbsp;New Card
                 </button>
                 <button className="navigate-reverse col-lg-2 col-md-2"
-                    onClick={() => State.get().set("ui", { status: "export" })}>
+                    onClick={() => setShowExport(true)}>
                     <FontAwesomeIcon icon={faDownload} />
                     &nbsp;Export as FHIR Bundle
                 </button>
@@ -100,6 +102,7 @@ const Collection = () => {
                 {resources.length == 0 ? <div style={{ margin: "50px", marginTop: "40px" }}> <i>No Cards</i> </div> : undefined}
             </div>
             </div>
+            <ExportDialog show={showExport} bundle={State.get().bundle} handleClose={() => setShowExport(false)} />
         </div>
     );
 }
