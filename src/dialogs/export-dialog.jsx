@@ -17,13 +17,18 @@ import * as SchemaUtils from '../helpers/schema-utils';
 import * as BundleUtils from '../helpers/bundle-utils';
 import { saveAs } from 'file-saver';
 import { DATA_ELEMENT, fhirToFriendly, QUESTIONNAIRE } from '../simplified/nameHelpers';
+import _ from "lodash";
+
 class ExportDialog extends React.Component {
     shouldComponentUpdate(nextProps) {
         return nextProps.show !== this.props.show;
     }
-
     handleClose(errFields, e) {
+
         if (errFields.length > 0) State.emit("highlight_errors", errFields);
+        if (this.props.handleClose !== undefined) {
+            this.props.handleClose();
+        }
         return State.emit("set_ui", "closedialog");
     }
 
@@ -144,24 +149,26 @@ class ExportDialog extends React.Component {
     }
 
     render() {
-        if (!this.props.show) {
-            return null;
+        let errNotice = null;
+        let errCount = 0;
+        let errFields = [];
+        let jsonString = ""
+        if (this.props.show) {
+            ({ jsonString, errCount, errFields } = this.buildJson());
+            errNotice =
+                errCount > 0 ? (
+                    <div className="alert alert-danger">
+                        Note that this most recent resource has unresolved data entry errors:
+                        {errFields.map(function(f, idx) {return (<li key={idx}>{f}</li>)})}
+                    </div>
+                ) : (
+                    undefined
+                );
         }
-
-        const {jsonString, errCount, errFields} = this.buildJson();
-        const errNotice =
-            errCount > 0 ? (
-                <div className="alert alert-danger">
-                    Note that this most recent resource has unresolved data entry errors:
-                    {errFields.map(function(f, idx) {return (<li key={idx}>{f}</li>)})}
-                </div>
-            ) : (
-                undefined
-            );
 
         return (
             <Modal
-                show={true}
+                show={this.props.show}
                 onHide={() => { this.handleClose(errFields)}}
                 onKeyDown={this.handleKeyDown.bind(this)}
                 onKeyUp={this.handleKeyUp.bind(this)}

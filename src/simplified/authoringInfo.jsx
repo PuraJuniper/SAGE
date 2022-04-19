@@ -1,8 +1,9 @@
 import React from "react";
 import "react-step-progress-bar/styles.css";
 import { Col, Container, Row } from "react-bootstrap";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import Sidebar from "./sidebar";
+import State from "../state";
 import { Progress } from "./topProgressBar";
 import { faCaretLeft, faCaretRight } from '@fortawesome/pro-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -203,7 +204,24 @@ export default class Authoring extends React.Component {
                         />
                     </Col>
                 </Row>
-                <NavButtons/>
+                <NavButtons
+                    handleNext={() => {
+                        State.get().set({
+                            version: this.state.version,
+                            date: this.state.date,
+                            status: this.state.status,
+                            experimental: this.state.experimental,
+                            copyright: this.state.copyright,
+                            approvalDate: this.state.approvalDate,
+                            lastReviewDate: this.state.lastReviewDate,
+                            CPGName: this.state.CPGName,
+                            publisher: this.state.publisher,
+                            author: this.state.author,
+                            editor: this.state.editor,
+                            reviewer: this.state.reviewer,
+                        });
+                    }}
+                />
             </Container>
             </div>
         </div>
@@ -211,8 +229,10 @@ export default class Authoring extends React.Component {
 
         }
     }
-const NavButtons = () => {
+const NavButtons = (props) => {
     const navigate = useNavigate();
+    const [searchParams, _] = useSearchParams();
+    const nextPage = searchParams.get('next') ?? 'create'
 
     return (
         <div style={{display: "flex", marginTop: '1rem'}} >
@@ -221,7 +241,10 @@ const NavButtons = () => {
                 {<> <FontAwesomeIcon icon={faCaretLeft} /> {" Home"} </>}
             </button>
             <button  type='button' className="navigate col-lg-2 col-md-3"
-                onClick={() => navigate('/create')}>
+                onClick={() => {
+                    props.handleNext();
+                    navigate(`/${nextPage}`);
+                }}>
                 {<> {"Next "} <FontAwesomeIcon icon={faCaretRight} /></>}
             </button>
             
