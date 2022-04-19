@@ -23,6 +23,8 @@ export type textBoxProps = {
     isReadOnly: boolean;
     isLink: boolean;
     caption: string;
+    className?: string;
+    hideFieldTitle?: boolean;
 }
 export type displayBoxProps = {
     className: string;
@@ -140,7 +142,7 @@ export class OuterCardForm extends React.Component<CardFormProps, CardFormState>
                         Cancel
                         </button>
                     </Modal.Body>
-                </Modal>;
+                </Modal>
             </div>
         );
     }

@@ -656,6 +656,12 @@ a {
 .page1-formgroup{
   flex-grow: 0.4;
 }
+.page1-dosage-small{
+  flex: 0 0 12%;
+}
+.page1-dosage-medium{
+  flex: 0 0 50%;
+}
 
 .basic-page-titles{
   font-weight: bold;
@@ -875,6 +881,7 @@ a {
 .display-page-productRefernce{
   flex: 0 0 35%;
 }
+
 .left-nav-button{
   margin-top: 1.5px;
   margin-bottom: 1.5px;
@@ -968,4 +975,46 @@ a {
 .accomplished{
   background-color: #65BE67;
   color: #FFFFFF;
+}
+
+/* c-tooltipS */
+.page1-tooltip {
+  position: relative;
+  display: inline-block;
+  border-bottom: 1px dotted black;
+}
+
+.page1-tooltip .page1-tooltiptext {
+  visibility: hidden;
+  background-color: white;
+  color: red;
+  text-align: center;
+  border: 2px solid black;
+  border-radius: 6px;
+  padding: 10px;
+  font-size: large;
+  
+  /* Position the c-tooltip */
+  position: absolute;
+  bottom: 30px;
+  right: 10px;
+  z-index: 1;
+}
+
+.page1-tooltip:hover .page1-tooltiptext {
+  visibility: visible;
+}
+.page1-dosage-small-example{
+  flex: 0 0 10%;
+  background-color: white;
+  border: 1px solid grey;
+  border-radius: 5px;
+}
+.page1-dosage-medium-example{
+  flex: 0 0 50%;
+  background-color: white;
+  border: 1px solid grey;
+  border-radius: 5px;
+  opacity: 1;
+  color: red;
 }
