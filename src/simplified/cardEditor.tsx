@@ -168,7 +168,7 @@ const createDropdownElement = (fieldKey: string, fieldFriendlyName: string, fiel
                             defaultValue = {fieldContents}
                             onChange={(e) => setField(e.currentTarget.value)}
                         >
-                            <option hidden disabled value=''>{'--Please Select an Option--'}</option>
+                            <option hidden disabled value=''>{'Select...'}</option>
                             {fieldElements.map((sType) => {
                                 return <option key={fieldKey + "-" + sType} value={sType}>{sType}</option>;
                             })}
