@@ -157,7 +157,6 @@ const createDropdownElement = (fieldKey: string, fieldFriendlyName: string, fiel
     const [fieldName, fieldContents, setField, fieldSaveHandler] = simpleCardField(fieldKey, node);
     fieldHandlers.push([fieldName, fieldContents, setField, fieldSaveHandler]);
     
-    console.log(fieldName)
 
     if(fieldName == 'periodUnit' || fieldName == 'durationUnit'){
         return(
