@@ -989,10 +989,11 @@ a {
   background-color: white;
   color: red;
   text-align: center;
-  border: 2px solid black;
+  border: 1px solid grey;
   border-radius: 6px;
   padding: 10px;
-  font-size: large;
+  font-size: medium;
+  white-space: nowrap;
   
   /* Position the c-tooltip */
   position: absolute;
@@ -1017,4 +1018,8 @@ a {
   border-radius: 5px;
   opacity: 1;
   color: red;
+}
+
+.formfield-tooltip {
+  float: right;
 }

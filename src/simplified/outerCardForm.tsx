@@ -25,6 +25,7 @@ export type textBoxProps = {
     caption: string;
     className?: string;
     hideFieldTitle?: boolean;
+    hideFieldToolTip?: boolean;
 }
 export type displayBoxProps = {
     className: string;
