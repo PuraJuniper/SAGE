@@ -32,7 +32,7 @@ export class MedicationRequestForm implements ICardForm {
             boxSize: 1, 
             isReadOnly: false,
             isLink: false,
-            caption: ""
+            caption: "Related Artifact must be a valid URL."
         }],
         ['text', {
             boxSize: 1,
@@ -222,6 +222,7 @@ export class MedicationRequestForm implements ICardForm {
                 </div>
             </Row>
         </Col>
+
         return (
             <>{
                 ...this.cardFieldLayout.cardColumns.map((cr, i: number) => {

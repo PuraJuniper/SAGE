@@ -1,6 +1,6 @@
 import { CodeableConcept } from "fhir/r4";
 import React, { ElementType, useEffect, useState } from "react";
-import { Button, Col, Form, InputGroup, Modal, Row } from 'react-bootstrap';
+import { Button, Card, Col, Form, InputGroup, Modal, Row } from 'react-bootstrap';
 import * as SchemaUtils from "../helpers/schema-utils";
 import State, { SageNodeInitializedFreezerNode } from "../state";
 import { OuterCardForm, textBoxProps, cardLayout, displayBoxProps } from "./outerCardForm";
@@ -8,6 +8,9 @@ import { ACTIVITY_DEFINITION, allFormElems, convertFormElementToObject, formElem
 import { MedicationRequestForm } from "./medicationRequestForm";
 import { fhirToFriendly } from '../simplified/nameHelpers';
 import CodeableConceptEditor, { CodeableConceptEditorProps } from "./codeableConceptEditor";
+import { faInfoCircle } from "@fortawesome/pro-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { text } from "@fortawesome/fontawesome-svg-core";
 
 
 interface ExpressionOptionDict {
@@ -140,12 +143,22 @@ const createTextBoxElement = (fieldKey: string, friendlyFieldName: string, textP
         </Form.Group>
         )
     }
+    if (fieldName != "resource") {
+        textProps.hideFieldToolTip = true;
+    }
     return (
         <Form.Group className= "page1-formgroup" key={fieldName + "-formGroup"} as={Col} controlId={fieldName}>
             <Row style={{margin: '0'}}>
-                    <Form.Label hidden={(textProps.hideFieldTitle == true) ? true:false} className="page1-input-fields-and-labels" key={fieldName + "-formLabel"} >{friendlyFieldName}</Form.Label>
+                    <Form.Label hidden={(textProps.hideFieldTitle == true) ? true:false} className="page1-input-fields-and-labels" key={fieldName + "-formLabel"} >
+                        {friendlyFieldName}
+                        <div hidden={(textProps.hideFieldToolTip == true) ? true:false} className="page1-tooltip formfield-tooltip">
+                            <FontAwesomeIcon icon={faInfoCircle} className="" />
+                            <Card className="page1-tooltiptext">
+                                <div>{textProps.caption}</div>
+                            </Card>
+                        </div>
+                    </Form.Label>
                     <Row style={{margin: '0', width:'100%'}}>
-                    <Form.Text key={fieldName + "-formText"}>{textProps.caption}</Form.Text>
                     <InputGroup className={`${textProps.className} page1-input-fields-and-labels`}>{returnVal()}</InputGroup>  
                     </Row>
             </Row>
@@ -157,7 +170,6 @@ const createDropdownElement = (fieldKey: string, fieldFriendlyName: string, fiel
     const [fieldName, fieldContents, setField, fieldSaveHandler] = simpleCardField(fieldKey, node);
     fieldHandlers.push([fieldName, fieldContents, setField, fieldSaveHandler]);
     
-
     if(fieldName == 'periodUnit' || fieldName == 'durationUnit'){
         return(
             <Form.Group className='page1-dosage-medium' key={fieldName + "-fromGroup"} controlId={fieldKey}>
