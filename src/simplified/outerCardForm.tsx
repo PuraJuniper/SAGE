@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React from "react";
 import State, { SageNodeInitializedFreezerNode } from '../state';
 
-import { ICardForm } from './cardEditor';
+import { FieldHandlerProps, ICardForm } from './cardEditor';
 import { FriendlyResourceProps } from './nameHelpers';
 import { Card, Modal } from "react-bootstrap";
 import { Progress } from './topProgressBar';
@@ -39,7 +39,7 @@ export interface CardFormState {
 
 export type CardFormProps = {
     sageNode: SageNodeInitializedFreezerNode,
-    fieldHandlers: any[][],
+    fieldHandlers: Map<string, FieldHandlerProps>,
     resourceType: FriendlyResourceProps,
     elementList: JSX.Element[],
     displayList: JSX.Element[],

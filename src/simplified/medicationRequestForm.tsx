@@ -36,7 +36,7 @@ export class MedicationRequestForm implements ICardForm {
         }],
         ['text', {
             boxSize: 1,
-            isReadOnly: true,
+            isReadOnly: false,
             isLink: false,
             caption: "",
             autoGen: ['frequency', 'period', 'periodUnit', 'duration', 'durationUnit']
