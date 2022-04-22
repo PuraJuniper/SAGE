@@ -26,6 +26,7 @@ export type textBoxProps = {
     className?: string;
     hideFieldTitle?: boolean;
     hideFieldToolTip?: boolean;
+    autoGen?: string[];
 }
 export type displayBoxProps = {
     className: string;

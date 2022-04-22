@@ -122,12 +122,17 @@ const createTextBoxElement = (fieldKey: string, friendlyFieldName: string, textP
         } else {
             return <Form.Control key={fieldName + "-formControl"} className= {(fieldName == "resource") ? (((fieldContents == "")||validURL(fieldContents)) ? "" : "is-invalid") : ""}
                 {...{
-                    ...(textProps.isReadOnly) && { readOnly: textProps.isReadOnly },
+                    ...(textProps.isReadOnly) && { readOnly: textProps.isReadOnly, value: fieldHandlers[1][1] },
                     ...(textProps.boxSize) > 1 && { as: "textarea" as ElementType<any>, rows: textProps.boxSize },
                     ...{
                         type: "text",
                         defaultValue: fieldContents,
-                        onChange: (e: { currentTarget: { value: any; }; }) => setField(e.currentTarget.value)
+                        onChange: (e: { currentTarget: { value: any; }; }) => {
+                            setField(e.currentTarget.value);
+                            if (textProps.isReadOnly) {
+                                //  fieldHandlers[2][2](e.currentTarget.value);
+                            }
+                        }
                     }
                 }} />;
         }
