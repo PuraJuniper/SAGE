@@ -2,55 +2,54 @@ import React from 'react';
 import { BaseCard } from "./baseCard";
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faCaretRight, faInfoCircle } from '@fortawesome/pro-solid-svg-icons';
+import { faUserDoctor,faCaretLeft } from '@fortawesome/pro-solid-svg-icons';
 import State from "../state";
 import { Container, Row, Col } from "react-bootstrap";
 import friendlyNames from "../../friendly-names.json";
 import { ACTIVITY_DEFINITION, allFormElems, friendlyResourceRoot, getBorderPropsForType, getFormElementListForResource } from "./nameHelpers";
+import { useNavigate } from "react-router-dom";
+import { Progress } from './topProgressBar';
+import Sidebar from "./sidebar";
+
+
 
 const SelectView = () => {
-    return (
-        <div style={{ marginTop: "50px", paddingRight: "12px" }}>
-            <div className="row">
-                <h3 className="col-lg-10 col-md-9" style={{ color: "#2a6b92" }}><b>Make a Card</b></h3>
-                <button className="navigate col-lg-2 col-md-3"
-                    onClick={() => State.get().set("ui", { status: "collection" })}>
-                    Saved Cards&nbsp;<FontAwesomeIcon icon={faCaretRight} />
+    const navigate = useNavigate();
 
-                </button>
-            </div>
-            <div className="box">
+    return (
+        <div style={{display: "flex"}} >
+                <Sidebar pageType='create card' pageTitle='What is the card type?'></Sidebar>
+                <div style={{flexGrow: 1, margin: "50px"}}>
+                <h3  id='page-title' className="col-lg-10 col-md-9">What is the card type?</h3>
+                <Progress pageTitle='What is the card type?' fhirType = 'activity'></Progress>
+            
                 <Container fluid="lg">
-                    <Row lg="4" md="3" sm="2" noGutters>
+                    <Row lg="4" md="3" sm="2" noGutters  style={{'justifyContent': 'center'}}>  
                         {
-                            friendlyResourceRoot.RESOURCES.map(
+                            friendlyResourceRoot.RESOURCES
+                            .filter(subResType => subResType.SELF.FHIR === 'ActivityDefinition')
+                            .map(
                                 (resourceType) => {
                                     if (resourceType.LIST) {
                                         return resourceType.LIST
-                                        .filter(subResType => allFormElems(getFormElementListForResource(subResType.FHIR)).length > 0)
                                         .map(
                                             (resource, i) => {
                                                 return (
                                                     <div style={{ padding: "10px" }} key={resource.FHIR}>
                                                         <Col>
                                                             <BaseCard
-                                                                bsBg="sage-white"
-                                                                bsText="sage-blue"
-                                                                bsBorder={getBorderPropsForType(resourceType.SELF.FHIR)}
+                                                                bsBg="sage-beige"
+                                                                cardImage= {faUserDoctor}
+                                                                IconColor = 'black'
                                                                 header={resourceType.SELF.FRIENDLY}
                                                                 title={resource.FRIENDLY}
-                                                                content={
-                                                                    <span style={{ fontSize: "20px", textAlign: "right" }}>
-                                                                        <a href={resource.DEFAULT_PROFILE_URI} target="_blank" rel="noreferrer" className="c-tooltip">
-                                                                            <FontAwesomeIcon icon={faInfoCircle} />
-                                                                            <span className="c-tooltiptext">FHIR Docs</span>
-                                                                        </a>
-                                                                    </span>
-                                                                }
+                                                                hideHeader = {true}
                                                                 wait={i * 25}
                                                                 clickable={true}
                                                                 profile={resource.DEFAULT_PROFILE_URI}
-                                                            />
+                                                                titleSize='15px'
+                                                                IconSize= '50px'
+                                                            /> 
                                                         </Col>
                                                     </div>);
                                             }
@@ -61,9 +60,12 @@ const SelectView = () => {
                         }
                     </Row>
                 </Container>
+            <button  type='button' className="navigate-reverse col-lg-2 col-md-3"
+                onClick={() => navigate('/author')}>
+                {<> <FontAwesomeIcon icon={faCaretLeft} /> {" Previous"} </>}
+            </button>
             </div>
         </div>
     );
 }
-
 export default SelectView

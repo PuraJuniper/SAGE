@@ -24,16 +24,22 @@
                       "SELF": { "FHIR": "repeat", "FRIENDLY": "Repeat: " },
                       "FORM_ELEMENTS": [
                         {
-                          "SELF": { "FHIR": "frequency", "FRIENDLY": " dose(s):"}
+                          "SELF": { "FHIR": "frequency", "FRIENDLY": " Dose(s):"}
                         },
                         {
-                          "SELF": { "FHIR": "period", "FRIENDLY": "per: " }
+                          "SELF": { "FHIR": "period", "FRIENDLY": "Per: " }
                         },
                         {
                           "SELF": {
                             "FHIR": "periodUnit",
                             "FRIENDLY": "Unit (day,week,month, etc.):"
                           }
+                        },
+                        {
+                          "SELF": { "FHIR": "duration", "FRIENDLY": "Duration: " }
+                        },
+                        {
+                          "SELF": { "FHIR": "durationUnit", "FRIENDLY": "Duration Unit (day,week,month, etc.): " }
                         }
                       ]
                     }
@@ -63,7 +69,7 @@
                   ]
                 },
                 {
-                  "SELF": { "FHIR": "text", "FRIENDLY": "Free text dosage instructions: " }
+                  "SELF": { "FHIR": "text", "FRIENDLY": "Auto-generated dosage instructions: " }
                 }
               ]
             },
@@ -102,6 +108,71 @@
               }
             }
           ]
+        },
+        {
+          "FHIR": "CommunicationRequest",
+          "FRIENDLY": "Communication Medications",
+          "DEFAULT_PROFILE_URI": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-communicationrequest"
+        },
+        {
+          "FHIR": "CollectInformation",
+          "FRIENDLY": "Collect Information",
+          "DEFAULT_PROFILE_URI": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-questionnairetask"
+        },
+        {
+          "FHIR": "Enrollment",
+          "FRIENDLY": "Enrollment",
+          "DEFAULT_PROFILE_URI": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-enrollmenttask"
+        },
+        {
+          "FHIR": "GenerateReport",
+          "FRIENDLY": "Generate Report",
+          "DEFAULT_PROFILE_URI": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-generatereporttask"
+        },
+        {
+          "FHIR": "DispenseMedication",
+          "FRIENDLY": "Dispense Medication",
+          "DEFAULT_PROFILE_URI": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-dispensemedicationtask"
+        },
+        {
+          "FHIR": "AdministerMedication",
+          "FRIENDLY": "Administer Medication",
+          "DEFAULT_PROFILE_URI": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-administermedicationtask"
+        },
+        {
+          "FHIR": "DocumentMedication",
+          "FRIENDLY": "Document Medication",
+          "DEFAULT_PROFILE_URI": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-documentmedicationtask"
+        },
+        {
+          "FHIR": "ImmunizationRecommendation",
+          "FRIENDLY": "Immunization Recommendation",
+          "DEFAULT_PROFILE_URI": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-immunizationrecommendation"
+        },
+        {
+          "FHIR": "ServiceRequest",
+          "FRIENDLY": "Service Request",
+          "DEFAULT_PROFILE_URI": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-servicerequest"
+        },
+        {
+          "FHIR": "ProposeDiagnosis",
+          "FRIENDLY": "Propose Diagnosis",
+          "DEFAULT_PROFILE_URI": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-proposediagnosistask"
+        },
+        {
+          "FHIR": "RecordDetectedIssueTask",
+          "FRIENDLY": "Record Detected Issue Task",
+          "DEFAULT_PROFILE_URI": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-recorddetectedissuetask"
+        },
+        {
+          "FHIR": "RecordInferenceTask",
+          "FRIENDLY": "Record Inference Task",
+          "DEFAULT_PROFILE_URI": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-recordinferencetask"
+        },
+        {
+          "FHIR": "ReportFlagTask",
+          "FRIENDLY": "Report Flag Task",
+          "DEFAULT_PROFILE_URI": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-reportflagtask"
         }
       ]
     },

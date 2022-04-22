@@ -13,7 +13,7 @@ export interface StateVars {
 		update?: {from: string, to: string}[],
 		selectedNode?: SageNodeInitialized,
 	},
-	mode: "basic" | "advanced",
+	mode?: SageMode,
 	VSACEndpoint: string,
 	UMLSKey: string,
 	version: string,
@@ -53,6 +53,8 @@ export interface StateVars {
 	bioportalApikey?: string,
 }
 
+export type SageMode = 'advanced' | 'basic';
+
 export interface GeneratedLibraries {
 	[libraryUri: string]: {
 		isGenerating: boolean,
@@ -61,9 +63,9 @@ export interface GeneratedLibraries {
 	} | undefined
 }
 
-export type SageUiStatus = 'ready' | 'contained' | 'open' | 'validation_error' | 'resource_load_error' | 'ref_warning' | 'codePicker' 
+export type SageUiStatus = 'basic-home'|'ready' | 'contained' | 'open' | 'validation_error' | 'resource_load_error' | 'ref_warning' | 'codePicker' 
 	| 'change_profile' | 'missing_title_error' | 'id_duplicate_error' | 'title_duplicate_error' | 'url_duplicate_error' | 'cards' | 'collection'
-	| 'loading' | 'profile_load_error' | 'export' | 'cpg' | 'valueSet' | 'settings' | 'select' | 'basic-cpg' | 'advanced-cpg' | 'view-libraries';
+	| 'loading_sage_data' | 'profile_load_error' | 'export' | 'cpg' | 'valueSet' | 'settings' | 'select' | 'basic-cpg' | 'advanced-cpg' | 'view-libraries';
 
 export interface SageReactions {
 	"load_initial_json": (profilePath: string, resourcePath: string, isRemote: boolean) => void;
@@ -105,9 +107,8 @@ export interface SageReactions {
 
 const defaultStateVars: StateVars = {
 	ui: { 
-		status: "loading",
+		status: "loading_sage_data",
 	},
-	mode: "advanced",
 	VSACEndpoint: "https://cts.nlm.nih.gov/fhir/r4",
 	UMLSKey: "",
 	version: "",

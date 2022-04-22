@@ -1,5 +1,5 @@
 import React, { useEffect, useReducer, useState, Dispatch } from "react";
-import { Button, Modal, Pagination, Row } from "react-bootstrap";
+import { Button, Card, Modal, Pagination, Row } from "react-bootstrap";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { CqlWizardSelectResource } from "./cqlWizardSelectResource";
 import { faArrowLeft, faArrowRight, faCheck } from "@fortawesome/pro-solid-svg-icons";
@@ -64,7 +64,7 @@ export const CqlWizardModal: React.FunctionComponent<CqlWizardModalProps> = (pro
     
     // Page items for header pagination
     const paginationItems = WizardPagesArr.map((v) => 
-        <Pagination.Item key={v} active={page==v}
+        <Pagination.Item key={v} active={page==v} id='cql-wizard-pagination-item'
             disabled={pageStatus[v] === StepStatus.Disabled || pageStatus[v] === StepStatus.Skipped}
             onClick={() => wizardDispatch(['changePage', v])}
         >
@@ -86,23 +86,18 @@ export const CqlWizardModal: React.FunctionComponent<CqlWizardModalProps> = (pro
     const [canProceed, nextPage] = getNextPage(page, pageStatus);
     const [canGoBack, prevPage] = getPrevPage(page, pageStatus);
     return (
-        <Modal
-            show={props.show}
-            onHide={handleClose}
-            size="xl"
-            centered
-            animation={true}
-            contentClassName="cql-wizard-modal"
+        <Card
+            className="cql-wizard-modal"
         >
-            <Modal.Header>
+            <Card.Header>
                 <div className="cql-wizard-header-content">
                     <Pagination className="cql-wizard-pagination">
                         {paginationItems}
                     </Pagination>
                     <Modal.Title>{pageTitle}</Modal.Title>
                 </div>
-            </Modal.Header>
-            <Modal.Body className="cql-wizard-modal-body">
+            </Card.Header>
+            <Card.Body className="cql-wizard-modal-body">
                 <div className="cql-wizard-body-content">
                     <Button variant="light" className="cql-wizard-nav-button" disabled={!canGoBack}
                         onClick={() => {
@@ -135,7 +130,7 @@ export const CqlWizardModal: React.FunctionComponent<CqlWizardModalProps> = (pro
                         <FontAwesomeIcon icon={nextPage === null ? faCheck : faArrowRight} />
                     </Button>
                 </div>
-            </Modal.Body>
-        </Modal>
+            </Card.Body>
+        </Card>
     );
 }

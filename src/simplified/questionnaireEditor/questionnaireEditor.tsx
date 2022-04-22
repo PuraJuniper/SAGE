@@ -8,6 +8,8 @@ import {faCaretRight, faCaretLeft} from  '@fortawesome/pro-solid-svg-icons';
 import State from "../../state";
 import { useRef, useState } from "react";
 import { Card } from "react-bootstrap";
+import {Progress} from "../topProgressBar"
+import Sidebar from '../sidebar';
 
 interface QuestionnaireEditorProps {
     planDefNode: SageNodeInitializedFreezerNode,
@@ -71,7 +73,7 @@ export const QuestionnaireEditor = (props: QuestionnaireEditorProps) => {
         <button key="butDel" type='button' className="navigate col-lg-2 col-md-3"
             onClick={props.handleDeleteResource}
         >
-            Delete Card
+            Cancel
         </button>
     );
 
@@ -105,8 +107,11 @@ export const QuestionnaireEditor = (props: QuestionnaireEditorProps) => {
     );
 
     return (
-        <div>
+        <div style={{display: "flex"}} >
+            <Sidebar pageType='questionaire' pageTitle={pageTitles.get(step)}></Sidebar>
+            <div style={{flexGrow: 1, margin: "50px"}}>
             <div className='basic-page-titles'>{pageTitles.get(step)}</div>
+            <Progress pageTitle={pageTitles.get(step)} fhirType='questionaire'></Progress>
             {step === 1 ?
                 <StructorFrame ref={structorRef} questionnaireFromSage={questionnaireResource} questionnaireSavedCallback={handleQuestionnaireSaved} 
                     structorReadyCallback={()=>{return 0;}}
@@ -114,7 +119,7 @@ export const QuestionnaireEditor = (props: QuestionnaireEditorProps) => {
                 null}
             {step === 2 ? props.conditionEditor : null}
             {step === 3 ?
-                <Card style={{ padding: "20px", margin: "10px", borderWidth: "2px", borderColor:'rgb(42, 107, 146)', borderRadius: '40px'}}>
+                <Card style={{ padding: "20px", margin: "10px", borderWidth: "2px", borderColor:'#2D2E74', borderRadius: '40px'}}>
                     <Card.Title>QUESTIONNAIRE</Card.Title>
                     <Card.Body>
 
@@ -125,6 +130,7 @@ export const QuestionnaireEditor = (props: QuestionnaireEditorProps) => {
                 {step > 1 ? leftNavButton : null}
                 {step <= 2 ? rightNavButton : saveButton}
                 {deleteCardButton}
+            </div>
             </div>
         </div>
     );

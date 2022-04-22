@@ -1,13 +1,14 @@
 import React from 'react';
-import {Card} from "react-bootstrap";
+import {Card, Row} from "react-bootstrap";
 import {useState, useEffect} from "react";
 import { CSSTransition } from 'react-transition-group';
 import State from "../state";
 import { Color } from "react-bootstrap/esm/types";
 import { ACTIVITY_DEFINITION, friendlyToFhir, PLAN_DEFINITION, QUESTIONNAIRE } from "./nameHelpers";
 import { incrementNextId } from "../helpers/schema-utils";
-
-
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faInfoCircle,faGrid,faBookMedical,faCirclePlus, IconDefinition } from '@fortawesome/pro-solid-svg-icons';
+import { useNavigate } from "react-router-dom";
 
 interface BaseCardProps {
     header: string,
@@ -20,10 +21,17 @@ interface BaseCardProps {
     bsBg?: string,
     bsText?: Color | string,
     bsBorder?: string,
+    hideHeader:boolean,
+    cardImage?:any,
+    IconColor?:string,
+    IconSize?:string,
+    titleSize?:string
 }
 
 export const BaseCard = (props: BaseCardProps) => {
     const [show, setShow] = useState(false);
+    
+    const navigate = useNavigate();
     
     useEffect(() => {
         const timeoutId = setTimeout(() => {
@@ -33,12 +41,11 @@ export const BaseCard = (props: BaseCardProps) => {
     }, [props.wait]);
     
     
-    
     const content = props.content;
     let headerPadding = {};
     if (props.title == "") headerPadding = {padding:"7px"};
-    const resourceType = friendlyToFhir(props.header);
-    
+    const resourceType = (props.header == "Questionnaire")? "Questionnaire":friendlyToFhir(props.header);
+
     return (
         <CSSTransition
         in={show}
@@ -46,11 +53,12 @@ export const BaseCard = (props: BaseCardProps) => {
         classNames="res-card"
         >
         <Card
+            className='raise-card-animation'
             bg={props.bsBg}
             text={props.bsText as Color}
             border={props.bsBorder}
             onClick={(e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-                if (e.target instanceof Element && e.target.tagName !== "svg" && e.target.tagName !== "path" && props.clickable) {
+                if (e.target instanceof Element && e.target.tagName !== "svg" && e.target.tagName !== "path" && props.clickable && resourceType!='') {
                     setShow(false);
                     if (State.get().bundle?.resources.length) {
                         State.get().bundle.set("pos", State.get().bundle.resources.length-1);
@@ -89,17 +97,33 @@ export const BaseCard = (props: BaseCardProps) => {
                     State.emit("load_json_resource", json);
                     // Set current editor position to the last resource (should be the PlanDefinition in `json` after the "load_json_resource" call)
                     State.emit("set_bundle_pos", State.get().bundle.resources.length-1);
+                    navigate(`/author?next=edit/${State.get().bundle.resources.length-1}`);
+                }
+                if(props.title == 'Create Cards'){
+                    navigate('/author?next=create')
+                }
+                if(props.title == 'View Cards'){
+                    navigate('/view-cards')
                 }
             }}
         >
-            <Card.Header style={headerPadding}>
+            <Card.Header style={headerPadding} hidden = {props.hideHeader}>
                 {props.header}
             </Card.Header>
-            <Card.Body>
-                <Card.Title>{props.title}</Card.Title>
-                <Card.Text>
-                    {content}
-                </Card.Text>
+            <Card.Body >
+                <Row style={{'justifyContent': 'flex-end', 'margin':'0'}}>
+                    <span style={{ fontSize: "20px", textAlign: "right" }}>
+                        <a href='' target="_blank" rel="noreferrer" className="c-tooltip">
+                            <FontAwesomeIcon icon={faInfoCircle} style={{'color':props.IconColor}} />
+                            <span className="c-tooltiptext">FHIR Docs</span>
+                        </a>
+                    </span>
+                </Row>
+                <Card.Title style={{ fontSize: props.titleSize, textAlign: "center" }}>{props.title}</Card.Title>
+                <Card.Text>{content}</Card.Text>
+                <Row style={{'justifyContent': 'center', 'marginBottom':'30px'}}>
+                    <FontAwesomeIcon icon={props.cardImage} style={{'color':props.IconColor, 'height':props.IconSize}} />
+                </Row>
             </Card.Body>
         </Card>
         </CSSTransition>

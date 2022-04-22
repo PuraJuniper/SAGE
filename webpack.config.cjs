@@ -14,6 +14,7 @@ module.exports = (env) => {
 			client: {
 				progress: true,
 			},
+			historyApiFallback: true,
 			proxy: {
 				// '/authoring': 'http://localhost:9000',
 				// '/structor': 'http://localhost:9001',
@@ -64,7 +65,7 @@ module.exports = (env) => {
 					exclude: /node_modules/,
 				},
 				{
-					test:[ /react-datepicker.css/,  /_datepicker.css/, /react-dates-overrides.css/],
+					test:[/\.css$/],
 					use: ["style-loader", "css-loader"],
 				}
 			]

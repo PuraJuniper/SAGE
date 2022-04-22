@@ -12,6 +12,7 @@ import { generateCqlFromConditions, makeCQLtoELMRequest } from "./cql-wizard/cql
 import { exprToWizStateMap } from "./cql-wizard/wizardLogic";
 import { useState } from "react";
 import { ConditionEditor } from "./cql-wizard/conditionEditor";
+import { useNavigate } from "react-router-dom";
 
 interface PlanDefEditorProps {
     planDefNode: SageNodeInitializedFreezerNode,
@@ -19,6 +20,8 @@ interface PlanDefEditorProps {
 }
 
 export const PlanDefEditor = (props: PlanDefEditorProps) => {
+    const navigate = useNavigate();
+
     const referencedNodeURI = SchemaUtils.getChildOfNodePath(props.planDefNode, ["action", "definitionCanonical"])?.value;
     const [pdConditions, setPdConditions] = useState<PlanDefinitionActionCondition[]>(() => {
         // Read existing FHIR condition elements from plandefinition
@@ -36,14 +39,8 @@ export const PlanDefEditor = (props: PlanDefEditorProps) => {
             pos: linkedResourcePos
         } = SchemaUtils.findFirstSageNodeByUri(State.get().bundle.resources, referencedURI);
 
-        function handleDeleteResource() {
-            if (linkedResourcePos !== null) {
-                State.emit("remove_from_bundle", props.planDefPos, linkedResourcePos);
-            }
-            else {
-                State.emit("remove_from_bundle", props.planDefPos);
-            }
-            State.get().set("ui", { status: "cards" });
+        function handleCancelEdit() {
+            navigate("/");
         }
 
         function handleSaveResource() {
@@ -136,7 +133,7 @@ export const PlanDefEditor = (props: PlanDefEditorProps) => {
             /**
              * Finished saving resource, switch back to collection view
              */
-            State.get().set("ui", {status:"collection"})
+             navigate("/");
         }
         
         switch (linkedResourceNode?.schemaPath) {
@@ -151,9 +148,9 @@ export const PlanDefEditor = (props: PlanDefEditorProps) => {
                     </div>
                 );
             case ACTIVITY_DEFINITION:
-                return <CardEditor actNode={linkedResourceNode} planNode={props.planDefNode} handleDeleteResource={handleDeleteResource} handleSaveResource={handleSaveResource} conditionEditor={conditionEditor} />
+                return <CardEditor actNode={linkedResourceNode} planNode={props.planDefNode} handleDeleteResource={handleCancelEdit} handleSaveResource={handleSaveResource} conditionEditor={conditionEditor} />
             case QUESTIONNAIRE:
-                return <QuestionnaireEditor planDefNode={props.planDefNode} questionnareNode={linkedResourceNode} handleDeleteResource={handleDeleteResource}  handleSaveResource={handleSaveResource} conditionEditor={conditionEditor} />
+                return <QuestionnaireEditor planDefNode={props.planDefNode} questionnareNode={linkedResourceNode} handleDeleteResource={handleCancelEdit}  handleSaveResource={handleSaveResource} conditionEditor={conditionEditor} />
             default:
                 return (
                     <div>

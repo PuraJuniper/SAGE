@@ -1,5 +1,7 @@
+import "./reactions"; // Register reactions for freezer-js state
+
 import React from 'react';
 import ReactDOM from "react-dom";
-import RootComponent from "./RootComponent";
+import App from "./App";
 
-ReactDOM.render(<RootComponent />, document.getElementById("content"));
+ReactDOM.render(<App />, document.getElementById("content"));

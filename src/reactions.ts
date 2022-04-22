@@ -104,7 +104,7 @@ State.on("load_initial_json", function(profilePath, resourcePath, isRemote) {
 		[resourcePath, "load_json_resource", "resource_load_error"]
 	];
 
-	State.emit("set_ui", "loading");
+	State.emit("set_ui", "loading_sage_data");
 	let current: typeof queue[0] | undefined;
 	const loadNext = function() {
 		if ((current = queue.shift()) && current[0]) {

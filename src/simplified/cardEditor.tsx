@@ -1,6 +1,6 @@
 import { CodeableConcept } from "fhir/r4";
 import React, { ElementType, useEffect, useState } from "react";
-import { Button, Col, Form, InputGroup, Modal, Row } from 'react-bootstrap';
+import { Button, Card, Col, Form, InputGroup, Modal, Row } from 'react-bootstrap';
 import * as SchemaUtils from "../helpers/schema-utils";
 import State, { SageNodeInitializedFreezerNode } from "../state";
 import { OuterCardForm, textBoxProps, cardLayout, displayBoxProps } from "./outerCardForm";
@@ -8,6 +8,9 @@ import { ACTIVITY_DEFINITION, allFormElems, convertFormElementToObject, formElem
 import { MedicationRequestForm } from "./medicationRequestForm";
 import { fhirToFriendly } from '../simplified/nameHelpers';
 import CodeableConceptEditor, { CodeableConceptEditorProps } from "./codeableConceptEditor";
+import { faInfoCircle } from "@fortawesome/pro-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { text } from "@fortawesome/fontawesome-svg-core";
 
 
 interface ExpressionOptionDict {
@@ -130,16 +133,34 @@ const createTextBoxElement = (fieldKey: string, friendlyFieldName: string, textP
         }
     }
     fieldHandlers.push([fieldName, fieldContents, setField, fieldSaveHandler]);
-    return (
-        <Form.Group key={fieldName + "-formGroup"} as={Col} controlId={fieldName}>
-            <Row className="page1-row-element">
-                <Row className="page1-label-and-input">
-                    <Form.Label key={fieldName + "-formLabel"} >{friendlyFieldName}</Form.Label>
-                    <Col className = 'page1-input-fields' key={fieldName + "-col"}>
-                            {returnVal()}
-                    </Col>
-                </Row>
+    if((fieldName == 'period' || fieldName == 'frequency' || fieldName == 'duration')){
+        return(
+        <Form.Group className={textProps.className} key={fieldName + "-formGroup"}  controlId={fieldName}>
+            <div style={{'display':'flex', 'flexDirection': 'row'}} >
                 <Form.Text key={fieldName + "-formText"}>{textProps.caption}</Form.Text>
+                <InputGroup >{returnVal()}</InputGroup>  
+            </div>
+        </Form.Group>
+        )
+    }
+    if (fieldName != "resource") {
+        textProps.hideFieldToolTip = true;
+    }
+    return (
+        <Form.Group className= "page1-formgroup" key={fieldName + "-formGroup"} as={Col} controlId={fieldName}>
+            <Row style={{margin: '0'}}>
+                    <Form.Label hidden={(textProps.hideFieldTitle == true) ? true:false} className="page1-input-fields-and-labels" key={fieldName + "-formLabel"} >
+                        {friendlyFieldName}
+                        <div hidden={(textProps.hideFieldToolTip == true) ? true:false} className="page1-tooltip formfield-tooltip">
+                            <FontAwesomeIcon icon={faInfoCircle} className="" />
+                            <Card className="page1-tooltiptext">
+                                <div>{textProps.caption}</div>
+                            </Card>
+                        </div>
+                    </Form.Label>
+                    <Row style={{margin: '0', width:'100%'}}>
+                    <InputGroup className={`${textProps.className} page1-input-fields-and-labels`}>{returnVal()}</InputGroup>  
+                    </Row>
             </Row>
         </Form.Group>
     );
@@ -149,11 +170,9 @@ const createDropdownElement = (fieldKey: string, fieldFriendlyName: string, fiel
     const [fieldName, fieldContents, setField, fieldSaveHandler] = simpleCardField(fieldKey, node);
     fieldHandlers.push([fieldName, fieldContents, setField, fieldSaveHandler]);
     
-    return (
-        <Form.Group key={fieldName + "-fromGroup"} as={Col} controlId={fieldKey}>
-            <Row className="page1-row-element">
-                <Form.Label key={fieldName + "-label"}>{fieldFriendlyName}</Form.Label>
-                <Col key={fieldName + "-col"} className = 'page1-input-fields'>
+    if(fieldName == 'periodUnit' || fieldName == 'durationUnit'){
+        return(
+            <Form.Group className='page1-dosage-medium' key={fieldName + "-fromGroup"} controlId={fieldKey}>
                     <InputGroup key={fieldName + "-inputGroup"}>
                         <Form.Control
                             key={fieldName + "formControl"}
@@ -161,13 +180,33 @@ const createDropdownElement = (fieldKey: string, fieldFriendlyName: string, fiel
                             defaultValue = {fieldContents}
                             onChange={(e) => setField(e.currentTarget.value)}
                         >
-                            <option hidden disabled value=''>{'--Please Select an Option--'}</option>
+                            <option hidden disabled value=''>{'Select...'}</option>
                             {fieldElements.map((sType) => {
                                 return <option key={fieldKey + "-" + sType} value={sType}>{sType}</option>;
                             })}
                         </Form.Control>
                     </InputGroup>
-                </Col>
+            </Form.Group>
+        )
+    }
+
+    return (
+        <Form.Group className="page1-formgroup" key={fieldName + "-fromGroup"} as={Col} controlId={fieldKey}>
+            <Row style={{margin: '0'}}>
+                <Form.Label className="page1-input-fields-and-labels" key={fieldName + "-label"}>{fieldFriendlyName}</Form.Label>
+                <InputGroup className="page1-input-fields-and-labels" key={fieldName + "-inputGroup"}>
+                    <Form.Control
+                        key={fieldName + "formControl"}
+                        as="select"
+                        defaultValue = {fieldContents}
+                        onChange={(e) => setField(e.currentTarget.value)}
+                    >
+                        <option hidden disabled value=''>{'--Please Select an Option--'}</option>
+                        {fieldElements.map((sType) => {
+                            return <option key={fieldKey + "-" + sType} value={sType}>{sType}</option>;
+                        })}
+                    </Form.Control>
+                </InputGroup>
             </Row>
         </Form.Group>
     );
@@ -177,12 +216,12 @@ const createCodeableConceptElement = (fieldKey: string, fieldFriendlyName: strin
     const { fieldName, codeableConcept, setCodeableConcept, codeableConceptSaveHandler } = codeableConceptCardField(fieldKey, node);
     fieldHandlers.push([fieldName, codeableConcept, setCodeableConcept, codeableConceptSaveHandler]);
     return (
-        <Form.Group key={fieldName + "-fromGroup"} as={Col} controlId={fieldKey}>
-            <Row className="page1-row-element">
-                <Form.Label key={fieldName + "-label"}>{fieldFriendlyName}</Form.Label>
-                <Col key={fieldName + "-col"} className = 'page1-input-fields'>
+        <Form.Group className="page1-formgroup" key={fieldName + "-fromGroup"} as={Col} controlId={fieldKey}>
+            <Row style={{margin: '0'}}>
+                    <Form.Label className="page1-input-fields-and-labels" key={fieldName + "-label"}>{fieldFriendlyName}</Form.Label>
+                    <div className="page1-input-fields-and-labels">
                     <CodeableConceptEditor {...codeableConceptEditorPropsOverrides} curCodeableConcept={codeableConcept} setCurCodeableConcept={setCodeableConcept} />
-                </Col>
+                    </div>
             </Row>
         </Form.Group>
     );
@@ -310,7 +349,7 @@ export const CardEditor = (props: CardEditorProps) => {
 
     return (
         <div>
-            <div key={actResourceType.FHIR + "-form"} style={{ color: "#2a6b92" }} id="commonMetaDataForm">
+            <div key={actResourceType.FHIR + "-form"}  id="commonMetaDataForm">
                 <OuterCardForm
                     sageNode={actNode}
                     fieldHandlers={fieldHandlers}

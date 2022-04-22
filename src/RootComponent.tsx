@@ -8,7 +8,7 @@ import React from "react";
 import ReactDOM from "react-dom";
 import State from "./reactions";
 import * as SchemaUtils from "./helpers/schema-utils";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {faCaretRight, faCaretLeft} from  '@fortawesome/pro-solid-svg-icons';
 
 import NavbarFred from "./navbar";
@@ -16,6 +16,7 @@ import RemoteNavbar from "./remote-navbar";
 import BundleBar from "./bundle-bar";
 import RefWarning from "./ref-warning";
 import Footer from "./footer";
+import BasicHomeView from "./simplified/home"
 import SelectView from "./simplified/selectView"
 import Collection from "./simplified/collection"
 
@@ -51,17 +52,6 @@ class RootComponent extends React.Component<RootProps, RootState> {
 		this.state = {
 			prevStatus: ""
 		}
-		
-	}
-
-	getQs() {
-		const data: any = {};
-		const params = window.document.location.search?.substr(1).split("&");
-		for (const param of params) {
-			const [k,v] = param.split("=");
-			data[k] = decodeURIComponent(v);
-		}
-		return data;
 	}
 
 	shouldComponentUpdate() {
@@ -69,25 +59,7 @@ class RootComponent extends React.Component<RootProps, RootState> {
 	}
 
 	componentDidMount() {
-		const qs = this.getQs();
-
-		if (qs.remote === "1") {
-			this.isRemote = true;
-		}
-
-		if (qs.warn !== "0") {
-			window.onbeforeunload = () => {
-				if (State.get().bundle) {
-					return "If you leave this page you will lose any unsaved changes.";
-				}
-			};
-		}
-
-		const defaultProfilePath = "profiles/cpg.json";
-
-		return (State.on("update", () => this.forceUpdate())).emit("load_initial_json",
-			qs.profiles || defaultProfilePath,
-			qs.resource, this.isRemote);
+		State.on("update", () => this.forceUpdate());
 	}
 
 	getSnapshotBeforeUpdate() {
@@ -120,8 +92,11 @@ class RootComponent extends React.Component<RootProps, RootState> {
 		}
 
 		const resourceContent = (() => {
-			if (state.ui.status === "loading") {
+			if (state.ui.status === "loading_sage_data") {
 			return <div role="progressbar" aria-label="loading-symbol" className="spinner"><img src="../img/ajax-loader.gif" /></div>;
+		} else if (state.ui.status === "basic-home" || 
+				prevStatus === "basic-home" && changeLessContentStatuses.includes(state.ui.status)) {
+			return <BasicHomeView />
 		} else if (state.ui.status === "cards" || 
 				prevStatus === "cards" && changeLessContentStatuses.includes(state.ui.status)) {
 			return <SelectView />
@@ -134,24 +109,7 @@ class RootComponent extends React.Component<RootProps, RootState> {
 					<PlanDefEditor planDefNode={state.bundle.resources[state.bundle.pos]} planDefPos={state.bundle.pos} /> :
 					<DomainResource node={state.bundle.resources[state.bundle.pos]} errFields={state.errFields}/>
 			);
-		} else if (state.ui.status.indexOf("error") === -1) {
-			return <div>
-				<button className="btn btn-primary btn-block" onClick={this.handleOpen.bind(this)}>
-					Create Resource
-				</button>
-				<button className="btn btn-primary btn-block" onClick={(e) => {
-					State.emit("set_ui", "basic-cpg");
-					}}>
-					Basic CPG
-				</button>
-				<button className="btn btn-primary btn-block" onClick={(e) => {
-					State.emit("set_ui", "advanced-cpg");
-				}
-					}>
-					Advanced CPG
-				</button>
-			</div>;
-		}
+		} 
 		})();
 
 		const error = (() => {
@@ -204,7 +162,6 @@ class RootComponent extends React.Component<RootProps, RootState> {
 				{bundleBar}
 				{error}
 				{resourceContent}
-				<Footer />
 			</div>
 			<OpenDialog 
 				show={state.ui.status === "open"}
