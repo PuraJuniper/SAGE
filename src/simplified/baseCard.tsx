@@ -97,7 +97,13 @@ export const BaseCard = (props: BaseCardProps) => {
                     State.emit("load_json_resource", json);
                     // Set current editor position to the last resource (should be the PlanDefinition in `json` after the "load_json_resource" call)
                     State.emit("set_bundle_pos", State.get().bundle.resources.length-1);
-                    navigate(`/author?next=edit/${State.get().bundle.resources.length-1}`);
+                    if (props.title === "An Example Questionaire") { // Fixes https://github.com/PuraJuniper/SAGE/pull/84#issuecomment-1104155086
+                                                                     // We should be able to remove this If with SAGE-332
+                        navigate(`/author?next=edit/${State.get().bundle.resources.length-1}`);
+                    }
+                    else {
+                        navigate(`/edit/${State.get().bundle.resources.length-1}`);
+                    }
                 }
                 if(props.title == 'Create Cards'){
                     navigate('/author?next=create')
