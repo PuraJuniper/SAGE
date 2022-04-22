@@ -100,7 +100,7 @@ export const enforceDuplicates = function(id?: string, title?: string, url?: str
 State.on("load_initial_json", function(profilePath, resourcePath, isRemote) {
 	const queue: [string, "set_profiles" | "load_json_resource", "profile_load_error" | "resource_load_error"][] = [
 		[profilePath, "set_profiles", "profile_load_error"],
-		["profiles/r4.json", "set_profiles", "profile_load_error"],
+		["/profiles/r4.json", "set_profiles", "profile_load_error"],
 		[resourcePath, "load_json_resource", "resource_load_error"]
 	];
 

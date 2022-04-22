@@ -21,7 +21,7 @@ export default function App() {
         State.get().ui.getListener().on("update", sageLoadingListener);
 
         // Load necessary profiles, etc for SAGE to function
-        State.emit("load_initial_json", "profiles/cpg.json", "", false);
+        State.emit("load_initial_json", "/profiles/cpg.json", "", false);
 
         return () => { State.get().ui.getListener().off('update', sageLoadingListener); }
     }, [])
