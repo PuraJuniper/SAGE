@@ -228,14 +228,17 @@ export class MedicationRequestForm implements ICardForm {
                 ...this.cardFieldLayout.cardColumns.map((cr, i: number) => {
                     return (
                         <Row style={{justifyContent: 'center'}} key={"row-" + i} >
-                            {cr.map(field =>
-                                [
+                            {cr.map((field, i) => {
+                                const foundElem = [
                                     durationElem,
                                     timingElem,
-                                    placeHolderElem,
-                                    ...props.fieldElements
-                                ].find(elem =>
-                                    elem.key?.toString().startsWith(field + "-")))}
+                                    ...props.fieldElements,
+                                ].find(elem => elem.key?.toString().startsWith(field + "-"));
+
+                                return foundElem !== undefined ?
+                                    foundElem :
+                                    React.cloneElement(placeHolderElem, { key: `${field}-${i}` })
+                            })}
                         </Row>
                     )
                 })
@@ -256,12 +259,14 @@ export class MedicationRequestForm implements ICardForm {
                 ...this.cardDisplayLayout.cardColumns.map((cr, i: number) => {
                     return (
                         <Row key={"row-" + i} className="mb-3">
-                            {cr.map(field =>
-                                [
-                                    placeHolderElem,
-                                    ...props.displayElements
-                                ].find(elem =>
-                                    elem.key?.toString().startsWith(field + "-")))}
+                            {cr.map((field, i) => {
+                                const foundElem = props.displayElements.find(elem =>
+                                    elem.key?.toString().startsWith(field + "-"));
+
+                                return foundElem !== undefined ?
+                                    foundElem :
+                                    React.cloneElement(placeHolderElem, { key: `${field}-${i}` })
+                            })}
                         </Row>
                     )
                 })
