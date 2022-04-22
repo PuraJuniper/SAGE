@@ -24,7 +24,7 @@ const SelectView = () => {
                 <Progress pageTitle='What is the card type?' fhirType = 'activity'></Progress>
             
                 <Container fluid="lg">
-                    <Row lg="4" md="3" sm="2" noGutters  style={{'justifyContent': 'center'}}>  
+                    <Row lg="4" md="3" sm="2" className="g-0" style={{'justifyContent': 'center'}}>  
                         {
                             friendlyResourceRoot.RESOURCES
                             .filter(subResType => subResType.SELF.FHIR === 'ActivityDefinition')
