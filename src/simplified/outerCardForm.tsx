@@ -33,6 +33,11 @@ export type displayBoxProps = {
     className: string;
     displayFieldTitle: boolean;
 }
+
+export type dropdownBoxProps = {
+    values: string[];
+    requiredFor?: string;
+}
 export interface CardFormState {
     step: number;
     isOpen: boolean;

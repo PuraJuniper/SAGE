@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Col, Form, ListGroup, Row, Button, Card, InputGroup } from "react-bootstrap";
 import { FieldHandlerProps, ICardForm } from "./cardEditor";
 import { FriendlyResourceProps } from "./nameHelpers";
-import { textBoxProps, displayBoxProps } from "./outerCardForm";
+import { textBoxProps, displayBoxProps, dropdownBoxProps } from "./outerCardForm";
 import { CodeableConceptEditorProps } from "./codeableConceptEditor";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faInfoCircle } from "@fortawesome/pro-solid-svg-icons";
@@ -83,17 +83,17 @@ export class MedicationRequestForm implements ICardForm {
         }]
     ]);
 
-    dropdownFields = new Map<string, string[]>([
+    dropdownFields = new Map<string, dropdownBoxProps>([
         ['status',
-            ['active', 'on-hold', 'cancelled', 'completed', 'entered-in-error', 'stopped', 'draft', 'unknown']],
+            { values: ['active', 'on-hold', 'cancelled', 'completed', 'entered-in-error', 'stopped', 'draft', 'unknown'] }],
         ['intent',
-            ['proposal', 'plan', 'order', 'original-order', 'reflex-order', 'filler-order', 'instance-order', 'option']],
+            { values: ['proposal', 'plan', 'order', 'original-order', 'reflex-order', 'filler-order', 'instance-order', 'option'] }],
         ['periodUnit',
-            ['h', 'd', 'wk', 'mo', 'a']],
+            { values: ['h', 'd', 'wk', 'mo', 'a'] }],
         ['durationUnit',
-            ['h', 'd', 'wk', 'mo', 'a']],
+            { values: ['h', 'd', 'wk', 'mo', 'a'] }],
         ['type',
-            ['documentation', 'justification', 'citation', 'predecessor', 'successor', 'derived-from', 'depends-on', 'composed-of']]
+            { values: ['documentation', 'justification', 'citation', 'predecessor', 'successor', 'derived-from', 'depends-on', 'composed-of'] }]
     ]);
     displayBoxFields = new Map<string, displayBoxProps>([
         ['title', {
@@ -272,10 +272,12 @@ export class MedicationRequestForm implements ICardForm {
             }</div>
         );
     }
-
 }
-function updateDosageAutofill(fieldHandlers: Map<string, FieldHandlerProps>) {
+
+function updateDosageAutofill(fieldHandlers: Map<string, FieldHandlerProps>): string {
     const fieldTriggers = ['frequency', 'period', 'periodUnit', 'duration', 'durationUnit'];
-    return fieldTriggers.reduce((p, c, num, agg) => agg + p + " ");
+    const fieldVals = new Map(
+        fieldTriggers.map(ft => { return [ft, fieldHandlers.get(ft)?.fieldContents] }));
+    return fieldVals.get(fieldTriggers[0]) + fieldVals.get(fieldTriggers[1]) + fieldVals.get(fieldTriggers[3]);
 }
 
