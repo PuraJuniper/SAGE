@@ -62,6 +62,7 @@ export interface FieldHandlerProps {
     fieldContents: any,
     setField: Dispatch<SetStateAction<any>>
     fieldSaveHandler: (name: string, contents: any, act: any, plan: any) => void
+    fieldAutoGenFn?: (fieldHandlers: Map<string, FieldHandlerProps>) => string
 }
 
 const simpleCardField = (fieldName: string, actNode: SageNodeInitializedFreezerNode) => {
@@ -134,22 +135,28 @@ const createTextBoxElement = (fieldKey: string, friendlyFieldName: string, textP
         } else {
             return <Form.Control key={fieldName + "-formControl"} className= {(fieldName == "resource") ? (((fieldContents == "")||validURL(fieldContents)) ? "" : "is-invalid") : ""}
                 {...{
-                    ...(textProps.isReadOnly) && { readOnly: textProps.isReadOnly, value: fieldHandlers.get("period")?.fieldContents },
+                    ...(textProps.isReadOnly) && { readOnly: textProps.isReadOnly},
                     ...(textProps.boxSize) > 1 && { as: "textarea" as ElementType<any>, rows: textProps.boxSize },
                     ...{
                         type: "text",
                         defaultValue: fieldContents,
                         onChange: (e: { currentTarget: { value: any; }; }) => {
                             setField(e.currentTarget.value);
-                            if (fieldName == 'period') {
-                                 fieldHandlers.get("text")?.setField(e.currentTarget.value);
+                            if (textProps.requiredFor) {
+                                const reactFieldHandler = fieldHandlers.get(textProps.requiredFor);
+                                if (reactFieldHandler) {
+                                    const reactAutoGenFn = reactFieldHandler.fieldAutoGenFn;
+                                    if (reactAutoGenFn) {
+                                        reactFieldHandler.setField(reactAutoGenFn(fieldHandlers));
+                                    }
+                                }
                             }
                         }
                     }
                 }} />;
         }
     }
-    fieldHandlers.set(fieldName, {fieldName, fieldContents, setField, fieldSaveHandler})
+    fieldHandlers.set(fieldName, {fieldName, fieldContents, setField, fieldSaveHandler, fieldAutoGenFn: textProps.autoGenFn})
     if((fieldName == 'period' || fieldName == 'frequency' || fieldName == 'duration')){
         return(
         <Form.Group className={textProps.className} key={fieldName + "-formGroup"}  controlId={fieldName}>

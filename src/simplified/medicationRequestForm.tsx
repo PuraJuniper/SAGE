@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Col, Form, ListGroup, Row, Button, Card, InputGroup } from "react-bootstrap";
-import { ICardForm } from "./cardEditor";
+import { FieldHandlerProps, ICardForm } from "./cardEditor";
 import { FriendlyResourceProps } from "./nameHelpers";
 import { textBoxProps, displayBoxProps } from "./outerCardForm";
 import { CodeableConceptEditorProps } from "./codeableConceptEditor";
@@ -39,7 +39,7 @@ export class MedicationRequestForm implements ICardForm {
             isReadOnly: false,
             isLink: false,
             caption: "",
-            autoGen: ['frequency', 'period', 'periodUnit', 'duration', 'durationUnit']
+            autoGenFn: updateDosageAutofill
 
         }],
         ['frequency', {
@@ -49,6 +49,7 @@ export class MedicationRequestForm implements ICardForm {
             caption: "",
             className: "page1-dosage-small",
             hideFieldTitle: true,
+            requiredFor: "text"
         }],
         ['period', {
             boxSize: 1,
@@ -57,6 +58,7 @@ export class MedicationRequestForm implements ICardForm {
             caption: "",
             className: "page1-dosage-small",
             hideFieldTitle: true,
+            requiredFor: "text"
         }],
         ['value', {
             boxSize: 1,
@@ -77,6 +79,7 @@ export class MedicationRequestForm implements ICardForm {
             caption: "",
             className: "page1-dosage-small",
             hideFieldTitle: true,
+            requiredFor: "text"
         }]
     ]);
 
@@ -271,3 +274,8 @@ export class MedicationRequestForm implements ICardForm {
     }
 
 }
+function updateDosageAutofill(fieldHandlers: Map<string, FieldHandlerProps>) {
+    const fieldTriggers = ['frequency', 'period', 'periodUnit', 'duration', 'durationUnit'];
+    return fieldTriggers.reduce((p, c, num, agg) => agg + p + " ");
+}
+

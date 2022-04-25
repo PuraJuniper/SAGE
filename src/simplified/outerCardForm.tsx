@@ -26,7 +26,8 @@ export type textBoxProps = {
     className?: string;
     hideFieldTitle?: boolean;
     hideFieldToolTip?: boolean;
-    autoGen?: string[];
+    requiredFor?: string;
+    autoGenFn?: (fieldHandlers: Map<string, FieldHandlerProps>) => string;
 }
 export type displayBoxProps = {
     className: string;
