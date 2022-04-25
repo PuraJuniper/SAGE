@@ -1,11 +1,11 @@
-import React, { useState } from "react";
-import { Col, Form, ListGroup, Row, Button, Card, InputGroup } from "react-bootstrap";
-import { FieldHandlerProps, ICardForm } from "./cardEditor";
-import { FriendlyResourceProps } from "./nameHelpers";
-import { textBoxProps, displayBoxProps, dropdownBoxProps } from "./outerCardForm";
-import { CodeableConceptEditorProps } from "./codeableConceptEditor";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faInfoCircle } from "@fortawesome/pro-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import React from "react";
+import { Card, Col, Form, Row } from "react-bootstrap";
+import { FieldHandlerProps, ICardForm } from "./cardEditor";
+import { CodeableConceptEditorProps } from "./codeableConceptEditor";
+import { FriendlyResourceProps } from "./nameHelpers";
+import { displayBoxProps, dropdownBoxProps, textBoxProps } from "./outerCardForm";
 
 export class MedicationRequestForm implements ICardForm {
 
@@ -274,10 +274,9 @@ export class MedicationRequestForm implements ICardForm {
     }
 }
 
-function updateDosageAutofill(fieldHandlers: Map<string, FieldHandlerProps>): string {
+function updateDosageAutofill(changedField: string, fieldValue: string, fieldHandlers: Map<string, FieldHandlerProps>): string {
     const fieldTriggers = ['frequency', 'period', 'periodUnit', 'duration', 'durationUnit'];
     const fieldVals = new Map(
-        fieldTriggers.map(ft => { return [ft, fieldHandlers.get(ft)?.fieldContents] }));
+        fieldTriggers.map(ft => { return [ft, ft == changedField ? fieldValue : fieldHandlers.get(ft)?.fieldContents] }));
     return `Give ${fieldVals.get('frequency')} dose(s) every ${fieldVals.get('period')} ${fieldVals.get('periodUnit')} for ${fieldVals.get('duration')} ${fieldVals.get('durationUnit')}.`;
 }
-

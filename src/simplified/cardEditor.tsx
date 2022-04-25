@@ -1,16 +1,14 @@
-import { CodeableConcept } from "fhir/r4";
-import React, { Dispatch, ElementType, SetStateAction, useEffect, useState } from "react";
-import { Button, Card, Col, Form, InputGroup, Modal, Row } from 'react-bootstrap';
-import * as SchemaUtils from "../helpers/schema-utils";
-import State, { SageNodeInitializedFreezerNode } from "../state";
-import { OuterCardForm, textBoxProps, cardLayout, displayBoxProps, dropdownBoxProps, fieldFormProps } from "./outerCardForm";
-import { ACTIVITY_DEFINITION, allFormElems, convertFormElementToObject, formElemtoResourceProp, FriendlyResourceFormElement, FriendlyResourceProps, getFormElementListForResource, PLAN_DEFINITION, profileToFriendlyResourceListEntry } from "./nameHelpers";
-import { MedicationRequestForm } from "./medicationRequestForm";
-import { fhirToFriendly } from '../simplified/nameHelpers';
-import CodeableConceptEditor, { CodeableConceptEditorProps } from "./codeableConceptEditor";
 import { faInfoCircle } from "@fortawesome/pro-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { text } from "@fortawesome/fontawesome-svg-core";
+import { CodeableConcept } from "fhir/r4";
+import React, { Dispatch, ElementType, SetStateAction, useEffect, useState } from "react";
+import { Button, Card, Col, Form, InputGroup, Row } from 'react-bootstrap';
+import * as SchemaUtils from "../helpers/schema-utils";
+import State, { SageNodeInitializedFreezerNode } from "../state";
+import CodeableConceptEditor, { CodeableConceptEditorProps } from "./codeableConceptEditor";
+import { MedicationRequestForm } from "./medicationRequestForm";
+import { ACTIVITY_DEFINITION, allFormElems, formElemtoResourceProp, FriendlyResourceFormElement, FriendlyResourceProps, getFormElementListForResource, profileToFriendlyResourceListEntry } from "./nameHelpers";
+import { cardLayout, displayBoxProps, dropdownBoxProps, fieldFormProps, OuterCardForm, textBoxProps } from "./outerCardForm";
 
 
 interface ExpressionOptionDict {
@@ -62,7 +60,7 @@ export interface FieldHandlerProps {
     fieldContents: any,
     setField: Dispatch<SetStateAction<any>>
     fieldSaveHandler: (name: string, contents: any, act: any, plan: any) => void
-    fieldAutoGenFn?: (fieldHandlers: Map<string, FieldHandlerProps>) => string
+    fieldAutoGenFn?: (changedField: string, fieldValue: string, fieldHandlers: Map<string, FieldHandlerProps>) => string
 }
 
 const simpleCardField = (fieldName: string, actNode: SageNodeInitializedFreezerNode) => {
@@ -143,7 +141,7 @@ const createTextBoxElement = (fieldKey: string, friendlyFieldName: string, textP
                         onChange: (e: { currentTarget: { value: any; }; }) => {
                             setField(e.currentTarget.value);
                             if (!textProps.isReadOnly) {
-                                changeDependantFields(textProps, fieldHandlers);
+                                changeDependantFields(fieldName, e.currentTarget.value, textProps, fieldHandlers);
                             }
                         }
                     }
@@ -198,7 +196,7 @@ const createDropdownElement = (fieldKey: string, fieldFriendlyName: string, fiel
                             defaultValue = {fieldContents}
                             onChange={(e) => {
                                 setField(e.currentTarget.value);
-                                changeDependantFields(fieldElements, fieldHandlers);
+                                changeDependantFields(fieldName, e.currentTarget.value, fieldElements, fieldHandlers);
                             }}
                         >
                             <option hidden disabled value=''>{'Select...'}</option>
@@ -321,13 +319,13 @@ const fieldElementListForType = (innerCardForm: ICardForm, friendlyFields: Frien
     ]
 }
 
-function changeDependantFields(fieldProps: fieldFormProps, fieldHandlers: Map<string, FieldHandlerProps>) {
+function changeDependantFields(changedField: string, fieldValue: string, fieldProps: fieldFormProps, fieldHandlers: Map<string, FieldHandlerProps>) {
     if (fieldProps.requiredFor) {
         const reactFieldHandler = fieldHandlers.get(fieldProps.requiredFor);
         if (reactFieldHandler) {
             const reactAutoGenFn = reactFieldHandler.fieldAutoGenFn;
             if (reactAutoGenFn) {
-                reactFieldHandler.setField(reactAutoGenFn(fieldHandlers));
+                reactFieldHandler.setField(reactAutoGenFn(changedField, fieldValue, fieldHandlers));
             }
         }
     }
