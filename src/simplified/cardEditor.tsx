@@ -3,7 +3,7 @@ import React, { Dispatch, ElementType, SetStateAction, useEffect, useState } fro
 import { Button, Card, Col, Form, InputGroup, Modal, Row } from 'react-bootstrap';
 import * as SchemaUtils from "../helpers/schema-utils";
 import State, { SageNodeInitializedFreezerNode } from "../state";
-import { OuterCardForm, textBoxProps, cardLayout, displayBoxProps, dropdownBoxProps } from "./outerCardForm";
+import { OuterCardForm, textBoxProps, cardLayout, displayBoxProps, dropdownBoxProps, fieldFormProps } from "./outerCardForm";
 import { ACTIVITY_DEFINITION, allFormElems, convertFormElementToObject, formElemtoResourceProp, FriendlyResourceFormElement, FriendlyResourceProps, getFormElementListForResource, PLAN_DEFINITION, profileToFriendlyResourceListEntry } from "./nameHelpers";
 import { MedicationRequestForm } from "./medicationRequestForm";
 import { fhirToFriendly } from '../simplified/nameHelpers';
@@ -196,7 +196,7 @@ const createDropdownElement = (fieldKey: string, fieldFriendlyName: string, fiel
                             defaultValue = {fieldContents}
                             onChange={(e) => {
                                 setField(e.currentTarget.value);
-                                // changeDependantFields(textProps, fieldHandlers);
+                                changeDependantFields(fieldElements, fieldHandlers);
                             }}
                         >
                             <option hidden disabled value=''>{'Select...'}</option>
@@ -319,9 +319,9 @@ const fieldElementListForType = (innerCardForm: ICardForm, friendlyFields: Frien
     ]
 }
 
-function changeDependantFields(textProps: textBoxProps, fieldHandlers: Map<string, FieldHandlerProps>) {
-    if (textProps.requiredFor) {
-        const reactFieldHandler = fieldHandlers.get(textProps.requiredFor);
+function changeDependantFields(fieldProps: fieldFormProps, fieldHandlers: Map<string, FieldHandlerProps>) {
+    if (fieldProps.requiredFor) {
+        const reactFieldHandler = fieldHandlers.get(fieldProps.requiredFor);
         if (reactFieldHandler) {
             const reactAutoGenFn = reactFieldHandler.fieldAutoGenFn;
             if (reactAutoGenFn) {

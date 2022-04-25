@@ -89,9 +89,9 @@ export class MedicationRequestForm implements ICardForm {
         ['intent',
             { values: ['proposal', 'plan', 'order', 'original-order', 'reflex-order', 'filler-order', 'instance-order', 'option'] }],
         ['periodUnit',
-            { values: ['h', 'd', 'wk', 'mo', 'a'] }],
+            { values: ['h', 'd', 'wk', 'mo', 'a'], requiredFor: "text" }],
         ['durationUnit',
-            { values: ['h', 'd', 'wk', 'mo', 'a'] }],
+            { values: ['h', 'd', 'wk', 'mo', 'a'], requiredFor: "text" }],
         ['type',
             { values: ['documentation', 'justification', 'citation', 'predecessor', 'successor', 'derived-from', 'depends-on', 'composed-of'] }]
     ]);
@@ -278,6 +278,6 @@ function updateDosageAutofill(fieldHandlers: Map<string, FieldHandlerProps>): st
     const fieldTriggers = ['frequency', 'period', 'periodUnit', 'duration', 'durationUnit'];
     const fieldVals = new Map(
         fieldTriggers.map(ft => { return [ft, fieldHandlers.get(ft)?.fieldContents] }));
-    return fieldVals.get(fieldTriggers[0]) + fieldVals.get(fieldTriggers[1]) + fieldVals.get(fieldTriggers[3]);
+    return fieldVals.get(fieldTriggers[0]) + fieldVals.get(fieldTriggers[1]) + fieldVals.get(fieldTriggers[2]) + fieldVals.get(fieldTriggers[3]) + fieldVals.get(fieldTriggers[4]);
 }
 

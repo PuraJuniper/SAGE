@@ -18,7 +18,12 @@ export enum ElemType {
     TextBox,
     Dropdown
 }
-export type textBoxProps = {
+
+export type fieldFormProps = {
+    requiredFor?: string;
+}
+
+export type textBoxProps = fieldFormProps & {
     boxSize: number;
     isReadOnly: boolean;
     isLink: boolean;
@@ -26,7 +31,6 @@ export type textBoxProps = {
     className?: string;
     hideFieldTitle?: boolean;
     hideFieldToolTip?: boolean;
-    requiredFor?: string;
     autoGenFn?: (fieldHandlers: Map<string, FieldHandlerProps>) => string;
 }
 export type displayBoxProps = {
@@ -34,9 +38,8 @@ export type displayBoxProps = {
     displayFieldTitle: boolean;
 }
 
-export type dropdownBoxProps = {
+export type dropdownBoxProps = fieldFormProps & {
     values: string[];
-    requiredFor?: string;
 }
 export interface CardFormState {
     step: number;
