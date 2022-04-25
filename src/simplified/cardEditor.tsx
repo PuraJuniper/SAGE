@@ -142,7 +142,9 @@ const createTextBoxElement = (fieldKey: string, friendlyFieldName: string, textP
                         defaultValue: fieldContents,
                         onChange: (e: { currentTarget: { value: any; }; }) => {
                             setField(e.currentTarget.value);
-                            changeDependantFields(textProps, fieldHandlers);
+                            if (!textProps.isReadOnly) {
+                                changeDependantFields(textProps, fieldHandlers);
+                            }
                         }
                     }
                 }} />;

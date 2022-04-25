@@ -36,7 +36,7 @@ export class MedicationRequestForm implements ICardForm {
         }],
         ['text', {
             boxSize: 1,
-            isReadOnly: false,
+            isReadOnly: true,
             isLink: false,
             caption: "",
             autoGenFn: updateDosageAutofill
@@ -278,6 +278,6 @@ function updateDosageAutofill(fieldHandlers: Map<string, FieldHandlerProps>): st
     const fieldTriggers = ['frequency', 'period', 'periodUnit', 'duration', 'durationUnit'];
     const fieldVals = new Map(
         fieldTriggers.map(ft => { return [ft, fieldHandlers.get(ft)?.fieldContents] }));
-    return fieldVals.get(fieldTriggers[0]) + fieldVals.get(fieldTriggers[1]) + fieldVals.get(fieldTriggers[2]) + fieldVals.get(fieldTriggers[3]) + fieldVals.get(fieldTriggers[4]);
+    return `Give ${fieldVals.get('frequency')} dose(s) every ${fieldVals.get('period')} ${fieldVals.get('periodUnit')} for ${fieldVals.get('duration')} ${fieldVals.get('durationUnit')}.`;
 }
 
