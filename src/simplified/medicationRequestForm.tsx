@@ -35,7 +35,7 @@ export class MedicationRequestForm implements ICardForm {
             caption: "Related Artifact must be a valid URL."
         }],
         ['text', {
-            boxSize: 1,
+            boxSize: 2,
             isReadOnly: true,
             isLink: false,
             caption: "",
