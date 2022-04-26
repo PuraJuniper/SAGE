@@ -4,7 +4,7 @@ import React from "react";
 import { Card, Col, Form, Row } from "react-bootstrap";
 import { FieldHandlerProps, ICardForm } from "./cardEditor";
 import { CodeableConceptEditorProps } from "./codeableConceptEditor";
-import { FriendlyResourceProps } from "./nameHelpers";
+import { FriendlyResourceProps, friendlyTimeUnit } from "./nameHelpers";
 import { displayBoxProps, dropdownBoxProps, textBoxProps } from "./outerCardForm";
 
 export class MedicationRequestForm implements ICardForm {
@@ -278,5 +278,15 @@ function updateDosageAutofill(changedField: string, fieldValue: string, fieldHan
     const fieldTriggers = ['frequency', 'period', 'periodUnit', 'duration', 'durationUnit'];
     const fieldVals = new Map(
         fieldTriggers.map(ft => { return [ft, ft == changedField ? fieldValue : fieldHandlers.get(ft)?.fieldContents] }));
-    return `Give ${fieldVals.get('frequency')} dose(s) every ${fieldVals.get('period')} ${fieldVals.get('periodUnit')} for ${fieldVals.get('duration')} ${fieldVals.get('durationUnit')}.`;
+    function pluralUnit(unit: number) {
+        return unit > 1 ? 's' : '';
+    }
+    const timeString = (timeType: string, timeUnit: string) => {
+        const timeVal: number = fieldVals.get(timeType);
+        const friendlyTime = friendlyTimeUnit(fieldVals.get(timeUnit) ?? timeUnit);
+        return timeVal + ' ' + friendlyTime + (friendlyTime == '' ? '' : pluralUnit(timeVal));
+    }
+    return `Give ${timeString('frequency', 'dose')} every ${timeString('period', 'periodUnit')} for ${timeString('duration', 'durationUnit')}.`;
+
+
 }

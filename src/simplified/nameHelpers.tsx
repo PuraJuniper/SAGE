@@ -184,3 +184,19 @@ export function convertFormElementToObject(formElem: FriendlyResourceFormElement
 
     return {};
 }
+export function friendlyTimeUnit(timeUnit: string): string {
+        switch (timeUnit) {
+            case 'h':
+                return 'hour';
+            case 'd':
+                return 'day';
+            case 'wk':
+                return 'week';
+            case 'mo':
+                return 'month';
+            case 'a':
+                return 'year';
+            default:
+                return timeUnit;
+        }
+}
