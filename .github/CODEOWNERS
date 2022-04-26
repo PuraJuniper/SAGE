@@ -2,3 +2,4 @@
 docker-compose.dev.yml connorsmyth@rogers.com
 docker-compose.yml connorsmyth@rogers.com
 Makefile connorsmyth@rogers.com
+/.github/workflows/images.publish.yml connorsmyth@rogers.com
