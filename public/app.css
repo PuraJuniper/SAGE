@@ -671,6 +671,11 @@ a {
   font-size: large;
 }
 
+/* Condition Editor */
+.condition-editor-body {
+  min-height: 50vh;
+}
+
 /* CQL Wizard */
 .cql-wizard-modal {
   height: 50rem;

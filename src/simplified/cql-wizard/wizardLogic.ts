@@ -1,8 +1,8 @@
 import State from "../../state";
 import { Moment } from "moment";
 import { getConceptsOfValueSet, SageCodeConcept, SimplifiedProfiles } from "../../helpers/schema-utils";
-import { Coding } from "fhir/r4";
-import { AggregateType, EditableStateForCondition, SageCondition } from "./conditionEditor";
+import { Coding, PlanDefinitionActionCondition } from "fhir/r4";
+import { EditableCondition } from "./conditionEditor";
 
 // Pages of the wizard
 export enum WizardPage {
@@ -464,18 +464,15 @@ export function getPrevPage(curPage: WizardPage, stepStatus: WizardState["pageSt
 }
 
 // Temporary storage/loading of wizard states for purpose of cql export feature
-export const exprToWizStateMap: { [key: string]: EditableStateForCondition } = {};
-export function buildEditableStateFromCondition(condition: SageCondition): EditableStateForCondition {
-    return exprToWizStateMap[condition.id] !== undefined ?
-        exprToWizStateMap[condition.id] :
-        {
-            conditionId: condition.id,
-            exprAggregate: {
-                aggregate: AggregateType.Exists
-            },
-            curWizState: initFromState(null)
-        };
+export const exprToWizStateMap: { [key: string]: EditableCondition } = {};
+export function findEditableCondition(conditions: PlanDefinitionActionCondition[]): EditableCondition | null {
+    for (const cond of conditions) {
+        if (cond.id !== undefined && exprToWizStateMap[cond.id] !== undefined) {
+            return exprToWizStateMap[cond.id];
+        }
+    }
+    return null;
 }
-export function saveEditableStateForConditionId(conditionId: string, stateToSave: EditableStateForCondition) {
+export function saveEditableCondition(conditionId: string, stateToSave: EditableCondition) {
     exprToWizStateMap[conditionId] = stateToSave;
 }
