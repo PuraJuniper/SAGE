@@ -9,6 +9,8 @@ import { FriendlyResourceProps, friendlyTimeUnit } from "./nameHelpers";
 import { displayBoxProps, dropdownBoxProps, textBoxProps } from "./outerCardForm";
 import * as Bioportal from './cql-wizard/bioportal';
 
+const dosageCodes: string[] = [];
+
 export class MedicationRequestForm implements ICardForm {
 
     resourceType;
@@ -300,11 +302,14 @@ function updateDosageAutofill(changedField: string, fieldValue: string, fieldHan
 const DosageSnomedCodes = () => {
     const [bioSearchResults, setBioSearchResults] = useState<SageCoding[]>([]);
     const [ucumSearchResults, setUcumSearchResults] = useState<SageCoding[]>([]);
+    if (dosageCodes.length == 0) {
         Bioportal.searchForSNOMEDConcept('"Basic dose form (basic dose form)"').then(v => {
             setBioSearchResults(v);
         })
         Bioportal.search('drug form', ['HL7'], 'concept').then(v => {
             setUcumSearchResults(v);
         })
-    return [...bioSearchResults, ...ucumSearchResults].map(sc => sc.display);
+        dosageCodes.push(...[...bioSearchResults, ...ucumSearchResults].map(sc => sc.display))
+    }
+    return dosageCodes;
 }
