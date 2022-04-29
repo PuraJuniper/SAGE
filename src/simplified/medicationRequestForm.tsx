@@ -1,11 +1,13 @@
 import { faHomeLgAlt, faInfoCircle } from "@fortawesome/pro-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import React from "react";
+import React, { useState } from "react";
 import { Card, Col, Form, Row } from "react-bootstrap";
 import { FieldHandlerProps, ICardForm } from "./cardEditor";
 import { CodeableConceptEditorProps } from "./codeableConceptEditor";
+import { SageCoding } from "./cql-wizard/wizardLogic";
 import { FriendlyResourceProps, friendlyTimeUnit } from "./nameHelpers";
 import { displayBoxProps, dropdownBoxProps, textBoxProps } from "./outerCardForm";
+import * as Bioportal from './cql-wizard/bioportal';
 
 export class MedicationRequestForm implements ICardForm {
 
@@ -66,12 +68,12 @@ export class MedicationRequestForm implements ICardForm {
             isLink: false,
             caption: ""
         }],
-        ['unit', {
-            boxSize: 1,
-            isReadOnly: false,
-            isLink: false,
-            caption: ""
-        }],
+        // ['unit', {
+        //     boxSize: 1,
+        //     isReadOnly: false,
+        //     isLink: false,
+        //     caption: ""
+        // }],
         ['duration', {
             boxSize: 1,
             isReadOnly: false,
@@ -85,15 +87,17 @@ export class MedicationRequestForm implements ICardForm {
 
     dropdownFields = new Map<string, dropdownBoxProps>([
         ['status',
-            { values: ['active', 'on-hold', 'cancelled', 'completed', 'entered-in-error', 'stopped', 'draft', 'unknown'] }],
+            { values: () => ['active', 'on-hold', 'cancelled', 'completed', 'entered-in-error', 'stopped', 'draft', 'unknown'] }],
         ['intent',
-            { values: ['proposal', 'plan', 'order', 'original-order', 'reflex-order', 'filler-order', 'instance-order', 'option'] }],
+            { values: () => ['proposal', 'plan', 'order', 'original-order', 'reflex-order', 'filler-order', 'instance-order', 'option'] }],
         ['periodUnit',
-            { values: ['h', 'd', 'wk', 'mo', 'a'], requiredFor: "text" }],
+            { values: () => ['h', 'd', 'wk', 'mo', 'a'], requiredFor: "text" }],
         ['durationUnit',
-            { values: ['h', 'd', 'wk', 'mo', 'a'], requiredFor: "text" }],
+            { values: () => ['h', 'd', 'wk', 'mo', 'a'], requiredFor: "text" }],
         ['type',
-            { values: ['documentation', 'justification', 'citation', 'predecessor', 'successor', 'derived-from', 'depends-on', 'composed-of'] }]
+            { values: () => ['documentation', 'justification', 'citation', 'predecessor', 'successor', 'derived-from', 'depends-on', 'composed-of'] }],
+        ['unit',
+            { values: DosageSnomedCodes}]
     ]);
     displayBoxFields = new Map<string, displayBoxProps>([
         ['title', {
@@ -291,4 +295,12 @@ function updateDosageAutofill(changedField: string, fieldValue: string, fieldHan
     return `Give ${timeString('frequency', 'dose')} every ${timeString('period', 'periodUnit')} for ${timeString('duration', 'durationUnit')}.`;
 
 
+}
+
+const DosageSnomedCodes = () => {
+    const [searchResults, setSearchResults] = useState<SageCoding[]>([]);
+    Bioportal.searchForText('385050006', ['SNOMEDCT']).then(v => {
+        setSearchResults(v);
+    })
+    return searchResults.map(sc => sc.display);
 }

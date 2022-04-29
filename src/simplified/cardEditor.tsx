@@ -200,7 +200,7 @@ const createDropdownElement = (fieldKey: string, fieldFriendlyName: string, fiel
                             }}
                         >
                             <option hidden disabled value=''>{'Select...'}</option>
-                            {fieldElements.values.map((sType) => {
+                            {fieldElements.values().map((sType) => {
                                 return <option key={fieldKey + "-" + sType} value={sType}>{sType}</option>;
                             })}
                         </Form.Control>
@@ -221,7 +221,7 @@ const createDropdownElement = (fieldKey: string, fieldFriendlyName: string, fiel
                         onChange={(e) => setField(e.currentTarget.value)}
                     >
                         <option hidden disabled value=''>{'--Please Select an Option--'}</option>
-                        {fieldElements.values.map((sType) => {
+                        {fieldElements.values().map((sType) => {
                             return <option key={fieldKey + "-" + sType} value={sType}>{sType}</option>;
                         })}
                     </Form.Control>
@@ -298,7 +298,7 @@ const createDropdownElementList = (innerCardForm: ICardForm, friendlyFields: Fri
     return friendlyFields
         .filter(ff => innerCardForm.dropdownFields.has(ff.SELF.FHIR))
         .map(ff => {
-            return createDropdownElement(ff.SELF.FHIR, ff.SELF.FRIENDLY, innerCardForm.dropdownFields.get(ff.SELF.FHIR) ?? {values: []}, fieldHandlers, node)
+            return createDropdownElement(ff.SELF.FHIR, ff.SELF.FRIENDLY, innerCardForm.dropdownFields.get(ff.SELF.FHIR) ?? {values: () => []}, fieldHandlers, node)
         })
 }
 

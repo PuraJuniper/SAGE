@@ -39,7 +39,7 @@ export type displayBoxProps = {
 }
 
 export type dropdownBoxProps = fieldFormProps & {
-    values: string[];
+    values: () => string[];
 }
 export interface CardFormState {
     step: number;
