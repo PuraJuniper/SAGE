@@ -42,6 +42,7 @@ export interface ICardForm {
     textBoxFields: Map<string, textBoxProps>;
     displayBoxFields: Map<string, displayBoxProps>;
     dropdownFields: Map<string, dropdownBoxProps>;
+    invisibleFields: string[]; 
     codeableConceptFields: Map<string, Partial<CodeableConceptEditorProps>>;
     resourceFields: string[];
     cardFieldLayout: cardLayout;
@@ -309,15 +310,27 @@ const createCodeableConceptElementList = (innerCardForm: ICardForm, friendlyFiel
             return createCodeableConceptElement(ff.SELF.FHIR, ff.SELF.FRIENDLY, innerCardForm.codeableConceptFields.get(ff.SELF.FHIR) ?? {}, fieldHandlers, node)
         })
 }
+function handleInvisibleFieldList(innerCardForm: ICardForm, friendlyFields: FriendlyResourceFormElement[], fieldHandlers: Map<string, FieldHandlerProps>, node: SageNodeInitializedFreezerNode) {
+    friendlyFields
+        .filter(ff => innerCardForm.invisibleFields.includes(ff.SELF.FHIR))
+        .forEach(ff => {
+            const [fieldName, fieldContents, setField, fieldSaveHandler] = simpleCardField(ff.SELF.FHIR, node);
+            setField("test");
+            fieldHandlers.set(fieldName, { fieldName, fieldContents, setField, fieldSaveHandler });
+        });
+}
 
 const fieldElementListForType = (innerCardForm: ICardForm, friendlyFields: FriendlyResourceFormElement[], fieldHandlers: Map<string, FieldHandlerProps>, node: SageNodeInitializedFreezerNode): JSX.Element[] => {
     const flattenFriendlyFields = allFormElems(friendlyFields);
+    handleInvisibleFieldList(innerCardForm, friendlyFields , fieldHandlers, node);
     return [
         ...createTextBoxElementList(innerCardForm, flattenFriendlyFields, fieldHandlers, node),
         ...createDropdownElementList(innerCardForm, flattenFriendlyFields, fieldHandlers, node),
         ...createCodeableConceptElementList(innerCardForm, flattenFriendlyFields, fieldHandlers, node),
     ]
 }
+
+
 
 function changeDependantFields(changedField: string, fieldValue: string, fieldProps: fieldFormProps, fieldHandlers: Map<string, FieldHandlerProps>) {
     if (fieldProps.requiredFor) {

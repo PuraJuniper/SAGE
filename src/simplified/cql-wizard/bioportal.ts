@@ -43,11 +43,11 @@ Object.entries(ontologyToSystemAndVersion).forEach(v => v[1] ? (systemUrlToOntol
 export async function search(text: string, ontologies?: string[], searchType?: string): Promise<SageCoding[]> {
     const ontologiesParam = ontologies === undefined ? Object.keys(ontologyToSystemAndVersion).join(',') : ontologies.join(',');
     if (searchType && searchType == 'concept' && ontologies && ontologies.includes('SNOMEDCT')) {
-        return searchForSNOMEDConcept(text);
+        return await searchForSNOMEDConcept(text);
     } else if (searchType && searchType == 'text') {
-        return searchForText(text, ontologies);
+        return await searchForText(text, ontologies);
     } else {
-        return searchForConcept(text, ontologies)
+        return await searchForConcept(text, ontologies)
     }
 }
 

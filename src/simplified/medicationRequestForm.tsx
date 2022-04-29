@@ -9,7 +9,7 @@ import { FriendlyResourceProps, friendlyTimeUnit } from "./nameHelpers";
 import { displayBoxProps, dropdownBoxProps, textBoxProps } from "./outerCardForm";
 import * as Bioportal from './cql-wizard/bioportal';
 
-const dosageCodes: string[] = [];
+const dosageCodes: SageCoding[] = [];
 
 export class MedicationRequestForm implements ICardForm {
 
@@ -70,12 +70,6 @@ export class MedicationRequestForm implements ICardForm {
             isLink: false,
             caption: ""
         }],
-        // ['unit', {
-        //     boxSize: 1,
-        //     isReadOnly: false,
-        //     isLink: false,
-        //     caption: ""
-        // }],
         ['duration', {
             boxSize: 1,
             isReadOnly: false,
@@ -99,7 +93,7 @@ export class MedicationRequestForm implements ICardForm {
         ['type',
             { values: () => ['documentation', 'justification', 'citation', 'predecessor', 'successor', 'derived-from', 'depends-on', 'composed-of'] }],
         ['unit',
-            { values: DosageSnomedCodes}]
+            { values: GetDosageUnits}]
     ]);
     displayBoxFields = new Map<string, displayBoxProps>([
         ['title', {
@@ -150,6 +144,8 @@ export class MedicationRequestForm implements ICardForm {
     ]);
 
     resourceFields = ['dosage', 'timing', 'repeat', 'relatedArtifact', 'doseAndRate', 'doseQuantity'];
+
+    invisibleFields = ['system', 'code']
 
     cardFieldLayout =
         {
@@ -299,17 +295,24 @@ function updateDosageAutofill(changedField: string, fieldValue: string, fieldHan
 
 }
 
-const DosageSnomedCodes = () => {
-    const [bioSearchResults, setBioSearchResults] = useState<SageCoding[]>([]);
-    const [ucumSearchResults, setUcumSearchResults] = useState<SageCoding[]>([]);
-    if (dosageCodes.length == 0) {
-        Bioportal.searchForSNOMEDConcept('"Basic dose form (basic dose form)"').then(v => {
-            setBioSearchResults(v);
+function GetDosageUnits() : string[] {
+    GetDosageSageCodings();
+    return dosageCodes.map(sc => sc.display);
+}
+
+async function GetDosageSageCodings(): Promise<void>  {
+    const [firstLookup, setFirstLookup] = useState<boolean>(true);
+    const [searchResults, setSearchResults] = useState<SageCoding[]>([]);
+    if (firstLookup) {
+        setFirstLookup(false);
+        await Bioportal.searchForSNOMEDConcept('"Basic dose form (basic dose form)"')
+        .then(v => {
+            setSearchResults([...searchResults, ...v]);
         })
-        Bioportal.search('drug form', ['HL7'], 'concept').then(v => {
-            setUcumSearchResults(v);
+        await Bioportal.search('drug form', ['HL7'], 'concept')
+        .then(v => {
+            setSearchResults([...searchResults, ...v]);
         })
-        dosageCodes.push(...[...bioSearchResults, ...ucumSearchResults].map(sc => sc.display))
     }
-    return dosageCodes;
+    dosageCodes.push(...searchResults)
 }
