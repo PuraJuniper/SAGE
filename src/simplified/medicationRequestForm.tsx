@@ -298,9 +298,13 @@ function updateDosageAutofill(changedField: string, fieldValue: string, fieldHan
 }
 
 const DosageSnomedCodes = () => {
-    const [searchResults, setSearchResults] = useState<SageCoding[]>([]);
-    Bioportal.searchForText('385050006', ['SNOMEDCT']).then(v => {
-        setSearchResults(v);
-    })
-    return searchResults.map(sc => sc.display);
+    const [bioSearchResults, setBioSearchResults] = useState<SageCoding[]>([]);
+    const [ucumSearchResults, setUcumSearchResults] = useState<SageCoding[]>([]);
+        Bioportal.searchForSNOMEDConcept('"Basic dose form (basic dose form)"').then(v => {
+            setBioSearchResults(v);
+        })
+        Bioportal.search('drug form', ['HL7'], 'concept').then(v => {
+            setUcumSearchResults(v);
+        })
+    return [...bioSearchResults, ...ucumSearchResults].map(sc => sc.display);
 }

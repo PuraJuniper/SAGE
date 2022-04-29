@@ -28,11 +28,28 @@ export const ontologyToSystemAndVersion: {[key: string]: {system: string, versio
         system: "http://www.nlm.nih.gov/research/umls/rxnorm",
         version: "03072022",
     },
+    'HL7': {
+        system: "",
+        version: "2021AB"
+
+    }
 };
 
 // Map urls back to their name on Bioportal
 export const systemUrlToOntology: {[systemUrl: string]: string | undefined} = {};
 Object.entries(ontologyToSystemAndVersion).forEach(v => v[1] ? (systemUrlToOntology[v[1].system] = v[0]) : null)
+
+
+export async function search(text: string, ontologies?: string[], searchType?: string): Promise<SageCoding[]> {
+    const ontologiesParam = ontologies === undefined ? Object.keys(ontologyToSystemAndVersion).join(',') : ontologies.join(',');
+    if (searchType && searchType == 'concept' && ontologies && ontologies.includes('SNOMEDCT')) {
+        return searchForSNOMEDConcept(text);
+    } else if (searchType && searchType == 'text') {
+        return searchForText(text, ontologies);
+    } else {
+        return searchForConcept(text, ontologies)
+    }
+}
 
 /**
  * Search Bioportal for codes matching the query
@@ -79,17 +96,22 @@ export async function searchForText(text: string, ontologies?: string[]): Promis
 }
 
 export async function searchForSNOMEDConcept(concept: string): Promise<SageCoding[]> {
-    let res: SageCoding[] = [];
+    return await searchForConcept(concept, ["SNOMEDCT"])
+}
+
+async function searchForConcept(concept: string, ontologies?: string[]) {
+
+    const ontologiesParam = ontologies === undefined ? Object.keys(ontologyToSystemAndVersion).join(',') : ontologies.join(',');
     try {
         const conceptResponse = await axios({
             url: "https://data.bioontology.org/search",
             method: "GET",
             params: {
                 q: concept,
-                ontologies: "SNOMEDCT",
+                ontologies: ontologiesParam,
                 apikey: State.get().bioportalApikey,
             }
-        })
+        });
         const descendantsUrl = (conceptResponse.data.collection as Array<any>)[0].links.descendants;
 
         const response = await axios({
@@ -99,27 +121,27 @@ export async function searchForSNOMEDConcept(concept: string): Promise<SageCodin
                 apikey: State.get().bioportalApikey,
                 include: "prefLabel,synonym,definition,notation"
             }
-        })
+        });
         // Convert response to SageCoding array
-        res = (response.data.collection as Array<any>).flatMap<SageCoding>(v => {
+        return (response.data.collection as Array<any>).flatMap<SageCoding>(v => {
             const ontologyName = (v.links.ontology as string).split('/').pop();
             if (ontologyName === undefined) {
                 return [];
             }
-            const {system, version} = ontologyToSystemAndVersion[ontologyName] ?? { system: "unknown", version: "unknown"};
+            const { system, version } = ontologyToSystemAndVersion[ontologyName] ?? { system: "unknown", version: "unknown" };
             return [{
-                code: v.notation ?? (v['@id'] as string).split('/').pop(), // "notation" isn't working on this endpoint for some reason
+                code: v.notation ?? (v['@id'] as string).split('/').pop(),
                 display: v.prefLabel,
                 system: system,
                 version: version,
                 __sageDefinitions: (v.definition as Array<string>),
                 __sageSynonyms: (v.synonym as Array<string>),
-            }]
-        })
+            }];
+        });
     }
     catch (e) {
         console.log(`Error contacting bioportal api: ${e}`);
     }
-
-    return res
+    return [];
 }
+
