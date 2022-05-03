@@ -214,7 +214,7 @@ export class MedicationRequestForm implements ICardForm {
                     {props.fieldElements[0]}
                     <div style={{'margin': "0 10px"}}>dose(s) every</div> 
                     {props.fieldElements[1]}
-                    {props.fieldElements[9]}
+                    {props.fieldElements.find(x => x.key == 'periodUnit-fromGroup')}
                 </div>
             </Row>
         </Col>
@@ -224,7 +224,7 @@ export class MedicationRequestForm implements ICardForm {
                 <div style={{'display':'flex', 'flexDirection': 'row', 'whiteSpace':'nowrap', 'justifyContent':'flex-end', 'flex': '0 0 90%'}} >
                     <div style={{'margin': "0 10px"}}>for</div> 
                     {props.fieldElements[2]}
-                    {props.fieldElements[10]}
+                    {props.fieldElements.find(x => x.key == 'durationUnit-fromGroup')}
                 </div>
             </Row>
         </Col>
