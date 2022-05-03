@@ -318,7 +318,7 @@ function handleInvisibleFieldList(innerCardForm: ICardForm, friendlyFields: Frie
     friendlyFields
         .filter(ff => innerCardForm.invisibleFields.has(ff.SELF.FHIR))
         .forEach(ff => {
-            const [fieldName, fieldContents, setField, fieldSaveHandler] = simpleCardField(ff.SELF.FHIR, node, ['dosage', 'doseAndRate', 'doseQuantity']);
+            const [fieldName, fieldContents, setField, fieldSaveHandler] = simpleCardField(ff.SELF.FHIR, node, ff.SELF.PARENTS);
             fieldHandlers.set(fieldName, { fieldName, fieldContents, setField, fieldSaveHandler, otherFieldChangeTriggerFn: innerCardForm.invisibleFields.get(ff.SELF.FHIR)?.otherFieldTriggerFn });
         });
 }
