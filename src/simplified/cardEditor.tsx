@@ -315,14 +315,14 @@ function handleInvisibleFieldList(innerCardForm: ICardForm, friendlyFields: Frie
         .filter(ff => innerCardForm.invisibleFields.includes(ff.SELF.FHIR))
         .forEach(ff => {
             const [fieldName, fieldContents, setField, fieldSaveHandler] = simpleCardField(ff.SELF.FHIR, node);
-            setField("test");
+            // setField("test");
             fieldHandlers.set(fieldName, { fieldName, fieldContents, setField, fieldSaveHandler });
         });
 }
 
 const fieldElementListForType = (innerCardForm: ICardForm, friendlyFields: FriendlyResourceFormElement[], fieldHandlers: Map<string, FieldHandlerProps>, node: SageNodeInitializedFreezerNode): JSX.Element[] => {
     const flattenFriendlyFields = allFormElems(friendlyFields);
-    handleInvisibleFieldList(innerCardForm, friendlyFields , fieldHandlers, node);
+    handleInvisibleFieldList(innerCardForm, flattenFriendlyFields, fieldHandlers, node);
     return [
         ...createTextBoxElementList(innerCardForm, flattenFriendlyFields, fieldHandlers, node),
         ...createDropdownElementList(innerCardForm, flattenFriendlyFields, fieldHandlers, node),
