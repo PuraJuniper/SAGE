@@ -305,7 +305,7 @@ function updateUnitNode(changedField: string, fieldValue: string, fieldHandlers:
     const dosageSageCode = dosageCodes.find(dc => dc.display == fieldValue);
     switch (requiredField) {
         case 'system':
-            return dosageSageCode ? dosageSageCode.system : "NOT_FOUND";
+            return dosageSageCode ? dosageSageCode.system == "" ? "http://unitsofmeasure.org" : dosageSageCode.system : "NOT_FOUND";
         case 'code':
             return dosageSageCode ? dosageSageCode.code : "NOT_FOUND";
         default:
