@@ -6,7 +6,7 @@ import { FieldHandlerProps, ICardForm } from "./cardEditor";
 import { CodeableConceptEditorProps } from "./codeableConceptEditor";
 import { SageCoding } from "./cql-wizard/wizardLogic";
 import { FriendlyResourceProps, friendlyTimeUnit } from "./nameHelpers";
-import { displayBoxProps, dropdownBoxProps, textBoxProps } from "./outerCardForm";
+import { displayBoxProps, dropdownBoxProps, invisibleFieldProps, textBoxProps } from "./outerCardForm";
 import * as Bioportal from './cql-wizard/bioportal';
 
 const dosageCodes: SageCoding[] = [];
@@ -43,7 +43,7 @@ export class MedicationRequestForm implements ICardForm {
             isReadOnly: true,
             isLink: false,
             caption: "",
-            autoGenFn: updateDosageAutofill
+            otherFieldTriggerFn: updateDosageAutofill
 
         }],
         ['frequency', {
@@ -53,7 +53,7 @@ export class MedicationRequestForm implements ICardForm {
             caption: "",
             className: "page1-dosage-small",
             hideFieldTitle: true,
-            requiredFor: "text"
+            requiredFor: ["text"]
         }],
         ['period', {
             boxSize: 1,
@@ -62,7 +62,7 @@ export class MedicationRequestForm implements ICardForm {
             caption: "",
             className: "page1-dosage-small",
             hideFieldTitle: true,
-            requiredFor: "text"
+            requiredFor: ["text"]
         }],
         ['value', {
             boxSize: 1,
@@ -77,7 +77,7 @@ export class MedicationRequestForm implements ICardForm {
             caption: "",
             className: "page1-dosage-small",
             hideFieldTitle: true,
-            requiredFor: "text"
+            requiredFor: ["text"]
         }]
     ]);
 
@@ -87,13 +87,13 @@ export class MedicationRequestForm implements ICardForm {
         ['intent',
             { values: () => ['proposal', 'plan', 'order', 'original-order', 'reflex-order', 'filler-order', 'instance-order', 'option'] }],
         ['periodUnit',
-            { values: () => ['h', 'd', 'wk', 'mo', 'a'], requiredFor: "text" }],
+            { values: () => ['h', 'd', 'wk', 'mo', 'a'], requiredFor: ["text"] }],
         ['durationUnit',
-            { values: () => ['h', 'd', 'wk', 'mo', 'a'], requiredFor: "text" }],
+            { values: () => ['h', 'd', 'wk', 'mo', 'a'], requiredFor: ["text"] }],
         ['type',
             { values: () => ['documentation', 'justification', 'citation', 'predecessor', 'successor', 'derived-from', 'depends-on', 'composed-of'] }],
         ['unit',
-            { values: GetDosageUnits}]
+            { values: GetDosageUnits, requiredFor: ["system", "code"]}]
     ]);
     displayBoxFields = new Map<string, displayBoxProps>([
         ['title', {
@@ -145,7 +145,11 @@ export class MedicationRequestForm implements ICardForm {
 
     resourceFields = ['dosage', 'timing', 'repeat', 'relatedArtifact', 'doseAndRate', 'doseQuantity'];
 
-    invisibleFields = ['system', 'code']
+    invisibleFields : Map<string, invisibleFieldProps>  =  new Map<string, invisibleFieldProps>([
+        ['system', { 
+            otherFieldTriggerFn: updateUnitNode 
+        }]
+    ]);
 
     cardFieldLayout =
         {
@@ -291,8 +295,19 @@ function updateDosageAutofill(changedField: string, fieldValue: string, fieldHan
     }
     const test = <FontAwesomeIcon key="butSaveIcon" icon={faHomeLgAlt} style={{'color':'white','height':'30px','marginRight':'3rem'}} />
     return `Give ${timeString('frequency', 'dose')} every ${timeString('period', 'periodUnit')} for ${timeString('duration', 'durationUnit')}.`;
+}
 
-
+function updateUnitNode(changedField: string, fieldValue: string, fieldHandlers: Map<string, FieldHandlerProps>, requiredField?: string): string {
+    GetDosageSageCodings();
+    const dosageSageCode = dosageCodes.find(dc => dc.display == requiredField);
+    switch (requiredField) {
+        case 'system':
+            return dosageSageCode ? dosageSageCode.system : "NOT_FOUND";
+        case 'code':
+            return dosageSageCode ? dosageSageCode.code : "NOT_FOUND";
+        default:
+            return 'NO_VALUE'
+    }
 }
 
 function GetDosageUnits() : string[] {

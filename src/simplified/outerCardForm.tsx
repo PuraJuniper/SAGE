@@ -20,7 +20,9 @@ export enum ElemType {
 }
 
 export type fieldFormProps = {
-    requiredFor?: string;
+    requiredFor?: string[];
+    otherFieldTriggerFn?: (changedField: string, fieldValue: string, fieldHandlers: Map<string, FieldHandlerProps>, requiredField?: string) => string;
+
 }
 
 export type textBoxProps = fieldFormProps & {
@@ -31,12 +33,13 @@ export type textBoxProps = fieldFormProps & {
     className?: string;
     hideFieldTitle?: boolean;
     hideFieldToolTip?: boolean;
-    autoGenFn?: (changedField: string, fieldValue: string, fieldHandlers: Map<string, FieldHandlerProps>) => string;
 }
 export type displayBoxProps = {
     className: string;
     displayFieldTitle: boolean;
 }
+
+export type invisibleFieldProps = fieldFormProps
 
 export type dropdownBoxProps = fieldFormProps & {
     values: () => string[];
