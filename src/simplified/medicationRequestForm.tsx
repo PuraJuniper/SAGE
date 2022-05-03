@@ -303,7 +303,7 @@ function GetDosageUnits() : string[] {
 async function GetDosageSageCodings(): Promise<void>  {
     const [firstLookup, setFirstLookup] = useState<boolean>(true);
     const [searchResults, setSearchResults] = useState<SageCoding[]>([]);
-    if (firstLookup) {
+    if (firstLookup && dosageCodes.length == 0) {
         setFirstLookup(false);
         await Bioportal.searchForSNOMEDConcept('"Basic dose form (basic dose form)"')
         .then(v => {
