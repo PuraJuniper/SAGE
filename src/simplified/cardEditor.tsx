@@ -64,7 +64,7 @@ export interface FieldHandlerProps {
     otherFieldChangeTriggerFn?: (changedField: string, fieldValue: string, fieldHandlers: Map<string, FieldHandlerProps>, requiredField?: string) => string
 }
 
-const simpleCardField = (fieldName: string, actNode: SageNodeInitializedFreezerNode) => {
+const simpleCardField = (fieldName: string, actNode: SageNodeInitializedFreezerNode, fieldAncestry?: string[]) => {
     const [fieldContents, setField] = CardStateEditor<string>(actNode, fieldName);
     function fieldSaveHandler(name: string, contents: any, act: any, plan: any) {
         const fieldNode = SchemaUtils.getChildOfNodePath(plan, ["action", name]);
@@ -72,7 +72,8 @@ const simpleCardField = (fieldName: string, actNode: SageNodeInitializedFreezerN
             State.emit("value_change", fieldNode, name, false);
         }
         if (act.displayName == ACTIVITY_DEFINITION) {
-            State.emit("value_change", SchemaUtils.getChildOfNode(act, name), contents, false);
+            const changedNode = fieldAncestry ? SchemaUtils.getChildOfNodePath(act, [...fieldAncestry, name]) : SchemaUtils.getChildOfNode(act, name);
+            State.emit("value_change", changedNode, contents, false);
         }
         State.emit("value_change", SchemaUtils.getChildOfNode(plan, name), contents, false);
     }
@@ -317,7 +318,7 @@ function handleInvisibleFieldList(innerCardForm: ICardForm, friendlyFields: Frie
     friendlyFields
         .filter(ff => innerCardForm.invisibleFields.has(ff.SELF.FHIR))
         .forEach(ff => {
-            const [fieldName, fieldContents, setField, fieldSaveHandler] = simpleCardField(ff.SELF.FHIR, node);
+            const [fieldName, fieldContents, setField, fieldSaveHandler] = simpleCardField(ff.SELF.FHIR, node, ['dosage', 'doseAndRate', 'doseQuantity']);
             fieldHandlers.set(fieldName, { fieldName, fieldContents, setField, fieldSaveHandler, otherFieldChangeTriggerFn: innerCardForm.invisibleFields.get(ff.SELF.FHIR)?.otherFieldTriggerFn });
         });
 }

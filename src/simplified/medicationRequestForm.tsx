@@ -148,6 +148,9 @@ export class MedicationRequestForm implements ICardForm {
     invisibleFields : Map<string, invisibleFieldProps>  =  new Map<string, invisibleFieldProps>([
         ['system', { 
             otherFieldTriggerFn: updateUnitNode 
+        }],
+        ['code', { 
+            otherFieldTriggerFn: updateUnitNode 
         }]
     ]);
 
@@ -299,7 +302,7 @@ function updateDosageAutofill(changedField: string, fieldValue: string, fieldHan
 
 function updateUnitNode(changedField: string, fieldValue: string, fieldHandlers: Map<string, FieldHandlerProps>, requiredField?: string): string {
     GetDosageSageCodings();
-    const dosageSageCode = dosageCodes.find(dc => dc.display == requiredField);
+    const dosageSageCode = dosageCodes.find(dc => dc.display == fieldValue);
     switch (requiredField) {
         case 'system':
             return dosageSageCode ? dosageSageCode.system : "NOT_FOUND";
