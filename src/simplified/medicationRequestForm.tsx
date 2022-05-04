@@ -8,6 +8,7 @@ import { SageCoding } from "./cql-wizard/wizardLogic";
 import { FriendlyResourceProps, friendlyTimeUnit } from "./nameHelpers";
 import { displayBoxProps, dropdownBoxProps, invisibleFieldProps, textBoxProps } from "./outerCardForm";
 import * as Bioportal from './cql-wizard/bioportal';
+import State from "../state";
 
 const dosageCodes: SageCoding[] = [];
 
@@ -319,10 +320,9 @@ function GetDosageUnits() : string[] {
 }
 
 async function GetDosageSageCodings(): Promise<void>  {
-    const [firstLookup, setFirstLookup] = useState<boolean>(true);
     const [searchResults, setSearchResults] = useState<SageCoding[]>([]);
-    if (firstLookup && dosageCodes.length == 0) {
-        setFirstLookup(false);
+    if (!State.get().bioportal.doseUnitsIsRetrieved && dosageCodes.length == 0) {
+       State.get().bioportal.set({doseUnitsIsRetrieved: true});
         await Bioportal.searchForSNOMEDConcept('"Basic dose form (basic dose form)"')
         .then(v => {
             setSearchResults([...searchResults, ...v]);

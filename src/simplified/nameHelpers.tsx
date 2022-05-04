@@ -1,6 +1,7 @@
 import { createAssignment } from "typescript";
 import { stringify } from "uuid";
 import friendlyNames from "../../friendly-names.json";
+import State from "../state";
 
 export interface FriendlyResourceProps {
     FHIR: string;
@@ -37,13 +38,16 @@ const hydratePaths = (): void => {
         })
     }
 
-    friendlyResourceRoot.RESOURCES.forEach(res => {
-        res.LIST?.forEach(resItem => {
-            if (resItem.FORM_ELEMENTS) {
-                subHydrate([], resItem.FORM_ELEMENTS)
-            }
+    if (!State.get().simplified.resourcePathsIsHydrated) {
+        State.get().simplified.set("resourcePathsIsHydrated", true);
+        friendlyResourceRoot.RESOURCES.forEach(res => {
+            res.LIST?.forEach(resItem => {
+                if (resItem.FORM_ELEMENTS) {
+                    subHydrate([], resItem.FORM_ELEMENTS)
+                }
+            })
         })
-    })
+    }
 }
 
 const defaultUndefinedString = "undefined";
@@ -186,6 +190,7 @@ export function getBorderPropsForType(resourceType: string): string | undefined 
 }
 
 export function getFormElementListForResource(resource: string): FriendlyResourceFormElement[] {
+    //TODO: have this run conditionally to save time
     hydratePaths();
     const foundResource: FriendlyResourceProps | undefined = friendlyResourceRoot.RESOURCES
         .map(resType => resType.LIST).flatMap(list => list ? [list] : [])
