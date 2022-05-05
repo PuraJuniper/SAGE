@@ -251,40 +251,48 @@ const createCodeableConceptElement = (fieldKey: string, fieldFriendlyName: strin
     );
 }
 
-const createDisplayElement = ( displayProps: displayBoxProps,friendlyFields: any,fieldHandlers: any, i: number): JSX.Element => {
-    let friendly;
-    for (let j = 0; j < friendlyFields.length; j++) {
-        if(friendlyFields[j].SELF.FHIR === fieldHandlers[i][0]){
-            friendly = friendlyFields[j].SELF.FRIENDLY
-        }
-    }
+const createDisplayElement = ( displayProps: displayBoxProps,friendlyFields: FriendlyResourceFormElement[], fieldName: string): JSX.Element => {
+    // let friendly;
+
+    
+
+    // for (let j = 0; j < friendlyFields.length; j++) {
+    //     if(friendlyFields[j].SELF.FHIR === fieldHandlers[i][0]){
+    //         friendly = friendlyFields[j].SELF.FRIENDLY
+    //     }
+    // }
     if (displayProps.displayFieldTitle === true){
         return (
-            <Form.Group key={fieldHandlers[i][0] + "-fromGroup"} as={Col} controlId={fieldHandlers[i][0]} className = {displayProps.className}>
-                <Form.Label key={fieldHandlers[i][0] + "-label"} > <b>{friendly}</b> {fieldHandlers[i][1]}</Form.Label>
+            <Form.Group key={fieldName + "-fromGroup"} as={Col} controlId={fieldName} className = {displayProps.className}>
+                <Form.Label key={fieldName + "-label"} > <b>{friendlyFields.find(ff => ff.SELF.FHIR === fieldName)?.SELF.FRIENDLY ?? "Uh oh"}</b> {fieldName}</Form.Label>
             </Form.Group>
         )
     }
     else{
         return (
-            <Form.Group key={fieldHandlers[i][0] + "-fromGroup"} as={Col} controlId={fieldHandlers[i][0]}>
-                <Form.Label key={fieldHandlers[i][0] + "-label"} className = {displayProps.className}>{fieldHandlers[i][1]}</Form.Label>
+            <Form.Group key={fieldName + "-fromGroup"} as={Col} controlId={fieldName}>
+                <Form.Label key={fieldName + "-label"} className = {displayProps.className}>{fieldName}</Form.Label>
             </Form.Group>
         )
     }
    
 }
 
-const createDisplayElementList = (innerCardForm: ICardForm,fieldHandlers: any, resourceType: FriendlyResourceProps): JSX.Element[] => {
+const createDisplayElementList = (innerCardForm: ICardForm,fieldHandlers: Map<string, FieldHandlerProps>, resourceType: FriendlyResourceProps): JSX.Element[] => {
     const friendlyFields = getFormElementListForResource(resourceType.FHIR);
     const flattenFriendlyFields = allFormElems(friendlyFields);
     const defaultBoxProps: displayBoxProps = {className: "", displayFieldTitle: true }
 
     const list: JSX.Element[] = [];
-    for (let i = 0; i < fieldHandlers.length; i++) {
-        list[i] = createDisplayElement(innerCardForm.displayBoxFields.get(fieldHandlers[i][0])?? defaultBoxProps,
-        flattenFriendlyFields,fieldHandlers, i);
-    }
+
+    fieldHandlers.forEach(fh => {
+        list.push(createDisplayElement(innerCardForm.displayBoxFields.get(fh.fieldName)?? defaultBoxProps,flattenFriendlyFields,fh.fieldName));
+    })
+
+    // for (let i = 0; i < fieldHandlers.length; i++) {
+    //     list[i] = createDisplayElement(innerCardForm.displayBoxFields.get(fieldHandlers[i][0])?? defaultBoxProps,
+    //     flattenFriendlyFields,fieldHandlers, i);
+    // }
 
     return list;
 }
