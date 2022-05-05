@@ -251,7 +251,7 @@ const createCodeableConceptElement = (fieldKey: string, fieldFriendlyName: strin
     );
 }
 
-const createDisplayElement = ( displayProps: displayBoxProps,friendlyFields: FriendlyResourceFormElement[], fieldName: string): JSX.Element => {
+const createDisplayElement = ( displayProps: displayBoxProps,friendlyFields: FriendlyResourceFormElement[], fieldHandler: FieldHandlerProps): JSX.Element => {
     // let friendly;
 
     
@@ -263,15 +263,15 @@ const createDisplayElement = ( displayProps: displayBoxProps,friendlyFields: Fri
     // }
     if (displayProps.displayFieldTitle === true){
         return (
-            <Form.Group key={fieldName + "-fromGroup"} as={Col} controlId={fieldName} className = {displayProps.className}>
-                <Form.Label key={fieldName + "-label"} > <b>{friendlyFields.find(ff => ff.SELF.FHIR === fieldName)?.SELF.FRIENDLY ?? "Uh oh"}</b> {fieldName}</Form.Label>
+            <Form.Group key={fieldHandler.fieldName + "-fromGroup"} as={Col} controlId={fieldHandler.fieldName} className = {displayProps.className}>
+                <Form.Label key={fieldHandler.fieldName + "-label"} > <b>{friendlyFields.find(ff => ff.SELF.FHIR === fieldHandler.fieldName)?.SELF.FRIENDLY ?? "Uh oh"}</b> {fieldHandler.fieldContents}</Form.Label>
             </Form.Group>
         )
     }
     else{
         return (
-            <Form.Group key={fieldName + "-fromGroup"} as={Col} controlId={fieldName}>
-                <Form.Label key={fieldName + "-label"} className = {displayProps.className}>{fieldName}</Form.Label>
+            <Form.Group key={fieldHandler + "-fromGroup"} as={Col} controlId={fieldHandler.fieldName}>
+                <Form.Label key={fieldHandler + "-label"} className = {displayProps.className}>{fieldHandler.fieldContents}</Form.Label>
             </Form.Group>
         )
     }
@@ -286,7 +286,7 @@ const createDisplayElementList = (innerCardForm: ICardForm,fieldHandlers: Map<st
     const list: JSX.Element[] = [];
 
     fieldHandlers.forEach(fh => {
-        list.push(createDisplayElement(innerCardForm.displayBoxFields.get(fh.fieldName)?? defaultBoxProps,flattenFriendlyFields,fh.fieldName));
+        list.push(createDisplayElement(innerCardForm.displayBoxFields.get(fh.fieldName)?? defaultBoxProps,flattenFriendlyFields,fh));
     })
 
     // for (let i = 0; i < fieldHandlers.length; i++) {
