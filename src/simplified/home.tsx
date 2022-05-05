@@ -54,7 +54,7 @@ const BasicHomeView = () => {
                             listOfHomePage.map(
                                 (resource, i) => {
                                     return (
-                                        <div style={{ flex: '0 0 35%' , maxWidth: '35%' , padding: "10px" }} key={resource.FHIR}>
+                                        <div style={{ flex: '0 0 35%' , maxWidth: '35%' , padding: "10px" }} key={resource.title}>
                                         <h4 style={{'fontSize':'10px'}}>{resource.header}</h4>
                                             <Col style={{ padding: "0px" }}>
                                                  <BaseCard

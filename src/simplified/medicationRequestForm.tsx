@@ -181,9 +181,10 @@ export class MedicationRequestForm implements ICardForm {
 
 
     pageOne: ICardForm['pageOne'] = (props) => {
-        const placeHolderElem =
-            <Form.Group className="page1-formgroup" key='placeholder-formGroup' as={Col}>
+        const placeHolderElem = (function(i: number) {
+           return  <Form.Group className="page1-formgroup" key={"placeholder-formGroup-pageOne" + "-" + i} as={Col}>
             </Form.Group>
+        });
         console.log(props)
         const timingElem =
         <Col className="page1-formgroup form-group"  key='timing-formGroup'>
@@ -237,14 +238,16 @@ export class MedicationRequestForm implements ICardForm {
                 ...this.cardFieldLayout.cardColumns.map((cr, i: number) => {
                     return (
                         <Row style={{justifyContent: 'center'}} key={"row-" + i} >
-                            {cr.map(field =>
-                                [
+                            {cr.map((field, j: number) => {
+                             return   [
                                     durationElem,
                                     timingElem,
-                                    placeHolderElem,
+                                    placeHolderElem(j),
                                     ...props.fieldElements
-                                ].find(elem =>
-                                    elem.key?.toString().startsWith(field + "-")))}
+                                ].find(elem => elem.key?.toString().startsWith(field + "-"))
+                            }
+                                    )
+                            }
                         </Row>
                     )
                 })
@@ -258,7 +261,7 @@ export class MedicationRequestForm implements ICardForm {
 
     pageThree: ICardForm['pageThree'] = (props) => {
         const placeHolderElem =
-            <Form.Group key='placeholder-formGroup' as={Col} >
+            <Form.Group key='placeholder-formGroup-pageThree' as={Col} >
             </Form.Group>;
         return (
             <div> {
