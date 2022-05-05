@@ -6,7 +6,7 @@ import { FieldHandlerProps, ICardForm } from "./cardEditor";
 import { CodeableConceptEditorProps } from "./codeableConceptEditor";
 import { SageCoding } from "./cql-wizard/wizardLogic";
 import { FriendlyResourceProps, friendlyTimeUnit } from "./nameHelpers";
-import { displayBoxProps, dropdownBoxProps, invisibleFieldProps, textBoxProps } from "./outerCardForm";
+import { previewProps, dropdownBoxProps, invisibleFieldProps, textBoxProps } from "./outerCardForm";
 import * as Bioportal from './cql-wizard/bioportal';
 import State from "../state";
 
@@ -26,26 +26,41 @@ export class MedicationRequestForm implements ICardForm {
             isReadOnly: false,
             isLink: false,
             caption: "",
+            preview: {
+                className: "display-page-title",
+                displayFieldTitle: false,
+            }
         }],
         ['description', {
             boxSize: 3,
             isReadOnly: false,
             isLink: false,
-            caption: ""
+            caption: "",
+            preview: {
+                className: "",
+                displayFieldTitle: false,
+            }
         }],
         ['resource', {
             boxSize: 1, 
             isReadOnly: false,
             isLink: false,
-            caption: "Related Artifact must be a valid URL."
+            caption: "Related Artifact must be a valid URL.",
+            preview: {
+                className: "",
+                displayFieldTitle: true,
+            }
         }],
         ['text', {
             boxSize: 2,
             isReadOnly: true,
             isLink: false,
             caption: "",
-            otherFieldTriggerFn: updateDosageAutofill
-
+            otherFieldTriggerFn: updateDosageAutofill,
+            preview: {
+                className: "",
+                displayFieldTitle: true,
+            }
         }],
         ['frequency', {
             boxSize: 1,
@@ -54,7 +69,11 @@ export class MedicationRequestForm implements ICardForm {
             caption: "",
             className: "page1-dosage-small",
             hideFieldTitle: true,
-            requiredFor: ["text"]
+            requiredFor: ["text"],
+            preview: {
+                className: "display-page-dosage-small",
+                displayFieldTitle: true,
+            }
         }],
         ['period', {
             boxSize: 1,
@@ -63,13 +82,21 @@ export class MedicationRequestForm implements ICardForm {
             caption: "",
             className: "page1-dosage-small",
             hideFieldTitle: true,
-            requiredFor: ["text"]
+            requiredFor: ["text"],
+            preview: {
+                className: "display-page-dosage-small",
+                displayFieldTitle: true,
+            }
         }],
         ['value', {
             boxSize: 1,
             isReadOnly: false,
             isLink: false,
-            caption: ""
+            caption: "",
+            preview: {
+                className: "display-page-dosage-medium",
+                displayFieldTitle: true,
+            }
         }],
         ['duration', {
             boxSize: 1,
@@ -94,54 +121,22 @@ export class MedicationRequestForm implements ICardForm {
         ['type',
             { values: () => ['documentation', 'justification', 'citation', 'predecessor', 'successor', 'derived-from', 'depends-on', 'composed-of'] }],
         ['unit',
-            { values: GetDosageUnits, requiredFor: ["system", "code"]}]
+            {
+                values: GetDosageUnits, requiredFor: ["system", "code"],
+                preview: {
+                    className: "display-page-dosage-small",
+                    displayFieldTitle: true,
+                }
+            }]
     ]);
-    displayBoxFields = new Map<string, displayBoxProps>([
-        ['title', {
-            className: "display-page-title",
-            displayFieldTitle: false,
-        }],
-        ['description', {
-            className: "",
-            displayFieldTitle: false,
-        }],
-        ['resource', {
-            className: "",
-            displayFieldTitle: true,
-        }],
-        ['text', {
-            className: "",
-            displayFieldTitle: true,
 
-        }],
-        ['frequency', {
-            className: "display-page-dosage-small",
-            displayFieldTitle: true,
-        }],
-        ['period', {
-            className: "display-page-dosage-small",
-            displayFieldTitle: true,
-        }],
-        ['value', {
-            className: "display-page-dosage-medium",
-            displayFieldTitle: true,
-        }],
-        ['unit', {
-            className: "display-page-dosage-small",
-            displayFieldTitle: true,
-        }],
-        ['productDescription', {
-            className: "",
-            displayFieldTitle: true,
-        }],
-        ['productReference', {
-            className: "display-page-productRefernce",
-            displayFieldTitle: true,
-        }],
-    ]);
+    // displayBoxFields = new Map<string, previewProps>([]);
 
     codeableConceptFields: Map<string, Partial<CodeableConceptEditorProps>> = new Map<string, Partial<CodeableConceptEditorProps>>([
-        ['productCodeableConcept', {}]
+        ['productCodeableConcept', {preview: {
+            className: "display-page-productRefernce",
+            displayFieldTitle: true,
+        }}]
     ]);
 
     resourceFields = ['dosage', 'timing', 'repeat', 'relatedArtifact', 'doseAndRate', 'doseQuantity'];

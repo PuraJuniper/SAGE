@@ -4,13 +4,14 @@ import { SageCoding } from "./cql-wizard/wizardLogic";
 import * as Bioportal from './cql-wizard/bioportal';
 import _ from "lodash"
 import { CodeableConcept, Coding } from "fhir/r4";
+import { fieldFormProps } from './outerCardForm';
 
 function loadCodes(inputValue: string, callback: (results: SageCoding[]) => void) {
     Bioportal.searchForText(inputValue).then(v => callback(v));
 }
 const debouncedLoadCodes = _.debounce(loadCodes, 500)
 
-export interface CodeableConceptEditorProps {
+export interface CodeableConceptEditorProps extends fieldFormProps {
     curCodeableConcept: CodeableConcept,
     setCurCodeableConcept: (newCodeableConcept: CodeableConcept) => void,
     codeFilter?: string,
