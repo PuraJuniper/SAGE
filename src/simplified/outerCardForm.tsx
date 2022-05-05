@@ -155,7 +155,7 @@ export class OuterCardForm extends React.Component<CardFormProps, CardFormState>
                         <button key="butSave" className="btn btn-secondary" type="button" onClick={()=> this.props.handleSaveResource()}>
                         Save Card
                         </button>
-                        <button key="butSave" className="btn btn-tertiary" style={{float: "right"}} type="button" onClick={()=> this.setState({ isOpen: false })}>
+                        <button key="butCancel" className="btn btn-tertiary" style={{float: "right"}} type="button" onClick={()=> this.setState({ isOpen: false })}>
                         Cancel
                         </button>
                     </Modal.Body>
