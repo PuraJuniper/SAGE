@@ -681,12 +681,17 @@ a {
   height: 50rem;
 }
 .cql-wizard-modal-body {
-  padding: initial;
-  overflow: hidden;
+  overflow-y: hidden;
 }
 .cql-wizard-nav-button {
   height: 100%;
   border-radius: 0;
+}
+.cql-wizard-floating-submit {
+  position: absolute;
+  right: 3rem;
+  bottom: 4rem;
+  z-index: 10;
 }
 
 .cql-wizard-header-content {
@@ -711,8 +716,7 @@ a {
 .cql-wizard-body-content {
   height: 100%;
   width: 100%;
-  display: grid;
-  grid-template-columns: 10% 1fr 10%; /* Back Button, Page Content, Forward Button */
+  overflow-y: auto;
 }
 .cql-wizard-page-content-closest-positioned-ancestor {
   /* https://developer.mozilla.org/en-US/docs/Web/CSS/position - See positioning details for "absolute"*/
@@ -763,15 +767,9 @@ a {
 }
 .cql-wizard-select-resource-warning {
   position: absolute;
-  background-color: rgba(255,255,255,0.92);
+  background-color: rgba(255,255,255,0.7);
   height: 100%;
   width: 100%;
-  display: flex;
-  place-items: center;
-}
-.cql-wizard-select-resource-warning-text {
-  grid-column: 1 / 3;
-  text-align: center;
 }
 
 .cql-wizard-select-code-grid {
@@ -859,7 +857,7 @@ a {
   align-items: center;
 }
 .cql-wizard-filters-overscroll-excess {
-  height: 300px;
+  height: 200px;
 }
 
 .cql-wizard-result-should-exist {
