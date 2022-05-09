@@ -16,17 +16,10 @@ const Sidebar = (props: SidebarProps) => {
         return (
             <div style={{flex: "0 0 20%", height: "100vh"}}>
                 <Card body style={{height: "100%"}}>
-                    <div className="left-nav-button-group">
-                        <Button className={(props.pageTitle == 'Authoring Information' ? "left-nav-button highlighted" : "left-nav-button")}>Authoring Information</Button>
-                        <Button className={(props.pageTitle == 'What is the card type?' ? "left-nav-button highlighted" : "left-nav-button")}>What is the card type?</Button>
-                        <Button className={(props.pageTitle == 'What does the card do?' ? "left-nav-button highlighted" : "left-nav-button")}>What does the card do?</Button>
-                        <Button className={(props.pageTitle == 'When is the card played?' ? "left-nav-button highlighted" : "left-nav-button")}>When is the card played?</Button>
-                        <Button className={(props.pageTitle == 'Review card' ? "left-nav-button highlighted" : "left-nav-button")}>Review Card</Button>
-                    </div>
-                    <p className="hline"></p>
                     <div  className="left-nav-button-group">
                         <Button className="left-nav-button" onClick={() => navigate('/basic-home')}>Home</Button>
-                        <Button className="left-nav-button" onClick={() => navigate('/author')}>Create Card</Button>
+                        <Button className="left-nav-button" onClick={() => navigate('/create')}>Create Card</Button>
+                        <Button className="left-nav-button" onClick={() => navigate('/author')}>Authoring Information</Button>
                         <Button className="left-nav-button" onClick={() => navigate('/view-cards')}>View Cards</Button>
                     </div>
                     <p className="hline"></p>
