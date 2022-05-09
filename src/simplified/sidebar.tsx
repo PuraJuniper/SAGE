@@ -70,7 +70,8 @@ const Sidebar = (props: SidebarProps) => {
                 <Card body style={{height: "100%"}}>
                     <div  className="left-nav-button-group">
                         <Button className={(window.location.pathname == '/basic-home' ? "left-nav-button highlighted" : "left-nav-button")} onClick={() => navigate('/basic-home')}>Home</Button>
-                        <Button className={(window.location.pathname == '/create' ? "left-nav-button highlighted" : "left-nav-button")} onClick={() => navigate('/author')}>Create Card</Button>
+                        <Button className={(window.location.pathname == '/create' ? "left-nav-button highlighted" : "left-nav-button")} onClick={() => navigate('/create')}>Create Card</Button>
+                        <Button className="left-nav-button" onClick={() => navigate('/author')}>Authoring Information</Button>
                         <Button className={(props.pageTitle == 'Saved Cards' ? "left-nav-button highlighted" : "left-nav-button")} onClick={() => navigate('/view-cards')}>View Cards</Button>
                     </div>
                     <p className="hline"></p>

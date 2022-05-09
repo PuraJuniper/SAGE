@@ -52,27 +52,7 @@ export default class Authoring extends React.Component<any, AuthoringState> {
 
     constructor(props: any) {
         super(props);
-        this.state = {
-            submitInvalid: false,
-            showSpinner: false,
-            tab: "CPGNew",
-            version: "1.0.0",
-            date: "",
-            status: "draft",
-            experimental: true,
-            copyright: "",
-            approvalDate: "",
-            lastReviewDate: "",
-            author: "author",
-            editor: "editor",
-            reviewer: "reviewer",
-            CPGName: "cpgname",
-            publisher: "publisher",
-            fhirText: '{"resourceType": "Patient"}',
-            fhirUrl: "",
-            newResourceType: "Patient",
-            newResourceBundle: false
-        };
+        this.state = State.get().author.authorings[State.get().author.pos]
     }
     render() {
         console.log(this.state)
@@ -113,6 +93,7 @@ export default class Authoring extends React.Component<any, AuthoringState> {
                                 <p style={{ marginTop: "10px" }}>Status:<span style={{ color: "red" }}>*</span></p>
                                 <select
                                     className="form-control input-sm"
+                                    value={this.state.status}
                                     onChange={(e) => {
                                         this.setState({ status: e.target.value })
                                     }}
@@ -128,6 +109,7 @@ export default class Authoring extends React.Component<any, AuthoringState> {
                                 <p style={{ marginTop: "10px" }}>Experimental:<span style={{ color: "red" }}>*</span></p>
                                 <select
                                     className="form-control input-sm"
+                                    value={this.state.experimental.toString()}
                                     onChange={(e) => {
                                         this.setState({ experimental: e.target.value == "true" ? true : false });
                                     }}
@@ -228,8 +210,9 @@ export default class Authoring extends React.Component<any, AuthoringState> {
                             </Col>
                         </Row>
                         <NavButtons
-                        //TODO: add handler for different situations
-                            handleNext={() => { State.get().author.authorings.push(this.state);}}
+                            handleNext={() => { 
+                                State.get().author.authorings[State.get().author.pos].set(this.state);
+                            }}
                         />
                     </Container>
                 </div>
