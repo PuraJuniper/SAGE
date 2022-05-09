@@ -1,10 +1,12 @@
 import { createAssignment } from "typescript";
 import { stringify } from "uuid";
 import friendlyNames from "../../friendly-names.json";
+import State from "../state";
 
 export interface FriendlyResourceProps {
     FHIR: string;
     FRIENDLY: string;
+    PARENTS?: string[];
     DEFAULT_PROFILE_URI?: string
     FORM_ELEMENTS?: FriendlyResourceFormElement[]
 }
@@ -25,6 +27,28 @@ interface FriendlyResourceRoot {
 }
 
 export const friendlyResourceRoot: FriendlyResourceRoot = friendlyNames;
+
+const hydratePaths = (): void => {
+    const subHydrate = (parents: string[], formElements: FriendlyResourceFormElement[]): void => {
+        formElements.forEach(fElem => {
+            fElem.SELF.PARENTS = parents;
+            if (fElem.FORM_ELEMENTS) {
+                subHydrate([...parents, fElem.SELF.FHIR], fElem.FORM_ELEMENTS)
+            }
+        })
+    }
+
+    if (!State.get().simplified.resourcePathsIsHydrated) {
+        State.get().simplified.set("resourcePathsIsHydrated", true);
+        friendlyResourceRoot.RESOURCES.forEach(res => {
+            res.LIST?.forEach(resItem => {
+                if (resItem.FORM_ELEMENTS) {
+                    subHydrate([], resItem.FORM_ELEMENTS)
+                }
+            })
+        })
+    }
+}
 
 const defaultUndefinedString = "undefined";
 
@@ -122,7 +146,9 @@ export function formElemtoResourceProp(formElem: FriendlyResourceFormElement | u
     }
 
 export function allFormElems(formElems: FriendlyResourceFormElement[]): FriendlyResourceFormElement[]  {
-    return formElems.flatMap(formElem => [...formElem.FORM_ELEMENTS ? allFormElems(formElem.FORM_ELEMENTS) : [], formElem]);
+    return formElems.flatMap(formElem => {
+        return [...formElem.FORM_ELEMENTS ? allFormElems(formElem.FORM_ELEMENTS) : [], formElem]
+    });
 }
 export function profileToFriendlyResourceListEntry(profile?: string): FriendlyResourceFormElement | undefined {
 
@@ -164,6 +190,8 @@ export function getBorderPropsForType(resourceType: string): string | undefined 
 }
 
 export function getFormElementListForResource(resource: string): FriendlyResourceFormElement[] {
+    //TODO: have this run conditionally to save time
+    hydratePaths();
     const foundResource: FriendlyResourceProps | undefined = friendlyResourceRoot.RESOURCES
         .map(resType => resType.LIST).flatMap(list => list ? [list] : [])
         .map(resTypeList => resTypeList.find(resType => resType.FHIR == resource))

@@ -1,11 +1,16 @@
 import { faHomeLgAlt, faInfoCircle } from "@fortawesome/pro-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import React from "react";
+import React, { useState } from "react";
 import { Card, Col, Form, Row } from "react-bootstrap";
 import { FieldHandlerProps, ICardForm } from "./cardEditor";
 import { CodeableConceptEditorProps } from "./codeableConceptEditor";
+import { SageCoding } from "./cql-wizard/wizardLogic";
 import { FriendlyResourceProps, friendlyTimeUnit } from "./nameHelpers";
-import { displayBoxProps, dropdownBoxProps, textBoxProps } from "./outerCardForm";
+import { displayBoxProps, dropdownBoxProps, invisibleFieldProps, textBoxProps } from "./outerCardForm";
+import * as Bioportal from './cql-wizard/bioportal';
+import State from "../state";
+
+const dosageCodes: SageCoding[] = [];
 
 export class MedicationRequestForm implements ICardForm {
 
@@ -39,7 +44,7 @@ export class MedicationRequestForm implements ICardForm {
             isReadOnly: true,
             isLink: false,
             caption: "",
-            autoGenFn: updateDosageAutofill
+            otherFieldTriggerFn: updateDosageAutofill
 
         }],
         ['frequency', {
@@ -49,7 +54,7 @@ export class MedicationRequestForm implements ICardForm {
             caption: "",
             className: "page1-dosage-small",
             hideFieldTitle: true,
-            requiredFor: "text"
+            requiredFor: ["text"]
         }],
         ['period', {
             boxSize: 1,
@@ -58,15 +63,9 @@ export class MedicationRequestForm implements ICardForm {
             caption: "",
             className: "page1-dosage-small",
             hideFieldTitle: true,
-            requiredFor: "text"
+            requiredFor: ["text"]
         }],
         ['value', {
-            boxSize: 1,
-            isReadOnly: false,
-            isLink: false,
-            caption: ""
-        }],
-        ['unit', {
             boxSize: 1,
             isReadOnly: false,
             isLink: false,
@@ -79,21 +78,23 @@ export class MedicationRequestForm implements ICardForm {
             caption: "",
             className: "page1-dosage-small",
             hideFieldTitle: true,
-            requiredFor: "text"
+            requiredFor: ["text"]
         }]
     ]);
 
     dropdownFields = new Map<string, dropdownBoxProps>([
         ['status',
-            { values: ['active', 'on-hold', 'cancelled', 'completed', 'entered-in-error', 'stopped', 'draft', 'unknown'] }],
+            { values: () => ['active', 'on-hold', 'cancelled', 'completed', 'entered-in-error', 'stopped', 'draft', 'unknown'] }],
         ['intent',
-            { values: ['proposal', 'plan', 'order', 'original-order', 'reflex-order', 'filler-order', 'instance-order', 'option'] }],
+            { values: () => ['proposal', 'plan', 'order', 'original-order', 'reflex-order', 'filler-order', 'instance-order', 'option'] }],
         ['periodUnit',
-            { values: ['h', 'd', 'wk', 'mo', 'a'], requiredFor: "text" }],
+            { values: () => ['h', 'd', 'wk', 'mo', 'a'], requiredFor: ["text"] }],
         ['durationUnit',
-            { values: ['h', 'd', 'wk', 'mo', 'a'], requiredFor: "text" }],
+            { values: () => ['h', 'd', 'wk', 'mo', 'a'], requiredFor: ["text"] }],
         ['type',
-            { values: ['documentation', 'justification', 'citation', 'predecessor', 'successor', 'derived-from', 'depends-on', 'composed-of'] }]
+            { values: () => ['documentation', 'justification', 'citation', 'predecessor', 'successor', 'derived-from', 'depends-on', 'composed-of'] }],
+        ['unit',
+            { values: GetDosageUnits, requiredFor: ["system", "code"]}]
     ]);
     displayBoxFields = new Map<string, displayBoxProps>([
         ['title', {
@@ -144,6 +145,15 @@ export class MedicationRequestForm implements ICardForm {
     ]);
 
     resourceFields = ['dosage', 'timing', 'repeat', 'relatedArtifact', 'doseAndRate', 'doseQuantity'];
+
+    invisibleFields : Map<string, invisibleFieldProps>  =  new Map<string, invisibleFieldProps>([
+        ['system', { 
+            otherFieldTriggerFn: updateUnitNode 
+        }],
+        ['code', { 
+            otherFieldTriggerFn: updateUnitNode 
+        }]
+    ]);
 
     cardFieldLayout =
         {
@@ -212,7 +222,7 @@ export class MedicationRequestForm implements ICardForm {
                     {props.fieldElements[0]}
                     <div style={{'margin': "0 10px"}}>dose(s) every</div> 
                     {props.fieldElements[1]}
-                    {props.fieldElements[9]}
+                    {props.fieldElements.find(x => x.key == 'periodUnit-fromGroup')}
                 </div>
             </Row>
         </Col>
@@ -222,7 +232,7 @@ export class MedicationRequestForm implements ICardForm {
                 <div style={{'display':'flex', 'flexDirection': 'row', 'whiteSpace':'nowrap', 'justifyContent':'flex-end', 'flex': '0 0 90%'}} >
                     <div style={{'margin': "0 10px"}}>for</div> 
                     {props.fieldElements[2]}
-                    {props.fieldElements[10]}
+                    {props.fieldElements.find(x => x.key == 'durationUnit-fromGroup')}
                 </div>
             </Row>
         </Col>
@@ -289,6 +299,38 @@ function updateDosageAutofill(changedField: string, fieldValue: string, fieldHan
     }
     const test = <FontAwesomeIcon key="butSaveIcon" icon={faHomeLgAlt} style={{'color':'white','height':'30px','marginRight':'3rem'}} />
     return `Give ${timeString('frequency', 'dose')} every ${timeString('period', 'periodUnit')} for ${timeString('duration', 'durationUnit')}.`;
+}
 
+function updateUnitNode(changedField: string, fieldValue: string, fieldHandlers: Map<string, FieldHandlerProps>, requiredField?: string): string {
+    GetDosageSageCodings();
+    const dosageSageCode = dosageCodes.find(dc => dc.display == fieldValue);
+    switch (requiredField) {
+        case 'system':
+            return dosageSageCode ? dosageSageCode.system == "" ? "http://unitsofmeasure.org" : dosageSageCode.system : "NOT_FOUND";
+        case 'code':
+            return dosageSageCode ? dosageSageCode.code : "NOT_FOUND";
+        default:
+            return 'NO_VALUE'
+    }
+}
 
+function GetDosageUnits() : string[] {
+    GetDosageSageCodings();
+    return dosageCodes.map(sc => sc.display);
+}
+
+async function GetDosageSageCodings(): Promise<void>  {
+    const [searchResults, setSearchResults] = useState<SageCoding[]>([]);
+    if (!State.get().bioportal.doseUnitsIsRetrieved && dosageCodes.length == 0) {
+       State.get().bioportal.set({doseUnitsIsRetrieved: true});
+        await Bioportal.searchForSNOMEDConcept('"Basic dose form (basic dose form)"')
+        .then(v => {
+            setSearchResults([...searchResults, ...v]);
+        })
+        await Bioportal.search('drug form', ['HL7'], 'concept')
+        .then(v => {
+            setSearchResults([...searchResults, ...v]);
+        })
+    }
+    dosageCodes.push(...searchResults)
 }

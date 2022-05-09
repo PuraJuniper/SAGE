@@ -63,6 +63,18 @@
                             "FHIR": "unit",
                             "FRIENDLY": "Dose UOM:"
                           }
+                        },
+                        {
+                          "SELF": {
+                            "FHIR": "system",
+                            "FRIENDLY": "system"
+                          }
+                        },
+                        {
+                          "SELF": {
+                            "FHIR": "code",
+                            "FRIENDLY": "code"
+                          }
                         }
                       ]
                     }

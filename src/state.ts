@@ -43,13 +43,17 @@ export interface StateVars {
 				library: cql.Library,
 				url: string,
 			}
-		}
+		},
+		resourcePathsIsHydrated: boolean
 	}
 	resCount: number,
 	errFields: string[],
 	profiles: SimplifiedProfiles,
 	valuesets: SimplifiedValuesets,
 	codesystems: SimplifiedCodesystems,
+	bioportal: {
+		doseUnitsIsRetrieved: boolean
+	},
 	bioportalApikey?: string,
 }
 
@@ -131,7 +135,8 @@ const defaultStateVars: StateVars = {
 	simplified: {
 		step: 1,
 		generatedLibraries: {},
-		libraries: {}
+		libraries: {},
+		resourcePathsIsHydrated: false
 	},
 	resCount: 0,
 	errFields: [],
@@ -139,6 +144,9 @@ const defaultStateVars: StateVars = {
 	profiles: {},
 	valuesets: {},
 	codesystems: {},
+	bioportal: {
+		doseUnitsIsRetrieved: false
+	},
 	bioportalApikey: process.env.BIOPORTAL_APIKEY ?? undefined
 }
 

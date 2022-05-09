@@ -8,7 +8,7 @@ import State, { SageNodeInitializedFreezerNode } from "../state";
 import CodeableConceptEditor, { CodeableConceptEditorProps } from "./codeableConceptEditor";
 import { MedicationRequestForm } from "./medicationRequestForm";
 import { ACTIVITY_DEFINITION, allFormElems, formElemtoResourceProp, FriendlyResourceFormElement, FriendlyResourceProps, getFormElementListForResource, profileToFriendlyResourceListEntry } from "./nameHelpers";
-import { cardLayout, displayBoxProps, dropdownBoxProps, fieldFormProps, OuterCardForm, textBoxProps } from "./outerCardForm";
+import { cardLayout, displayBoxProps, dropdownBoxProps, fieldFormProps, invisibleFieldProps, OuterCardForm, textBoxProps } from "./outerCardForm";
 
 
 interface ExpressionOptionDict {
@@ -42,6 +42,7 @@ export interface ICardForm {
     textBoxFields: Map<string, textBoxProps>;
     displayBoxFields: Map<string, displayBoxProps>;
     dropdownFields: Map<string, dropdownBoxProps>;
+    invisibleFields: Map<string, invisibleFieldProps>; 
     codeableConceptFields: Map<string, Partial<CodeableConceptEditorProps>>;
     resourceFields: string[];
     cardFieldLayout: cardLayout;
@@ -60,10 +61,10 @@ export interface FieldHandlerProps {
     fieldContents: any,
     setField: Dispatch<SetStateAction<any>>
     fieldSaveHandler: (name: string, contents: any, act: any, plan: any) => void
-    fieldAutoGenFn?: (changedField: string, fieldValue: string, fieldHandlers: Map<string, FieldHandlerProps>) => string
+    otherFieldChangeTriggerFn?: (changedField: string, fieldValue: string, fieldHandlers: Map<string, FieldHandlerProps>, requiredField?: string) => string
 }
 
-const simpleCardField = (fieldName: string, actNode: SageNodeInitializedFreezerNode) => {
+const simpleCardField = (fieldName: string, actNode: SageNodeInitializedFreezerNode, fieldAncestry?: string[]) => {
     const [fieldContents, setField] = CardStateEditor<string>(actNode, fieldName);
     function fieldSaveHandler(name: string, contents: any, act: any, plan: any) {
         const fieldNode = SchemaUtils.getChildOfNodePath(plan, ["action", name]);
@@ -71,7 +72,8 @@ const simpleCardField = (fieldName: string, actNode: SageNodeInitializedFreezerN
             State.emit("value_change", fieldNode, name, false);
         }
         if (act.displayName == ACTIVITY_DEFINITION) {
-            State.emit("value_change", SchemaUtils.getChildOfNode(act, name), contents, false);
+            const changedNode = fieldAncestry ? SchemaUtils.getChildOfNodePath(act, [...fieldAncestry, name]) : SchemaUtils.getChildOfNode(act, name);
+            State.emit("value_change", changedNode, contents, false);
         }
         State.emit("value_change", SchemaUtils.getChildOfNode(plan, name), contents, false);
     }
@@ -148,7 +150,7 @@ const createTextBoxElement = (fieldKey: string, friendlyFieldName: string, textP
                 }} />;
         }
     }
-    fieldHandlers.set(fieldName, {fieldName, fieldContents, setField, fieldSaveHandler, fieldAutoGenFn: textProps.autoGenFn})
+    fieldHandlers.set(fieldName, { fieldName, fieldContents, setField, fieldSaveHandler, otherFieldChangeTriggerFn: textProps.otherFieldTriggerFn })
     if((fieldName == 'period' || fieldName == 'frequency' || fieldName == 'duration')){
         return(
         <Form.Group className={textProps.className} key={fieldName + "-formGroup"}  controlId={fieldName}>
@@ -184,7 +186,7 @@ const createTextBoxElement = (fieldKey: string, friendlyFieldName: string, textP
 
 const createDropdownElement = (fieldKey: string, fieldFriendlyName: string, fieldElements: dropdownBoxProps, fieldHandlers: Map<string, FieldHandlerProps>, node: SageNodeInitializedFreezerNode): JSX.Element => {
     const [fieldName, fieldContents, setField, fieldSaveHandler] = simpleCardField(fieldKey, node);
-    fieldHandlers.set(fieldName, {fieldName, fieldContents, setField, fieldSaveHandler})
+    fieldHandlers.set(fieldName, { fieldName, fieldContents, setField, fieldSaveHandler, otherFieldChangeTriggerFn: fieldElements.otherFieldTriggerFn })
     
     if(fieldName == 'periodUnit' || fieldName == 'durationUnit'){
         return(
@@ -200,7 +202,7 @@ const createDropdownElement = (fieldKey: string, fieldFriendlyName: string, fiel
                             }}
                         >
                             <option hidden disabled value=''>{'Select...'}</option>
-                            {fieldElements.values.map((sType) => {
+                            {fieldElements.values().map((sType) => {
                                 return <option key={fieldKey + "-" + sType} value={sType}>{sType}</option>;
                             })}
                         </Form.Control>
@@ -218,10 +220,13 @@ const createDropdownElement = (fieldKey: string, fieldFriendlyName: string, fiel
                         key={fieldName + "formControl"}
                         as="select"
                         defaultValue = {fieldContents}
-                        onChange={(e) => setField(e.currentTarget.value)}
+                        onChange={(e) => {
+                            setField(e.currentTarget.value);
+                            changeDependantFields(fieldName, e.currentTarget.value, fieldElements, fieldHandlers);
+                        }}
                     >
                         <option hidden disabled value=''>{'--Please Select an Option--'}</option>
-                        {fieldElements.values.map((sType) => {
+                        {fieldElements.values().map((sType) => {
                             return <option key={fieldKey + "-" + sType} value={sType}>{sType}</option>;
                         })}
                     </Form.Control>
@@ -298,7 +303,7 @@ const createDropdownElementList = (innerCardForm: ICardForm, friendlyFields: Fri
     return friendlyFields
         .filter(ff => innerCardForm.dropdownFields.has(ff.SELF.FHIR))
         .map(ff => {
-            return createDropdownElement(ff.SELF.FHIR, ff.SELF.FRIENDLY, innerCardForm.dropdownFields.get(ff.SELF.FHIR) ?? {values: []}, fieldHandlers, node)
+            return createDropdownElement(ff.SELF.FHIR, ff.SELF.FRIENDLY, innerCardForm.dropdownFields.get(ff.SELF.FHIR) ?? {values: () => []}, fieldHandlers, node)
         })
 }
 
@@ -309,9 +314,18 @@ const createCodeableConceptElementList = (innerCardForm: ICardForm, friendlyFiel
             return createCodeableConceptElement(ff.SELF.FHIR, ff.SELF.FRIENDLY, innerCardForm.codeableConceptFields.get(ff.SELF.FHIR) ?? {}, fieldHandlers, node)
         })
 }
+function handleInvisibleFieldList(innerCardForm: ICardForm, friendlyFields: FriendlyResourceFormElement[], fieldHandlers: Map<string, FieldHandlerProps>, node: SageNodeInitializedFreezerNode) {
+    friendlyFields
+        .filter(ff => innerCardForm.invisibleFields.has(ff.SELF.FHIR))
+        .forEach(ff => {
+            const [fieldName, fieldContents, setField, fieldSaveHandler] = simpleCardField(ff.SELF.FHIR, node, ff.SELF.PARENTS);
+            fieldHandlers.set(fieldName, { fieldName, fieldContents, setField, fieldSaveHandler, otherFieldChangeTriggerFn: innerCardForm.invisibleFields.get(ff.SELF.FHIR)?.otherFieldTriggerFn });
+        });
+}
 
 const fieldElementListForType = (innerCardForm: ICardForm, friendlyFields: FriendlyResourceFormElement[], fieldHandlers: Map<string, FieldHandlerProps>, node: SageNodeInitializedFreezerNode): JSX.Element[] => {
     const flattenFriendlyFields = allFormElems(friendlyFields);
+    handleInvisibleFieldList(innerCardForm, flattenFriendlyFields, fieldHandlers, node);
     return [
         ...createTextBoxElementList(innerCardForm, flattenFriendlyFields, fieldHandlers, node),
         ...createDropdownElementList(innerCardForm, flattenFriendlyFields, fieldHandlers, node),
@@ -319,16 +333,20 @@ const fieldElementListForType = (innerCardForm: ICardForm, friendlyFields: Frien
     ]
 }
 
+
+
 function changeDependantFields(changedField: string, fieldValue: string, fieldProps: fieldFormProps, fieldHandlers: Map<string, FieldHandlerProps>) {
-    if (fieldProps.requiredFor) {
-        const reactFieldHandler = fieldHandlers.get(fieldProps.requiredFor);
+    fieldProps.requiredFor?.forEach(requiredField => {
+        const reactFieldHandler = fieldHandlers.get(requiredField);
         if (reactFieldHandler) {
-            const reactAutoGenFn = reactFieldHandler.fieldAutoGenFn;
-            if (reactAutoGenFn) {
-                reactFieldHandler.setField(reactAutoGenFn(changedField, fieldValue, fieldHandlers));
+            const triggerFn = reactFieldHandler.otherFieldChangeTriggerFn;
+            if (triggerFn) {
+                reactFieldHandler.setField(triggerFn(changedField, fieldValue, fieldHandlers, requiredField));
             }
         }
-    }
+    })
+
+
 }
 
 // Returns a new inner card form instance for the given resource type
