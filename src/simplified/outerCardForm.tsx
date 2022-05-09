@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React from "react";
 import State, { SageNodeInitializedFreezerNode } from '../state';
 
-import { ICardForm } from './cardEditor';
+import { FieldHandlerProps, ICardForm } from './cardEditor';
 import { FriendlyResourceProps } from './nameHelpers';
 import { Card, Modal } from "react-bootstrap";
 import { Progress } from './topProgressBar';
@@ -18,7 +18,21 @@ export enum ElemType {
     TextBox,
     Dropdown
 }
-export type textBoxProps = {
+
+
+export type previewProps = {
+    className: string;
+    displayFieldTitle: boolean;
+}
+
+export type fieldFormProps = {
+    requiredFor?: string[];
+    otherFieldTriggerFn?: (changedField: string, fieldValue: string, fieldHandlers: Map<string, FieldHandlerProps>, requiredField?: string) => string;
+    preview?: previewProps
+
+}
+
+export type textBoxProps = fieldFormProps & {
     boxSize: number;
     isReadOnly: boolean;
     isLink: boolean;
@@ -27,9 +41,11 @@ export type textBoxProps = {
     hideFieldTitle?: boolean;
     hideFieldToolTip?: boolean;
 }
-export type displayBoxProps = {
-    className: string;
-    displayFieldTitle: boolean;
+
+export type invisibleFieldProps = fieldFormProps
+
+export type dropdownBoxProps = fieldFormProps & {
+    values: () => string[];
 }
 export interface CardFormState {
     step: number;
@@ -38,10 +54,10 @@ export interface CardFormState {
 
 export type CardFormProps = {
     sageNode: SageNodeInitializedFreezerNode,
-    fieldHandlers: any[][],
+    fieldHandlers: Map<string, FieldHandlerProps>,
     resourceType: FriendlyResourceProps,
     elementList: JSX.Element[],
-    displayList: JSX.Element[],
+    previewList: JSX.Element[],
     conditionEditor: JSX.Element,
     innerCardForm: ICardForm,
     handleSaveResource: ()=> void,
@@ -123,7 +139,7 @@ export class OuterCardForm extends React.Component<CardFormProps, CardFormState>
                 {this.state.step == 2 ? <PageTwo conditionEditor={this.props.conditionEditor} /> : null}
                 {this.state.step == 3 ? <Card style={{ padding: "20px", margin: "10px", borderWidth: "2px", borderColor:'#2D2E74', borderRadius: '40px'}}>
                                         <Card.Title>{this.props.resourceType.FRIENDLY}</Card.Title>
-                                        <Card.Body><PageThree displayElements={this.props.displayList}/></Card.Body>
+                                        <Card.Body><PageThree displayElements={this.props.previewList}/></Card.Body>
                                         </Card> : null}
                 <div><>
                     {this.state.step > 1 ? this.leftNavButton() : null}
@@ -139,7 +155,7 @@ export class OuterCardForm extends React.Component<CardFormProps, CardFormState>
                         <button key="butSave" className="btn btn-secondary" type="button" onClick={()=> this.props.handleSaveResource()}>
                         Save Card
                         </button>
-                        <button key="butSave" className="btn btn-tertiary" style={{float: "right"}} type="button" onClick={()=> this.setState({ isOpen: false })}>
+                        <button key="butCancel" className="btn btn-tertiary" style={{float: "right"}} type="button" onClick={()=> this.setState({ isOpen: false })}>
                         Cancel
                         </button>
                     </Modal.Body>
