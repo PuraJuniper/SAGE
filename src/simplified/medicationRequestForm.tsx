@@ -1,11 +1,11 @@
-import React, { useState } from "react";
-import { Col, Form, ListGroup, Row, Button, Card, InputGroup } from "react-bootstrap";
-import { ICardForm } from "./cardEditor";
-import { FriendlyResourceProps } from "./nameHelpers";
-import { textBoxProps, displayBoxProps } from "./outerCardForm";
-import { CodeableConceptEditorProps } from "./codeableConceptEditor";
+import { faHomeLgAlt, faInfoCircle } from "@fortawesome/pro-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faInfoCircle } from "@fortawesome/pro-solid-svg-icons";
+import React from "react";
+import { Card, Col, Form, Row } from "react-bootstrap";
+import { FieldHandlerProps, ICardForm } from "./cardEditor";
+import { CodeableConceptEditorProps } from "./codeableConceptEditor";
+import { FriendlyResourceProps, friendlyTimeUnit } from "./nameHelpers";
+import { displayBoxProps, dropdownBoxProps, textBoxProps } from "./outerCardForm";
 
 export class MedicationRequestForm implements ICardForm {
 
@@ -35,10 +35,11 @@ export class MedicationRequestForm implements ICardForm {
             caption: "Related Artifact must be a valid URL."
         }],
         ['text', {
-            boxSize: 1,
+            boxSize: 2,
             isReadOnly: true,
             isLink: false,
-            caption: ""
+            caption: "",
+            autoGenFn: updateDosageAutofill
 
         }],
         ['frequency', {
@@ -48,6 +49,7 @@ export class MedicationRequestForm implements ICardForm {
             caption: "",
             className: "page1-dosage-small",
             hideFieldTitle: true,
+            requiredFor: "text"
         }],
         ['period', {
             boxSize: 1,
@@ -56,6 +58,7 @@ export class MedicationRequestForm implements ICardForm {
             caption: "",
             className: "page1-dosage-small",
             hideFieldTitle: true,
+            requiredFor: "text"
         }],
         ['value', {
             boxSize: 1,
@@ -76,20 +79,21 @@ export class MedicationRequestForm implements ICardForm {
             caption: "",
             className: "page1-dosage-small",
             hideFieldTitle: true,
+            requiredFor: "text"
         }]
     ]);
 
-    dropdownFields = new Map<string, string[]>([
+    dropdownFields = new Map<string, dropdownBoxProps>([
         ['status',
-            ['active', 'on-hold', 'cancelled', 'completed', 'entered-in-error', 'stopped', 'draft', 'unknown']],
+            { values: ['active', 'on-hold', 'cancelled', 'completed', 'entered-in-error', 'stopped', 'draft', 'unknown'] }],
         ['intent',
-            ['proposal', 'plan', 'order', 'original-order', 'reflex-order', 'filler-order', 'instance-order', 'option']],
+            { values: ['proposal', 'plan', 'order', 'original-order', 'reflex-order', 'filler-order', 'instance-order', 'option'] }],
         ['periodUnit',
-            ['h', 'd', 'wk', 'mo', 'a']],
+            { values: ['h', 'd', 'wk', 'mo', 'a'], requiredFor: "text" }],
         ['durationUnit',
-            ['h', 'd', 'wk', 'mo', 'a']],
+            { values: ['h', 'd', 'wk', 'mo', 'a'], requiredFor: "text" }],
         ['type',
-            ['documentation', 'justification', 'citation', 'predecessor', 'successor', 'derived-from', 'depends-on', 'composed-of']]
+            { values: ['documentation', 'justification', 'citation', 'predecessor', 'successor', 'derived-from', 'depends-on', 'composed-of'] }]
     ]);
     displayBoxFields = new Map<string, displayBoxProps>([
         ['title', {
@@ -268,5 +272,23 @@ export class MedicationRequestForm implements ICardForm {
             }</div>
         );
     }
+}
+
+function updateDosageAutofill(changedField: string, fieldValue: string, fieldHandlers: Map<string, FieldHandlerProps>): string {
+    const fieldTriggers = ['frequency', 'period', 'periodUnit', 'duration', 'durationUnit'];
+    const fieldVals = new Map(
+        fieldTriggers.map(ft => { return [ft, ft == changedField ? fieldValue : fieldHandlers.get(ft)?.fieldContents] }));
+    function pluralUnit(unit: number | string) {
+        return unit > 1 ? 's' : '';
+    }
+    const timeString = (timeType: string, timeUnit: string) => {
+        const noVal = (checkVal: string, noVal: string, yesVal: string) => checkVal == '' ? noVal : yesVal;
+        const timeVal: string | number = noVal(fieldVals.get(timeType), '[NUM]', fieldVals.get(timeType));
+        const friendlyTime = friendlyTimeUnit(fieldVals.get(timeUnit) ?? timeUnit);
+        return timeVal + ' ' + friendlyTime + noVal(friendlyTime, '[TIME_UNIT]', pluralUnit(timeVal));
+    }
+    const test = <FontAwesomeIcon key="butSaveIcon" icon={faHomeLgAlt} style={{'color':'white','height':'30px','marginRight':'3rem'}} />
+    return `Give ${timeString('frequency', 'dose')} every ${timeString('period', 'periodUnit')} for ${timeString('duration', 'durationUnit')}.`;
+
 
 }

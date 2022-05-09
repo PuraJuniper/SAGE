@@ -626,21 +626,37 @@ export function getChildOfNode(node: SageNodeInitialized, childName: string): Sa
 			return;
 		}
 	}
-	//Look for direct children first
-	for (const child of node.children) {
+
+	const descendants: SageNodeInitialized[] = [];
+	node.children.forEach(child => {
 		if (child.name == childName) {
-			return child
+			descendants.push(child);
 		}
-	}
-	//if direct child is not found, then try grandchild
-	for (const child of node.children) {
 		const granChild = getChildOfNode(child, childName)
 		if (granChild) {
-			return granChild;
+			descendants.push(granChild);
 		}
+	})
+
+	if (descendants.length > 0) {
+		if (descendants.length > 1) {
+			console.log(`More than one child found for "${childName}".`);
+			const noDescendants = descendants.find(des => des.children.length == 0);
+			if (noDescendants !== undefined) {
+				console.log(`Picking the first one with no descendants for:`, node);
+				return descendants.find(des => des.children.length == 0)
+			}
+			else {
+				console.log(`Picking first child`);
+				return descendants[0]
+			}
+		} else {
+			return descendants[0]
+		}
+	} else {
+		// console.log(`Couldnt find child named "${childName}" for:`, node);
+		return;
 	}
-	// console.log(`Couldnt find child named "${childName}" for:`, node);
-	return;
 }
 
 export const createChildrenFromJson = function (profiles: SimplifiedProfiles, nodeToWriteTo: SageNodeInitialized, fhirJson: any) {
