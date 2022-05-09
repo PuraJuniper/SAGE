@@ -1,5 +1,5 @@
 import React, { Dispatch, useEffect, useReducer, useState } from "react";
-import { Button, Col, Row, Spinner } from "react-bootstrap";
+import { Button, Col, Container, Row, Spinner } from "react-bootstrap";
 import { CSSTransition } from "react-transition-group";
 import { getSelectableResourceTypes, WizardAction, WizardState, createExpectedFiltersForResType, ElementFilter } from './wizardLogic';
 
@@ -20,42 +20,42 @@ export const CqlWizardSelectResource: React.FunctionComponent<CqlWizardSelectRes
     }, [props.wizState.resType])
     
     return (
-        <div className="cql-wizard-select-resource-container">
+        <div className="cql-wizard-page-content-closest-positioned-ancestor">
             <CSSTransition in={showWarning} classNames="cql-wizard-content-transition" timeout={300} unmountOnExit>
-                <div className="cql-wizard-select-resource-warning">
-                    <Col>
-                        <Row style={{'justifyContent': "space-evenly", 'marginBottom': '20px'}}>
-                        <b className="cql-wizard-select-resource-warning-text">
-                            Changing the selected resource will reset any selected codes and filters. Do you want to proceed?
-                        </b>
-                        </Row>
-                        <Row style={{'justifyContent': "space-evenly", 'marginBottom': '20px'}}>
-                        <Button variant="danger" size='lg' onClick={() => {
-                            setSelectedRes(props.wizState.resType);
-                            setShowWarning(false);
-                        }}>
-                            No
-                        </Button>
-                        <Button variant="primary" size='lg' onClick={async () => {
-                            if (isLoading) return;
-                            setShowWarning(false);
-                            setIsLoading(true);
-                            let newElementFilters: ElementFilter[] = [];
-                            try {
-                                props.wizDispatch(['disableActions']);
-                                newElementFilters = await createExpectedFiltersForResType(selectedRes);
-                            }
-                            finally {
-                                props.wizDispatch(['enableActions']);
-                            }
-                            props.wizDispatch(['selectExprType', selectedRes, newElementFilters])
-                            setIsLoading(false);
-                        }}>
-                            Yes
-                        </Button>
-                        </Row>
-                    </Col>    
-                </div>
+                <Container className="cql-wizard-select-resource-warning">
+                    <Row className="gy-4 justify-content-center">
+                        <Col xs={12}>
+                            <b>Changing the selected resource will reset any selected codes and filters. Do you want to proceed?</b>
+                        </Col>
+                        <Col xs={3}>
+                            <Button variant="danger" size='lg' onClick={() => {
+                                setSelectedRes(props.wizState.resType);
+                                setShowWarning(false);
+                            }}>
+                                No
+                            </Button>
+                        </Col>
+                        <Col xs={3}>
+                            <Button variant="primary" size='lg' onClick={async () => {
+                                if (isLoading) return;
+                                setShowWarning(false);
+                                setIsLoading(true);
+                                let newElementFilters: ElementFilter[] = [];
+                                try {
+                                    props.wizDispatch(['disableActions']);
+                                    newElementFilters = await createExpectedFiltersForResType(selectedRes);
+                                }
+                                finally {
+                                    props.wizDispatch(['enableActions']);
+                                }
+                                props.wizDispatch(['selectExprType', selectedRes, newElementFilters])
+                                setIsLoading(false);
+                            }}>
+                                Yes
+                            </Button>
+                        </Col>
+                    </Row>    
+                </Container>
             </CSSTransition>
             <div className="cql-wizard-select-resource-grid">
                 {rTypes.map(v => {

@@ -3,13 +3,15 @@ import React, { useState } from "react";
 import { Button, ListGroup, Card, InputGroup, Form } from "react-bootstrap";
 import { CqlWizardModal } from "./cqlWizardModal";
 import { convertFormInputToNumber } from "./cqlWizardSelectFilters";
-import {  buildEditableStateFromCondition, CodeFilterType, DateFilterType, saveEditableStateForConditionId, WizardState } from "./wizardLogic";
+import { CodeFilterType, DateFilterType, findEditableCondition, saveEditableCondition, WizardState } from "./wizardLogic";
 import * as SchemaUtils from "../../helpers/schema-utils";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPenToSquare, faPlus, faTrash } from "@fortawesome/pro-solid-svg-icons";
 
 /**
  * Types required for the condition editor
  */
- export enum AggregateType {
+export enum AggregateType {
     Exists = "exists",
     DoesNotExist = "doesNotExist",
     AtLeast = "atLeast",
@@ -19,16 +21,26 @@ export interface WizExprAggregate {
     aggregate: AggregateType,
     count?: number,
 }
-// An editable state for the Condition with id `conditionId`
-export interface EditableStateForCondition {
+export interface WizExpression {
     curWizState: WizardState | null,
     exprAggregate: WizExprAggregate,
+}
+interface SubExpression {
+    subExpr: (WizExpression | SubExpression)[],
+    subExprBool: 'and' | 'or',
+}
+export interface EditableCondition {
+    expr: SubExpression,
     conditionId: string,
 }
 
-// Make `id` a required property
-export interface SageCondition extends PlanDefinitionActionCondition {
-    id: NonNullable<PlanDefinitionActionCondition['id']>
+function createNewWizExpression(wizState: WizardState): WizExpression {
+    return {
+        curWizState: wizState,
+        exprAggregate: {
+            aggregate: AggregateType.Exists
+        }
+    }
 }
 
 interface ConditionEditorProps {
@@ -36,180 +48,250 @@ interface ConditionEditorProps {
     setPdConditions: (newConditions: PlanDefinitionActionCondition[]) => void,
 }
 
-export const ConditionEditor: React.FC<ConditionEditorProps> = (props) => {
+export const ConditionEditor = (props: ConditionEditorProps) => {
+    // `draftCondition` maps to the single PlanDefinitionActionCondition that represents the condition built in this editor  
+    const [draftCondition, setDraftCondition] = useState<EditableCondition | null>(() => findEditableCondition(props.pdConditions));
+    const [showNewWizard, setShowNewWizard] = useState(false);
 
-    /**
-     * Read PD conditions into a format editable by the condition editor
-     */
-     const [draftConditions, setDraftConditions] = useState<EditableStateForCondition[]>(()=>{
-
-        // Set ids for each condition, if one does not already exist
-        const pdSageConditions: SageCondition[] = props.pdConditions.map((v, i) => {
-            return {
-                ...v,
-                id: v.id ?? `index-${SchemaUtils.getNextId()}`, // Need some unique id
+    return (
+        <div className="condition-editor-body">
+        <React.StrictMode>
+            {draftCondition === null ?
+                <>
+                    {showNewWizard ?
+                        <FreshWizardModal onClose={(savedState) => {
+                            if (savedState !== undefined) {
+                                const newCond: EditableCondition = {
+                                    conditionId: `index-${SchemaUtils.getNextId()}`, // Need some unique id
+                                    expr: {
+                                        subExpr: [createNewWizExpression(savedState)],
+                                        subExprBool: "and",
+                                    }
+                                };
+                                const newCondition: PlanDefinitionActionCondition = {
+                                    id: newCond.conditionId,
+                                    expression: {
+                                        language: "text/cql",
+                                        expression: newCond.conditionId,
+                                    },
+                                    kind: "applicability",
+                                }
+                                props.setPdConditions(props.pdConditions.concat(newCondition));
+                                setDraftCondition(newCond)
+                            }
+                            setShowNewWizard(false);
+                        }} /> :
+                        null}
+                    <Button onClick={() => setShowNewWizard(true)}>
+                        <FontAwesomeIcon icon={faPlus} /> Add a condition for this card
+                    </Button>
+                </> :
+                <SubExpressionElement subExpression={draftCondition.expr}
+                    handleDeleteSubExpression={() => {
+                        props.setPdConditions(props.pdConditions.filter(v => v.id !== draftCondition.conditionId));
+                        setDraftCondition(null);
+                    }}
+                    handleEditSubExpression={(newSubExpr) => {
+                        const newCond: EditableCondition = { ...draftCondition, expr: newSubExpr };
+                        saveEditableCondition(draftCondition.conditionId, newCond);
+                        return setDraftCondition(newCond);
+                    }}
+                />
             }
+        </React.StrictMode>
+        </div>
+    )
+}
+
+interface ConditionElementProps {
+    subExpression: SubExpression,
+    handleEditSubExpression: (newSubExpr: SubExpression) => void,
+    handleDeleteSubExpression: () => void,
+}
+const SubExpressionElement = (props: ConditionElementProps) => {
+    const [newWizardState, setNewWizardState] = useState<{ show: boolean, onClose: (savedState?: WizardState) => void }>({ show: false, onClose: () => 0 })
+
+    function handleDelete(deletedIdx: number) {
+        const newSubExpr = props.subExpression.subExpr.flatMap((v, i) => i === deletedIdx ? [] : [v])
+        props.handleEditSubExpression({
+            ...props.subExpression,
+            subExpr: newSubExpr,
         });
-
-        // Return each condition as a format compatible with the condition editor
-        return pdSageConditions.map(v=>buildEditableStateFromCondition(v))
-    });
-    /**
-     * Create callbacks for persisting edits to a condition and for generating a brand new condition
-     */
-    const persistEditableCondition = (newConditionState: EditableStateForCondition) => {
-        setDraftConditions(curEditableConditions => {
-            if (!curEditableConditions.some(v=>v.conditionId === newConditionState.conditionId)) {
-                // Condition is brand new, add to our draft conditions
-                return curEditableConditions.concat([newConditionState])
-            }
-            else {
-                // Condition already exists in drafts, so update its draft
-                return curEditableConditions.map(v => (v.conditionId !== newConditionState.conditionId) ? v : newConditionState)
-            }
-        });
-    }
-    const generateEditableCondition = (): EditableStateForCondition => { // Creating a new condition with default values
-        return {
-            curWizState: null,
-            exprAggregate: {
-                aggregate: AggregateType.Exists,
-            },
-            conditionId: `index-${SchemaUtils.getNextId()}`, // Need some unique id
-        };
     }
 
-    const [showWiz, setShowWiz] = useState(false);
-    const [currentlyEditedState, setCurrentlyEditedState] = useState<EditableStateForCondition>(()=>generateEditableCondition());
-
-    // Various callbacks for CQL Wizard Dialog
-    function handleEditExpression(editedExpr: EditableStateForCondition) {
-        setCurrentlyEditedState(editedExpr);
-        setShowWiz(true);
-    }
-    function handleCreateExpression() {
-        const newEditableState = generateEditableCondition();
-        setCurrentlyEditedState(newEditableState);
-        setShowWiz(true);
-    }
-    function handleClose() {
-        setShowWiz(false);
-    }
-    function handleSaveAndClose(newWizState: WizardState) {
-        const newEditableState: EditableStateForCondition = {
-            ...currentlyEditedState,
-            curWizState: newWizState,
-        }
-        saveEditableStateForConditionId(currentlyEditedState.conditionId, newEditableState); // Temp
-        persistEditableCondition(newEditableState);
-        const newCondition: SageCondition = {
-            id: newEditableState.conditionId,
-            expression: {
-                language: "text/cql",
-                expression: newEditableState.conditionId,
-            },
-            kind: "applicability",
-        }
-        const updateCondIdx = props.pdConditions.findIndex(v => v.id === newCondition.id);
-        if (updateCondIdx === -1) {
-            props.setPdConditions(props.pdConditions.concat(newCondition));
-        }
-        else {
-            props.setPdConditions(props.pdConditions.map((v, i) => i === updateCondIdx ? newCondition : v))
-        }
-        handleClose();
-    }
-
-    function handleConditionAggregate(draftCondition: EditableStateForCondition, newAggregate: WizExprAggregate) {
-        saveEditableStateForConditionId(draftCondition.conditionId, {
-            ...draftCondition,
-            exprAggregate: newAggregate,
-        }); // Temp
-        persistEditableCondition({
-            ...draftCondition,
-            exprAggregate: newAggregate,
+    function handleEditExpr(editedIdx: number, newExpr: SubExpression | WizExpression) {
+        props.handleEditSubExpression({
+            ...props.subExpression,
+            subExpr: props.subExpression.subExpr.map((v, i) => i === editedIdx ? newExpr : v)
         });
     }
 
     return (
-        <div>
-        <React.StrictMode>
-            <CqlWizardModal show={showWiz} initialWizState={currentlyEditedState.curWizState} onClose={handleClose} onSaveAndClose={handleSaveAndClose} />
+        <>
+            <Card>
+                <Card.Body>
+                    <Card.Title>
+                        {props.subExpression.subExprBool}
+                        <Button onClick={props.handleDeleteSubExpression}>Delete</Button>
+                    </Card.Title>
+                    {props.subExpression.subExpr.map((expr, exprIdx) => {
+                        if ('subExprBool' in expr) {
+                            return (
+                                <SubExpressionElement
+                                    subExpression={expr}
+                                    handleEditSubExpression={(newExpr) => handleEditExpr(exprIdx, newExpr)}
+                                    handleDeleteSubExpression={() => handleDelete(exprIdx)}
+                                />
+                            )
+                        }
+                        else {
+                            return (
+                                <>
+                                    <WizardExpression
+                                        wizExpression={expr}
+                                        handleEditExpression={(newExpr) => handleEditExpr(exprIdx, newExpr)}
+                                        handleDeleteExpression={() => handleDelete(exprIdx)}
+                                    />
+                                    <Button
+                                        onClick={() => {
+                                            setNewWizardState({
+                                                show: true,
+                                                onClose: (savedState) => {
+                                                    if (savedState !== undefined) {
+                                                        handleEditExpr(exprIdx, {
+                                                            subExpr: [expr, createNewWizExpression(savedState)],
+                                                            subExprBool: props.subExpression.subExprBool === "or" ? "and" : "or",
+                                                        })
+                                                    }
+                                                    setNewWizardState({
+                                                        show: false,
+                                                        onClose: () => 0
+                                                    })
+                                                }
+                                            })
+                                        }}
+                                    >
+                                        {props.subExpression.subExprBool === "or" ? "AND" : "OR"}
+                                    </Button>
+                                </>
+                            )
+                        }
+                    })}
+                </Card.Body>
+                <Button
+                    onClick={() => {
+                        setNewWizardState({
+                            show: true,
+                            onClose: (savedState) => {
+                                if (savedState !== undefined) {
+                                    props.handleEditSubExpression({
+                                        ...props.subExpression,
+                                        subExpr: props.subExpression.subExpr.concat(createNewWizExpression(savedState))
+                                    })
+                                }
+                                setNewWizardState({
+                                    show: false,
+                                    onClose: () => 0
+                                })
+                            }
+                        })
+                    }}
+                >
+                    {props.subExpression.subExprBool.toUpperCase()}
+                </Button>
+            </Card>
+            {newWizardState.show ?
+                <FreshWizardModal onClose={newWizardState.onClose} /> :
+                null}
+        </>
+    )
+}
 
-            <ListGroup>
-                {draftConditions.flatMap(draft => {
-                    return draft.curWizState !== null ? [
-                        <Card key={draft.conditionId}>
-                            <Card.Body>
-                                <Card.Title>{draft.curWizState.resType}</Card.Title>
-                                <Card.Subtitle className="mb-2 text-muted">{`With one of the codes ${draft.curWizState.codes.map(code=>code.code).join(', ')}`}</Card.Subtitle>
-                                <Card.Text>
-                                    With the following restrictions:
-                                    <br />
-                                    {draft.curWizState.filters.flatMap(v => {
-                                        switch(v.filter.type) {
-                                            case "coding":
-                                                if (v.filter.filteredCoding.filterType === CodeFilterType.None) {
-                                                    return [];
-                                                }
-                                                else {
-                                                    const codes = v.filter.codeBinding.codes;
-                                                    return [`${v.elementName} is one of [${v.filter.filteredCoding.selectedIndexes.map(index => codes[index].display ?? codes[index].code).join(', ')}]`];
-                                                }
-                                            case "date":
-                                                if (v.filter.filteredDate.filterType === DateFilterType.None) {
-                                                    return [];
-                                                }
-                                                else {
-                                                    return ['some date (display WIP)'];
-                                                }
-                                            default:
-                                                return [];
-                                        }
-                                    }).join(', and ')}
-                                </Card.Text>
-                                <Button onClick={() => handleEditExpression(draft)}>Edit</Button>
-                            </Card.Body>
-                            <Card.Footer>
-                                <div className="cql-wizard-result-should-exist">
-                                    <Button variant="outline-danger" active={draft.exprAggregate.aggregate === AggregateType.DoesNotExist}
-                                        onClick={()=>handleConditionAggregate(draft, { ...draft.exprAggregate, aggregate: AggregateType.DoesNotExist })}
-                                    >
-                                        Should Not Exist
-                                    </Button>
-                                    <Button variant="outline-success" active={draft.exprAggregate.aggregate === AggregateType.Exists}
-                                        onClick={()=>handleConditionAggregate(draft, { ...draft.exprAggregate, aggregate: AggregateType.Exists })}
-                                    >
-                                        Should Exist
-                                    </Button>
-                                    <InputGroup>
-                                            <Button variant="outline-primary" active={draft.exprAggregate.aggregate === AggregateType.AtLeast}
-                                                onClick={()=>handleConditionAggregate(draft, { ...draft.exprAggregate, aggregate: AggregateType.AtLeast })}
-                                            >
-                                                At Least
-                                            </Button>
-                                            <Button variant="outline-primary" active={draft.exprAggregate.aggregate === AggregateType.NoMoreThan}
-                                                onClick={()=>handleConditionAggregate(draft, { ...draft.exprAggregate, aggregate: AggregateType.NoMoreThan })}
-                                            >
-                                                No More Than
-                                            </Button>
-                                        <Form.Control
-                                            placeholder="Count for aggregate"
-                                            type="number"
-                                            disabled={!([AggregateType.AtLeast, AggregateType.NoMoreThan].includes(draft.exprAggregate.aggregate))}
-                                            defaultValue={1}
-                                            min={0}
-                                            onChange={e => handleConditionAggregate(draft, { aggregate: draft.exprAggregate.aggregate, count: convertFormInputToNumber(e.target.value, 1) })}
-                                        />
-                                    </InputGroup>
-                                </div>
-                            </Card.Footer>
-                        </Card>
-                    ] : 
-                    [];
-                })}
-            </ListGroup>
-        </React.StrictMode>
-        </div>
+interface WizardExpressionProps {
+    wizExpression: WizExpression,
+    handleEditExpression: (newExpr: WizExpression) => void,
+    handleDeleteExpression: () => void,
+}
+const WizardExpression = ({ wizExpression, handleEditExpression, handleDeleteExpression }: WizardExpressionProps) => {
+    const [showWiz, setShowWiz] = useState(wizExpression.curWizState === null);
+
+    return (
+        <>
+            <CqlWizardModal show={showWiz} initialWizState={wizExpression.curWizState}
+                onClose={() => {
+                    setShowWiz(false);
+                    if (wizExpression.curWizState === null) {
+                        handleDeleteExpression();
+                    }
+                }}
+                onSaveAndClose={(newWizState) => {
+                    setShowWiz(false);
+                    handleEditExpression({
+                        ...wizExpression,
+                        curWizState: newWizState,
+                    })
+                }}
+            />
+            <div>
+                <span>
+                    <svg height="20px" width="20px" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                        <line x1="0" y1="50" x2="100" y2="50" stroke="black" />
+                    </svg>
+                    {wizExpression.curWizState?.resType}
+                    <Button onClick={() => setShowWiz(true)}>
+                        <FontAwesomeIcon icon={faPenToSquare} /> Edit
+                    </Button>
+                    <Button onClick={handleDeleteExpression}>
+                        <FontAwesomeIcon icon={faTrash} /> Delete
+                    </Button>
+                </span>
+                {/* <Card.Footer>
+                    <div className="cql-wizard-result-should-exist">
+                        <Button variant="outline-danger" active={props.exprAggregate.aggregate === AggregateType.DoesNotExist}
+                            onClick={() => props.handleConditionAggregate({ ...props.exprAggregate, aggregate: AggregateType.DoesNotExist })}
+                        >
+                            Should Not Exist
+                        </Button>
+                        <Button variant="outline-success" active={props.exprAggregate.aggregate === AggregateType.Exists}
+                            onClick={() => props.handleConditionAggregate({ ...props.exprAggregate, aggregate: AggregateType.Exists })}
+                        >
+                            Should Exist
+                        </Button>
+                        <InputGroup>
+                            <Button variant="outline-primary" active={props.exprAggregate.aggregate === AggregateType.AtLeast}
+                                onClick={() => props.handleConditionAggregate({ ...props.exprAggregate, aggregate: AggregateType.AtLeast })}
+                            >
+                                At Least
+                            </Button>
+                            <Button variant="outline-primary" active={props.exprAggregate.aggregate === AggregateType.NoMoreThan}
+                                onClick={() => props.handleConditionAggregate({ ...props.exprAggregate, aggregate: AggregateType.NoMoreThan })}
+                            >
+                                No More Than
+                            </Button>
+                            <Form.Control
+                                placeholder="Count for aggregate"
+                                type="number"
+                                disabled={!([AggregateType.AtLeast, AggregateType.NoMoreThan].includes(props.exprAggregate.aggregate))}
+                                defaultValue={1}
+                                min={0}
+                                onChange={e => props.handleConditionAggregate({ aggregate: props.exprAggregate.aggregate, count: convertFormInputToNumber(e.target.value, 1) })}
+                            />
+                        </InputGroup>
+                    </div>
+                </Card.Footer> */}
+            </div>
+        </>
+    )
+}
+
+interface FreshWizardModalProps {
+    onClose: (savedState?: WizardState) => void,
+}
+const FreshWizardModal = ({ onClose }: FreshWizardModalProps) => {
+    return (
+        <CqlWizardModal show={true} initialWizState={null}
+            onClose={() => onClose()}
+            onSaveAndClose={(newWizState) => onClose(newWizState)}
+        />
     )
 }

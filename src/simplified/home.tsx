@@ -49,12 +49,12 @@ const BasicHomeView = () => {
                 <h3 id='page-title' className="col-lg-10 col-md-9">Home</h3>
             </div>
                 <Container fluid="lg">
-                    <Row lg="4" md="3" sm="2" g-0="true">
+                    <Row lg="4" md="3" sm="2" className="g-0">
                         {
                             listOfHomePage.map(
                                 (resource, i) => {
                                     return (
-                                        <div style={{ flex: '0 0 35%' , maxWidth: '35%' , padding: "10px" }} key={resource.title}>
+                                        <div style={{ flex: '0 0 35%' , maxWidth: '35%' , padding: "10px" }} key={`${resource.title}-${i}`}>
                                         <h4 style={{'fontSize':'10px'}}>{resource.header}</h4>
                                             <Col style={{ padding: "0px" }}>
                                                  <BaseCard
