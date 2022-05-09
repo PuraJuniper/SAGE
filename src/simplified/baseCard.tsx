@@ -9,6 +9,7 @@ import { incrementNextId } from "../helpers/schema-utils";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faInfoCircle,faGrid,faBookMedical,faCirclePlus, IconDefinition } from '@fortawesome/pro-solid-svg-icons';
 import { useNavigate } from "react-router-dom";
+import { AuthoringState } from './authoringInfo';
 
 interface BaseCardProps {
     header: string,
@@ -65,8 +66,10 @@ export const BaseCard = (props: BaseCardProps) => {
                         State.get().ui.set("openMode", "insert");
                     }
                     const nextId = incrementNextId(); // Saving some trouble by using this -- we should decide on a standard way to generate unique URLs
-                    const referencedResourceName = `${resourceType}-${State.get().CPGName}${nextId}`;
-                    const referencedResourceUrl = `http://fhir.org/guides/${State.get().publisher}/${resourceType}/${referencedResourceName}`;
+
+                    const authoringState: AuthoringState = State.get().author.authorings[State.get().author.pos];
+                    const referencedResourceName = `${resourceType}-${authoringState.CPGName}${nextId}`;
+                    const referencedResourceUrl = `http://fhir.org/guides/${authoringState.publisher}/${resourceType}/${referencedResourceName}`;
                     const json = {
                         resourceType: "Bundle",
                         entry: [

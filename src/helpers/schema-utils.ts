@@ -11,6 +11,7 @@ import PrimitiveValidator from './primitive-validator';
 import { Bundle, Resource, Element, ElementDefinition, ElementDefinitionType, ActivityDefinition, PlanDefinition, Questionnaire, Library, ValueSet, FhirResource, CodeSystem } from 'fhir/r4';
 import { defaultProfileUriOfResourceType, FriendlyResourceFormElement, FriendlyResourceProps, profileToFriendlyResourceListEntry, STRUCTURE_DEFINITION, VALUE_SET } from '../simplified/nameHelpers';
 import * as Bioportal from "../simplified/cql-wizard/bioportal";
+import { AuthoringState } from '../simplified/authoringInfo';
 
 // Template of a SageNode for a specific element/resource
 export type SageNode = {
@@ -297,69 +298,70 @@ const getDefaultValue = (schema: SchemaDef, fhirType: string, parentName = ""): 
 
 	// Attempt to auto-populate URLs, Names, and Publishers, if possible
 	const pathSuffix = schema.path.split('.');
+	const authoringState: AuthoringState = State.get().author.authorings[State.get().author.pos];
 	switch (pathSuffix[pathSuffix.length - 1]) {
 		case "name":
-			if (State.get().CPGName != "") {
+			if (authoringState.CPGName != "") {
 				//filter editor and reviewer
 				if (pathSuffix[0] == "ContactDetail") {
 					if (parentName == "author") {
-						defaultValue = State.get().author;
+						defaultValue = authoringState.author;
 					} else if (parentName == "editor") {
-						defaultValue = State.get().editor;
+						defaultValue = authoringState.editor;
 					} else if (parentName == "reviewer") {
-						defaultValue = State.get().reviewer
+						defaultValue = authoringState.reviewer
 					}
 				}
 				else {
-					defaultValue = `${pathSuffix[0]}-${State.get().CPGName}${State.get().resCount}`;
+					defaultValue = `${pathSuffix[0]}-${authoringState.CPGName}${State.get().resCount}`;
 				}
 			}
 			break;
 		case "publisher":
-			if (State.get().publisher != "") {
-				defaultValue = State.get().publisher;
+			if (authoringState.publisher != "") {
+				defaultValue = authoringState.publisher;
 			}
 			break;
 		case "url":
-			if (State.get().publisher != "" && State.get().CPGName != "") {
+			if (authoringState.publisher != "" && authoringState.CPGName != "") {
 				// Ignore extensions
 				if (pathSuffix[0] == "Extension") {
 					break;
 				}
-				defaultValue = `http://fhir.org/guides/${State.get().publisher}/${pathSuffix[0]}/${pathSuffix[0]}-${State.get().CPGName}${State.get().resCount}`;
+				defaultValue = `http://fhir.org/guides/${authoringState.publisher}/${pathSuffix[0]}/${pathSuffix[0]}-${authoringState.CPGName}${State.get().resCount}`;
 				if (pathSuffix[0].endsWith("Activity")) {
-					defaultValue = `http://fhir.org/guides/${State.get().publisher}/ActivityDefinition/ActivityDefinition-${State.get().CPGName}${State.get().resCount}`;
+					defaultValue = `http://fhir.org/guides/${authoringState.publisher}/ActivityDefinition/ActivityDefinition-${authoringState.CPGName}${State.get().resCount}`;
 				}
 			}
 			break;
 		case "status":
-			if (State.get().status != '') {
-				defaultValue = State.get().status
+			if (authoringState.status != '') {
+				defaultValue = authoringState.status
 			}
 			break;
 		case "version":
-			if (State.get().version != "") {
-				defaultValue = State.get().version;
+			if (authoringState.version != "") {
+				defaultValue = authoringState.version;
 			}
 			break;
 		case "date":
-			if (State.get().date != "") {
-				defaultValue = State.get().date;
+			if (authoringState.date != "") {
+				defaultValue = authoringState.date;
 			}
 			break;
 		case "copyright":
-			if (State.get().copyright != "") {
-				defaultValue = State.get().copyright;
+			if (authoringState.copyright != "") {
+				defaultValue = authoringState.copyright;
 			}
 			break;
 		case "approvalDate":
-			if (State.get().approvalDate != "") {
-				defaultValue = State.get().approvalDate;
+			if (authoringState.approvalDate != "") {
+				defaultValue = authoringState.approvalDate;
 			}
 			break;
 		case "lastReviewDate":
-			if (State.get().lastReviewDate != "") {
-				defaultValue = State.get().lastReviewDate;
+			if (authoringState.lastReviewDate != "") {
+				defaultValue = authoringState.lastReviewDate;
 			}
 			break;
 	}
@@ -711,7 +713,8 @@ export const createChildrenFromArray = function (profiles: SimplifiedProfiles, n
 }
 
 export function buildUrlForResource(resourceType: string) {
-	return `http://fhir.org/guides/${State.get().publisher}/${resourceType}/${resourceType}-${State.get().CPGName}${State.get().resCount + 1}`;
+	const authoringState: AuthoringState = State.get().author.authorings[State.get().author.pos];
+	return `http://fhir.org/guides/${authoringState.publisher}/${resourceType}/${resourceType}-${authoringState.CPGName}${State.get().resCount + 1}`;
 }
 
 /**

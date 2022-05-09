@@ -164,7 +164,7 @@ class ValueEditor extends React.Component<ValueEditorProps, Record<string, never
 	}
 
 	buildBooleanInput(value: boolean) {
-		const bool = State.get().experimental;
+		const bool = State.get().author.authorings[State.get().author.pos].experimental;
 		if (this.props.node.name === "experimental") {
 			console.log(this.props.node.value);
 			return <span>
@@ -250,7 +250,7 @@ class ValueEditor extends React.Component<ValueEditorProps, Record<string, never
 		const options = [];
 		// const fields = []; //valueCode
 		const statusfields = []; //status
-		const status = State.get().status;
+		const status = State.get().author.authorings[State.get().author.pos].status;
 		for (let i = 0; i < items.length; i++) {
 			const item = items[i];
 			options.push(<option key={item[1]} value={item[1]}>

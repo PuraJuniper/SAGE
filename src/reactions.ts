@@ -304,7 +304,7 @@ State.on("load_json_resource", (json, isCPG = true) => {
 	//console.log('load_json_resource', json);
 	
 	// CPGName needs to be deleted
-	if (!isCPG) State.get().set("CPGName", "");
+	if (!isCPG) State.get().author.authorings[State.get().author.pos].set("CPGName", "");
 
 	const success = openMode === "insert" ?
 		bundleInsert(json, isBundle)
@@ -394,7 +394,7 @@ State.on("show_open_contained", node => State.get().ui.pivot()
 
 State.on("show_open_insert", () => {
 	State.emit("save_changes_to_bundle_json");
-	if (State.get().CPGName) {
+	if (State.get().author.authorings[State.get().author.pos].CPGName) {
 		// ie if the bundle is a CPG
 		State.get().ui.set("openMode", "insert");
 		const json = {resourceType: "Bundle", entry: [{resource: {resourceType: PLAN_DEFINITION}}]};
@@ -407,7 +407,7 @@ State.on("show_open_insert", () => {
 
 State.on("show_open_questionnaire", () => {
 	State.emit("set_bundle_pos", State.get().bundle.pos);
-	if (State.get().CPGName) {
+	if (State.get().author.authorings[State.get().author.pos].CPGName) {
 		State.get().ui.set("openMode", "insert");
 		const questionnaireJson = {resourceType: QUESTIONNAIRE};
 		const json = {resourceType: "Bundle", entry: [{resource: questionnaireJson}]};
@@ -420,7 +420,7 @@ State.on("show_open_questionnaire", () => {
        
 State.on("show_open_activity", () => {
 	State.emit("set_bundle_pos", State.get().bundle.pos);
-       if (State.get().CPGName) {
+       if (State.get().author.authorings[State.get().author.pos].CPGName) {
                State.get().ui.set("openMode", "insert");
                const activityDefJson = {resourceType: ACTIVITY_DEFINITION};
                const json = {resourceType: "Bundle", entry: [{resource: activityDefJson}]};

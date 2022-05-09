@@ -25,7 +25,7 @@ const activityPlanSteps =
         { name: "reviewer", value: "reviewer", type: 'input' },
     ]
 
-interface AuthoringState {
+export interface AuthoringState {
     submitInvalid: boolean,
     showSpinner: boolean,
     tab: string,
@@ -228,22 +228,8 @@ export default class Authoring extends React.Component<any, AuthoringState> {
                             </Col>
                         </Row>
                         <NavButtons
-                            handleNext={() => {
-                                State.get().set({
-                                    version: this.state.version,
-                                    date: this.state.date,
-                                    status: this.state.status,
-                                    experimental: this.state.experimental,
-                                    copyright: this.state.copyright,
-                                    approvalDate: this.state.approvalDate,
-                                    lastReviewDate: this.state.lastReviewDate,
-                                    CPGName: this.state.CPGName,
-                                    publisher: this.state.publisher,
-                                    author: this.state.author,
-                                    editor: this.state.editor,
-                                    reviewer: this.state.reviewer,
-                                });
-                            }}
+                        //TODO: add handler for different situations
+                            handleNext={() => { State.get().author.authorings.push(this.state);}}
                         />
                     </Container>
                 </div>
