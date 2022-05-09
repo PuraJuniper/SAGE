@@ -12,3 +12,4 @@ editor.iml
 .env
 public/bundle*
 *.tsbuildinfo
+.npmrc

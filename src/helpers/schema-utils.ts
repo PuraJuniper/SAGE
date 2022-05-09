@@ -640,9 +640,16 @@ export function getChildOfNode(node: SageNodeInitialized, childName: string): Sa
 
 	if (descendants.length > 0) {
 		if (descendants.length > 1) {
-			const pickedNode = descendants.find(des => des.children.length == 0)
-			console.log(`More than one child found for "${childName}". Picking the first one with no descendants:`, pickedNode);
-			return pickedNode;
+			console.log(`More than one child found for "${childName}".`);
+			const pickedNode = descendants.find(des => des.children.length == 0);
+			if (pickedNode !== undefined) {
+				console.log(`Picking the first one with no descendants for:`, node);
+				return pickedNode;
+			}
+			else {
+				console.log(`Picking first child`);
+				return descendants[0]
+			}
 		} else {
 			return descendants[0]
 		}
