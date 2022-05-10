@@ -1,30 +1,11 @@
 import React from "react";
-import "react-step-progress-bar/styles.css";
 import { Col, Container, Row } from "react-bootstrap";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import Sidebar from "./sidebar";
+import "react-step-progress-bar/styles.css";
 import State from "../state";
-import { Progress } from "./topProgressBar";
-import { faCaretLeft, faCaretRight } from '@fortawesome/pro-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-
-
-const activityPlanSteps =
-    [
-        { name: "version", value: "1.0.0", type: 'input' },
-        { name: "date", value: "", type: 'date' },
-        { name: "status", value: "draft", type: 'select' },
-        { name: "experimental", value: true, type: 'select' },
-        { name: "publisher", value: "publisher", type: 'input' },
-        { name: "copyright", value: "", type: 'input' },
-        { name: "approvalDate", value: "", type: 'date' },
-        { name: "lastReviewDate", value: "", type: 'date' },
-        { name: "CPGName", value: "cpgname", type: 'input' },
-        { name: "author", value: "author", type: 'input' },
-        { name: "editor", value: "editor", type: 'input' },
-        { name: "reviewer", value: "reviewer", type: 'input' },
-    ]
-
+import { fieldSaveHandler } from "./cardEditor";
+import { getRelatedActivityNode } from './planDefEditor';
+import Sidebar from "./sidebar";
 export interface AuthoringState {
     submitInvalid: boolean,
     showSpinner: boolean,
@@ -55,7 +36,7 @@ export default class Authoring extends React.Component<any, AuthoringState> {
         this.state = State.get().author.authorings[State.get().author.pos]
     }
     render() {
-        console.log(this.state)
+        // console.log(this.state)
         return (
             <div style={{ display: "flex" }} >
                 <Sidebar pageType='create card' pageTitle='Authoring Information'></Sidebar>
@@ -209,8 +190,16 @@ export default class Authoring extends React.Component<any, AuthoringState> {
                             </Col>
                         </Row>
                         <NavButtons
-                            handleNext={() => { 
-                                State.get().author.authorings[State.get().author.pos].set(this.state);
+                            handleSave={() => {State.get().author.authorings[State.get().author.pos].set(this.state);}}
+                            handleUpdateExistingCards={ () => {
+                                const planDefinitions = State.get().bundle.resources;
+                                const pdLength = State.get().bundle.resources.length;
+                                for (let index = 0; index < pdLength; index++) {
+                                    const pd = State.get().bundle.resources[index]
+                                    const actNode = getRelatedActivityNode(pd);
+                                    fieldSaveHandler("nodeName", "nodeContents", actNode, pd);
+                                }
+                                return "thing";
                             }}
                         />
                     </Container>
@@ -220,7 +209,11 @@ export default class Authoring extends React.Component<any, AuthoringState> {
 
     }
 }
-const NavButtons = (props: { handleNext: () => void; }) => {
+const NavButtons = (
+    props: { 
+        handleSave: () => void; 
+        handleUpdateExistingCards: () => void;
+    } ) => {
     const navigate = useNavigate();
     const [searchParams, _] = useSearchParams();
     const nextPage = searchParams.get('next') ?? 'create'
@@ -229,20 +222,20 @@ const NavButtons = (props: { handleNext: () => void; }) => {
         <div style={{ display: "flex", marginTop: '1rem' }} >
             <button type='button' className="navigate-reverse col-lg-2 col-md-3"
                 onClick={() => {
-                    props.handleNext();
+                    props.handleSave();
+                    props.handleUpdateExistingCards();
                     navigate('/basic-home');
                 }}>
-                {<> 
-                {/* <FontAwesomeIcon icon={faCaretLeft} /> */}
-                 {"Save and Exit"} </>}
+                {<> {"Save and Exit"} </>}
             </button>
-            <button type='button' className="navigate col-lg-2 col-md-3"
+            {/* TODO: Handle next only when first card in folder */}
+            {/* <button type='button' className="navigate col-lg-2 col-md-3"
                 onClick={() => {
                     props.handleNext();
                     navigate(`/${nextPage}`);
                 }}>
                 {<> {"Next "} <FontAwesomeIcon icon={faCaretRight} /></>}
-            </button>
+            </button> */}
 
         </div>
     );

@@ -64,19 +64,20 @@ export interface FieldHandlerProps {
     otherFieldChangeTriggerFn?: (changedField: string, fieldValue: string, fieldHandlers: Map<string, FieldHandlerProps>, requiredField?: string) => string
 }
 
+export function fieldSaveHandler(name: string, contents: any, act: any, plan: any, fieldAncestry?: string[]) {
+    const fieldNode = SchemaUtils.getChildOfNodePath(plan, ["action", name]);
+    if (fieldNode) {
+        State.emit("value_change", fieldNode, name, false);
+    }
+    if (act.displayName == ACTIVITY_DEFINITION) {
+        const changedNode = fieldAncestry ? SchemaUtils.getChildOfNodePath(act, [...fieldAncestry, name]) : SchemaUtils.getChildOfNode(act, name);
+        State.emit("value_change", changedNode, contents, false);
+    }
+    State.emit("value_change", SchemaUtils.getChildOfNode(plan, name), contents, false);
+}
+
 const simpleCardField = (fieldName: string, actNode: SageNodeInitializedFreezerNode, fieldAncestry?: string[]) => {
     const [fieldContents, setField] = CardStateEditor<string>(actNode, fieldName);
-    function fieldSaveHandler(name: string, contents: any, act: any, plan: any) {
-        const fieldNode = SchemaUtils.getChildOfNodePath(plan, ["action", name]);
-        if (fieldNode) {
-            State.emit("value_change", fieldNode, name, false);
-        }
-        if (act.displayName == ACTIVITY_DEFINITION) {
-            const changedNode = fieldAncestry ? SchemaUtils.getChildOfNodePath(act, [...fieldAncestry, name]) : SchemaUtils.getChildOfNode(act, name);
-            State.emit("value_change", changedNode, contents, false);
-        }
-        State.emit("value_change", SchemaUtils.getChildOfNode(plan, name), contents, false);
-    }
     return [fieldName, fieldContents, setField, fieldSaveHandler]
 }
 
