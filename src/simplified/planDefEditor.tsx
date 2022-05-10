@@ -184,6 +184,6 @@ function getReferencedNodeURI(planDefNode: SageNodeInitializedFreezerNode) {
     return SchemaUtils.getChildOfNodePath(planDefNode, ["action", "definitionCanonical"])?.value;
 }
 
-export function getRelatedActivityNode(planDefNode: SageNodeInitializedFreezerNode): { node: any; pos: any; } {
+export function getRelatedActivityNode(planDefNode: SageNodeInitializedFreezerNode): { node: SageNodeInitializedFreezerNode | null; pos: number | null; } {
     return SchemaUtils.findFirstSageNodeByUri(State.get().bundle.resources, getReferencedNodeURI(planDefNode));
 }

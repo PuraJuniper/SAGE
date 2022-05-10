@@ -63,17 +63,24 @@ export interface FieldHandlerProps {
     fieldSaveHandler: (name: string, contents: any, act: any, plan: any) => void
     otherFieldChangeTriggerFn?: (changedField: string, fieldValue: string, fieldHandlers: Map<string, FieldHandlerProps>, requiredField?: string) => string
 }
+export function planFieldSaveHandler(plan: SageNodeInitializedFreezerNode, name: string, contents: any) {
+    State.emit("value_change", SchemaUtils.getChildOfNode(plan, name), contents, false);
+}
 
-export function fieldSaveHandler(name: string, contents: any, act: any, plan: any, fieldAncestry?: string[]) {
+export function activityFieldSaveHandler(act: SageNodeInitializedFreezerNode, name: string, contents: any, fieldAncestry?: string[] | undefined) {
+    const changedNode = fieldAncestry ? SchemaUtils.getChildOfNodePath(act, [...fieldAncestry, name]) : SchemaUtils.getChildOfNode(act, name);
+    State.emit("value_change", changedNode, contents, false);
+}
+
+export function fieldSaveHandler(name: string, contents: any, act: SageNodeInitializedFreezerNode, plan: SageNodeInitializedFreezerNode, fieldAncestry?: string[]) {
     const fieldNode = SchemaUtils.getChildOfNodePath(plan, ["action", name]);
     if (fieldNode) {
         State.emit("value_change", fieldNode, name, false);
     }
     if (act.displayName == ACTIVITY_DEFINITION) {
-        const changedNode = fieldAncestry ? SchemaUtils.getChildOfNodePath(act, [...fieldAncestry, name]) : SchemaUtils.getChildOfNode(act, name);
-        State.emit("value_change", changedNode, contents, false);
+        activityFieldSaveHandler(act, name, contents, fieldAncestry);
     }
-    State.emit("value_change", SchemaUtils.getChildOfNode(plan, name), contents, false);
+    planFieldSaveHandler(plan, name, contents);
 }
 
 const simpleCardField = (fieldName: string, actNode: SageNodeInitializedFreezerNode, fieldAncestry?: string[]) => {
@@ -302,6 +309,7 @@ const createCodeableConceptElementList = (innerCardForm: ICardForm, friendlyFiel
             return createCodeableConceptElement(ff.SELF.FHIR, ff.SELF.FRIENDLY, innerCardForm.codeableConceptFields.get(ff.SELF.FHIR) ?? {}, fieldHandlers, node)
         })
 }
+
 function handleInvisibleFieldList(innerCardForm: ICardForm, friendlyFields: FriendlyResourceFormElement[], fieldHandlers: Map<string, FieldHandlerProps>, node: SageNodeInitializedFreezerNode) {
     friendlyFields
         .filter(ff => innerCardForm.invisibleFields.has(ff.SELF.FHIR))

@@ -313,7 +313,8 @@ const getDefaultValue = (schema: SchemaDef, fhirType: string, parentName = ""): 
 					}
 				}
 				else {
-					defaultValue = `${pathSuffix[0]}-${authoringState.CPGName}${State.get().resCount}`;
+					const suffix = pathSuffix[0];
+					defaultValue = generateCardNameString(suffix, authoringState);
 				}
 			}
 			break;
@@ -328,7 +329,7 @@ const getDefaultValue = (schema: SchemaDef, fhirType: string, parentName = ""): 
 				if (pathSuffix[0] == "Extension") {
 					break;
 				}
-				defaultValue = `http://fhir.org/guides/${authoringState.publisher}/${pathSuffix[0]}/${pathSuffix[0]}-${authoringState.CPGName}${State.get().resCount}`;
+				defaultValue = generateCardUrl(pathSuffix[0], authoringState);
 				if (pathSuffix[0].endsWith("Activity")) {
 					defaultValue = `http://fhir.org/guides/${authoringState.publisher}/ActivityDefinition/ActivityDefinition-${authoringState.CPGName}${State.get().resCount}`;
 				}
@@ -477,6 +478,14 @@ export const buildChildNode = function (profiles: SimplifiedProfiles, parentNode
 		return result;
 	}
 };
+
+export function generateCardUrl(suffix: string, authoringState: AuthoringState): any {
+	return `http://fhir.org/guides/${authoringState.publisher}/${suffix}/${suffix}-${authoringState.CPGName}${State.get().resCount}`;
+}
+
+export function generateCardNameString(suffix: string, authoringState: AuthoringState): any {
+	return `${suffix}-${authoringState.CPGName}${State.get().resCount}`;
+}
 
 export function findFirstSageNodeByUri(nodes: SageFreezerNode<SageNodeInitialized[]>, uri: string): {
 	node: SageNodeInitializedFreezerNode,
@@ -643,7 +652,7 @@ export function getChildOfNode(node: SageNodeInitialized, childName: string): Sa
 	if (descendants.length > 0) {
 		if (descendants.length > 1) {
 			console.log(`More than one child found for "${childName}".`);
-			const pickedNode = descendants.find(des => des.children.length == 0);
+			const pickedNode = descendants.reverse().find(des => des.children.length == 0);
 			if (pickedNode !== undefined) {
 				console.log(`Picking the first one with no descendants for:`, node);
 				return pickedNode;

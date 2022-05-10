@@ -3,9 +3,11 @@ import { Col, Container, Row } from "react-bootstrap";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import "react-step-progress-bar/styles.css";
 import State from "../state";
-import { fieldSaveHandler } from "./cardEditor";
+import { activityFieldSaveHandler, planFieldSaveHandler, fieldSaveHandler } from "./cardEditor";
 import { getRelatedActivityNode } from './planDefEditor';
 import Sidebar from "./sidebar";
+import * as CardEditor from "../simplified/cardEditor";
+import { generateCardNameString, generateCardUrl } from "../helpers/schema-utils";
 export interface AuthoringState {
     submitInvalid: boolean,
     showSpinner: boolean,
@@ -192,14 +194,27 @@ export default class Authoring extends React.Component<any, AuthoringState> {
                         <NavButtons
                             handleSave={() => {State.get().author.authorings[State.get().author.pos].set(this.state);}}
                             handleUpdateExistingCards={ () => {
-                                const planDefinitions = State.get().bundle.resources;
                                 const pdLength = State.get().bundle.resources.length;
                                 for (let index = 0; index < pdLength; index++) {
                                     const pd = State.get().bundle.resources[index]
                                     const actNode = getRelatedActivityNode(pd);
-                                    fieldSaveHandler("nodeName", "nodeContents", actNode, pd);
+                                    if (actNode.node) {
+                                        // //Name
+                                        planFieldSaveHandler(pd, "name", generateCardNameString(pd.schemaPath, this.state));
+                                        activityFieldSaveHandler(actNode.node, "name", generateCardNameString(actNode.node.schemaPath, this.state))
+                                        // //URL
+                                        // planFieldSaveHandler(pd, "url", generateCardUrl(pd.schemaPath, this.state));
+                                        // activityFieldSaveHandler(actNode.node, "url", generateCardUrl(actNode.node.schemaPath, this.state))
+                                        // version
+                                        fieldSaveHandler("version", this.state.version, actNode.node, pd)
+                                        //status
+                                        fieldSaveHandler("status", this.state.status, actNode.node, pd)
+                                        //experimental
+                                        fieldSaveHandler("experimental", this.state.experimental, actNode.node, pd)
+                                        //publisher
+                                        fieldSaveHandler("publisher", this.state.publisher, actNode.node, pd)
+                                    }
                                 }
-                                return "thing";
                             }}
                         />
                     </Container>
