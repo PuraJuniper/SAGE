@@ -228,8 +228,13 @@ const NavButtons = (props: { handleNext: () => void; }) => {
     return (
         <div style={{ display: "flex", marginTop: '1rem' }} >
             <button type='button' className="navigate-reverse col-lg-2 col-md-3"
-                onClick={() => navigate('/basic-home')}>
-                {<> <FontAwesomeIcon icon={faCaretLeft} /> {" Home"} </>}
+                onClick={() => {
+                    props.handleNext();
+                    navigate('/basic-home');
+                }}>
+                {<> 
+                {/* <FontAwesomeIcon icon={faCaretLeft} /> */}
+                 {"Save and Exit"} </>}
             </button>
             <button type='button' className="navigate col-lg-2 col-md-3"
                 onClick={() => {

@@ -4,18 +4,18 @@ import { ProgressBar, Step } from "react-step-progress-bar";
 
 const activityPlanSteps =
 [
-	{id: 1, pageTitle: "Authoring Information",	    text: "Enter Authoring Information"},
-	{id: 2, pageTitle: "What is the card type?",	  text: "Select Card Type"},
-	{id: 3, pageTitle: "What does the card do?",	  text: "Enter What the card does"},
-	{id: 4, pageTitle: "When is the card played?",	text: "Enter When the card is played"},
-	{id: 5, pageTitle: "Review card",	              text: "Review and Save"},
+	// {id: 1, pageTitle: "Authoring Information",	    text: "Enter Authoring Information"},
+	{pageTitle: "What is the card type?",	  text: "Select Card Type"},
+	{pageTitle: "What does the card do?",	  text: "Enter What the card does"},
+	{pageTitle: "When is the card played?",	text: "Enter When the card is played"},
+	{pageTitle: "Review card",	              text: "Review and Save"},
 ]
 const questionaireSteps =
 [
-	{ id: 1, pageTitle:"Authoring Information",	           text: "Enter Authoring Information"},
-	{ id: 2, pageTitle:"Page 1: Creating a Questionnaire", text: "Enter What the card does"},
-	{ id: 3, pageTitle:"Page 2: Adding Conditions",	       text: "Enter When the card is played"},
-	{ id: 4, pageTitle:"Page 3: Card Preview",	           text: "Review and Save"},
+	{pageTitle:"Authoring Information",	           text: "Enter Authoring Information"},
+	{pageTitle:"Page 1: Creating a Questionnaire", text: "Enter What the card does"},
+	{pageTitle:"Page 2: Adding Conditions",	       text: "Enter When the card is played"},
+	{pageTitle:"Page 3: Card Preview",	           text: "Review and Save"},
 ];
 export type ProgressProps = {fhirType: string, pageTitle: any };
 
@@ -44,10 +44,10 @@ export class Progress extends React.Component<ProgressProps> {
             filledBackground="#65BE67"
             height={5}
             >
-            {steps.map(step => (
+            {steps.map((step, index) => (
                         <Step
                           transitionDuration={1}
-                          key={step.id}
+                          key={index}
                         >
                           {(props) => (
                               (props !== undefined)?
@@ -61,10 +61,10 @@ export class Progress extends React.Component<ProgressProps> {
           <ProgressBar
           unfilledBackground = '#fff'
           >
-                {steps.map(step => (
+                {steps.map((step, index) => (
                           <Step
                           transitionDuration={1}
-                          key={step.id}
+                          key={index}
                           >
                             {() => (
                                 <div style={{fontSize: 'small', whiteSpace: 'nowrap'}}>{step.text}</div>
