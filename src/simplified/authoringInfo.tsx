@@ -61,7 +61,6 @@ export default class Authoring extends React.Component<any, AuthoringState> {
                 <Sidebar pageType='create card' pageTitle='Authoring Information'></Sidebar>
                 <div style={{ flexGrow: 1, margin: "50px" }}>
                     <h3 id='page-title' className="col-lg-10 col-md-9">Authoring Information</h3>
-                    <Progress pageTitle='Authoring Information' fhirType='activity'></Progress>
 
                     <p style={{ fontSize: "12px", fontWeight: "bold" }}><span style={{ color: "red" }}>*</span> represents required fields.</p>
 
