@@ -12,6 +12,7 @@ import { Bundle, Resource, Element, ElementDefinition, ElementDefinitionType, Ac
 import { defaultProfileUriOfResourceType, FriendlyResourceFormElement, FriendlyResourceProps, profileToFriendlyResourceListEntry, STRUCTURE_DEFINITION, VALUE_SET } from '../simplified/nameHelpers';
 import * as Bioportal from "../simplified/cql-wizard/bioportal";
 import { AuthoringState } from '../simplified/authoringInfo';
+import { getReferencedNodeURI } from '../simplified/planDefEditor';
 
 // Template of a SageNode for a specific element/resource
 export type SageNode = {
@@ -329,10 +330,7 @@ const getDefaultValue = (schema: SchemaDef, fhirType: string, parentName = ""): 
 				if (pathSuffix[0] == "Extension") {
 					break;
 				}
-				defaultValue = generateCardUrl(pathSuffix[0], authoringState);
-				if (pathSuffix[0].endsWith("Activity")) {
-					defaultValue = `http://fhir.org/guides/${authoringState.publisher}/ActivityDefinition/ActivityDefinition-${authoringState.CPGName}${State.get().resCount}`;
-				}
+				defaultValue = generateResourceReference(pathSuffix[0], State.get().resCount);
 			}
 			break;
 		case "status":
@@ -479,12 +477,15 @@ export const buildChildNode = function (profiles: SimplifiedProfiles, parentNode
 	}
 };
 
-export function generateCardUrl(suffix: string, authoringState: AuthoringState): any {
-	return `http://fhir.org/guides/${authoringState.publisher}/${suffix}/${suffix}-${authoringState.CPGName}${State.get().resCount}`;
-}
+// export function createNewCardUrl(suffix: string, authoringState: AuthoringState): any {
+// 	if (suffix.endsWith("Activity")) {
+// 		return `http://fhir.org/guides/${authoringState.publisher}/ActivityDefinition/ActivityDefinition-${authoringState.CPGName}-${State.get().resCount}`;
+// 	}
+// 	return `http://fhir.org/guides/${authoringState.publisher}/${suffix}/${suffix}-${authoringState.CPGName}-${State.get().resCount}`;
+// }
 
 export function generateCardNameString(suffix: string, authoringState: AuthoringState): any {
-	return `${suffix}-${authoringState.CPGName}${State.get().resCount}`;
+	return `${suffix}-${authoringState.CPGName}-${State.get().resCount}`;
 }
 
 export function findFirstSageNodeByUri(nodes: SageFreezerNode<SageNodeInitialized[]>, uri: string): {
@@ -1158,4 +1159,19 @@ export async function getConceptsOfValueSet(valueSet: ValueSet, valueSetDefs: Si
 		}
 	}
 	return codesOfValueSet;
+}
+
+
+export function generateResourceReference(resourceType: string, id: number): {referencedResourceName: string, referencedResourceUrl: string};
+export function generateResourceReference<SageNodeInitializedFreezerNode>(resourceType: string, node: SageNodeInitializedFreezerNode): {referencedResourceName: string, referencedResourceUrl: string};
+export function generateResourceReference(resourceType: string, ...args: any[]) {
+    const authoringState: AuthoringState = State.get().author.authorings[State.get().author.pos];
+	const id: number | undefined = typeof args[0] === "number" ? args[0] : undefined;
+	const newId = () => {
+		const aOrPNode = typeof args[0] === "number" ? undefined : args[0];
+		return parseInt(getReferencedNodeURI(aOrPNode).split("-").pop() ?? incrementNextId().toString()); 
+	}
+    const referencedResourceName = `${resourceType}-${authoringState.CPGName}-${id ?? newId()}`;
+    const referencedResourceUrl = `http://fhir.org/guides/${authoringState.publisher}/${resourceType}/${referencedResourceName}`;
+    return { referencedResourceName, referencedResourceUrl };
 }

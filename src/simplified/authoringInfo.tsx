@@ -7,7 +7,8 @@ import { activityFieldSaveHandler, planFieldSaveHandler, fieldSaveHandler } from
 import { getRelatedActivityNode } from './planDefEditor';
 import Sidebar from "./sidebar";
 import * as CardEditor from "../simplified/cardEditor";
-import { generateCardNameString, generateCardUrl } from "../helpers/schema-utils";
+import { generateCardNameString, generateResourceReference } from "../helpers/schema-utils";
+import { ACTIVITY_DEFINITION, PLAN_DEFINITION } from "./nameHelpers";
 export interface AuthoringState {
     submitInvalid: boolean,
     showSpinner: boolean,
@@ -198,13 +199,14 @@ export default class Authoring extends React.Component<any, AuthoringState> {
                                 for (let index = 0; index < pdLength; index++) {
                                     const pd = State.get().bundle.resources[index]
                                     const actNode = getRelatedActivityNode(pd);
-                                    if (actNode.node) {
+                                    if (pd.schemaPath == PLAN_DEFINITION && actNode.node) {
                                         // //Name
                                         planFieldSaveHandler(pd, "name", generateCardNameString(pd.schemaPath, this.state));
                                         activityFieldSaveHandler(actNode.node, "name", generateCardNameString(actNode.node.schemaPath, this.state))
                                         // //URL
-                                        // planFieldSaveHandler(pd, "url", generateCardUrl(pd.schemaPath, this.state));
-                                        // activityFieldSaveHandler(actNode.node, "url", generateCardUrl(actNode.node.schemaPath, this.state))
+                                        fieldSaveHandler("definitionCanonical", generateResourceReference(actNode.node.schemaPath, pd).referencedResourceUrl, actNode.node, pd)
+                                        planFieldSaveHandler(pd, "url", generateResourceReference(pd.schemaPath, pd).referencedResourceUrl);
+                                        activityFieldSaveHandler(actNode.node, "url", generateResourceReference(actNode.node.schemaPath, actNode.node).referencedResourceUrl)
                                         // version
                                         fieldSaveHandler("version", this.state.version, actNode.node, pd)
                                         //status

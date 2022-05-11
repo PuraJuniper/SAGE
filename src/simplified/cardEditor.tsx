@@ -75,7 +75,7 @@ export function activityFieldSaveHandler(act: SageNodeInitializedFreezerNode, na
 export function fieldSaveHandler(name: string, contents: any, act: SageNodeInitializedFreezerNode, plan: SageNodeInitializedFreezerNode, fieldAncestry?: string[]) {
     const fieldNode = SchemaUtils.getChildOfNodePath(plan, ["action", name]);
     if (fieldNode) {
-        State.emit("value_change", fieldNode, name, false);
+        State.emit("value_change", fieldNode, contents, false);
     }
     if (act.displayName == ACTIVITY_DEFINITION) {
         activityFieldSaveHandler(act, name, contents, fieldAncestry);

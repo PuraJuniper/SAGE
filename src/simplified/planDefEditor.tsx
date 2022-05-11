@@ -180,8 +180,11 @@ export const PlanDefEditor = (props: PlanDefEditorProps) => {
     );
 }
 
-function getReferencedNodeURI(planDefNode: SageNodeInitializedFreezerNode) {
-    return SchemaUtils.getChildOfNodePath(planDefNode, ["action", "definitionCanonical"])?.value;
+export function getReferencedNodeURI(node: SageNodeInitializedFreezerNode) {
+    if (node.displayName == ACTIVITY_DEFINITION) {
+        return SchemaUtils.getChildOfNodePath(node, ["url"])?.value as string;
+    }
+    return SchemaUtils.getChildOfNodePath(node, ["action", "definitionCanonical"])?.value as string;
 }
 
 export function getRelatedActivityNode(planDefNode: SageNodeInitializedFreezerNode): { node: SageNodeInitializedFreezerNode | null; pos: number | null; } {
