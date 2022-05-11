@@ -40,9 +40,7 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
      * @param replaceFunc Function called to generate the replacement element
      */
     function dispatchNewFilters(elementToReplace: string, replaceFunc: (v: ElementFilter) => ElementFilter) {
-        const newElementFilters: ElementFilter[] = props.wizState.filters.map<ElementFilter>(v => {
-            return v.elementName !== elementToReplace ? v : replaceFunc(v)
-        });
+        const newElementFilters = props.wizState.filters.map(v => v.elementName !== elementToReplace ? v : replaceFunc(v));
         props.wizDispatch(["setFilters", newElementFilters]);
     }
 
@@ -126,7 +124,8 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
                             onChange={newSelectedIdx => {
                                 const selectedIdx = newSelectedIdx === -1 ? undefined : newSelectedIdx;
                                 dispatchNewFilters(elementFilter.elementName, (v) => {
-                                    return {...v, filter: { ...v.filter, selectedFilter: selectedIdx }}
+                                    const multitypeFilter = v.filter as MultitypeFilter;
+                                    return { ...v, filter: { ...multitypeFilter, selectedFilter: selectedIdx, error: selectedIdx === undefined ? false : multitypeFilter.possibleFilters[selectedIdx].filter.error } }
                                 });
                             }}
                         >
