@@ -3,6 +3,7 @@ import { Moment } from "moment";
 import { getConceptsOfValueSet, SageCodeConcept, SimplifiedProfiles } from "../../helpers/schema-utils";
 import { Coding, PlanDefinitionActionCondition } from "fhir/r4";
 import { EditableCondition } from "./conditionEditor";
+import _ from "lodash";
 
 // Pages of the wizard
 export enum WizardPage {
@@ -461,6 +462,7 @@ export async function createExpectedFiltersForResType(resType: string): Promise<
         }
     }));
 }
+export const memoizedCreateExpectedFiltersForResType = _.memoize(createExpectedFiltersForResType);
 
 // Should be rewritten to use friendly-names
 export function getSelectableResourceTypes() {

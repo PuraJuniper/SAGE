@@ -1,7 +1,7 @@
 import React, { Dispatch, useEffect, useReducer, useState } from "react";
 import { Button, Col, Container, Row, Spinner } from "react-bootstrap";
 import { CSSTransition } from "react-transition-group";
-import { getSelectableResourceTypes, WizardAction, WizardState, createExpectedFiltersForResType, ElementFilter } from './wizardLogic';
+import { getSelectableResourceTypes, WizardAction, WizardState, ElementFilter, memoizedCreateExpectedFiltersForResType } from './wizardLogic';
 
 interface CqlWizardSelectResourceProps {
     wizDispatch: Dispatch<WizardAction>,
@@ -43,7 +43,7 @@ export const CqlWizardSelectResource: React.FunctionComponent<CqlWizardSelectRes
                                 let newElementFilters: ElementFilter[] = [];
                                 try {
                                     props.wizDispatch(['disableActions']);
-                                    newElementFilters = await createExpectedFiltersForResType(selectedRes);
+                                    newElementFilters = await memoizedCreateExpectedFiltersForResType(selectedRes);
                                 }
                                 finally {
                                     props.wizDispatch(['enableActions']);
@@ -74,7 +74,7 @@ export const CqlWizardSelectResource: React.FunctionComponent<CqlWizardSelectRes
                                     let newElementFilters: ElementFilter[] = [];
                                     try {
                                         props.wizDispatch(['disableActions']);
-                                        newElementFilters = await createExpectedFiltersForResType(v);
+                                        newElementFilters = await memoizedCreateExpectedFiltersForResType(v);
                                     }
                                     finally {
                                         props.wizDispatch(['enableActions']);
