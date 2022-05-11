@@ -58,7 +58,7 @@ const Collection = () => {
                                 } = SchemaUtils.findFirstSageNodeByUri(State.get().bundle.resources, referencedNodeURI);
                                 if (referencedNode) {
                                     const actTitleNode = SchemaUtils.getChildOfNode(referencedNode, "title");
-                                    const planTitleNode = SchemaUtils.getChildOfNode(planDefNode, "title");
+                                    const planTitleNode = SchemaUtils.getChildOfNodePath(planDefNode, ["title"]);
                                     const actDescNode = SchemaUtils.getChildOfNode(referencedNode, "description");
                                     // Get all CQL expressions
                                     const conditionNode = SchemaUtils.getChildOfNodePath(planDefNode, ["action", "condition"]);

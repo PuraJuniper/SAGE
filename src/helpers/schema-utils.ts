@@ -330,7 +330,7 @@ const getDefaultValue = (schema: SchemaDef, fhirType: string, parentName = ""): 
 				if (pathSuffix[0] == "Extension") {
 					break;
 				}
-				defaultValue = generateResourceReference(pathSuffix[0], State.get().resCount);
+				defaultValue = generateResourceReference(pathSuffix[0], State.get().resCount).referencedResourceUrl;
 			}
 			break;
 		case "status":
@@ -640,15 +640,21 @@ export function getChildOfNode(node: SageNodeInitialized, childName: string): Sa
 	}
 
 	const descendants: SageNodeInitialized[] = [];
+	const matchingChildren: SageNodeInitialized[] = []
+	const matchingGrandchildren: SageNodeInitialized[] = []
 	node.children.forEach(child => {
 		if (child.name == childName) {
-			descendants.push(child);
+			matchingChildren.push(child);
 		}
 		const granChild = getChildOfNode(child, childName)
 		if (granChild) {
-			descendants.push(granChild);
+			matchingGrandchildren.push(granChild);
 		}
 	})
+
+	if(matchingChildren.length == 1) {
+		return matchingChildren[0];
+	}
 
 	if (descendants.length > 0) {
 		if (descendants.length > 1) {

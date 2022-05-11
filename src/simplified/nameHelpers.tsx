@@ -141,7 +141,8 @@ export function formElemtoResourceProp(formElem: FriendlyResourceFormElement | u
         FHIR: formElem?.SELF.FHIR ?? "",
         FRIENDLY: formElem?.SELF.FRIENDLY ?? "",
         DEFAULT_PROFILE_URI: formElem?.SELF.DEFAULT_PROFILE_URI ?? "",
-        FORM_ELEMENTS: formElem?.FORM_ELEMENTS
+        FORM_ELEMENTS: formElem?.FORM_ELEMENTS,
+        PARENTS: formElem?.SELF.PARENTS ?? []
         }
     }
 
@@ -190,7 +191,6 @@ export function getBorderPropsForType(resourceType: string): string | undefined 
 }
 
 export function getFormElementListForResource(resource: string): FriendlyResourceFormElement[] {
-    //TODO: have this run conditionally to save time
     hydratePaths();
     const foundResource: FriendlyResourceProps | undefined = friendlyResourceRoot.RESOURCES
         .map(resType => resType.LIST).flatMap(list => list ? [list] : [])
