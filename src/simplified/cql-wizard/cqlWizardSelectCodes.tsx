@@ -52,7 +52,7 @@ export const CqlWizardSelectCodes: React.FunctionComponent<CqlWizardSelectCodesP
             }}
             closeMenuOnSelect={false}
             closeMenuOnScroll={false}
-            options={wizState.codes}
+            value={wizState.codes}
             loadOptions={debouncedLoadCodes}
             noOptionsMessage={input => input.inputValue !== "" ? `No code found for ${input.inputValue}` : `Please enter a code or the name of a code`}
             onChange={newCodes => wizDispatch(['setCodes', [...newCodes]])}
