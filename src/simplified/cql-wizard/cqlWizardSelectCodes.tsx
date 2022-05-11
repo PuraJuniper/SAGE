@@ -26,7 +26,6 @@ export const CqlWizardSelectCodes: React.FunctionComponent<CqlWizardSelectCodesP
                 version: 'test',
             }]])
         }
-        console.log(props.wizState.codes);
     })
     const {
         wizState,

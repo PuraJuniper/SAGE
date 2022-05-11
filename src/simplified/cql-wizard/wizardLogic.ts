@@ -38,6 +38,7 @@ export interface WizardState {
 }
 export type WizardAction = ['changePage', WizardPage ] | ['selectExprType', string, ElementFilter[]] | ['setCodes', SageCoding[]] | ['setFilters', ElementFilter[]] | ['setState', WizardState] | ['disableActions'] | ['enableActions'];
 export function WizardReducer(prevWizState: WizardState, action: WizardAction): WizardState {
+    console.log(prevWizState, action);
     // If some asynchronous action is being performed, use 'disableActions' and 'enableActions' to drop all events that occur before it is complete
     if (prevWizState.actionsDisabled && action[0] !== "enableActions") {
         return prevWizState;

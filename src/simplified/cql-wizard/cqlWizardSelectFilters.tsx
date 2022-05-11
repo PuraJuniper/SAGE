@@ -92,19 +92,23 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
         function dispatchNewMultitypeFilter(elementName: string, replaceFunc: (v: ElementFilter) => ElementFilter) {
             dispatchNewFilters(elementFilter.elementName, oldElementFilter => {
                 const oldFilter = oldElementFilter.filter as MultitypeFilter;
-                console.log({
-                    ...oldElementFilter,
-                    filter: {
-                        ...oldFilter,
-                        possibleFilters: oldFilter.possibleFilters.map(v => v.elementName !== elementName ? v : replaceFunc(v))
-                    }
-                });
+                let error = false;
                 return {
                     ...oldElementFilter,
                     filter: {
                         ...oldFilter,
-                        possibleFilters: oldFilter.possibleFilters.map(v => v.elementName !== elementName ? v : replaceFunc(v))
-                    }
+                        possibleFilters: oldFilter.possibleFilters.map(v => {
+                            if (v.elementName !== elementName) {
+                                return v;
+                            }
+                            else {
+                                const newV = replaceFunc(v);
+                                error = newV.filter.error;
+                                return newV;
+                            }
+                        }),
+                        error: error
+                    },
                 }
             })
         }
