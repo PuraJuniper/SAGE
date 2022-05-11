@@ -77,6 +77,7 @@ export const ConditionEditor = (props: ConditionEditorProps) => {
                                     kind: "applicability",
                                 }
                                 props.setPdConditions(props.pdConditions.concat(newCondition));
+                                saveEditableCondition(newCond.conditionId, newCond);
                                 setDraftCondition(newCond)
                             }
                             setShowNewWizard(false);
