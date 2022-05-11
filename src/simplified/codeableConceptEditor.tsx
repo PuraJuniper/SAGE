@@ -6,10 +6,10 @@ import _ from "lodash"
 import { CodeableConcept, Coding } from "fhir/r4";
 import { fieldFormProps } from './outerCardForm';
 
-function loadCodes(inputValue: string, callback: (results: SageCoding[]) => void) {
-    Bioportal.searchForText(inputValue).then(v => callback(v));
+export function loadCodes(inputValue: string, callback: (results: SageCoding[]) => void) {
+    Bioportal.memoizedSearchForText(inputValue).then(v => callback(v));
 }
-const debouncedLoadCodes = _.debounce(loadCodes, 500)
+export const debouncedLoadCodes = _.debounce(loadCodes, 500)
 
 export interface CodeableConceptEditorProps extends fieldFormProps {
     curCodeableConcept: CodeableConcept,
@@ -42,6 +42,7 @@ const CodeableConceptEditor: React.FC<CodeableConceptEditorProps> = (props: Code
                         </div>
                     )
                 }}
+                getOptionValue={option => `${option.system}${option.version}${option.code}`}
                 isOptionSelected={option => option.code === selectedCode?.code && option.system === selectedCode?.system && option.version === selectedCode?._version}
             />
         </div>

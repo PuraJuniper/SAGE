@@ -1,4 +1,5 @@
 import axios from "axios";
+import _ from "lodash";
 import State from "../../state";
 import { SageCoding } from "./wizardLogic";
 
@@ -94,6 +95,8 @@ export async function searchForText(text: string, ontologies?: string[]): Promis
 
     return res
 }
+
+export const memoizedSearchForText = _.memoize(searchForText)
 
 export async function searchForSNOMEDConcept(concept: string): Promise<SageCoding[]> {
     return await searchForConcept(concept, ["SNOMEDCT"])

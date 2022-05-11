@@ -58,12 +58,11 @@ export const CqlWizardModal: React.FunctionComponent<CqlWizardModalProps> = (pro
                             <b>Which resource are you searching for?</b>
                             <CqlWizardSelectResource wizState={wizardState} wizDispatch={wizardDispatch} />
                         </Col>
-                        <Col xs={12}>
-                            <CqlWizardSelectCodes wizState={wizardState} wizDispatch={wizardDispatch} />
-                        </Col>
-                        <Col xs={12}>
-                            <CqlWizardSelectFilters wizState={wizardState} wizDispatch={wizardDispatch} />
-                        </Col>
+                        {resType !== '' ?
+                            <Col xs={12}>
+                                <CqlWizardSelectFilters wizState={wizardState} wizDispatch={wizardDispatch} />
+                            </Col> :
+                            null}
                     </Row>
                 </Container>
                 <div className="cql-wizard-floating-submit shadow">
