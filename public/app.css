@@ -788,6 +788,11 @@ a {
   height: 100%;
   width: 100%;
 }
+.cql-wizard-resource-warning-buttons {
+  display: flex;
+  gap: 1rem;
+  flex-direction: row-reverse;
+}
 
 .cql-wizard-select-code-grid {
   display: grid;

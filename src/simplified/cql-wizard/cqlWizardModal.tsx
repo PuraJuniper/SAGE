@@ -54,7 +54,9 @@ export const CqlWizardModal: React.FunctionComponent<CqlWizardModalProps> = (pro
                 <Container className="cql-wizard-body-content" fluid>
                     <Row className="gy-4">
                         <Col xs={12}>
-                            <b>Which resource are you searching for?</b>
+                            <div className="mt-1 mb-4">
+                                <b>Which resource are you searching for?</b>
+                            </div>
                             <CqlWizardSelectResource wizState={wizardState} wizDispatch={wizardDispatch} />
                         </Col>
                         {resType !== '' ?

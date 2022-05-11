@@ -1,5 +1,5 @@
 import React, { Dispatch, useEffect, useReducer, useState } from "react";
-import { Button, Col, Container, Row, Spinner } from "react-bootstrap";
+import { Button, Card, Col, Container, Row, Spinner } from "react-bootstrap";
 import { CSSTransition } from "react-transition-group";
 import { getSelectableResourceTypes, WizardAction, WizardState, ElementFilter, memoizedCreateExpectedFiltersForResType } from './wizardLogic';
 
@@ -23,36 +23,43 @@ export const CqlWizardSelectResource: React.FunctionComponent<CqlWizardSelectRes
         <div className="cql-wizard-page-content-closest-positioned-ancestor">
             <CSSTransition in={showWarning} classNames="cql-wizard-content-transition" timeout={300} unmountOnExit>
                 <Container className="cql-wizard-select-resource-warning">
-                    <Row className="gy-4 justify-content-center">
-                        <Col xs={12}>
-                            <b>Changing the selected resource will reset any selected codes and filters. Do you want to proceed?</b>
-                        </Col>
-                        <Col xs={3}>
-                            <Button variant="danger" size='lg' onClick={() => {
-                                setSelectedRes(props.wizState.resType);
-                                setShowWarning(false);
-                            }}>
-                                No
-                            </Button>
-                        </Col>
-                        <Col xs={3}>
-                            <Button variant="primary" size='lg' onClick={async () => {
-                                if (isLoading) return;
-                                setShowWarning(false);
-                                setIsLoading(true);
-                                let newElementFilters: ElementFilter[] = [];
-                                try {
-                                    props.wizDispatch(['disableActions']);
-                                    newElementFilters = await memoizedCreateExpectedFiltersForResType(selectedRes);
-                                }
-                                finally {
-                                    props.wizDispatch(['enableActions']);
-                                }
-                                props.wizDispatch(['selectExprType', selectedRes, newElementFilters])
-                                setIsLoading(false);
-                            }}>
-                                Yes
-                            </Button>
+                    <Row className="gy-4 justify-content-center pt-1">
+                        <Col xs="auto">
+                            <Card>
+                                <Card.Body>
+                                    <Card.Title>
+                                        Are you sure you want to change resources?
+                                    </Card.Title>
+                                    <Card.Text>
+                                        Changing the selected resource will reset any selected codes and filters
+                                    </Card.Text>
+                                    <div className="cql-wizard-resource-warning-buttons">
+                                        <Button variant="sage-secondary" onClick={async () => {
+                                            if (isLoading) return;
+                                            setShowWarning(false);
+                                            setIsLoading(true);
+                                            let newElementFilters: ElementFilter[] = [];
+                                            try {
+                                                props.wizDispatch(['disableActions']);
+                                                newElementFilters = await memoizedCreateExpectedFiltersForResType(selectedRes);
+                                            }
+                                            finally {
+                                                props.wizDispatch(['enableActions']);
+                                            }
+                                            props.wizDispatch(['selectExprType', selectedRes, newElementFilters])
+                                            setIsLoading(false);
+                                        }}>
+                                            Yes
+                                        </Button>
+                                        <Button variant="sage-primary" onClick={() => {
+                                            setSelectedRes(props.wizState.resType);
+                                            setShowWarning(false);
+                                        }}>
+                                            No
+                                        </Button>
+                                    </div>
+                                </Card.Body>
+                            </Card>
                         </Col>
                     </Row>    
                 </Container>
