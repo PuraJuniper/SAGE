@@ -132,8 +132,10 @@ export function toFhir(decorated: SageNodeInitialized, validate: boolean): [Sage
 			const value = (() => {
 				if (["object", "arrayObject"].includes(child.nodeType)) {
 					return _walkNode(child, {});
-				} else if (["valueArray", "objectArray"].includes(child.nodeType)) {
+				} else if (["valueArray"].includes(child.nodeType)) {
 					return _walkNode(child, []);
+				} else if (["objectArray"].includes(child.nodeType)) {
+					return _walkNode(child, [{}]);
 				} else {
 					let err;
 					if (validate && child?.ui?.validationErr) {
@@ -150,9 +152,9 @@ export function toFhir(decorated: SageNodeInitialized, validate: boolean): [Sage
 				}
 			})();
 			if (parent instanceof Array) {
-				parent.push(value);
+				parent.push(value == null ? "" : value);
 			} else {
-				parent[child.name] = value;
+				parent[child.name] = value == null ? "" : value;
 			}
 		}
 
