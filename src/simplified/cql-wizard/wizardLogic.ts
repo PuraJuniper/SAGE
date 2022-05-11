@@ -165,15 +165,26 @@ export function initFromState(state: WizardState | null): WizardState {
 }
 
 // Various types for filtering by FHIR element
-export interface ElementFilter {
+export type ElementFilterType = CodingFilter | DateFilter | BooleanFilter | PeriodFilter | MultitypeFilter | UnknownFilter
+export interface ElementFilter<FilterType extends ElementFilterType = ElementFilterType> {
     elementName: string,
-    filter: ElementFilterType,
+    filter: FilterType,
 }
 
-export type ElementFilterType = CodingFilter | DateFilter | BooleanFilter | PeriodFilter |  UnknownFilter
+export enum FilterType {
+    Coding = "coding",
+    Date = "date",
+    Age = "age",
+    Boolean = "boolean",
+    Period = "period",
+    Integer = "integer",
+    Range = "range",
+    Multitype = "multitype",
+    Unknown = "unknown",
+}
 
 export interface CodingFilter {
-    type: "coding",
+    type: FilterType.Coding,
     filteredCoding: {
         filterType: CodeFilterType,
         selectedIndexes: number[], // Indexes into CodeBinding.codes
@@ -192,7 +203,7 @@ interface CodeBinding {
     definition: string | undefined
 }
 export interface DateFilter {
-    type: "date" | "age",
+    type: FilterType.Date | FilterType.Age,
     filteredDate: {
         filterType: DateFilterType,
         absoluteDate1: Moment | null,
@@ -223,7 +234,7 @@ export enum RelativeDateUnit {
     Years = "years",
 }
 export interface PeriodFilter {
-    type: "period",
+    type: FilterType.Period,
     filteredDate: PeriodDateFilter<PeriodDateType>,
     dateBinding: {
         definition: string | undefined
@@ -257,22 +268,28 @@ export enum PeriodDateFilterType {
     After = "after",
 }
 export interface BooleanFilter {
-    type: "boolean",
+    type: FilterType.Boolean,
     filteredBoolean: boolean | null,
     error: false, // All possibilities for this filter are accepted
 }
 export interface UnknownFilter {
-    type: "unknown",
+    type: FilterType.Unknown,
     curValue: unknown,
+    error: boolean,
+}
+export interface MultitypeFilter {
+    type: FilterType.Multitype,
+    selectedFilter?: number, // Index of selected filter in `possibleFilters`
+    possibleFilters: ElementFilter[],
     error: boolean,
 }
 
 // Returns a filter type for the given element path in the profile identified by `url`
 // These filter types should include all information needed by the UI to know what controls should be displayed
 //  to the user for the element.
-async function getFilterType(url: string, elementFhirPath: string): Promise<ElementFilterType> {
+async function getFilterTypeOfElement(url: string, elementFhirPath: string, typeIndex?: number): Promise<ElementFilterType> {
     const unknownFilter: UnknownFilter = {
-        type: "unknown",
+        type: FilterType.Unknown,
         curValue: "test",
         error: false,
     }
@@ -282,7 +299,27 @@ async function getFilterType(url: string, elementFhirPath: string): Promise<Elem
         return unknownFilter;
     }
 
-    if (elementSchema.type[0]?.code === "code" || elementSchema.type[0]?.code === "CodeableConcept" || elementSchema.type[0]?.code === "Coding") {
+    let selectedTypeIndex = typeIndex;
+    // If no particular index was given, check if this element has multiple possible types
+    if (selectedTypeIndex === undefined && elementSchema.type.length > 1) {
+        return {
+            type: FilterType.Multitype,
+            possibleFilters: await Promise.all(elementSchema.type.map(async (type, i): Promise<ElementFilter> => {
+                return {
+                    elementName: `${type.code[0].toUpperCase()}${type.code.slice(1)}`,
+                    filter: await getFilterTypeOfElement(url, elementFhirPath, i),
+                }
+            })),
+            error: false,
+        }
+    }
+
+    // Default to the first type
+    if (selectedTypeIndex === undefined) {
+        selectedTypeIndex = 0;
+    }
+
+    if (["code", "CodeableConcept", "Coding"].includes(elementSchema.type[selectedTypeIndex]?.code)) {
         const valueSetReference = elementSchema.binding?.reference;
         if (valueSetReference === undefined) {
             console.log(`No code bindings exist for ${elementFhirPath}`);
@@ -296,10 +333,10 @@ async function getFilterType(url: string, elementFhirPath: string): Promise<Elem
         const codes = await getConceptsOfValueSet(valueSet.rawElement, State.get().valuesets, State.get().codesystems);
 
         const codingFilter: CodingFilter = {
-            type: 'coding',
+            type: FilterType.Coding,
             codeBinding: {
                 codes,
-                isCoding: elementSchema.type[0]?.code !== "code",
+                isCoding: elementSchema.type[selectedTypeIndex]?.code !== "code",
                 isSingleton: elementSchema.max === "1",
                 definition: elementSchema.rawElement.definition,
             },
@@ -311,9 +348,9 @@ async function getFilterType(url: string, elementFhirPath: string): Promise<Elem
         }
         return codingFilter;
     }
-    else if (["dateTime", "date"].includes(elementSchema.type[0]?.code)) {
+    else if (["dateTime", "date"].includes(elementSchema.type[selectedTypeIndex]?.code)) {
         const filter: DateFilter = {
-            type: elementFhirPath.endsWith(".birthDate") ? "age" : "date",
+            type: elementFhirPath.endsWith(".birthDate") ? FilterType.Age : FilterType.Date,
             dateBinding: {
                 definition: elementSchema.rawElement.definition,
             },
@@ -327,9 +364,9 @@ async function getFilterType(url: string, elementFhirPath: string): Promise<Elem
         }
         return filter;
     }
-    else if (["Period"].includes(elementSchema.type[0]?.code)) {
+    else if (["Period"].includes(elementSchema.type[selectedTypeIndex]?.code)) {
         const filter: PeriodFilter = {
-            type: "period",
+            type: FilterType.Period,
             dateBinding: {
                 definition: elementSchema.rawElement.definition,
             },
@@ -344,9 +381,9 @@ async function getFilterType(url: string, elementFhirPath: string): Promise<Elem
         }
         return filter;
     }
-    else if (elementSchema.type[0]?.code === "boolean") {
+    else if (elementSchema.type[selectedTypeIndex]?.code === "boolean") {
         const booleanFilter: BooleanFilter = {
-            type: "boolean",
+            type: FilterType.Boolean,
             filteredBoolean: null,
             error: false,
         }
@@ -419,7 +456,7 @@ export async function createExpectedFiltersForResType(resType: string): Promise<
     return Promise.all(expectedElements.map(async (expectedElement) => {
         return {
             elementName: expectedElement,
-            filter: await getFilterType(url, `${schemaResType}.${expectedElement}`)
+            filter: await getFilterTypeOfElement(url, `${schemaResType}.${expectedElement}`)
         }
     }));
 }

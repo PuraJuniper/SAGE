@@ -1,5 +1,5 @@
 import React, { Dispatch, useEffect, useState } from "react";
-import { BooleanFilter, CodeFilterType, CodingFilter, DateFilter, DateFilterType, PeriodFilter, PeriodDateFilterType, RelativeDateUnit, WizardAction, WizardState, PeriodDateType, PeriodDateFilter } from './wizardLogic';
+import { BooleanFilter, CodeFilterType, CodingFilter, DateFilter, DateFilterType, PeriodFilter, PeriodDateFilterType, RelativeDateUnit, WizardAction, WizardState, PeriodDateType, PeriodDateFilter, FilterType, MultitypeFilter } from './wizardLogic';
 import { ToggleButtonGroup, ToggleButton, Card, Form, Container, InputGroup, FormControl, DropdownButton, Dropdown } from 'react-bootstrap';
 import { ElementFilter } from './wizardLogic';
 import 'react-dates/initialize';
@@ -9,6 +9,7 @@ import 'react-dates/lib/css/_datepicker.css';
 import './react-dates-overrides.css';
 import moment, { Moment } from 'moment';
 import Select, { ActionMeta, InputActionMeta, SingleValue } from "react-select";
+import { CqlWizardSelectCodes } from "./cqlWizardSelectCodes";
 
 interface CqlWizardSelectFiltersProps {
     wizDispatch: Dispatch<WizardAction>,
@@ -45,60 +46,33 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
         props.wizDispatch(["setFilters", newElementFilters]);
     }
 
-    function dispatchNewCodingFilter(elementName: string, filterType: CodeFilterType, selectedIndexes: number[]) {
-        dispatchNewFilters(elementName, v => {
-            const oldFilter = v.filter as CodingFilter; // Ok to cast because this current function should only be called when editing CodingFilters
-            return {
-                ...v,
-                filter: {
-                    ...oldFilter,
-                    filteredCoding: {
-                        filterType,
-                        selectedIndexes: selectedIndexes,
-                    },
-                    error: filterType === CodeFilterType.Filtered && selectedIndexes.length === 0,
-                }
-            }
-        });
-    }
-
-    function dispatchNewBooleanFilter(elementName: string, newBool: boolean | null) {
-        dispatchNewFilters(elementName, v => {
-            const oldFilter = v.filter as BooleanFilter;
-            return {
-                ...v,
-                filter: {
-                    ...oldFilter,
-                    filteredBoolean: newBool,
-                }
-            }
-        });
-    }
-
-    function getFilterUI(elemFilter: ElementFilter) {
+    function getFilterUI(elemFilter: ElementFilter, dispatchNewFilters: (elementToReplace: string, replaceFunc: (v: ElementFilter) => ElementFilter) => void) {
         switch (elemFilter.filter.type) {
-            case "coding": {
+            case FilterType.Coding: {
                 return (
-                    codingFilterUI(elemFilter)
+                    codingFilterUI(elemFilter, dispatchNewFilters)
                 );
             }
-            case "date":
-            case "age": {
+            case FilterType.Date:
+            case FilterType.Age: {
                 return (
-                    dateFilterUI(elemFilter)
+                    dateFilterUI(elemFilter, dispatchNewFilters)
                 );
             }
-            case "boolean": {
+            case FilterType.Boolean: {
                 return (
-                    booleanFilterUI(elemFilter)
+                    booleanFilterUI(elemFilter, dispatchNewFilters)
                 );
             }
-            case "period": {
+            case FilterType.Period: {
                 return (
-                    periodFilterUI(elemFilter)
+                    periodFilterUI(elemFilter, dispatchNewFilters)
                 );
             }
-            case "unknown":
+            case FilterType.Multitype: {
+                return multitypeFilterUI(elemFilter as ElementFilter<MultitypeFilter>, dispatchNewFilters);
+            }
+            case FilterType.Unknown:
                 return (
                     <div key={elemFilter.elementName}>
                         Unknown Filter {elemFilter.elementName}
@@ -114,7 +88,76 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
         }
     }
 
-    function booleanFilterUI(elementFilter: ElementFilter): JSX.Element {
+    function multitypeFilterUI(elementFilter: ElementFilter<MultitypeFilter>, dispatchNewFilters: (elementToReplace: string, replaceFunc: (v: ElementFilter) => ElementFilter) => void): JSX.Element {
+        function dispatchNewMultitypeFilter(elementName: string, replaceFunc: (v: ElementFilter) => ElementFilter) {
+            dispatchNewFilters(elementFilter.elementName, oldElementFilter => {
+                const oldFilter = oldElementFilter.filter as MultitypeFilter;
+                console.log({
+                    ...oldElementFilter,
+                    filter: {
+                        ...oldFilter,
+                        possibleFilters: oldFilter.possibleFilters.map(v => v.elementName !== elementName ? v : replaceFunc(v))
+                    }
+                });
+                return {
+                    ...oldElementFilter,
+                    filter: {
+                        ...oldFilter,
+                        possibleFilters: oldFilter.possibleFilters.map(v => v.elementName !== elementName ? v : replaceFunc(v))
+                    }
+                }
+            })
+        }
+
+        return (
+            <Card key={elementFilter.elementName}>
+                <Card.Body>
+                    <Card.Title className="cql-wizard-element-filters-header">
+                        {`${elementFilter.elementName[0].toUpperCase()}${elementFilter.elementName.slice(1)}`}
+
+                        <ToggleButtonGroup
+                            type="radio"
+                            name={`${elementFilter.elementName}-filter-select`}
+                            value={elementFilter.filter.selectedFilter}
+                            onChange={newSelectedIdx => {
+                                const selectedIdx = newSelectedIdx === -1 ? undefined : newSelectedIdx;
+                                dispatchNewFilters(elementFilter.elementName, (v) => {
+                                    return {...v, filter: { ...v.filter, selectedFilter: selectedIdx }}
+                                });
+                            }}
+                        >
+                            <ToggleButton key={`Any`} id={`Any-${elementFilter.elementName}`} variant="outline-secondary" value={-1}>Any Value</ToggleButton>
+                            {elementFilter.filter.possibleFilters.flatMap((possibleFilter, i) =>
+                                possibleFilter.filter.type === FilterType.Unknown ?
+                                    [] :
+                                    [<ToggleButton key={`${i}-${elementFilter.elementName}`} id={`${i}-${elementFilter.elementName}`} variant="outline-secondary" value={i}>{possibleFilter.filter.type}</ToggleButton>]
+                            )}
+                        </ToggleButtonGroup>
+                    </Card.Title>
+                </Card.Body>
+                <div className={"m-2"}>
+                    {elementFilter.filter.selectedFilter !== undefined ?
+                        getFilterUI(elementFilter.filter.possibleFilters[elementFilter.filter.selectedFilter], dispatchNewMultitypeFilter) :
+                        null}
+                </div>
+            </Card>
+        )
+    }
+
+    function booleanFilterUI(elementFilter: ElementFilter, dispatchNewFilters: (elementToReplace: string, replaceFunc: (v: ElementFilter) => ElementFilter) => void): JSX.Element {
+        function dispatchNewBooleanFilter(elementName: string, newBool: boolean | null) {
+            dispatchNewFilters(elementName, v => {
+                const oldFilter = v.filter as BooleanFilter;
+                return {
+                    ...v,
+                    filter: {
+                        ...oldFilter,
+                        filteredBoolean: newBool,
+                    }
+                }
+            });
+        }
+
         const booleanFilter = elementFilter.filter as BooleanFilter
         return <div key={elementFilter.elementName}>
         <Card>
@@ -141,7 +184,7 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
     </div>
     }
 
-    function periodFilterUI(elementFilter: ElementFilter): JSX.Element {
+    function periodFilterUI(elementFilter: ElementFilter, dispatchNewFilters: (elementToReplace: string, replaceFunc: (v: ElementFilter) => ElementFilter) => void): JSX.Element {
         const periodFilter = elementFilter.filter as PeriodFilter;
         return (
             <div key={elementFilter.elementName}>
@@ -150,7 +193,7 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
         );
     }
 
-    function dateFilterUI(elementFilter: ElementFilter): JSX.Element {
+    function dateFilterUI(elementFilter: ElementFilter, dispatchNewFilters: (elementToReplace: string, replaceFunc: (v: ElementFilter) => ElementFilter) => void): JSX.Element {
         const dateFilter = elementFilter.filter as DateFilter
         return (
             <div key={elementFilter.elementName}>
@@ -159,7 +202,24 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
         );
     }
 
-    function codingFilterUI(elementFilter: ElementFilter): JSX.Element {
+    function codingFilterUI(elementFilter: ElementFilter, dispatchNewFilters: (elementToReplace: string, replaceFunc: (v: ElementFilter) => ElementFilter) => void): JSX.Element {
+        function dispatchNewCodingFilter(elementName: string, filterType: CodeFilterType, selectedIndexes: number[]) {
+            dispatchNewFilters(elementName, v => {
+                const oldFilter = v.filter as CodingFilter; // Ok to cast because this current function should only be called when editing CodingFilters
+                return {
+                    ...v,
+                    filter: {
+                        ...oldFilter,
+                        filteredCoding: {
+                            filterType,
+                            selectedIndexes: selectedIndexes,
+                        },
+                        error: filterType === CodeFilterType.Filtered && selectedIndexes.length === 0,
+                    }
+                }
+            });
+        }
+
         const codeFilter = elementFilter.filter as CodingFilter;
         return <>
             {(() => {
@@ -246,25 +306,36 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
     const onlyParents = allParentsAndChildren.map(getParent).filter(onlyUnique)
     const noParents = props.wizState.filters.filter(filter => !allParentsAndChildren.includes(filter))
     return (
-        <div className="cql-wizard-select-filters-grid">
-            {noParents.map((elementFilter): JSX.Element => {
-                return getFilterUI(elementFilter);
-            })}
+        <>
+            <Card>
+                <Card.Body>
+                    <Card.Title>
+                        Selected Codes
+                    </Card.Title>
+                    <CqlWizardSelectCodes wizState={props.wizState} wizDispatch={props.wizDispatch} />
+                </Card.Body>
+            </Card>
+            
+            <div className="cql-wizard-select-filters-grid mt-2">
+                {noParents.map((elementFilter): JSX.Element => {
+                    return getFilterUI(elementFilter, dispatchNewFilters);
+                })}
 
-            {onlyParents.map((parent): JSX.Element => {
-                return (
-                    <Card key={parent}>
-                        <Card.Body>
-                            <Card.Title>
-                                {`${parent[0].toUpperCase()}${parent.slice(1)}`}
-                            </Card.Title>
-                            {getChildren(parent).map(getFilterUI)}
-                        </Card.Body>
-                    </Card>
-                );
-            })}
-            <div className="cql-wizard-filters-overscroll-excess" />
-        </div>
+                {onlyParents.map((parent): JSX.Element => {
+                    return (
+                        <Card key={parent}>
+                            <Card.Body>
+                                <Card.Title>
+                                    {`${parent[0].toUpperCase()}${parent.slice(1)}`}
+                                </Card.Title>
+                                {getChildren(parent).map(child => getFilterUI(child, dispatchNewFilters))}
+                            </Card.Body>
+                        </Card>
+                    );
+                })}
+                <div className="cql-wizard-filters-overscroll-excess" />
+            </div>
+        </>
     )
 }
 
@@ -358,7 +429,7 @@ const DateFilterCard: React.FC<DateFilterCardProps> = (props) => {
         });
     }
 
-    const isAge = props.dateFilter.type === "age";
+    const isAge = props.dateFilter.type === FilterType.Age;
 
     return (
         <Card>
