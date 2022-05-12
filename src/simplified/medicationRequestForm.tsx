@@ -113,11 +113,11 @@ export class MedicationRequestForm implements ICardForm {
         ['status',
             { values: () => ['active', 'on-hold', 'cancelled', 'completed', 'entered-in-error', 'stopped', 'draft', 'unknown'] }],
         ['intent',
-            { values: () => ['proposal', 'plan', 'order', 'original-order', 'reflex-order', 'filler-order', 'instance-order', 'option'] }],
+            { values: () => ['proposal', 'plan', 'order', 'original-order', 'reflex-order', 'filler-order', 'instance-order', 'option']}],
         ['periodUnit',
-            { values: () => ['h', 'd', 'wk', 'mo', 'a'], requiredFor: ["text"] }],
+            { values: () => ['h', 'd', 'wk', 'mo', 'a'], display: v => `${friendlyTimeUnit(v)}(s)`, requiredFor: ["text"] }],
         ['durationUnit',
-            { values: () => ['h', 'd', 'wk', 'mo', 'a'], requiredFor: ["text"] }],
+            { values: () => ['h', 'd', 'wk', 'mo', 'a'], display: v => `${friendlyTimeUnit(v)}(s)`, requiredFor: ["text"] }],
         ['type',
             { values: () => ['documentation', 'justification', 'citation', 'predecessor', 'successor', 'derived-from', 'depends-on', 'composed-of'] }],
         ['unit',
@@ -199,14 +199,14 @@ export class MedicationRequestForm implements ICardForm {
                                 <div style={{'margin': "0 10px"}}>dose(s) every</div>
                                 <div className="page1-dosage-small-example">1</div>
                                 <select className="page1-dosage-medium-example" disabled>
-                                    <option value="">d</option>
+                                    <option value="">days</option>
                                 </select>
                             </div>
                             <div style={{'display':'flex', 'flexDirection': 'row', 'whiteSpace':'nowrap', 'justifyContent':'flex-end', 'flex': '0 0 90%'}} >
                                 <div style={{'margin': "0 10px"}}>for</div>
                                 <div className="page1-dosage-small-example">1</div>
                                 <select className="page1-dosage-medium-example" disabled>
-                                    <option value="">wk</option>
+                                    <option value="">weeks</option>
                                 </select>
                             </div>
                         </Card>

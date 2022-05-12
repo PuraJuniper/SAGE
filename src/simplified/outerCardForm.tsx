@@ -46,6 +46,7 @@ export type invisibleFieldProps = fieldFormProps
 
 export type dropdownBoxProps = fieldFormProps & {
     values: () => string[];
+    display?: (value: string) => string; // Returns a friendly name for `value` from `values`
 }
 export interface CardFormState {
     step: number;

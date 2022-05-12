@@ -203,7 +203,7 @@ const createDropdownElement = (fieldKey: string, fieldFriendlyName: string, fiel
                         >
                             <option hidden disabled value=''>{'Select...'}</option>
                             {fieldElements.values().map(function(sType, index) {
-                                return <option key={fieldKey + "-" + sType + "-" + index} value={sType}>{sType}</option>;
+                                return <option key={fieldKey + "-" + sType + "-" + index} value={sType}>{fieldElements.display !== undefined ? fieldElements.display(sType) : sType}</option>;
                             })}
                         </Form.Control>
                     </InputGroup>
@@ -227,7 +227,7 @@ const createDropdownElement = (fieldKey: string, fieldFriendlyName: string, fiel
                     >
                         <option hidden disabled value=''>{'--Please Select an Option--'}</option>
                         {fieldElements.values().map(function(sType, index)  {
-                            return <option key={fieldKey + "-" + sType + "-" + index} value={sType}>{sType}</option>;
+                            return <option key={fieldKey + "-" + sType + "-" + index} value={sType}>{fieldElements.display !== undefined ? fieldElements.display(sType) : sType}</option>;
                         })}
                     </Form.Control>
                 </InputGroup>
