@@ -2,8 +2,7 @@ import React, { useEffect, useReducer } from "react";
 import { Button, Col, Container, Modal, Row } from "react-bootstrap";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { CqlWizardSelectResource } from "./cqlWizardSelectResource";
-import { faCheck } from "@fortawesome/pro-solid-svg-icons";
-import { CqlWizardSelectCodes } from "./cqlWizardSelectCodes";
+import { faCheck, faXmark } from "@fortawesome/pro-solid-svg-icons";
 import { WizardAction, WizardPage, WizardReducer, WizardPagesArr, getNextPage, getPrevPage, initFromState, WizardState, StepStatus } from "./wizardLogic";
 import { CqlWizardSelectFilters } from "./cqlWizardSelectFilters";
 
@@ -55,7 +54,9 @@ export const CqlWizardModal: React.FunctionComponent<CqlWizardModalProps> = (pro
                 <Container className="cql-wizard-body-content" fluid>
                     <Row className="gy-4">
                         <Col xs={12}>
-                            <b>Which resource are you searching for?</b>
+                            <div className="mt-1 mb-4">
+                                <b>Which resource are you searching for?</b>
+                            </div>
                             <CqlWizardSelectResource wizState={wizardState} wizDispatch={wizardDispatch} />
                         </Col>
                         {resType !== '' ?
@@ -65,8 +66,12 @@ export const CqlWizardModal: React.FunctionComponent<CqlWizardModalProps> = (pro
                             null}
                     </Row>
                 </Container>
-                <div className="cql-wizard-floating-submit shadow">
-                    <Button disabled={!canSubmit} onClick={handleSaveAndClose}>
+                <div className="cql-wizard-floating-buttons">
+                    <Button onClick={handleClose} variant="sage-primary" className="shadow">
+                        <FontAwesomeIcon icon={faXmark} style={{ marginRight: "0.5rem" }} />
+                        Cancel
+                    </Button>
+                    <Button disabled={!canSubmit} onClick={handleSaveAndClose} variant="sage-secondary" className="shadow">
                         <FontAwesomeIcon icon={faCheck} style={{ marginRight: "0.5rem" }} />
                         Save Condition
                     </Button>

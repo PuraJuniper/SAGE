@@ -26,13 +26,28 @@ span {
   background-color: #2D2E74;
   border-color: #2D2E74;
 }
+.btn-sage-primary {
+  color: #fff;
+  background-color: #2D2E74;
+  border-color: #2D2E74;
+}
 
 .btn-secondary {
   background-color: #64be66;
   border-color: #64be66;
 }
+.btn-sage-secondary {
+  color: #fff;
+  background-color: #64be66;
+  border-color: #64be66;
+}
 
 .btn-tertiary {
+  background-color: white;
+  border-color: rgba(0,0,0,.2);
+  color: gray;
+}
+.btn-sage-tertiary {
   background-color: white;
   border-color: rgba(0,0,0,.2);
   color: gray;
@@ -687,11 +702,13 @@ a {
   height: 100%;
   border-radius: 0;
 }
-.cql-wizard-floating-submit {
+.cql-wizard-floating-buttons {
   position: absolute;
-  right: 3rem;
-  bottom: 4rem;
+  right: 4rem;
+  bottom: 3rem;
   z-index: 10;
+  display: flex;
+  gap: 1rem;
 }
 
 .cql-wizard-header-content {
@@ -770,6 +787,11 @@ a {
   background-color: rgba(255,255,255,0.7);
   height: 100%;
   width: 100%;
+}
+.cql-wizard-resource-warning-buttons {
+  display: flex;
+  gap: 1rem;
+  flex-direction: row-reverse;
 }
 
 .cql-wizard-select-code-grid {
