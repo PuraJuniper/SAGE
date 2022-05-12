@@ -33,12 +33,14 @@ export interface AuthoringState {
     newResourceBundle: boolean
 }
 
+export interface AuthoringProps {
+    continueToCreateCard: boolean
+}
 
 
+export default class Authoring extends React.Component<AuthoringProps, AuthoringState> {
 
-export default class Authoring extends React.Component<any, AuthoringState> {
-
-    constructor(props: any) {
+    constructor(props: AuthoringProps) {
 
         super(props);
         this.state = State.get().author.authorings[State.get().author.pos]
@@ -199,6 +201,7 @@ export default class Authoring extends React.Component<any, AuthoringState> {
                             </Col>
                         </Row>
                         <NavButtons
+                            continueToCreateCard={this.props.continueToCreateCard}
                             handleSave={() => {State.get().author.authorings[State.get().author.pos].set(this.state);}}
                             handleUpdateExistingCards={ () => {
                                 const pdLength = State.get().bundle.resources.length;
@@ -234,6 +237,7 @@ export default class Authoring extends React.Component<any, AuthoringState> {
 }
 const NavButtons = (
     props: { 
+        continueToCreateCard: boolean
         handleSave: () => void; 
         handleUpdateExistingCards: () => void;
     } ) => {
@@ -246,19 +250,20 @@ const NavButtons = (
             props.handleSave();
             navigate('/create');
         } }>
-        {<> {"Next "} <FontAwesomeIcon icon={faCaretRight} /></>}
+        {<> {"Continue to Create Card "} <FontAwesomeIcon icon={faCaretRight} /></>}
+    </button>;
+    const saveAndExitButton = <button type='button' className="navigate-reverse col-lg-2 col-md-3"
+        onClick={() => {
+            props.handleSave();
+            props.handleUpdateExistingCards();
+            navigate('/basic-home');
+        } }>
+        {<> {"Save and Exit"} </>}
     </button>;
     return (
         <div style={{ display: "flex", marginTop: '1rem' }} >
-            <button type='button' className="navigate-reverse col-lg-2 col-md-3"
-                onClick={() => {
-                    props.handleSave();
-                    props.handleUpdateExistingCards();
-                    navigate('/basic-home');
-                }}>
-                {<> {"Save and Exit"} </>}
-            </button>
-            {(State.get().bundle.resources.length < 2) && continueToCreateCardButton}
+            {!props.continueToCreateCard && saveAndExitButton}
+            {props.continueToCreateCard && continueToCreateCardButton}
 
         </div>
     );

@@ -4,6 +4,7 @@ import { Col, Container, Row } from "react-bootstrap";
 import { NavigateFunction, useNavigate } from "react-router-dom";
 import State from "../state";
 import { BaseCard } from "./baseCard";
+import { AUTHOR_THEN_CARD_ROUTE, AUTHOR_THEN_EXIT_ROUTE } from './basicView';
 import { friendlyResourceRoot } from "./nameHelpers";
 import Sidebar from "./sidebar";
 import { Progress } from './topProgressBar';
@@ -12,7 +13,7 @@ import { Progress } from './topProgressBar';
 export const CreateCardWorkflow = (navigate: NavigateFunction) => {
     //if first card of folder
     if (State.get().bundle.resources.length < 2) {
-        return navigate('/author')
+        return navigate(`/${AUTHOR_THEN_CARD_ROUTE}`)
     } else {
         return navigate('/create');
     }
