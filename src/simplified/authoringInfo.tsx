@@ -9,6 +9,8 @@ import Sidebar from "./sidebar";
 import * as CardEditor from "../simplified/cardEditor";
 import { generateCardNameString, generateResourceReference } from "../helpers/schema-utils";
 import { ACTIVITY_DEFINITION, PLAN_DEFINITION } from "./nameHelpers";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCaretRight } from "@fortawesome/pro-solid-svg-icons";
 export interface AuthoringState {
     submitInvalid: boolean,
     showSpinner: boolean,
@@ -32,13 +34,17 @@ export interface AuthoringState {
 }
 
 
+
+
 export default class Authoring extends React.Component<any, AuthoringState> {
 
     constructor(props: any) {
+
         super(props);
         this.state = State.get().author.authorings[State.get().author.pos]
     }
     render() {
+
         // console.log(this.state)
         return (
             <div style={{ display: "flex" }} >
@@ -235,6 +241,13 @@ const NavButtons = (
     const [searchParams, _] = useSearchParams();
     const nextPage = searchParams.get('next') ?? 'create'
 
+    const continueToCreateCardButton = <button type='button' className="navigate col-lg-2 col-md-3"
+        onClick={() => {
+            props.handleSave();
+            navigate('/create');
+        } }>
+        {<> {"Next "} <FontAwesomeIcon icon={faCaretRight} /></>}
+    </button>;
     return (
         <div style={{ display: "flex", marginTop: '1rem' }} >
             <button type='button' className="navigate-reverse col-lg-2 col-md-3"
@@ -245,14 +258,7 @@ const NavButtons = (
                 }}>
                 {<> {"Save and Exit"} </>}
             </button>
-            {/* TODO: Handle next only when first card in folder */}
-            {/* <button type='button' className="navigate col-lg-2 col-md-3"
-                onClick={() => {
-                    props.handleNext();
-                    navigate(`/${nextPage}`);
-                }}>
-                {<> {"Next "} <FontAwesomeIcon icon={faCaretRight} /></>}
-            </button> */}
+            {(State.get().bundle.resources.length < 2) && continueToCreateCardButton}
 
         </div>
     );

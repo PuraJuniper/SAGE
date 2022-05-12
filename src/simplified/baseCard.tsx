@@ -10,6 +10,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faInfoCircle,faGrid,faBookMedical,faCirclePlus, IconDefinition } from '@fortawesome/pro-solid-svg-icons';
 import { useNavigate } from "react-router-dom";
 import { AuthoringState } from './authoringInfo';
+import { CreateCardWorkflow } from './selectView';
 
 interface BaseCardProps {
     header: string,
@@ -107,7 +108,7 @@ export const BaseCard = (props: BaseCardProps) => {
                     }
                 }
                 if(props.title == 'Create Cards'){
-                    navigate('/create')
+                    CreateCardWorkflow(navigate)
                 }
                 if(props.title == 'View Cards'){
                     navigate('/view-cards')

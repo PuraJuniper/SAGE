@@ -3,6 +3,7 @@ import { Card, Button, ButtonGroup } from "react-bootstrap";
 import { useParams, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faGear, faArrowRightFromBracket} from '@fortawesome/pro-solid-svg-icons';
+import { CreateCardWorkflow } from "./selectView";
 
 interface SidebarProps {
     pageType: string, 
@@ -18,13 +19,13 @@ const Sidebar = (props: SidebarProps) => {
                 <Card body style={{height: "100%"}}>
                     <div  className="left-nav-button-group">
                         <Button className="left-nav-button" onClick={() => navigate('/basic-home')}>Home</Button>
-                        <Button className="left-nav-button" onClick={() => navigate('/create')}>Create Card</Button>
+                        <Button className="left-nav-button" onClick={() => CreateCardWorkflow(navigate)}>Create Card</Button>
                         <Button className="left-nav-button" onClick={() => navigate('/author')}>Authoring Information</Button>
                         <Button className="left-nav-button" onClick={() => navigate('/view-cards')}>View Cards</Button>
                     </div>
                     <p className="hline"></p>
                     <div className="left-nav-button-group">
-                        <Button className="left-nav-button" onClick={() => navigate('/create')}>
+                        <Button className="left-nav-button" onClick={() => CreateCardWorkflow(navigate)}>
                             <FontAwesomeIcon icon={faGear}/>
                             {" APP SETTINGS"}</Button>
                         <Button className="left-nav-button" onClick={() => navigate('/')}>
@@ -53,7 +54,7 @@ const Sidebar = (props: SidebarProps) => {
                     </div>
                     <p className="hline"></p>
                     <div className="left-nav-button-group">
-                        <Button className="left-nav-button" onClick={() => navigate('/create')}>
+                        <Button className="left-nav-button" onClick={() => CreateCardWorkflow(navigate)}>
                             <FontAwesomeIcon icon={faGear}/>
                             {" APP SETTINGS"}</Button>
                         <Button className="left-nav-button" onClick={() => navigate('/')}>
@@ -70,13 +71,13 @@ const Sidebar = (props: SidebarProps) => {
                 <Card body style={{height: "100%"}}>
                     <div  className="left-nav-button-group">
                         <Button className={(window.location.pathname == '/basic-home' ? "left-nav-button highlighted" : "left-nav-button")} onClick={() => navigate('/basic-home')}>Home</Button>
-                        <Button className={(window.location.pathname == '/create' ? "left-nav-button highlighted" : "left-nav-button")} onClick={() => navigate('/create')}>Create Card</Button>
+                        <Button className={(window.location.pathname == '/create' ? "left-nav-button highlighted" : "left-nav-button")} onClick={() => CreateCardWorkflow(navigate)}>Create Card</Button>
                         <Button className="left-nav-button" onClick={() => navigate('/author')}>Authoring Information</Button>
                         <Button className={(props.pageTitle == 'Saved Cards' ? "left-nav-button highlighted" : "left-nav-button")} onClick={() => navigate('/view-cards')}>View Cards</Button>
                     </div>
                     <p className="hline"></p>
                     <div className="left-nav-button-group">
-                        <Button className="left-nav-button" onClick={() => navigate('/create')}>
+                        <Button className="left-nav-button" onClick={() => CreateCardWorkflow(navigate)}>
                             <FontAwesomeIcon icon={faGear}/>
                             {" APP SETTINGS"}</Button>
                         <Button className="left-nav-button" onClick={() => navigate('/')}>
