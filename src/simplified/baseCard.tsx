@@ -107,7 +107,7 @@ export const BaseCard = (props: BaseCardProps) => {
                     }
                 }
                 if(props.title == 'Create Cards'){
-                    navigate('/author?next=create')
+                    navigate('/create')
                 }
                 if(props.title == 'View Cards'){
                     navigate('/view-cards')
