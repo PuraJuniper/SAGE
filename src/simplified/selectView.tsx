@@ -20,14 +20,12 @@ export const CreateCardWorkflow = (navigate: NavigateFunction) => {
 }
 
 const SelectView = () => {
-    const navigate = useNavigate();
 
     return (
         <div style={{display: "flex"}} >
                 <Sidebar pageType='create card' pageTitle='What is the card type?'></Sidebar>
                 <div style={{flexGrow: 1, margin: "50px"}}>
                 <h3  id='page-title' className="col-lg-10 col-md-9">What is the card type?</h3>
-                <Progress pageTitle='What is the card type?' fhirType = 'activity'></Progress>
             
                 <Container fluid="lg">
                     <Row lg="4" md="3" sm="2" className="g-0" style={{'justifyContent': 'center'}}>  
