@@ -258,13 +258,24 @@ const NavButtons = (
             props.handleUpdateExistingCards();
             navigate('/basic-home');
         } }>
-        {<> {"Save and Exit"} </>}
+        {<> {"Save"} </>}
     </button>;
+    const cancelButton = <button type='button' className="navigate col-lg-2 col-md-3"
+        onClick={() => {
+            navigate('/basic-home');
+        } }>
+        {<> {"Cancel"} </>}
+    </button>;
+
+
+            // export function handleCancelEdit() {
+            //     navigate("/");
+            // }
     return (
         <div style={{ display: "flex", marginTop: '1rem' }} >
-            {!props.continueToCreateCard && saveAndExitButton}
-            {props.continueToCreateCard && continueToCreateCardButton}
-
+            {props.continueToCreateCard ? null : saveAndExitButton}
+            {props.continueToCreateCard ? continueToCreateCardButton : null}
+            {cancelButton}
         </div>
     );
 }
