@@ -1,7 +1,7 @@
 import { faHomeLgAlt, faInfoCircle } from "@fortawesome/pro-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useState } from "react";
-import { Card, Col, Form, Row } from "react-bootstrap";
+import { Card, Col, Container, Form, Row } from "react-bootstrap";
 import { FieldHandlerProps, ICardForm } from "./cardEditor";
 import { CodeableConceptEditorProps } from "./codeableConceptEditor";
 import { SageCoding } from "./cql-wizard/wizardLogic";
@@ -188,56 +188,64 @@ export class MedicationRequestForm implements ICardForm {
         console.log(props)
         const timingElem =
         <Col className="page1-formgroup form-group"  key='timing-formGroup'>
-            <Row style={{margin: '0'}}>
-                <div style={{'display':'flex', 'flexDirection': 'row', 'whiteSpace':'nowrap','justifyContent':'flex-end','flex': '0 0 90%'}} >
-                    <span style={{ fontSize: "20px"}}>
-                        <div className="page1-tooltip">
-                            <FontAwesomeIcon icon={faInfoCircle} />
-                            <Card className="page1-tooltiptext">
-                                <div>E.g. 2 doses per day for a week would be expressed as:</div> 
-                                <div style={{'margin': "10px 0px",'display':'flex', 'flexDirection': 'row', 'whiteSpace':'nowrap', 'justifyContent':'flex-end','flex': '0 0 90%'}} >
-                                    <div className="page1-dosage-small-example">2</div>
-                                    <div style={{'margin': "0 10px"}}>dose(s) every</div> 
-                                    <div className="page1-dosage-small-example">1</div>
-                                    <select className="page1-dosage-medium-example" disabled>
-                                        <option value="">d</option>
-                                    </select>          
-                                </div>
-                                <div style={{'display':'flex', 'flexDirection': 'row', 'whiteSpace':'nowrap', 'justifyContent':'flex-end', 'flex': '0 0 90%'}} >
-                                    <div style={{'margin': "0 10px"}}>for</div> 
-                                    <div className="page1-dosage-small-example">1</div>
-                                    <select className="page1-dosage-medium-example" disabled>
-                                        <option value="">wk</option>
-                                    </select>   
-                                </div>
-                            </Card>
-                        </div>
-                    </span>
-                </div>
-                <div style={{'display':'flex', 'flexDirection': 'row', 'whiteSpace':'nowrap', 'justifyContent':'flex-end','flex': '0 0 90%'}} >
+            <Row className="justify-content-end">
+                <Col xs="12">
+                    <div className="page1-tooltip float-end fs-5">
+                        <FontAwesomeIcon icon={faInfoCircle} />
+                        <Card className="page1-tooltiptext">
+                            <div>E.g. 2 doses per day for a week would be expressed as:</div>
+                            <div style={{'margin': "10px 0px",'display':'flex', 'flexDirection': 'row', 'whiteSpace':'nowrap', 'justifyContent':'flex-end','flex': '0 0 90%'}} >
+                                <div className="page1-dosage-small-example">2</div>
+                                <div style={{'margin': "0 10px"}}>dose(s) every</div>
+                                <div className="page1-dosage-small-example">1</div>
+                                <select className="page1-dosage-medium-example" disabled>
+                                    <option value="">d</option>
+                                </select>
+                            </div>
+                            <div style={{'display':'flex', 'flexDirection': 'row', 'whiteSpace':'nowrap', 'justifyContent':'flex-end', 'flex': '0 0 90%'}} >
+                                <div style={{'margin': "0 10px"}}>for</div>
+                                <div className="page1-dosage-small-example">1</div>
+                                <select className="page1-dosage-medium-example" disabled>
+                                    <option value="">wk</option>
+                                </select>
+                            </div>
+                        </Card>
+                    </div>
+                </Col>
+                <Col xs="2">
                     {props.fieldElements[0]}
-                    <div style={{'margin': "0 10px"}}>dose(s) every</div> 
+                </Col>
+                <Col xs="4">
+                    <div className="text-end">dose(s) every</div> 
+                </Col>
+                <Col xs="2">
                     {props.fieldElements[1]}
+                </Col>
+                <Col xs="4">
                     {props.fieldElements.find(x => x.key == 'periodUnit-fromGroup')}
-                </div>
+                </Col>
             </Row>
         </Col>
         const durationElem =
-        <Col className="page1-formgroup formGroup"  key='duration-formGroup'>
-            <Row style={{margin: '0'}}>
-                <div style={{'display':'flex', 'flexDirection': 'row', 'whiteSpace':'nowrap', 'justifyContent':'flex-end', 'flex': '0 0 90%'}} >
-                    <div style={{'margin': "0 10px"}}>for</div> 
+        <Col className="page1-formgroup formGroup" key='duration-formGroup'>
+            <Row className="flex-nowrap justify-content-end">
+                <Col xs={{ span: 4, offset: 2 }}>
+                    <div className="text-end">for</div>
+                </Col>
+                <Col xs="2">
                     {props.fieldElements[2]}
+                </Col>
+                <Col xs="4">
                     {props.fieldElements.find(x => x.key == 'durationUnit-fromGroup')}
-                </div>
+                </Col>
             </Row>
         </Col>
 
         return (
-            <>{
+            <Container>{
                 ...this.cardFieldLayout.cardColumns.map((cr, i: number) => {
                     return (
-                        <Row style={{justifyContent: 'center'}} key={"row-" + i} >
+                        <Row className="justify-content-center" key={"row-" + i} >
                             {cr.map((field, j: number) => {
                              return   [
                                     durationElem,
@@ -251,7 +259,7 @@ export class MedicationRequestForm implements ICardForm {
                         </Row>
                     )
                 })
-            }</>
+            }</Container>
         );
     }
 
