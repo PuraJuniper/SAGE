@@ -317,7 +317,7 @@ const getDefaultValue = (schema: SchemaDef, fhirType: string, parentName = ""): 
 				}
 				else {
 					const suffix = pathSuffix[0];
-					defaultValue = generateCardNameString(suffix, authoringState);
+					defaultValue = generateCardNameString(suffix, authoringState, State.get().resCount);
 				}
 			}
 			break;
@@ -486,8 +486,14 @@ export const buildChildNode = function (profiles: SimplifiedProfiles, parentNode
 // 	return `http://fhir.org/guides/${authoringState.publisher}/${suffix}/${suffix}-${authoringState.CPGName}-${State.get().resCount}`;
 // }
 
-export function generateCardNameString(suffix: string, authoringState: AuthoringState): any {
-	return `${suffix}-${authoringState.CPGName}-${State.get().resCount}`;
+export function generateCardNameString(suffix: string, authoringState: AuthoringState, numOrNode: number | SageNodeInitializedFreezerNode): string {
+
+	const newId = (oldId: number | undefined) => {
+		const actOrPlanNode: SageNodeInitializedFreezerNode | undefined = typeof numOrNode === "number" ? undefined : numOrNode;
+		const referencedNodeUriId = actOrPlanNode === undefined ? undefined : getReferencedNodeURI(actOrPlanNode).split("-").pop();
+		return oldId ?? parseInt(referencedNodeUriId ?? incrementNextId().toString()); 
+	}
+	return `${suffix}-${authoringState.CPGName}-${newId(typeof numOrNode === "number" ? numOrNode : undefined)}`;
 }
 
 export function findFirstSageNodeByUri(nodes: SageFreezerNode<SageNodeInitialized[]>, uri: string): {
@@ -1172,14 +1178,10 @@ export async function getConceptsOfValueSet(valueSet: ValueSet, valueSetDefs: Si
 
 export function generateResourceReference(resourceType: string, id: number): {referencedResourceName: string, referencedResourceUrl: string};
 export function generateResourceReference<SageNodeInitializedFreezerNode>(resourceType: string, node: SageNodeInitializedFreezerNode): {referencedResourceName: string, referencedResourceUrl: string};
-export function generateResourceReference(resourceType: string, ...args: any[]) {
+export function generateResourceReference(resourceType: string, ...numOrNode: any[]) {
     const authoringState: AuthoringState = State.get().author.authorings[State.get().author.pos];
-	const id: number | undefined = typeof args[0] === "number" ? args[0] : undefined;
-	const newId = () => {
-		const aOrPNode = typeof args[0] === "number" ? undefined : args[0];
-		return parseInt(getReferencedNodeURI(aOrPNode).split("-").pop() ?? incrementNextId().toString()); 
-	}
-    const referencedResourceName = `${resourceType}-${authoringState.CPGName}-${id ?? newId()}`;
+
+    const referencedResourceName = generateCardNameString(resourceType, authoringState, numOrNode[0]);
     const referencedResourceUrl = `http://fhir.org/guides/${authoringState.publisher}/${resourceType}/${referencedResourceName}`;
     return { referencedResourceName, referencedResourceUrl };
 }

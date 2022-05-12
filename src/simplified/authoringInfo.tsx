@@ -201,8 +201,8 @@ export default class Authoring extends React.Component<any, AuthoringState> {
                                     const actNode = getRelatedActivityNode(pd);
                                     if (pd.schemaPath == PLAN_DEFINITION && actNode.node) {
                                         // //Name
-                                        planFieldSaveHandler(pd, "name", generateCardNameString(pd.schemaPath, this.state));
-                                        activityFieldSaveHandler(actNode.node, "name", generateCardNameString(actNode.node.schemaPath, this.state))
+                                        planFieldSaveHandler(pd, "name", generateCardNameString(pd.schemaPath, this.state, pd));
+                                        activityFieldSaveHandler(actNode.node, "name", generateCardNameString(actNode.node.schemaPath, this.state, actNode.node))
                                         // //URL
                                         fieldSaveHandler("definitionCanonical", generateResourceReference(actNode.node.schemaPath, pd).referencedResourceUrl, actNode.node, pd)
                                         planFieldSaveHandler(pd, "url", generateResourceReference(pd.schemaPath, pd).referencedResourceUrl);
