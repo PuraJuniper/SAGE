@@ -23,6 +23,7 @@ export enum ElemType {
 export type previewProps = {
     className: string;
     displayFieldTitle: boolean;
+    friendlyDisplay?: (value: string) => string; // Convert `value` to friendly name
 }
 
 export type fieldFormProps = {

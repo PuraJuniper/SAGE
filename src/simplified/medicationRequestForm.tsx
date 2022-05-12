@@ -114,10 +114,26 @@ export class MedicationRequestForm implements ICardForm {
             { values: () => ['active', 'on-hold', 'cancelled', 'completed', 'entered-in-error', 'stopped', 'draft', 'unknown'] }],
         ['intent',
             { values: () => ['proposal', 'plan', 'order', 'original-order', 'reflex-order', 'filler-order', 'instance-order', 'option']}],
-        ['periodUnit',
-            { values: () => ['h', 'd', 'wk', 'mo', 'a'], display: v => `${friendlyTimeUnit(v)}(s)`, requiredFor: ["text"] }],
-        ['durationUnit',
-            { values: () => ['h', 'd', 'wk', 'mo', 'a'], display: v => `${friendlyTimeUnit(v)}(s)`, requiredFor: ["text"] }],
+        ['periodUnit', {
+            values: () => ['h', 'd', 'wk', 'mo', 'a'],
+            display: v => `${friendlyTimeUnit(v)}(s)`,
+            requiredFor: ["text"],
+            preview: {
+                className: "",
+                displayFieldTitle: true,
+                friendlyDisplay: v => `${friendlyTimeUnit(v)}(s)`
+            }
+        }],
+        ['durationUnit', {
+            values: () => ['h', 'd', 'wk', 'mo', 'a'],
+            display: v => `${friendlyTimeUnit(v)}(s)`,
+            requiredFor: ["text"],
+            preview: {
+                className: "",
+                displayFieldTitle: true,
+                friendlyDisplay: v => `${friendlyTimeUnit(v)}(s)`
+            }
+        }],
         ['type',
             { values: () => ['documentation', 'justification', 'citation', 'predecessor', 'successor', 'derived-from', 'depends-on', 'composed-of'] }],
         ['unit',

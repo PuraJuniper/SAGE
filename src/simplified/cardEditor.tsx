@@ -252,13 +252,14 @@ const createCodeableConceptElement = (fieldKey: string, fieldFriendlyName: strin
 }
 
 const createDisplayElement = ( displayProps: previewProps,friendlyFields: FriendlyResourceFormElement[], fieldHandler: FieldHandlerProps): JSX.Element => {
-        return (
-            <Form.Group key={fieldHandler.fieldName + "-fromGroup"} as={Col} controlId={fieldHandler.fieldName} {...(displayProps.displayFieldTitle) == true && {className: displayProps.className}}>
-                <Form.Label key={fieldHandler.fieldName + "-label"} className = {displayProps.className}> <b> 
-                    {(displayProps.displayFieldTitle) == true && (friendlyFields.find(ff => ff.SELF.FHIR === fieldHandler.fieldName)?.SELF.FRIENDLY ?? "FRIENDLY_NAME_UNKNOWN")}
-                </b>{fieldHandler.fieldContents}</Form.Label>
-            </Form.Group>
-        )
+    return (
+        <Form.Group key={fieldHandler.fieldName + "-fromGroup"} as={Col} controlId={fieldHandler.fieldName} {...(displayProps.displayFieldTitle) == true && {className: displayProps.className}}>
+            <Form.Label key={fieldHandler.fieldName + "-label"} className = {displayProps.className}>
+                <b>{(displayProps.displayFieldTitle) == true && (friendlyFields.find(ff => ff.SELF.FHIR === fieldHandler.fieldName)?.SELF.FRIENDLY ?? "FRIENDLY_NAME_UNKNOWN")}</b>
+                {displayProps.friendlyDisplay !== undefined ? displayProps.friendlyDisplay(fieldHandler.fieldContents) : fieldHandler.fieldContents}
+            </Form.Label>
+        </Form.Group>
+    )
 }
 
 const createDisplayElementList = (innerCardForm: ICardForm,fieldHandlers: Map<string, FieldHandlerProps>, resourceType: FriendlyResourceProps): JSX.Element[] => {
@@ -268,9 +269,18 @@ const createDisplayElementList = (innerCardForm: ICardForm,fieldHandlers: Map<st
     const list: JSX.Element[] = [];
 
     fieldHandlers.forEach(fh => {
-        list.push(createDisplayElement(innerCardForm.textBoxFields.get(fh.fieldName)?.preview ?? defaultBoxProps,flattenFriendlyFields,fh));
-        list.push(createDisplayElement(innerCardForm.dropdownFields.get(fh.fieldName)?.preview ?? defaultBoxProps,flattenFriendlyFields,fh));
-        list.push(createDisplayElement(innerCardForm.codeableConceptFields.get(fh.fieldName)?.preview ?? defaultBoxProps,flattenFriendlyFields,fh));
+        if (innerCardForm.textBoxFields.get(fh.fieldName) !== undefined) {
+            list.push(createDisplayElement(innerCardForm.textBoxFields.get(fh.fieldName)?.preview ?? defaultBoxProps,flattenFriendlyFields,fh));
+        }
+        else if (innerCardForm.dropdownFields.get(fh.fieldName) !== undefined) {
+            list.push(createDisplayElement(innerCardForm.dropdownFields.get(fh.fieldName)?.preview ?? defaultBoxProps,flattenFriendlyFields,fh));
+        }
+        else if (innerCardForm.codeableConceptFields.get(fh.fieldName) !== undefined) {
+            list.push(createDisplayElement(innerCardForm.codeableConceptFields.get(fh.fieldName)?.preview ?? defaultBoxProps,flattenFriendlyFields,fh));
+        }
+        else {
+            list.push(createDisplayElement(defaultBoxProps,flattenFriendlyFields,fh));
+        }
     })
 
     return list;
