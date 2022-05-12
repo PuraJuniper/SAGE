@@ -5,14 +5,14 @@ import { ProgressBar, Step } from "react-step-progress-bar";
 const activityPlanSteps =
 [
 	// {id: 1, pageTitle: "Authoring Information",	    text: "Enter Authoring Information"},
-	{pageTitle: "What is the card type?",	  text: "Select Card Type"},
+	// {pageTitle: "What is the card type?",	  text: "Select Card Type"},
 	{pageTitle: "What does the card do?",	  text: "Enter What the card does"},
 	{pageTitle: "When is the card played?",	text: "Enter When the card is played"},
 	{pageTitle: "Review card",	              text: "Review and Save"},
 ]
 const questionaireSteps =
 [
-	{pageTitle:"Authoring Information",	           text: "Enter Authoring Information"},
+	// {pageTitle:"Authoring Information",	           text: "Enter Authoring Information"},
 	{pageTitle:"Page 1: Creating a Questionnaire", text: "Enter What the card does"},
 	{pageTitle:"Page 2: Adding Conditions",	       text: "Enter When the card is played"},
 	{pageTitle:"Page 3: Card Preview",	           text: "Review and Save"},
