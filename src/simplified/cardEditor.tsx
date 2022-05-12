@@ -166,20 +166,20 @@ const createTextBoxElement = (fieldKey: string, friendlyFieldName: string, textP
     }
     return (
         <Form.Group className= "page1-formgroup" key={fieldName + "-formGroup"} as={Col} controlId={fieldName}>
-            <Row style={{margin: '0'}}>
-                    <Form.Label hidden={(textProps.hideFieldTitle == true) ? true:false} className="page1-input-fields-and-labels" key={fieldName + "-formLabel"} >
-                        {friendlyFieldName}
-                        <div hidden={(textProps.hideFieldToolTip == true) ? true:false} className="page1-tooltip formfield-tooltip">
-                            <FontAwesomeIcon icon={faInfoCircle} className="" />
-                            <Card className="page1-tooltiptext">
-                                <div>{textProps.caption}</div>
-                            </Card>
-                        </div>
-                    </Form.Label>
-                    <Row style={{margin: '0', width:'100%'}}>
-                    <InputGroup className={`${textProps.className} page1-input-fields-and-labels`}>{returnVal()}</InputGroup>  
-                    </Row>
-            </Row>
+            <div>
+                <Form.Label hidden={(textProps.hideFieldTitle == true) ? true:false} key={fieldName + "-formLabel"} >
+                    {friendlyFieldName}
+                </Form.Label>
+                <div hidden={(textProps.hideFieldToolTip == true) ? true:false} className="page1-tooltip float-end">
+                    <FontAwesomeIcon icon={faInfoCircle} />
+                    <Card className="page1-tooltiptext">
+                        <div>{textProps.caption}</div>
+                    </Card>
+                </div>
+            </div>
+            <div>
+                <InputGroup className={`${textProps.className}`}>{returnVal()}</InputGroup>
+            </div>
         </Form.Group>
     );
 }
@@ -213,9 +213,9 @@ const createDropdownElement = (fieldKey: string, fieldFriendlyName: string, fiel
 
     return (
         <Form.Group className="page1-formgroup" key={fieldName + "-fromGroup"} as={Col} controlId={fieldKey}>
-            <Row style={{margin: '0'}}>
-                <Form.Label className="page1-input-fields-and-labels" key={fieldName + "-label"}>{fieldFriendlyName}</Form.Label>
-                <InputGroup className="page1-input-fields-and-labels" key={fieldName + "-inputGroup"}>
+            <Row>
+                <Form.Label key={fieldName + "-label"}>{fieldFriendlyName}</Form.Label>
+                <InputGroup key={fieldName + "-inputGroup"}>
                     <Form.Control
                         key={fieldName + "formControl"}
                         as="select"
@@ -241,10 +241,10 @@ const createCodeableConceptElement = (fieldKey: string, fieldFriendlyName: strin
     fieldHandlers.set(fieldName, {fieldName, fieldContents: codeableConcept, setField: setCodeableConcept, fieldSaveHandler: codeableConceptSaveHandler})
     return (
         <Form.Group className="page1-formgroup" key={fieldName + "-fromGroup"} as={Col} controlId={fieldKey}>
-            <Row style={{margin: '0'}}>
-                    <Form.Label className="page1-input-fields-and-labels" key={fieldName + "-label"}>{fieldFriendlyName}</Form.Label>
-                    <div className="page1-input-fields-and-labels">
-                    <CodeableConceptEditor {...codeableConceptEditorPropsOverrides} curCodeableConcept={codeableConcept} setCurCodeableConcept={setCodeableConcept} />
+            <Row>
+                    <Form.Label key={fieldName + "-label"}>{fieldFriendlyName}</Form.Label>
+                    <div>
+                        <CodeableConceptEditor {...codeableConceptEditorPropsOverrides} curCodeableConcept={codeableConcept} setCurCodeableConcept={setCodeableConcept} />
                     </div>
             </Row>
         </Form.Group>

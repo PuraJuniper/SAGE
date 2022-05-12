@@ -668,9 +668,6 @@ a {
   transition: all 500ms;
 }
 
-.page1-input-fields-and-labels{
-  flex: 0 0 90%
-}
 .page1-formgroup{
   flex-grow: 0.4;
 }
@@ -1046,8 +1043,4 @@ a {
   border-radius: 5px;
   opacity: 1;
   color: red;
-}
-
-.formfield-tooltip {
-  float: right;
 }
