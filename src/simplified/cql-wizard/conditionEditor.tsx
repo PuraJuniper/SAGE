@@ -114,10 +114,15 @@ const SubExpressionElement = (props: ConditionElementProps) => {
 
     function handleDelete(deletedIdx: number) {
         const newSubExpr = props.subExpression.subExpr.flatMap((v, i) => i === deletedIdx ? [] : [v])
-        props.handleEditSubExpression({
-            ...props.subExpression,
-            subExpr: newSubExpr,
-        });
+        if (newSubExpr.length === 0) {
+            props.handleDeleteSubExpression();
+        }
+        else {
+            props.handleEditSubExpression({
+                ...props.subExpression,
+                subExpr: newSubExpr,
+            });
+        }
     }
 
     function handleEditExpr(editedIdx: number, newExpr: SubExpression | WizExpression) {

@@ -115,8 +115,10 @@ async function searchForConcept(concept: string, ontologies?: string[]) {
                 apikey: State.get().bioportalApikey,
             }
         });
-        const descendantsUrl = (conceptResponse.data.collection as Array<any>)[0].links.descendants;
-
+        const descendantsUrl = (conceptResponse.data.collection as Array<any>)[0]?.links?.descendants;
+        if (descendantsUrl === undefined) {
+            return [];
+        }
         const response = await axios({
             url: descendantsUrl,
             method: "GET",
@@ -143,7 +145,7 @@ async function searchForConcept(concept: string, ontologies?: string[]) {
         });
     }
     catch (e) {
-        console.log(`Error contacting bioportal api: ${e}`);
+        console.log(`Error contacting bioportal api for concept ${concept}: ${e}`);
     }
     return [];
 }

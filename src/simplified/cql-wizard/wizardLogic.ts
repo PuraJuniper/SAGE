@@ -3,6 +3,7 @@ import { Moment } from "moment";
 import { getConceptsOfValueSet, SageCodeConcept, SimplifiedProfiles } from "../../helpers/schema-utils";
 import { Coding, PlanDefinitionActionCondition } from "fhir/r4";
 import { EditableCondition } from "./conditionEditor";
+import _ from "lodash";
 
 // Pages of the wizard
 export enum WizardPage {
@@ -38,7 +39,6 @@ export interface WizardState {
 }
 export type WizardAction = ['changePage', WizardPage ] | ['selectExprType', string, ElementFilter[]] | ['setCodes', SageCoding[]] | ['setFilters', ElementFilter[]] | ['setState', WizardState] | ['disableActions'] | ['enableActions'];
 export function WizardReducer(prevWizState: WizardState, action: WizardAction): WizardState {
-    console.log(prevWizState, action);
     // If some asynchronous action is being performed, use 'disableActions' and 'enableActions' to drop all events that occur before it is complete
     if (prevWizState.actionsDisabled && action[0] !== "enableActions") {
         return prevWizState;
@@ -461,6 +461,7 @@ export async function createExpectedFiltersForResType(resType: string): Promise<
         }
     }));
 }
+export const memoizedCreateExpectedFiltersForResType = _.memoize(createExpectedFiltersForResType);
 
 // Should be rewritten to use friendly-names
 export function getSelectableResourceTypes() {
