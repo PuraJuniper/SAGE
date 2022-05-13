@@ -6,7 +6,6 @@ import State from "../state";
 import { BaseCard } from "./baseCard";
 import { AUTHOR_THEN_CARD_ROUTE, AUTHOR_THEN_EXIT_ROUTE } from './basicView';
 import { friendlyResourceRoot } from "./nameHelpers";
-import Sidebar from "./sidebar";
 import { Progress } from './topProgressBar';
 
 
@@ -23,7 +22,6 @@ const SelectView = () => {
 
     return (
         <div style={{display: "flex"}} >
-                <Sidebar pageType='create card' pageTitle='What is the card type?'></Sidebar>
                 <div style={{flexGrow: 1, margin: "50px"}}>
                 <h3  id='page-title' className="col-lg-10 col-md-9">What is the card type?</h3>
             

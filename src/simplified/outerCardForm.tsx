@@ -7,7 +7,6 @@ import { FieldHandlerProps, ICardForm } from './cardEditor';
 import { FriendlyResourceProps } from './nameHelpers';
 import { Card, Modal } from "react-bootstrap";
 import { Progress } from './topProgressBar';
-import Sidebar from './sidebar';
 
 
 export type cardRow = string[];
@@ -130,7 +129,6 @@ export class OuterCardForm extends React.Component<CardFormProps, CardFormState>
         const PageThree = this.props.innerCardForm.pageThree;
         return (
             <div style={{display: "flex"}} >
-                <Sidebar pageType='create card' pageTitle={this.pageTitles.get(this.state.step)}></Sidebar>
                 <div style={{flexGrow: 1, margin: "50px"}}>
 
                 <h3 id='page-title' className="col-lg-10 col-md-9">{this.pageTitles.get(this.state.step)}</h3>

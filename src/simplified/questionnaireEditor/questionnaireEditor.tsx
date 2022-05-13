@@ -9,7 +9,6 @@ import State from "../../state";
 import { useRef, useState } from "react";
 import { Card } from "react-bootstrap";
 import {Progress} from "../topProgressBar"
-import Sidebar from '../sidebar';
 
 interface QuestionnaireEditorProps {
     planDefNode: SageNodeInitializedFreezerNode,
@@ -108,7 +107,6 @@ export const QuestionnaireEditor = (props: QuestionnaireEditorProps) => {
 
     return (
         <div style={{display: "flex"}} >
-            <Sidebar pageType='questionaire' pageTitle={pageTitles.get(step)}></Sidebar>
             <div style={{flexGrow: 1, margin: "50px"}}>
             <div className='basic-page-titles'>{pageTitles.get(step)}</div>
             <Progress pageTitle={pageTitles.get(step)} fhirType='questionaire'></Progress>

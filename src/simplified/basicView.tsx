@@ -22,6 +22,7 @@ export const BasicView = () => {
     const [freezerState, setFreezerState] = useState<SageFreezerNode<StateVars>>(() => State.get());
     const [freezerUi, setFreezerUi] = useState<SageFreezerNode<StateVars['ui']>>(() => State.get().ui);
     const [freezerBundle, setFreezerBundle] = useState<SageFreezerNode<StateVars['bundle']>>(() => State.get().bundle);
+    const [sidebarMinimized, setSidebarMinimized] = useState(false);
 
     // Subscribe to freezer state changes so that we may update the respective contexts
     useEffect(() => {
@@ -44,7 +45,8 @@ export const BasicView = () => {
                 <UiContext.Provider value={freezerUi}>
                     <BundleContext.Provider value={freezerBundle}>
                         <Header />
-                        <div>
+                        <Sidebar minimized={sidebarMinimized} setMinimized={(newVal) => setSidebarMinimized(newVal)} />
+                        <div id="sage-main-content" className={sidebarMinimized ? "maximized" : ""} >
                             <Outlet />
                         </div>
                     </BundleContext.Provider>

@@ -9,7 +9,6 @@ import { faDownload, faCaretLeft } from '@fortawesome/pro-solid-svg-icons';
 import { SageNodeInitialized } from "../helpers/schema-utils";
 import { PLAN_DEFINITION } from "./nameHelpers";
 import { useNavigate } from "react-router-dom";
-import Sidebar from './sidebar';
 import ExportDialog from '../dialogs/export-dialog';
 
 
@@ -20,7 +19,6 @@ const Collection = () => {
 
     return (
         <div style={{display: "flex"}} >
-            <Sidebar pageType='generic' pageTitle='Saved Cards'></Sidebar>
                 <div style={{flexGrow: 1, margin: "50px"}}>
 
             <div className="row">
