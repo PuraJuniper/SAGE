@@ -16,12 +16,12 @@ const Sidebar = ({ minimized, setMinimized }: SidebarProps) => {
     const location = useLocation();
     return (
         <>
-            <div id="sage-sidebar" className={`position-fixed top-0 vh-100 border-end border-2 ${minimized ? "minimized" : ""}`} >
-                <Button id="sage-sidebar-fixed-hamburger" className={`sage-sidebar-hamburger ${minimized ? "minimized" : ""}`} variant="sage-white-secondary" onClick={() => setMinimized(!minimized)} >
+            <div id="sage-sidebar" className={`border-end border-2 ${minimized ? "minimized" : ""}`} >
+                <Button className={`persistent-ui minimized-width border-0 rounded-0 ${minimized ? "minimized" : ""}`} variant="sage-white-secondary" onClick={() => setMinimized(!minimized)} >
                     <FontAwesomeIcon icon={faBars} />
                 </Button>
-                <div id="sage-sidebar-content" className={`d-flex flex-column ${minimized ? "minimized" : ""}`}>
-                    <Button className="sage-sidebar-hamburger align-self-end" variant="sage-white-secondary" onClick={() => setMinimized(true)} >
+                <div className={`content d-flex flex-column ${minimized ? "minimized" : ""}`}>
+                    <Button className="minimized-width align-self-end border-0 rounded-0" variant="sage-white-secondary" onClick={() => setMinimized(true)} >
                         <FontAwesomeIcon icon={faXmark} />
                     </Button>
                     <div className="left-nav-button-group">
