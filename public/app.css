@@ -9,7 +9,7 @@
 }
 
 #sage-main-content {
-  margin-left: var(--sage-sidebar-width);
+  margin-left: var(--sage-sidebar-width); /* Set margin to avoid drawing main content behind the sidebar */
   transition-property: margin-left;
   transition-delay: 0.35s;
   transition-timing-function: steps(1, jump-both);
@@ -31,26 +31,34 @@
   left: calc(var(--sage-sidebar-minimized-width) - var(--sage-sidebar-width));
 }
 
-#sage-sidebar-container {
-  margin-top: calc(var(--sage-navbar-height) + var(--hamburger-height));
+#sage-sidebar-content {
+  margin-top: var(--sage-navbar-height); /* Set margin to avoid drawing sidebar content behind the static navbar */
   transition: opacity 0.35s ease;
 }
-#sage-sidebar-container.minimized {
+#sage-sidebar-content.minimized {
   pointer-events: none;
   opacity: 0;
 }
 
-#sage-sidebar-hamburger {
-  position: fixed;
-  top: var(--sage-navbar-height);
-  left: 0;
-  z-index: 11;
+.sage-sidebar-hamburger {
   width: var(--sage-sidebar-minimized-width);
   height: var(--hamburger-height);
   border-radius: 0;
   border: 0;
 }
-#sage-sidebar-hamburger:not(:hover,:active) {
+#sage-sidebar-fixed-hamburger {
+  position: fixed;
+  top: var(--sage-navbar-height);
+  left: 0;
+  z-index: 11;
+}
+#sage-sidebar-fixed-hamburger:not(:hover,:active,:focus) {
+  opacity: 0.25;
+}
+#sage-sidebar-fixed-hamburger.minimized {
+  opacity: 1;
+}
+#sage-sidebar-fixed-hamburger.minimized:not(:hover,:active,:focus) {
   background-color: transparent;
 }
 /* End Sidebar */

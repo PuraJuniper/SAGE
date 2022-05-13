@@ -2,7 +2,7 @@ import React from "react";
 import { Card, Button, ButtonGroup } from "react-bootstrap";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faGear, faArrowRightFromBracket, faBars } from '@fortawesome/pro-solid-svg-icons';
+import { faGear, faArrowRightFromBracket, faBars, faXmark } from '@fortawesome/pro-solid-svg-icons';
 import { CreateCardWorkflow } from "./selectView";
 import { AUTHOR_THEN_EXIT_ROUTE } from "./basicView";
 
@@ -17,10 +17,13 @@ const Sidebar = ({ minimized, setMinimized }: SidebarProps) => {
     return (
         <>
             <div id="sage-sidebar" className={`position-fixed top-0 vh-100 border-end border-2 ${minimized ? "minimized" : ""}`} >
-                <Button id="sage-sidebar-hamburger" variant="sage-white-secondary" onClick={() => setMinimized(!minimized)} >
+                <Button id="sage-sidebar-fixed-hamburger" className={`sage-sidebar-hamburger ${minimized ? "minimized" : ""}`} variant="sage-white-secondary" onClick={() => setMinimized(!minimized)} >
                     <FontAwesomeIcon icon={faBars} />
                 </Button>
-                <div id="sage-sidebar-container" className={`d-flex flex-column ${minimized ? "minimized" : ""}`}>
+                <div id="sage-sidebar-content" className={`d-flex flex-column ${minimized ? "minimized" : ""}`}>
+                    <Button className="sage-sidebar-hamburger align-self-end" variant="sage-white-secondary" onClick={() => setMinimized(true)} >
+                        <FontAwesomeIcon icon={faXmark} />
+                    </Button>
                     <div className="left-nav-button-group">
                         <Button variant="sage-white-secondary" active={location.pathname.startsWith('/basic-home')} className="left-nav-button" onClick={() => navigate('/basic-home')}>Home</Button>
                         <Button variant="sage-white-secondary" active={location.pathname.startsWith('/create')} className="left-nav-button" onClick={() => CreateCardWorkflow(navigate)}>Create Card</Button>
