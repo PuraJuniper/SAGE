@@ -49,7 +49,6 @@ export const BasicView = () => {
                                 <Outlet />
                             </div>
                         </div>
-                        <Footer />
                     </BundleContext.Provider>
                 </UiContext.Provider>
             </StateContext.Provider>
