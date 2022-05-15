@@ -19,51 +19,60 @@ export const CreateCardWorkflow = (navigate: NavigateFunction) => {
 }
 
 const SelectView = () => {
+    const navigate = useNavigate();
 
     return (
-        <div style={{display: "flex"}} >
-                <div style={{flexGrow: 1, margin: "50px"}}>
-                <h3  id='page-title' className="col-lg-10 col-md-9">What is the card type?</h3>
-            
-                <Container fluid="lg">
-                    <Row lg="4" md="3" sm="2" className="g-0" style={{'justifyContent': 'center'}}>  
-                        {
-                            friendlyResourceRoot.RESOURCES
-                            .filter(subResType => subResType.SELF.FHIR === 'ActivityDefinition')
-                            .map(
-                                (resourceType) => {
-                                    if (resourceType.LIST) {
-                                        return resourceType.LIST
-                                        .map(
-                                            (resource, i) => {
-                                                return (
-                                                    <div style={{ padding: "10px" }} key={resource.FHIR}>
-                                                        <Col>
-                                                            <BaseCard
-                                                                bsBg="sage-beige"
-                                                                cardImage= {faUserDoctor}
-                                                                IconColor = 'black'
-                                                                header={resourceType.SELF.FRIENDLY}
-                                                                title={resource.FRIENDLY}
-                                                                hideHeader = {true}
-                                                                wait={i * 25}
-                                                                clickable={true}
-                                                                profile={resource.DEFAULT_PROFILE_URI}
-                                                                titleSize='15px'
-                                                                IconSize= '50px'
-                                                            /> 
-                                                        </Col>
-                                                    </div>);
-                                            }
-                                        );
+        <Container className="p-5" >
+            <Row>
+                <h3 id='page-title' className='col'>What is the card type?</h3>
+            </Row>
+            <Row lg="4" md="3" sm="2" className="g-0" style={{'justifyContent': 'center'}}>  
+                {
+                    friendlyResourceRoot.RESOURCES
+                    .filter(subResType => subResType.SELF.FHIR === 'ActivityDefinition')
+                    .map(
+                        (resourceType) => {
+                            if (resourceType.LIST) {
+                                return [...resourceType.LIST].sort((a, b) => // Sorting by friendly name alphabetically
+                                    a.FRIENDLY > b.FRIENDLY ? 1 : (a.FRIENDLY < b.FRIENDLY ? -1 : 0)
+                                ).map((resource, i) => {
+                                    let disabled = true;
+                                    // Sorry
+                                    if (resource.DEFAULT_PROFILE_URI?.endsWith('cpg-medicationrequestactivity') || resource.DEFAULT_PROFILE_URI?.endsWith('cpg-collectinformationactivity')) {
+                                        disabled = false;
                                     }
-                                }
-                            )
+                                    return (
+                                        <div style={{ padding: "10px" }} key={resource.FHIR}>
+                                            <Col>
+                                                <BaseCard
+                                                    bsBg="sage-beige"
+                                                    cardImage= {faUserDoctor}
+                                                    IconColor = 'black'
+                                                    header={resourceType.SELF.FRIENDLY}
+                                                    title={resource.FRIENDLY}
+                                                    hideHeader = {true}
+                                                    wait={i * 25}
+                                                    clickable={true}
+                                                    profile={resource.DEFAULT_PROFILE_URI}
+                                                    titleSize='15px'
+                                                    IconSize= '50px'
+                                                    disabled={disabled}
+                                                /> 
+                                            </Col>
+                                        </div>);
+                                    }
+                                );
+                            }
                         }
-                    </Row>
-                </Container>
-            </div>
-        </div>
+                    )
+                }
+            </Row>
+            <Row>
+                <button className="navigate col-lg-2 col-3" onClick={() => navigate('/basic-home')}>
+                    Cancel
+                </button>
+            </Row>
+        </Container>
     );
 }
 export default SelectView

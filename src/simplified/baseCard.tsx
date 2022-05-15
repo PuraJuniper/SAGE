@@ -27,7 +27,8 @@ interface BaseCardProps {
     cardImage?:any,
     IconColor?:string,
     IconSize?:string,
-    titleSize?:string
+    titleSize?:string,
+    disabled?: boolean,
 }
 
 export const BaseCard = (props: BaseCardProps) => {
@@ -55,11 +56,14 @@ export const BaseCard = (props: BaseCardProps) => {
         classNames="res-card"
         >
         <Card
-            className='raise-card-animation'
+            className={`raise-card-animation ${props.disabled ? "disabled-card" : ""}`}
             bg={props.bsBg}
             text={props.bsText as Color}
             border={props.bsBorder}
             onClick={(e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+                if (props.disabled) {
+                    return;
+                }
                 if (e.target instanceof Element && e.target.tagName !== "svg" && e.target.tagName !== "path" && props.clickable && resourceType!='') {
                     setShow(false);
                     if (State.get().bundle?.resources.length) {
@@ -67,7 +71,6 @@ export const BaseCard = (props: BaseCardProps) => {
                         State.get().ui.set("openMode", "insert");
                     }
                     const nextId = incrementNextId(); // Saving some trouble by using this -- we should decide on a standard way to generate unique URLs
-
                     const { referencedResourceName, referencedResourceUrl } = generateResourceReference(resourceType, nextId);
                     const json = {
                         resourceType: "Bundle",
@@ -120,19 +123,17 @@ export const BaseCard = (props: BaseCardProps) => {
                 {props.header}
             </Card.Header>
             <Card.Body >
-                <Row style={{'justifyContent': 'flex-end', 'margin':'0'}}>
+                <div>
                     <span style={{ fontSize: "20px", textAlign: "right" }}>
-                        <a href='' target="_blank" rel="noreferrer" className="c-tooltip">
+                        <a href={props.profile} target="_blank" rel="noreferrer" className="c-tooltip">
                             <FontAwesomeIcon icon={faInfoCircle} style={{'color':props.IconColor}} />
                             <span className="c-tooltiptext">FHIR Docs</span>
                         </a>
                     </span>
-                </Row>
+                </div>
                 <Card.Title style={{ fontSize: props.titleSize, textAlign: "center" }}>{props.title}</Card.Title>
                 <Card.Text>{content}</Card.Text>
-                <Row style={{'justifyContent': 'center', 'marginBottom':'30px'}}>
-                    <FontAwesomeIcon icon={props.cardImage} style={{'color':props.IconColor, 'height':props.IconSize}} />
-                </Row>
+                <FontAwesomeIcon icon={props.cardImage} style={{'color':props.IconColor, 'height':props.IconSize}} />
             </Card.Body>
         </Card>
         </CSSTransition>
