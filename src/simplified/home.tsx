@@ -8,6 +8,8 @@ import State from "../state";
 import { Container, Row, Col, Card } from "react-bootstrap";
 import friendlyNames from "../../friendly-names.json";
 import { ACTIVITY_DEFINITION, allFormElems, friendlyResourceRoot, getBorderPropsForType, getFormElementListForResource } from "./nameHelpers";
+import { CreateCardWorkflow } from './selectView';
+import { useNavigate } from 'react-router-dom';
 
 console.log(friendlyResourceRoot.RESOURCES)
 
@@ -40,6 +42,7 @@ const listOfHomePage = [
 ]
 console.log(friendlyResourceRoot.RESOURCES[4].SELF.FHIR)
 const BasicHomeView = () => {
+    const navigate = useNavigate();
     return (
         <div style={{display: "flex"}}>
              <div style={{flexGrow: 1, margin: "50px"}}>
@@ -66,7 +69,7 @@ const BasicHomeView = () => {
                                                     titleSize='20px'
                                                     hideHeader = {true}
                                                     wait={i * 25}
-                                                    clickable={true}
+                                                    onClick={() => CreateCardWorkflow(navigate)}
                                                     profile={resource.profile}
                                                 /> 
                                             </Col>
