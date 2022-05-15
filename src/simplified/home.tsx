@@ -23,15 +23,6 @@ const listOfHomePage = [
         'FHIR': '',
     },
     {
-        'header':friendlyResourceRoot.RESOURCES[4].SELF.FRIENDLY,
-        'title':'An Example Questionaire',
-        'profile': friendlyResourceRoot.RESOURCES[4].SELF.DEFAULT_PROFILE_URI,
-        'cardImage':faBookMedical,
-        'cardColor':'sage-darkblue',
-        'textColor':'white',
-        'FHIR': friendlyResourceRoot.RESOURCES[4].SELF.FHIR
-    },
-    {
         'header':'Saved Cards',
         'title':'View Cards',
         'cardImage':faGrid,
@@ -40,7 +31,7 @@ const listOfHomePage = [
         'FHIR': '',
     }
 ]
-console.log(friendlyResourceRoot.RESOURCES[4].SELF.FHIR)
+
 const BasicHomeView = () => {
     const navigate = useNavigate();
     return (
@@ -70,7 +61,6 @@ const BasicHomeView = () => {
                                                     hideHeader = {true}
                                                     wait={i * 25}
                                                     onClick={() => CreateCardWorkflow(navigate)}
-                                                    profile={resource.profile}
                                                 /> 
                                             </Col>
                                         </div>);
