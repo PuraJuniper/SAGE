@@ -32,16 +32,6 @@ const listOfHomePage: homePageCardProps[] = [
         clickHandler: CreateCardWorkflow
     },
     {
-        'header':friendlyResourceRoot.RESOURCES[4].SELF.FRIENDLY,
-        'title':'An Example Questionaire',
-        'profile': friendlyResourceRoot.RESOURCES[4].SELF.DEFAULT_PROFILE_URI,
-        'cardImage':faBookMedical,
-        'cardColor':'sage-darkblue',
-        'textColor':'white',
-        'FHIR': friendlyResourceRoot.RESOURCES[4].SELF.FHIR,
-        clickHandler: CreateCardWorkflow
-    },
-    {
         'header':'Saved Cards',
         'title':'Saved Cards',
         'cardImage':faGrid,
@@ -50,7 +40,7 @@ const listOfHomePage: homePageCardProps[] = [
         clickHandler: (navigate: NavigateFunction) => navigate(`/${SAVED_CARDS_ROUTE}`)
     }
 ]
-console.log(friendlyResourceRoot.RESOURCES[4].SELF.FHIR)
+
 const BasicHomeView = () => {
     const navigate = useNavigate();
     return (

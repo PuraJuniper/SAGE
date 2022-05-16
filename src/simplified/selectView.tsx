@@ -6,7 +6,7 @@ import { generateResourceReference, incrementNextId } from '../helpers/schema-ut
 import State from "../state";
 import { BaseCard } from "./baseCard";
 import { AUTHOR_THEN_CARD_ROUTE, AUTHOR_THEN_EXIT_ROUTE } from './basicView';
-import { ACTIVITY_DEFINITION, friendlyResourceRoot, PLAN_DEFINITION } from "./nameHelpers";
+import { ACTIVITY_DEFINITION, friendlyResourceRoot, PLAN_DEFINITION, QUESTIONNAIRE } from "./nameHelpers";
 import { Progress } from './topProgressBar';
 
 
@@ -42,6 +42,9 @@ const SelectView = () => {
                                     if (resource.DEFAULT_PROFILE_URI?.endsWith('cpg-medicationrequestactivity') || resource.DEFAULT_PROFILE_URI?.endsWith('cpg-collectinformationactivity')) {
                                         disabled = false;
                                     }
+                                    // We need to change this Questionnaire case later, because a "cpg-collectinformationactivity" should 
+                                    //  create both an ActivityDefinition and a Questionnaire
+                                    const isQuestionnaire = resource.DEFAULT_PROFILE_URI?.endsWith('cpg-collectinformationactivity');
                                     return (
                                         <div style={{ padding: "10px" }} key={resource.FHIR}>
                                             <Col>
@@ -66,10 +69,10 @@ const SelectView = () => {
                                                             entry: [
                                                                 {
                                                                     resource: {
-                                                                        resourceType: ACTIVITY_DEFINITION,
+                                                                        resourceType: isQuestionnaire ? QUESTIONNAIRE : ACTIVITY_DEFINITION,
                                                                         name: referencedResourceName,
                                                                         url: referencedResourceUrl,
-                                                                        meta: {profile: [resource.DEFAULT_PROFILE_URI]}
+                                                                        meta: {profile: [isQuestionnaire ? friendlyResourceRoot.RESOURCES[4].SELF.DEFAULT_PROFILE_URI : resource.DEFAULT_PROFILE_URI]}
                                                                     }
                                                                 },
                                                                 {
