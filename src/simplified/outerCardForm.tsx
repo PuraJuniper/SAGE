@@ -5,7 +5,7 @@ import State, { SageNodeInitializedFreezerNode } from '../state';
 
 import { FieldHandlerProps, ICardForm } from './cardEditor';
 import { FriendlyResourceProps, friendlyTimeUnit } from './nameHelpers';
-import { Card, Modal } from "react-bootstrap";
+import { Card, Col, Container, Row } from "react-bootstrap";
 import { Progress } from './topProgressBar';
 
 
@@ -63,7 +63,6 @@ export const timeUnitsDropdownProps = (values: string[]): dropdownBoxProps => {
 
 export interface CardFormState {
     step: number;
-    isOpen: boolean;
 }
 
 export type CardFormProps = {
@@ -91,17 +90,15 @@ export class OuterCardForm extends React.Component<CardFormProps, CardFormState>
             </b></h3>;
             
         this.saveButton =
-            <button className="navigate col-lg-2 col-md-3"
+            <button className="navigate w-100"
                 type="button"
-                onClick={() => {
-                    this.setState({ isOpen: true })
-                }}>
+                onClick={this.props.handleSaveResource}>
                 Save Card&nbsp;
                 <FontAwesomeIcon key="butSaveIcon" icon={faCaretRight} />
             </button>;
 
         this.deleteCardButton =
-            <button key="butDel" type='button' className="navigate col-lg-2 col-md-3"
+            <button key="butDel" type='button' className="navigate w-100"
                 onClick={() => {
                     this.setState({ step: 1 });
                     this.props.handleDeleteResource();
@@ -111,7 +108,6 @@ export class OuterCardForm extends React.Component<CardFormProps, CardFormState>
 
         this.state = {
             step: 1,
-            isOpen: false
         };
 
         this.pageTitles = new Map([
@@ -124,7 +120,7 @@ export class OuterCardForm extends React.Component<CardFormProps, CardFormState>
 
     leftNavButton = () => {
         return (
-            <button type='button' className={"navigate-reverse col-lg-2 col-md-3"}
+            <button type='button' className={"navigate-reverse w-100"}
                 onClick={() => this.setState({ step: this.state.step - 1 })}>
                 {<> <FontAwesomeIcon icon={faCaretLeft} /> {" Previous"} </>}
             </button>);
@@ -132,7 +128,7 @@ export class OuterCardForm extends React.Component<CardFormProps, CardFormState>
 
     rightNavButton = () => {
         return (
-            <button type='button' className={"navigate col-lg-2 col-md-3"}
+            <button type='button' className={"navigate w-100"}
                 onClick={() => this.setState({ step: this.state.step + 1 })}>
                 {<> {"Next "} <FontAwesomeIcon icon={faCaretRight} /></>}
             </button>);
@@ -143,37 +139,37 @@ export class OuterCardForm extends React.Component<CardFormProps, CardFormState>
         const PageTwo = this.props.innerCardForm.pageTwo;
         const PageThree = this.props.innerCardForm.pageThree;
         return (
-            <div style={{display: "flex"}} >
-                <div style={{flexGrow: 1, margin: "50px"}}>
-
-                <h3 id='page-title' className="col-lg-10 col-md-9">{this.pageTitles.get(this.state.step)}</h3>
-                <Progress pageTitle={this.pageTitles.get(this.state.step)} fhirType='activity'></Progress>
-                <div>{this.state.step == 1 ? <PageOne fieldElements={this.props.elementList} /> : null}</div>
-                {this.state.step == 2 ? <PageTwo conditionEditor={this.props.conditionEditor} /> : null}
-                {this.state.step == 3 ? <Card style={{ padding: "20px", margin: "10px", borderWidth: "2px", borderColor:'#2D2E74', borderRadius: '40px'}}>
-                                        <Card.Title>{this.props.resourceType.FRIENDLY}</Card.Title>
-                                        <Card.Body><PageThree displayElements={this.props.previewList}/></Card.Body>
-                                        </Card> : null}
-                <div><>
-                    {this.state.step > 1 ? this.leftNavButton() : null}
-                    {this.state.step <= 2 ? this.rightNavButton() : this.saveButton}
-                    {this.deleteCardButton}
-                </></div>
-                </div>
-                <Modal show={this.state.isOpen} size="sm">
-                    <Modal.Header className="justify-content-md-center">
-                        Save Card?
-                    </Modal.Header>
-                    <Modal.Body>
-                        <button key="butSave" className="btn btn-secondary" type="button" onClick={()=> this.props.handleSaveResource()}>
-                        Save Card
-                        </button>
-                        <button key="butCancel" className="btn btn-tertiary" style={{float: "right"}} type="button" onClick={()=> this.setState({ isOpen: false })}>
-                        Cancel
-                        </button>
-                    </Modal.Body>
-                </Modal>
-            </div>
+            <Container className="p-5">
+                <Row>
+                    <h3 id='page-title' className="col-12">{this.pageTitles.get(this.state.step)}</h3>
+                </Row>
+                <Row>
+                    <Col xs="12">
+                        <Progress pageTitle={this.pageTitles.get(this.state.step)} fhirType='activity'></Progress>
+                    </Col>
+                </Row>
+                <Row>
+                    <Col xs="12">
+                        {this.state.step == 1 ? <PageOne fieldElements={this.props.elementList} /> : null}
+                        {this.state.step == 2 ? <PageTwo conditionEditor={this.props.conditionEditor} /> : null}
+                        {this.state.step == 3 ? <Card style={{ padding: "20px", margin: "10px", borderWidth: "2px", borderColor:'#2D2E74', borderRadius: '40px'}}>
+                                                <Card.Title>{this.props.resourceType.FRIENDLY}</Card.Title>
+                                                <Card.Body><PageThree displayElements={this.props.previewList}/></Card.Body>
+                                                </Card> : null}
+                    </Col>
+                </Row>
+                <Row className="mt-5">
+                    <Col lg="2" xs="3">
+                        {this.deleteCardButton}
+                    </Col>
+                    <Col lg={{ span: 2, offset: 3 }} xs={{ span: 3, offset: 1 }}>
+                        {this.state.step > 1 ? this.leftNavButton() : null}
+                    </Col>
+                    <Col lg={{ span: 2, offset: 3 }} xs={{ span: 3, offset: 1 }}>
+                        {this.state.step <= 2 ? this.rightNavButton() : this.saveButton}
+                    </Col>
+                </Row>
+            </Container>
         );
     }
 }

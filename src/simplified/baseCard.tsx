@@ -1,5 +1,5 @@
 import React from 'react';
-import {Card, Row} from "react-bootstrap";
+import {Card, Container, Row} from "react-bootstrap";
 import {useState, useEffect} from "react";
 import { CSSTransition } from 'react-transition-group';
 import State from "../state";
@@ -19,7 +19,8 @@ interface BaseCardProps {
     profile?: string,
     wait?: number,
     content?: JSX.Element,
-    clickable?: boolean
+    onClick?: () => void,
+    infoLink?: string,
     link?: string
     bsBg?: string,
     bsText?: Color | string,
@@ -28,13 +29,12 @@ interface BaseCardProps {
     cardImage?:any,
     IconColor?:string,
     IconSize?:string,
-    titleSize?:string
+    titleSize?:string,
+    disabled?: boolean,
 }
 
 export const BaseCard = (props: BaseCardProps) => {
     const [show, setShow] = useState(false);
-    
-    const navigate = useNavigate();
     
     useEffect(() => {
         const timeoutId = setTimeout(() => {
@@ -47,7 +47,6 @@ export const BaseCard = (props: BaseCardProps) => {
     const content = props.content;
     let headerPadding = {};
     if (props.title == "") headerPadding = {padding:"7px"};
-    const resourceType = (props.header == "Questionnaire")? "Questionnaire":friendlyToFhir(props.header);
 
     return (
         <CSSTransition
@@ -56,84 +55,37 @@ export const BaseCard = (props: BaseCardProps) => {
         classNames="res-card"
         >
         <Card
-            className='raise-card-animation'
+            className={`raise-card-animation ${props.disabled ? "disabled-card" : ""}`}
             bg={props.bsBg}
             text={props.bsText as Color}
             border={props.bsBorder}
-            onClick={(e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-                if (e.target instanceof Element && e.target.tagName !== "svg" && e.target.tagName !== "path" && props.clickable && resourceType!='') {
-                    setShow(false);
-                    if (State.get().bundle?.resources.length) {
-                        State.get().bundle.set("pos", State.get().bundle.resources.length-1);
-                        State.get().ui.set("openMode", "insert");
-                    }
-                    const nextId = incrementNextId(); // Saving some trouble by using this -- we should decide on a standard way to generate unique URLs
-
-                    const { referencedResourceName, referencedResourceUrl } = generateResourceReference(resourceType, nextId);
-                    const json = {
-                        resourceType: "Bundle",
-                        entry: [
-                            {
-                                resource: {
-                                    resourceType: resourceType,
-                                    name: referencedResourceName,
-                                    url: referencedResourceUrl,
-                                    meta: {profile: [props.profile]}
-                                }
-                            },
-                            {
-                                resource: {
-                                    resourceType: PLAN_DEFINITION,
-                                    library: "", // r4 expects library as an array, cpg expects a single value (we are always using the cpg spec in basic view)
-                                    action: [
-                                        {
-                                            title: "",
-                                            description: "",
-                                            condition: [],
-                                            definitionCanonical: referencedResourceUrl
-                                        }
-                                    ],
-                                    relatedArtifact: []
-                                }
-                            }
-                        ]
-                    };
-                    State.emit("load_json_resource", json);
-                    // Set current editor position to the last resource (should be the PlanDefinition in `json` after the "load_json_resource" call)
-                    State.emit("set_bundle_pos", State.get().bundle.resources.length-1);
-                    if (props.title === "An Example Questionaire") { // Fixes https://github.com/PuraJuniper/SAGE/pull/84#issuecomment-1104155086
-                                                                     // We should be able to remove this If with SAGE-332
-                        navigate(`/author?next=edit/${State.get().bundle.resources.length-1}`);
-                    }
-                    else {
-                        navigate(`/edit/${State.get().bundle.resources.length-1}`);
-                    }
-                }
-                if(props.title == 'Create Cards'){
-                    CreateCardWorkflow(navigate)
-                }
-                if(props.title == 'Saved Cards'){
-                    navigate(`/${SAVED_CARDS_ROUTE}`)
-                }
-            }}
+            onClick={props.onClick}
         >
             <Card.Header style={headerPadding} hidden = {props.hideHeader}>
                 {props.header}
             </Card.Header>
-            <Card.Body >
-                <Row style={{'justifyContent': 'flex-end', 'margin':'0'}}>
-                    <span style={{ fontSize: "20px", textAlign: "right" }}>
-                        <a href='' target="_blank" rel="noreferrer" className="c-tooltip">
-                            <FontAwesomeIcon icon={faInfoCircle} style={{'color':props.IconColor}} />
-                            <span className="c-tooltiptext">FHIR Docs</span>
-                        </a>
-                    </span>
-                </Row>
-                <Card.Title style={{ fontSize: props.titleSize, textAlign: "center" }}>{props.title}</Card.Title>
-                <Card.Text>{content}</Card.Text>
-                <Row style={{'justifyContent': 'center', 'marginBottom':'30px'}}>
-                    <FontAwesomeIcon icon={props.cardImage} style={{'color':props.IconColor, 'height':props.IconSize}} />
-                </Row>
+            <Card.Body>
+                <Container>
+                    <Row className="align-content-end">
+                        {props.infoLink !== undefined ?
+                            <span style={{ fontSize: "20px", textAlign: "right" }}>
+                                <a href={props.infoLink} target="_blank" rel="noreferrer" className="c-tooltip">
+                                    <FontAwesomeIcon icon={faInfoCircle} style={{'color':props.IconColor}} />
+                                    <span className="c-tooltiptext">FHIR Docs</span>
+                                </a>
+                            </span> :
+                            <div className="m-3" />}
+                    </Row>
+                    <Row className="align-content-center">
+                        <Card.Title className="col" style={{ fontSize: props.titleSize, textAlign: "center" }}>{props.title}</Card.Title>
+                    </Row>
+                    <Row className="align-content-center">
+                        <Card.Text className="col">{content}</Card.Text>
+                    </Row>
+                    <Row className="align-content-center">
+                        <FontAwesomeIcon className="col pe-none" icon={props.cardImage} style={{'color':props.IconColor, 'height':props.IconSize}} />
+                    </Row>
+                </Container>
             </Card.Body>
         </Card>
         </CSSTransition>

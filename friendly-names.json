@@ -124,12 +124,12 @@
         {
           "FHIR": "CommunicationRequest",
           "FRIENDLY": "Communication Medications",
-          "DEFAULT_PROFILE_URI": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-communicationrequest"
+          "DEFAULT_PROFILE_URI": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-communicationactivity"
         },
         {
           "FHIR": "CollectInformation",
           "FRIENDLY": "Collect Information",
-          "DEFAULT_PROFILE_URI": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-questionnairetask"
+          "DEFAULT_PROFILE_URI": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-collectinformationactivity"
         },
         {
           "FHIR": "Enrollment",
@@ -163,7 +163,7 @@
         },
         {
           "FHIR": "ServiceRequest",
-          "FRIENDLY": "Service Request",
+          "FRIENDLY": "Referral",
           "DEFAULT_PROFILE_URI": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-servicerequest"
         },
         {
@@ -185,6 +185,11 @@
           "FHIR": "ReportFlagTask",
           "FRIENDLY": "Report Flag Task",
           "DEFAULT_PROFILE_URI": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-reportflagtask"
+        },
+        {
+          "FHIR": "ComputableActivity",
+          "FRIENDLY": "Other",
+          "DEFAULT_PROFILE_URI": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-computableactivity"
         }
       ]
     },
