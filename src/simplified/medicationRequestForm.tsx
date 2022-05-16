@@ -2,13 +2,13 @@ import { faHomeLgAlt, faInfoCircle } from "@fortawesome/pro-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useState } from "react";
 import { Card, Col, Container, Form, Row } from "react-bootstrap";
+import State from "../state";
 import { FieldHandlerProps, ICardForm } from "./cardEditor";
 import { CodeableConceptEditorProps } from "./codeableConceptEditor";
+import * as Bioportal from './cql-wizard/bioportal';
 import { SageCoding } from "./cql-wizard/wizardLogic";
 import { FriendlyResourceProps, friendlyTimeUnit } from "./nameHelpers";
-import { previewProps, dropdownBoxProps, invisibleFieldProps, textBoxProps } from "./outerCardForm";
-import * as Bioportal from './cql-wizard/bioportal';
-import State from "../state";
+import { dropdownBoxProps, invisibleFieldProps, textBoxProps, timeUnitsDropdownProps } from "./outerCardForm";
 
 const dosageCodes: SageCoding[] = [];
 
@@ -114,26 +114,8 @@ export class MedicationRequestForm implements ICardForm {
             { values: () => ['active', 'on-hold', 'cancelled', 'completed', 'entered-in-error', 'stopped', 'draft', 'unknown'] }],
         ['intent',
             { values: () => ['proposal', 'plan', 'order', 'original-order', 'reflex-order', 'filler-order', 'instance-order', 'option']}],
-        ['periodUnit', {
-            values: () => ['h', 'd', 'wk', 'mo', 'a'],
-            display: v => `${friendlyTimeUnit(v)}(s)`,
-            requiredFor: ["text"],
-            preview: {
-                className: "",
-                displayFieldTitle: true,
-                friendlyDisplay: v => `${friendlyTimeUnit(v)}(s)`
-            }
-        }],
-        ['durationUnit', {
-            values: () => ['h', 'd', 'wk', 'mo', 'a'],
-            display: v => `${friendlyTimeUnit(v)}(s)`,
-            requiredFor: ["text"],
-            preview: {
-                className: "",
-                displayFieldTitle: true,
-                friendlyDisplay: v => `${friendlyTimeUnit(v)}(s)`
-            }
-        }],
+        ['periodUnit', timeUnitsDropdownProps(['h', 'd', 'wk', 'mo', 'a'])],
+        ['durationUnit', timeUnitsDropdownProps(['h', 'd', 'wk', 'mo', 'a'])],
         ['type',
             { values: () => ['documentation', 'justification', 'citation', 'predecessor', 'successor', 'derived-from', 'depends-on', 'composed-of'] }],
         ['unit',
