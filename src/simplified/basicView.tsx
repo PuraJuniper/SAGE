@@ -17,11 +17,13 @@ export const BundleContext = createContext<SageFreezerNode<StateVars['bundle']>>
 
 export const AUTHOR_THEN_EXIT_ROUTE = "author"
 export const AUTHOR_THEN_CARD_ROUTE = "create-first"
+export const SAVED_CARDS_ROUTE = "saved-cards"
 
 export const BasicView = () => {
     const [freezerState, setFreezerState] = useState<SageFreezerNode<StateVars>>(() => State.get());
     const [freezerUi, setFreezerUi] = useState<SageFreezerNode<StateVars['ui']>>(() => State.get().ui);
     const [freezerBundle, setFreezerBundle] = useState<SageFreezerNode<StateVars['bundle']>>(() => State.get().bundle);
+    const [sidebarMinimized, setSidebarMinimized] = useState(false);
 
     // Subscribe to freezer state changes so that we may update the respective contexts
     useEffect(() => {
@@ -44,7 +46,8 @@ export const BasicView = () => {
                 <UiContext.Provider value={freezerUi}>
                     <BundleContext.Provider value={freezerBundle}>
                         <Header />
-                        <div>
+                        <Sidebar minimized={sidebarMinimized} setMinimized={(newVal) => setSidebarMinimized(newVal)} />
+                        <div id="sage-main-content" className={sidebarMinimized ? "maximized" : ""} >
                             <Outlet />
                         </div>
                     </BundleContext.Provider>
@@ -62,7 +65,7 @@ export const BasicView = () => {
                 <Route path="create" element={<SelectView />} />
                 <Route path="edit/:planDefPos" element={<PlanDefLoader />} />
                 <Route index element={<Collection />} />
-                <Route path="view-cards" element={<Collection />} /> {/* Fall back to collection view if no other path matches */}
+                <Route path={SAVED_CARDS_ROUTE} element={<Collection />} /> {/* Fall back to collection view if no other path matches */}
             </Route>
         </Routes>
     );

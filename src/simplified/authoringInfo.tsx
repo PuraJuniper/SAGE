@@ -5,7 +5,6 @@ import "react-step-progress-bar/styles.css";
 import State from "../state";
 import { activityFieldSaveHandler, planFieldSaveHandler, fieldSaveHandler } from "./cardEditor";
 import { getRelatedActivityNode } from './planDefEditor';
-import Sidebar from "./sidebar";
 import * as CardEditor from "../simplified/cardEditor";
 import { generateCardNameString, generateResourceReference } from "../helpers/schema-utils";
 import { ACTIVITY_DEFINITION, PLAN_DEFINITION } from "./nameHelpers";
@@ -50,7 +49,6 @@ export default class Authoring extends React.Component<AuthoringProps, Authoring
         // console.log(this.state)
         return (
             <div style={{ display: "flex" }} >
-                <Sidebar pageType='create card' pageTitle='Authoring Information'></Sidebar>
                 <div style={{ flexGrow: 1, margin: "50px" }}>
                     <h3 id='page-title' className="col-lg-10 col-md-9">Authoring Information</h3>
 

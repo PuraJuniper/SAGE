@@ -1,5 +1,6 @@
 :root {
   --sage-sidebar-width: 250px;
+  --sage-sidebar-minimized-width: 40px;
   --sage-navbar-height: 66px;
 }
 
@@ -7,15 +8,59 @@
 	margin: 20px;
 }
 
+#sage-main-content {
+  margin-left: var(--sage-sidebar-width); /* Set margin to avoid drawing main content behind the sidebar */
+  transition-property: margin-left;
+  transition-delay: 0.35s;
+  transition-timing-function: steps(1, jump-both);
+}
+#sage-main-content.maximized {
+  margin-left: var(--sage-sidebar-minimized-width);
+}
+
+/* Sidebar */
 #sage-sidebar {
+  position: fixed;
+  z-index: 10;
+  top: 0;
+  left: 0;
+  height: 100vh;
   width: var(--sage-sidebar-width);
+  background-color: white;
+  transition: left 0.35s ease;
 }
-#sage-sidebar-placeholder {
-  margin-left: var(--sage-sidebar-width);
+#sage-sidebar.minimized {
+  left: calc(var(--sage-sidebar-minimized-width) - var(--sage-sidebar-width));
 }
-#sage-sidebar-content {
-  margin-top: var(--sage-navbar-height);
+
+#sage-sidebar .content {
+  margin-top: var(--sage-navbar-height); /* Set margin to avoid drawing sidebar content behind the static navbar */
+  transition: opacity 0.35s ease;
 }
+#sage-sidebar .content.minimized {
+  pointer-events: none;
+  opacity: 0;
+}
+
+#sage-sidebar .minimized-width {
+  width: var(--sage-sidebar-minimized-width);
+}
+#sage-sidebar .persistent-ui {
+  position: fixed;
+  top: var(--sage-navbar-height);
+  left: 0;
+  z-index: 11;
+}
+#sage-sidebar .persistent-ui:not(:hover,:active,:focus) {
+  opacity: 0.25;
+}
+#sage-sidebar .persistent-ui.minimized {
+  opacity: 1;
+}
+#sage-sidebar .persistent-ui.minimized:not(:hover,:active,:focus) {
+  background-color: transparent;
+}
+/* End Sidebar */
 
 .spinner {
   text-align: center;
@@ -54,6 +99,30 @@ span {
   color: #fff;
   background-color: #64be66;
   border-color: #64be66;
+}
+.btn-sage-white-secondary {
+  background-color: white;
+  border-color: white;
+  color: black;
+}
+.btn-sage-white-secondary:focus {
+  color: #707070;
+  background-color: #DEF1DF;
+  border-color: #DEF1DF;
+  box-shadow: 0 0 0 0.2rem rgba(38, 143, 255, 0.5);
+}
+.btn-sage-white-secondary:active, .btn-sage-white-secondary.active {
+  background-color: #DEF1DF;
+  border-color: rgba(0,0,0,0);
+}
+.btn-sage-white-secondary:disabled, .btn-sage-white-secondary.disabled {
+  color: #5b5b5b;
+}
+.btn-sage-white-secondary:hover {
+  color: white;
+  background-color: #65BE67;
+  border-color: #65BE67;
+  background-position: 0 -15px;
 }
 
 .btn-tertiary {
@@ -431,6 +500,10 @@ a {
 }
 .bg-sage-beige {
   background-color: #E0C758;
+}
+.disabled-card {
+  pointer-events: none;
+  background-color: #afafaf;
 }
 .text-sage-white {
   color: #ffffff;
@@ -925,12 +998,8 @@ a {
 .left-nav-button{
   margin-top: 1.5px;
   margin-bottom: 1.5px;
-  color: #707070;
   font-size: 14px;
-  background-color: white;
-  border-color: white;
   border-radius: 5px;
-  color: black;
   text-align: left;
   width: 100%;
   flex: 1 1 auto;
@@ -952,23 +1021,6 @@ a {
   border-width: 1px;
   border-top-color: black;
   border-top-style: solid;
-}
-.left-nav-button:hover {
-  color: white;
-  background-color: #65BE67;
-  border-color: #65BE67;
-  background-position: 0 -15px;
-}
-.left-nav-button:focus, .left-nav-button.focus {
-  color: #707070;
-  background-color: #DEF1DF;
-  border-color: #DEF1DF;
-  box-shadow: 0 0 0 0.2rem rgba(38, 143, 255, 0.5);
-}
-
-.left-nav-button:active {
-  background-color: #DEF1DF !important;
-  border-color: rgba(0,0,0,0);
 }
 
 .highlighted {
