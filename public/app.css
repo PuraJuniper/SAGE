@@ -1,7 +1,21 @@
+:root {
+  --sage-sidebar-width: 250px;
+  --sage-navbar-height: 66px;
+}
+
 #container {
 	margin: 20px;
 }
 
+#sage-sidebar {
+  width: var(--sage-sidebar-width);
+}
+#sage-sidebar-placeholder {
+  margin-left: var(--sage-sidebar-width);
+}
+#sage-sidebar-content {
+  margin-top: var(--sage-navbar-height);
+}
 
 .spinner {
   text-align: center;
@@ -215,6 +229,7 @@ span.fhir-element-value {
   border-color: #2a6b92;
   display: flex;
   justify-content: space-between;
+  height: var(--sage-navbar-height);
 }
 .navbar-custom .navbar-brand {
   color: #fff;
@@ -921,7 +936,6 @@ a {
   flex: 1 1 auto;
 }
 .left-nav-button-group{
-  min-width: 250px;
   flex-direction: column;
   align-items: flex-start;
   justify-content: center;
@@ -931,6 +945,7 @@ a {
   padding-bottom: 2rem;
   padding-top: 1rem;
   padding-left: 2rem;
+  padding-right: 2rem;
 }
 .left-nav-button-group-bottom{
   padding-left: 2rem;

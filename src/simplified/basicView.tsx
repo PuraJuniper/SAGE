@@ -44,12 +44,9 @@ export const BasicView = () => {
                 <UiContext.Provider value={freezerUi}>
                     <BundleContext.Provider value={freezerBundle}>
                         <Header />
-                        <div  >
-                            <div > {/* Adding this margin helps deal with certain bootstrap classes that use negative margin values */}
-                                <Outlet />
-                            </div>
+                        <div>
+                            <Outlet />
                         </div>
-                        <Footer />
                     </BundleContext.Provider>
                 </UiContext.Provider>
             </StateContext.Provider>
