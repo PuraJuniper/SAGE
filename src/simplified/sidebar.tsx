@@ -22,7 +22,7 @@ const Sidebar = ({ minimized, setMinimized }: SidebarProps) => {
                 </Button>
                 <div className={`content d-flex flex-column ${minimized ? "minimized" : ""}`}>
                     <Button className="minimized-width align-self-end border-0 rounded-0" variant="sage-white-secondary" onClick={() => setMinimized(true)} >
-                        <FontAwesomeIcon icon={faXmark} />
+                        <FontAwesomeIcon icon={faXmark} color={"lightgrey"}/>
                     </Button>
                     <div className="left-nav-button-group">
                         <Button variant="sage-white-secondary" active={location.pathname.startsWith('/basic-home')} className="left-nav-button" onClick={() => navigate('/basic-home')}>Home</Button>
