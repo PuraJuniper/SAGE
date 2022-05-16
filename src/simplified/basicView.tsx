@@ -17,6 +17,7 @@ export const BundleContext = createContext<SageFreezerNode<StateVars['bundle']>>
 
 export const AUTHOR_THEN_EXIT_ROUTE = "author"
 export const AUTHOR_THEN_CARD_ROUTE = "create-first"
+export const SAVED_CARDS_ROUTE = "saved-cards"
 
 export const BasicView = () => {
     const [freezerState, setFreezerState] = useState<SageFreezerNode<StateVars>>(() => State.get());
@@ -64,7 +65,7 @@ export const BasicView = () => {
                 <Route path="create" element={<SelectView />} />
                 <Route path="edit/:planDefPos" element={<PlanDefLoader />} />
                 <Route index element={<Collection />} />
-                <Route path="view-cards" element={<Collection />} /> {/* Fall back to collection view if no other path matches */}
+                <Route path={SAVED_CARDS_ROUTE} element={<Collection />} /> {/* Fall back to collection view if no other path matches */}
             </Route>
         </Routes>
     );

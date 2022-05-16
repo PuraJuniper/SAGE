@@ -11,6 +11,7 @@ import { faInfoCircle,faGrid,faBookMedical,faCirclePlus, IconDefinition } from '
 import { useNavigate } from "react-router-dom";
 import { AuthoringState } from './authoringInfo';
 import { CreateCardWorkflow } from './selectView';
+import { SAVED_CARDS_ROUTE } from './basicView';
 
 interface BaseCardProps {
     header: string,
