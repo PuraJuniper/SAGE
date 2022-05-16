@@ -13,6 +13,9 @@ export type cardRow = string[];
 export type cardLayout = {
     cardColumns: cardRow[];
 }
+
+export const buttonSpacer = (button: JSX.Element | null) => <Col lg={{ span: 2, offset: 3 }} xs={{ span: 3, offset: 1 }}>{button}</Col>;
+
 export enum ElemType {
     TextBox,
     Dropdown
@@ -162,12 +165,8 @@ export class OuterCardForm extends React.Component<CardFormProps, CardFormState>
                     <Col lg="2" xs="3">
                         {this.deleteCardButton}
                     </Col>
-                    <Col lg={{ span: 2, offset: 3 }} xs={{ span: 3, offset: 1 }}>
-                        {this.state.step > 1 ? this.leftNavButton() : null}
-                    </Col>
-                    <Col lg={{ span: 2, offset: 3 }} xs={{ span: 3, offset: 1 }}>
-                        {this.state.step <= 2 ? this.rightNavButton() : this.saveButton}
-                    </Col>
+                    {buttonSpacer(this.state.step > 1 ? this.leftNavButton() : null)}
+                    {buttonSpacer(this.state.step <= 2 ? this.rightNavButton() : this.saveButton)}
                 </Row>
             </Container>
         );
