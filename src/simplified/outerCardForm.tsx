@@ -4,7 +4,7 @@ import React from "react";
 import State, { SageNodeInitializedFreezerNode } from '../state';
 
 import { FieldHandlerProps, ICardForm } from './cardEditor';
-import { FriendlyResourceProps } from './nameHelpers';
+import { FriendlyResourceProps, friendlyTimeUnit } from './nameHelpers';
 import { Card, Col, Container, Row } from "react-bootstrap";
 import { Progress } from './topProgressBar';
 
@@ -22,6 +22,7 @@ export enum ElemType {
 export type previewProps = {
     className: string;
     displayFieldTitle: boolean;
+    friendlyDisplay?: (value: string) => string; // Convert `value` to friendly name
 }
 
 export type fieldFormProps = {
@@ -45,7 +46,21 @@ export type invisibleFieldProps = fieldFormProps
 
 export type dropdownBoxProps = fieldFormProps & {
     values: () => string[];
+    display?: (value: string) => string; // Returns a friendly name for `value` from `values`
 }
+export const timeUnitsDropdownProps = (values: string[]): dropdownBoxProps => {
+    return {
+        values: () => values, //['h', 'd', 'wk', 'mo', 'a'],
+        display: v => `${friendlyTimeUnit(v)}(s)`,
+        requiredFor: ["text"],
+        preview: {
+            className: "",
+            displayFieldTitle: true,
+            friendlyDisplay: v => `${friendlyTimeUnit(v)}(s)`
+        }
+    }
+}
+
 export interface CardFormState {
     step: number;
 }
