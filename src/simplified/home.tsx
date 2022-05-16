@@ -31,7 +31,7 @@ const listOfHomePage = [
     },
     {
         'header':'Saved Cards',
-        'title':'View Cards',
+        'title':'Saved Cards',
         'cardImage':faGrid,
         'cardColor':'sage-green',
         'textColor':'white',
