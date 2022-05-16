@@ -3,24 +3,35 @@ import { BaseCard } from "./baseCard";
 
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faGrid,faBookMedical,faCirclePlus } from '@fortawesome/pro-solid-svg-icons';
+import { faGrid,faBookMedical,faCirclePlus, IconDefinition } from '@fortawesome/pro-solid-svg-icons';
 import State from "../state";
 import { Container, Row, Col, Card } from "react-bootstrap";
 import friendlyNames from "../../friendly-names.json";
 import { ACTIVITY_DEFINITION, allFormElems, friendlyResourceRoot, getBorderPropsForType, getFormElementListForResource } from "./nameHelpers";
 import { CreateCardWorkflow } from './selectView';
-import { useNavigate } from 'react-router-dom';
+import { NavigateFunction, useNavigate } from 'react-router-dom';
 
 console.log(friendlyResourceRoot.RESOURCES)
 
-const listOfHomePage = [
+interface homePageCardProps {
+    header: string,
+    title: string,
+    profile?: string,
+    cardImage: IconDefinition,
+    cardColor: string,
+    textColor: string,
+    FHIR?: string,
+    clickHandler?: (navigate: NavigateFunction) => void
+}
+
+const listOfHomePage: homePageCardProps[] = [
     {
         'header':'New Card',
         'title':'Create Cards',
         'cardImage':faCirclePlus,
         'cardColor':'sage-purple',
         'textColor':'white',
-        'FHIR': '',
+        clickHandler: CreateCardWorkflow
     },
     {
         'header':friendlyResourceRoot.RESOURCES[4].SELF.FRIENDLY,
@@ -29,7 +40,8 @@ const listOfHomePage = [
         'cardImage':faBookMedical,
         'cardColor':'sage-darkblue',
         'textColor':'white',
-        'FHIR': friendlyResourceRoot.RESOURCES[4].SELF.FHIR
+        'FHIR': friendlyResourceRoot.RESOURCES[4].SELF.FHIR,
+        // clickHandler: (navigate) => ()
     },
     {
         'header':'Saved Cards',
@@ -37,7 +49,6 @@ const listOfHomePage = [
         'cardImage':faGrid,
         'cardColor':'sage-green',
         'textColor':'white',
-        'FHIR': '',
     }
 ]
 console.log(friendlyResourceRoot.RESOURCES[4].SELF.FHIR)
@@ -64,7 +75,7 @@ const BasicHomeView = () => {
                                                     cardImage= {resource.cardImage}
                                                     IconColor = 'white'
                                                     IconSize= '60px'
-                                                    header={resource.FHIR}
+                                                    header={resource.FHIR ?? ''}
                                                     title={resource.title}
                                                     titleSize='20px'
                                                     hideHeader = {true}
