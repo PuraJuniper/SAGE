@@ -5,10 +5,12 @@ import { CSSTransition } from 'react-transition-group';
 import State from "../state";
 import { Color } from "react-bootstrap/esm/types";
 import { ACTIVITY_DEFINITION, friendlyToFhir, PLAN_DEFINITION, QUESTIONNAIRE } from "./nameHelpers";
-import { incrementNextId } from "../helpers/schema-utils";
+import { generateResourceReference, incrementNextId } from "../helpers/schema-utils";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faInfoCircle,faGrid,faBookMedical,faCirclePlus, IconDefinition } from '@fortawesome/pro-solid-svg-icons';
 import { useNavigate } from "react-router-dom";
+import { AuthoringState } from './authoringInfo';
+import { CreateCardWorkflow } from './selectView';
 
 interface BaseCardProps {
     header: string,
@@ -65,8 +67,8 @@ export const BaseCard = (props: BaseCardProps) => {
                         State.get().ui.set("openMode", "insert");
                     }
                     const nextId = incrementNextId(); // Saving some trouble by using this -- we should decide on a standard way to generate unique URLs
-                    const referencedResourceName = `${resourceType}-${State.get().CPGName}${nextId}`;
-                    const referencedResourceUrl = `http://fhir.org/guides/${State.get().publisher}/${resourceType}/${referencedResourceName}`;
+
+                    const { referencedResourceName, referencedResourceUrl } = generateResourceReference(resourceType, nextId);
                     const json = {
                         resourceType: "Bundle",
                         entry: [
@@ -106,7 +108,7 @@ export const BaseCard = (props: BaseCardProps) => {
                     }
                 }
                 if(props.title == 'Create Cards'){
-                    navigate('/author?next=create')
+                    CreateCardWorkflow(navigate)
                 }
                 if(props.title == 'View Cards'){
                     navigate('/view-cards')
@@ -135,3 +137,4 @@ export const BaseCard = (props: BaseCardProps) => {
         </CSSTransition>
         );
     }
+

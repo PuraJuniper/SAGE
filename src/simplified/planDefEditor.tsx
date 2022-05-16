@@ -22,7 +22,7 @@ interface PlanDefEditorProps {
 export const PlanDefEditor = (props: PlanDefEditorProps) => {
     const navigate = useNavigate();
 
-    const referencedNodeURI = SchemaUtils.getChildOfNodePath(props.planDefNode, ["action", "definitionCanonical"])?.value;
+    const referencedNodeURI = getReferencedNodeURI(props.planDefNode);
     const [pdConditions, setPdConditions] = useState<PlanDefinitionActionCondition[]>(() => {
         // Read existing FHIR condition elements from plandefinition
         const planNodeResource = SchemaUtils.toFhir(props.planDefNode, false) as PlanDefinition;
@@ -33,11 +33,11 @@ export const PlanDefEditor = (props: PlanDefEditorProps) => {
     // All types of cards have identical requirements with respect to reading and writing conditions
     const conditionEditor = <ConditionEditor pdConditions={pdConditions} setPdConditions={setPdConditions} />
     
-    function getEditorForURI(referencedURI: string): JSX.Element {
+    function getEditorForURI(planDefNode: SageNodeInitializedFreezerNode, referencedURI: string): JSX.Element {
         const {
             node: linkedResourceNode,
             pos: linkedResourcePos
-        } = SchemaUtils.findFirstSageNodeByUri(State.get().bundle.resources, referencedURI);
+        } = getRelatedActivityNode(planDefNode);
 
         function handleCancelEdit() {
             navigate("/");
@@ -168,8 +168,7 @@ export const PlanDefEditor = (props: PlanDefEditorProps) => {
 
     return (
         <div>
-            {referencedNodeURI ? 
-            getEditorForURI(referencedNodeURI) :
+            {referencedNodeURI ? getEditorForURI(props.planDefNode, referencedNodeURI) :
             <div>
                 <button className="navigate col-lg-2 col-md-3" 
                     onClick={() => State.get().set("ui", {status:"collection"})}>
@@ -179,4 +178,15 @@ export const PlanDefEditor = (props: PlanDefEditorProps) => {
             </div>}
         </div>
     );
+}
+
+export function getReferencedNodeURI(node: SageNodeInitializedFreezerNode) {
+    if (node.displayName == ACTIVITY_DEFINITION) {
+        return SchemaUtils.getChildOfNodePath(node, ["url"])?.value as string;
+    }
+    return SchemaUtils.getChildOfNodePath(node, ["action", "definitionCanonical"])?.value as string;
+}
+
+export function getRelatedActivityNode(planDefNode: SageNodeInitializedFreezerNode): { node: SageNodeInitializedFreezerNode | null; pos: number | null; } {
+    return SchemaUtils.findFirstSageNodeByUri(State.get().bundle.resources, getReferencedNodeURI(planDefNode));
 }

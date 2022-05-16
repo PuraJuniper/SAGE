@@ -2,6 +2,7 @@ import * as cql from 'cql-execution';
 import { Library } from 'fhir/r4';
 import Freezer, { EventDict, FE, FreezerNode } from 'freezer-js';
 import { SageNewResource, SageNode, SageNodeInitialized, SimplifiedCodesystems, SimplifiedProfiles, SimplifiedValuesets } from './helpers/schema-utils';
+import Authoring, { AuthoringState } from './simplified/authoringInfo';
 
 export interface StateVars {
 	ui: {
@@ -16,18 +17,22 @@ export interface StateVars {
 	mode?: SageMode,
 	VSACEndpoint: string,
 	UMLSKey: string,
-	version: string,
-	date: string,
-	status: string,
-	experimental: boolean,
-	copyright: string,
-	approvalDate: string,
-	lastReviewDate: string,
-	author: string,
-	editor: string,
-	reviewer: string,
-	CPGName: string,
-	publisher: string,
+	author: {
+		authorings: AuthoringState[],
+		pos: number
+	}
+	// version: string,
+	// date: string,
+	// status: string,
+	// experimental: boolean,
+	// copyright: string,
+	// approvalDate: string,
+	// lastReviewDate: string,
+	// author: string,
+	// editor: string,
+	// reviewer: string,
+	// CPGName: string,
+	// publisher: string,
 	canonicalUris: {uri: string, resourceType: string}[],
 	showHiddenElements: boolean,
 	bundle: {
@@ -115,18 +120,32 @@ const defaultStateVars: StateVars = {
 	},
 	VSACEndpoint: "https://cts.nlm.nih.gov/fhir/r4",
 	UMLSKey: "",
-	version: "",
-	date: "",
-	status: "",
-	experimental: true,
-	copyright: "",
-	approvalDate: "",
-	lastReviewDate: "",
-	author: "",
-	editor: "",
-	reviewer: "",
-	CPGName: "",
-	publisher: "",
+	author: {
+		authorings: [
+			{	
+            submitInvalid: false,
+            showSpinner: false,
+            tab: "CPGNew",
+            version: "1.0.0",
+            date: "",
+            status: "draft",
+            experimental: true,
+            copyright: "",
+            approvalDate: "",
+            lastReviewDate: "",
+            author: "author",
+            editor: "editor",
+            reviewer: "reviewer",
+            CPGName: "cpgname",
+            publisher: "publisher",
+            fhirText: '{"resourceType": "Patient"}',
+            fhirUrl: "",
+            newResourceType: "Patient",
+            newResourceBundle: false
+			}
+		],
+		pos: 0
+	},
 	canonicalUris: [], // URIs to reference in canonical elements
 	bundle: {
 		pos: -1,

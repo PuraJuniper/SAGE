@@ -11,6 +11,8 @@ import PrimitiveValidator from './primitive-validator';
 import { Bundle, Resource, Element, ElementDefinition, ElementDefinitionType, ActivityDefinition, PlanDefinition, Questionnaire, Library, ValueSet, FhirResource, CodeSystem } from 'fhir/r4';
 import { defaultProfileUriOfResourceType, FriendlyResourceFormElement, FriendlyResourceProps, profileToFriendlyResourceListEntry, STRUCTURE_DEFINITION, VALUE_SET } from '../simplified/nameHelpers';
 import * as Bioportal from "../simplified/cql-wizard/bioportal";
+import { AuthoringState } from '../simplified/authoringInfo';
+import { getReferencedNodeURI } from '../simplified/planDefEditor';
 
 // Template of a SageNode for a specific element/resource
 export type SageNode = {
@@ -130,8 +132,10 @@ export function toFhir(decorated: SageNodeInitialized, validate: boolean): [Sage
 			const value = (() => {
 				if (["object", "arrayObject"].includes(child.nodeType)) {
 					return _walkNode(child, {});
-				} else if (["valueArray", "objectArray"].includes(child.nodeType)) {
+				} else if (["valueArray"].includes(child.nodeType)) {
 					return _walkNode(child, []);
+				} else if (["objectArray"].includes(child.nodeType)) {
+					return _walkNode(child, [{}]);
 				} else {
 					let err;
 					if (validate && child?.ui?.validationErr) {
@@ -148,9 +152,9 @@ export function toFhir(decorated: SageNodeInitialized, validate: boolean): [Sage
 				}
 			})();
 			if (parent instanceof Array) {
-				parent.push(value);
+				parent.push(value == null ? "" : value);
 			} else {
-				parent[child.name] = value;
+				parent[child.name] = value == null ? "" : value;
 			}
 		}
 
@@ -297,69 +301,68 @@ const getDefaultValue = (schema: SchemaDef, fhirType: string, parentName = ""): 
 
 	// Attempt to auto-populate URLs, Names, and Publishers, if possible
 	const pathSuffix = schema.path.split('.');
+	const authoringState: AuthoringState = State.get().author.authorings[State.get().author.pos];
 	switch (pathSuffix[pathSuffix.length - 1]) {
 		case "name":
-			if (State.get().CPGName != "") {
+			if (authoringState.CPGName != "") {
 				//filter editor and reviewer
 				if (pathSuffix[0] == "ContactDetail") {
 					if (parentName == "author") {
-						defaultValue = State.get().author;
+						defaultValue = authoringState.author;
 					} else if (parentName == "editor") {
-						defaultValue = State.get().editor;
+						defaultValue = authoringState.editor;
 					} else if (parentName == "reviewer") {
-						defaultValue = State.get().reviewer
+						defaultValue = authoringState.reviewer
 					}
 				}
 				else {
-					defaultValue = `${pathSuffix[0]}-${State.get().CPGName}${State.get().resCount}`;
+					const suffix = pathSuffix[0];
+					defaultValue = generateCardNameString(suffix, authoringState, State.get().resCount);
 				}
 			}
 			break;
 		case "publisher":
-			if (State.get().publisher != "") {
-				defaultValue = State.get().publisher;
+			if (authoringState.publisher != "") {
+				defaultValue = authoringState.publisher;
 			}
 			break;
 		case "url":
-			if (State.get().publisher != "" && State.get().CPGName != "") {
+			if (authoringState.publisher != "" && authoringState.CPGName != "") {
 				// Ignore extensions
 				if (pathSuffix[0] == "Extension") {
 					break;
 				}
-				defaultValue = `http://fhir.org/guides/${State.get().publisher}/${pathSuffix[0]}/${pathSuffix[0]}-${State.get().CPGName}${State.get().resCount}`;
-				if (pathSuffix[0].endsWith("Activity")) {
-					defaultValue = `http://fhir.org/guides/${State.get().publisher}/ActivityDefinition/ActivityDefinition-${State.get().CPGName}${State.get().resCount}`;
-				}
+				defaultValue = generateResourceReference(pathSuffix[0], State.get().resCount).referencedResourceUrl;
 			}
 			break;
 		case "status":
-			if (State.get().status != '') {
-				defaultValue = State.get().status
+			if (authoringState.status != '') {
+				defaultValue = authoringState.status
 			}
 			break;
 		case "version":
-			if (State.get().version != "") {
-				defaultValue = State.get().version;
+			if (authoringState.version != "") {
+				defaultValue = authoringState.version;
 			}
 			break;
 		case "date":
-			if (State.get().date != "") {
-				defaultValue = State.get().date;
+			if (authoringState.date != "") {
+				defaultValue = authoringState.date;
 			}
 			break;
 		case "copyright":
-			if (State.get().copyright != "") {
-				defaultValue = State.get().copyright;
+			if (authoringState.copyright != "") {
+				defaultValue = authoringState.copyright;
 			}
 			break;
 		case "approvalDate":
-			if (State.get().approvalDate != "") {
-				defaultValue = State.get().approvalDate;
+			if (authoringState.approvalDate != "") {
+				defaultValue = authoringState.approvalDate;
 			}
 			break;
 		case "lastReviewDate":
-			if (State.get().lastReviewDate != "") {
-				defaultValue = State.get().lastReviewDate;
+			if (authoringState.lastReviewDate != "") {
+				defaultValue = authoringState.lastReviewDate;
 			}
 			break;
 	}
@@ -475,6 +478,23 @@ export const buildChildNode = function (profiles: SimplifiedProfiles, parentNode
 		return result;
 	}
 };
+
+// export function createNewCardUrl(suffix: string, authoringState: AuthoringState): any {
+// 	if (suffix.endsWith("Activity")) {
+// 		return `http://fhir.org/guides/${authoringState.publisher}/ActivityDefinition/ActivityDefinition-${authoringState.CPGName}-${State.get().resCount}`;
+// 	}
+// 	return `http://fhir.org/guides/${authoringState.publisher}/${suffix}/${suffix}-${authoringState.CPGName}-${State.get().resCount}`;
+// }
+
+export function generateCardNameString(suffix: string, authoringState: AuthoringState, numOrNode: number | SageNodeInitializedFreezerNode): string {
+
+	const newId = (oldId: number | undefined) => {
+		const actOrPlanNode: SageNodeInitializedFreezerNode | undefined = typeof numOrNode === "number" ? undefined : numOrNode;
+		const referencedNodeUriId = actOrPlanNode === undefined ? undefined : getReferencedNodeURI(actOrPlanNode).split("-").pop();
+		return oldId ?? parseInt(referencedNodeUriId ?? incrementNextId().toString()); 
+	}
+	return `${suffix}-${authoringState.CPGName}-${newId(typeof numOrNode === "number" ? numOrNode : undefined)}`;
+}
 
 export function findFirstSageNodeByUri(nodes: SageFreezerNode<SageNodeInitialized[]>, uri: string): {
 	node: SageNodeInitializedFreezerNode,
@@ -628,20 +648,26 @@ export function getChildOfNode(node: SageNodeInitialized, childName: string): Sa
 	}
 
 	const descendants: SageNodeInitialized[] = [];
+	const matchingChildren: SageNodeInitialized[] = []
+	const matchingGrandchildren: SageNodeInitialized[] = []
 	node.children.forEach(child => {
 		if (child.name == childName) {
-			descendants.push(child);
+			matchingChildren.push(child);
 		}
 		const granChild = getChildOfNode(child, childName)
 		if (granChild) {
-			descendants.push(granChild);
+			matchingGrandchildren.push(granChild);
 		}
 	})
+
+	if(matchingChildren.length == 1) {
+		return matchingChildren[0];
+	}
 
 	if (descendants.length > 0) {
 		if (descendants.length > 1) {
 			console.log(`More than one child found for "${childName}".`);
-			const pickedNode = descendants.find(des => des.children.length == 0);
+			const pickedNode = descendants.reverse().find(des => des.children.length == 0);
 			if (pickedNode !== undefined) {
 				console.log(`Picking the first one with no descendants for:`, node);
 				return pickedNode;
@@ -711,7 +737,8 @@ export const createChildrenFromArray = function (profiles: SimplifiedProfiles, n
 }
 
 export function buildUrlForResource(resourceType: string) {
-	return `http://fhir.org/guides/${State.get().publisher}/${resourceType}/${resourceType}-${State.get().CPGName}${State.get().resCount + 1}`;
+	const authoringState: AuthoringState = State.get().author.authorings[State.get().author.pos];
+	return `http://fhir.org/guides/${authoringState.publisher}/${resourceType}/${resourceType}-${authoringState.CPGName}${State.get().resCount + 1}`;
 }
 
 /**
@@ -1146,4 +1173,15 @@ export async function getConceptsOfValueSet(valueSet: ValueSet, valueSetDefs: Si
 		}
 	}
 	return codesOfValueSet;
+}
+
+
+export function generateResourceReference(resourceType: string, id: number): {referencedResourceName: string, referencedResourceUrl: string};
+export function generateResourceReference<SageNodeInitializedFreezerNode>(resourceType: string, node: SageNodeInitializedFreezerNode): {referencedResourceName: string, referencedResourceUrl: string};
+export function generateResourceReference(resourceType: string, ...numOrNode: any[]) {
+    const authoringState: AuthoringState = State.get().author.authorings[State.get().author.pos];
+
+    const referencedResourceName = generateCardNameString(resourceType, authoringState, numOrNode[0]);
+    const referencedResourceUrl = `http://fhir.org/guides/${authoringState.publisher}/${resourceType}/${referencedResourceName}`;
+    return { referencedResourceName, referencedResourceUrl };
 }

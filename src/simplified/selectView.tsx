@@ -1,17 +1,23 @@
+import { faUserDoctor } from '@fortawesome/pro-solid-svg-icons';
 import React from 'react';
-import { BaseCard } from "./baseCard";
-
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faUserDoctor,faCaretLeft } from '@fortawesome/pro-solid-svg-icons';
+import { Col, Container, Row } from "react-bootstrap";
+import { NavigateFunction, useNavigate } from "react-router-dom";
 import State from "../state";
-import { Container, Row, Col } from "react-bootstrap";
-import friendlyNames from "../../friendly-names.json";
-import { ACTIVITY_DEFINITION, allFormElems, friendlyResourceRoot, getBorderPropsForType, getFormElementListForResource } from "./nameHelpers";
-import { useNavigate } from "react-router-dom";
-import { Progress } from './topProgressBar';
+import { BaseCard } from "./baseCard";
+import { AUTHOR_THEN_CARD_ROUTE, AUTHOR_THEN_EXIT_ROUTE } from './basicView';
+import { friendlyResourceRoot } from "./nameHelpers";
 import Sidebar from "./sidebar";
+import { Progress } from './topProgressBar';
 
 
+export const CreateCardWorkflow = (navigate: NavigateFunction) => {
+    //if first card of folder
+    if (State.get().bundle.resources.length < 2) {
+        return navigate(`/${AUTHOR_THEN_CARD_ROUTE}`)
+    } else {
+        return navigate('/create');
+    }
+}
 
 const SelectView = () => {
     const navigate = useNavigate();
@@ -60,10 +66,6 @@ const SelectView = () => {
                         }
                     </Row>
                 </Container>
-            <button  type='button' className="navigate-reverse col-lg-2 col-md-3"
-                onClick={() => navigate('/author')}>
-                {<> <FontAwesomeIcon icon={faCaretLeft} /> {" Previous"} </>}
-            </button>
             </div>
         </div>
     );

@@ -15,6 +15,9 @@ export const StateContext = createContext<SageFreezerNode<StateVars>>(State.get(
 export const UiContext = createContext<SageFreezerNode<StateVars['ui']>>(State.get().ui);
 export const BundleContext = createContext<SageFreezerNode<StateVars['bundle']>>(State.get().bundle);
 
+export const AUTHOR_THEN_EXIT_ROUTE = "author"
+export const AUTHOR_THEN_CARD_ROUTE = "create-first"
+
 export const BasicView = () => {
     const [freezerState, setFreezerState] = useState<SageFreezerNode<StateVars>>(() => State.get());
     const [freezerUi, setFreezerUi] = useState<SageFreezerNode<StateVars['ui']>>(() => State.get().ui);
@@ -57,7 +60,8 @@ export const BasicView = () => {
         <Routes>
             <Route element={basicViewLayout}>
                 <Route path="basic-home" element={<BasicHomeView />} />
-                <Route path="author" element={<Authoring />} />
+                <Route path={AUTHOR_THEN_EXIT_ROUTE} element={<Authoring continueToCreateCard={false}/>} /> 
+                <Route path={AUTHOR_THEN_CARD_ROUTE} element={<Authoring continueToCreateCard={true}/>} />
                 <Route path="create" element={<SelectView />} />
                 <Route path="edit/:planDefPos" element={<PlanDefLoader />} />
                 <Route index element={<Collection />} />
