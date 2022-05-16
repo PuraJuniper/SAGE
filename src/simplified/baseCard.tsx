@@ -91,7 +91,8 @@ export const BaseCard = (props: BaseCardProps) => {
                                             condition: [],
                                             definitionCanonical: referencedResourceUrl
                                         }
-                                    ]
+                                    ],
+                                    relatedArtifact: []
                                 }
                             }
                         ]
