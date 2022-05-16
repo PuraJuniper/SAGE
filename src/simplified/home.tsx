@@ -1,15 +1,13 @@
+import { faBookMedical, faCirclePlus, faGrid, IconDefinition } from '@fortawesome/pro-solid-svg-icons';
 import React from 'react';
-import { BaseCard } from "./baseCard";
-
-
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faGrid,faBookMedical,faCirclePlus, IconDefinition } from '@fortawesome/pro-solid-svg-icons';
-import State from "../state";
-import { Container, Row, Col, Card } from "react-bootstrap";
-import friendlyNames from "../../friendly-names.json";
-import { ACTIVITY_DEFINITION, allFormElems, friendlyResourceRoot, getBorderPropsForType, getFormElementListForResource } from "./nameHelpers";
-import { CreateCardWorkflow } from './selectView';
+import { Col, Container, Row } from "react-bootstrap";
 import { NavigateFunction, useNavigate } from 'react-router-dom';
+import { BaseCard } from "./baseCard";
+import { SAVED_CARDS_ROUTE } from './basicView';
+import { friendlyResourceRoot } from "./nameHelpers";
+import { CreateCardWorkflow } from './selectView';
+
+
 
 console.log(friendlyResourceRoot.RESOURCES)
 
@@ -21,7 +19,7 @@ interface homePageCardProps {
     cardColor: string,
     textColor: string,
     FHIR?: string,
-    clickHandler?: (navigate: NavigateFunction) => void
+    clickHandler: (navigate: NavigateFunction) => void
 }
 
 const listOfHomePage: homePageCardProps[] = [
@@ -41,7 +39,7 @@ const listOfHomePage: homePageCardProps[] = [
         'cardColor':'sage-darkblue',
         'textColor':'white',
         'FHIR': friendlyResourceRoot.RESOURCES[4].SELF.FHIR,
-        // clickHandler: (navigate) => ()
+        clickHandler: CreateCardWorkflow
     },
     {
         'header':'Saved Cards',
@@ -49,6 +47,7 @@ const listOfHomePage: homePageCardProps[] = [
         'cardImage':faGrid,
         'cardColor':'sage-green',
         'textColor':'white',
+        clickHandler: (navigate: NavigateFunction) => navigate(`/${SAVED_CARDS_ROUTE}`)
     }
 ]
 console.log(friendlyResourceRoot.RESOURCES[4].SELF.FHIR)
@@ -80,7 +79,7 @@ const BasicHomeView = () => {
                                                     titleSize='20px'
                                                     hideHeader = {true}
                                                     wait={i * 25}
-                                                    onClick={() => CreateCardWorkflow(navigate)}
+                                                    onClick={() => resource.clickHandler(navigate)}
                                                     profile={resource.profile}
                                                 /> 
                                             </Col>
