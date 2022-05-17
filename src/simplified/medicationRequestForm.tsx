@@ -2,13 +2,13 @@ import { faHomeLgAlt, faInfoCircle } from "@fortawesome/pro-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useState } from "react";
 import { Card, Col, Container, Form, Row } from "react-bootstrap";
+import State from "../state";
 import { FieldHandlerProps, ICardForm } from "./cardEditor";
 import { CodeableConceptEditorProps } from "./codeableConceptEditor";
+import * as Bioportal from './cql-wizard/bioportal';
 import { SageCoding } from "./cql-wizard/wizardLogic";
 import { FriendlyResourceProps, friendlyTimeUnit } from "./nameHelpers";
-import { previewProps, dropdownBoxProps, invisibleFieldProps, textBoxProps } from "./outerCardForm";
-import * as Bioportal from './cql-wizard/bioportal';
-import State from "../state";
+import { dropdownBoxProps, invisibleFieldProps, textBoxProps, timeUnitsDropdownProps } from "./outerCardForm";
 
 const dosageCodes: SageCoding[] = [];
 
@@ -113,11 +113,9 @@ export class MedicationRequestForm implements ICardForm {
         ['status',
             { values: () => ['active', 'on-hold', 'cancelled', 'completed', 'entered-in-error', 'stopped', 'draft', 'unknown'] }],
         ['intent',
-            { values: () => ['proposal', 'plan', 'order', 'original-order', 'reflex-order', 'filler-order', 'instance-order', 'option'] }],
-        ['periodUnit',
-            { values: () => ['h', 'd', 'wk', 'mo', 'a'], requiredFor: ["text"] }],
-        ['durationUnit',
-            { values: () => ['h', 'd', 'wk', 'mo', 'a'], requiredFor: ["text"] }],
+            { values: () => ['proposal', 'plan', 'order', 'original-order', 'reflex-order', 'filler-order', 'instance-order', 'option']}],
+        ['periodUnit', timeUnitsDropdownProps(['h', 'd', 'wk', 'mo', 'a'])],
+        ['durationUnit', timeUnitsDropdownProps(['h', 'd', 'wk', 'mo', 'a'])],
         ['type',
             { values: () => ['documentation', 'justification', 'citation', 'predecessor', 'successor', 'derived-from', 'depends-on', 'composed-of'] }],
         ['unit',
@@ -199,14 +197,14 @@ export class MedicationRequestForm implements ICardForm {
                                 <div style={{'margin': "0 10px"}}>dose(s) every</div>
                                 <div className="page1-dosage-small-example">1</div>
                                 <select className="page1-dosage-medium-example" disabled>
-                                    <option value="">d</option>
+                                    <option value="">days</option>
                                 </select>
                             </div>
                             <div style={{'display':'flex', 'flexDirection': 'row', 'whiteSpace':'nowrap', 'justifyContent':'flex-end', 'flex': '0 0 90%'}} >
                                 <div style={{'margin': "0 10px"}}>for</div>
                                 <div className="page1-dosage-small-example">1</div>
                                 <select className="page1-dosage-medium-example" disabled>
-                                    <option value="">wk</option>
+                                    <option value="">weeks</option>
                                 </select>
                             </div>
                         </Card>

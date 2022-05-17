@@ -1,6 +1,6 @@
 import axios, { AxiosRequestConfig } from "axios";
-import { AggregateType, EditableCondition } from "./conditionEditor";
-import { ElementFilter, CodeFilterType, DateFilterType, CodingFilter, DateFilter, RelativeDateUnit } from "./wizardLogic";
+import { AggregateType, EditableCondition, SubExpression } from "./conditionEditor";
+import { ElementFilter, CodeFilterType, DateFilterType, CodingFilter, DateFilter, RelativeDateUnit, FilterType, MultitypeFilter } from "./wizardLogic";
 
 interface CqlDefinition {
     identifier: string, // identifier to reference this definition elsewhere in the CQL file
@@ -60,167 +60,42 @@ export async function generateCqlFromConditions(conditionStates: EditableConditi
     }
 
     /**
-     * Iterate through each condition, creating an expression definition for it (and any other required definitions using `getOrCreateCodeIdentifier()`)
+     * Iterate through each condition, creating all necessary expressions for it
      */
     const exprDefinitions = new Map<string, CqlDefinition>(); // <Condition ID, CQL Expression definition for this condition>
-//     for (const conditionState of conditionStates) {
-//         if (conditionState.curWizState === null) {
-//             console.log(`warning: null wizard state received -- skipping ${conditionState.conditionId}`)
-//             continue;
-//         }
-//         // Base filtering of the resource selected on page 1 of the wizard using the codes selected on page 2 of the wizard
-//         let innerResDef = `[${conditionState.curWizState.resType}: { "${conditionState.curWizState.codes.map(v=>getOrCreateCodeIdentifier(v.system, v.code)).join('", "')}" }] R`;
+    for (const conditionState of conditionStates) {
+        const conditionExpr = generateCqlFromSubExpression(conditionState.conditionId, conditionState.expr, getOrCreateCodeIdentifier);
+        exprDefinitions.set(conditionExpr.identifier, conditionExpr);
+    }
 
-//         // Extra filters (from the restrictions selected on page 3 of the wizard)
-//         //  Iterate through each conditionstate's filters and add them to a list of clauses per condition
-//         if (conditionState.curWizState.filters.length > 0) {
-//             const filterToCQL = (filter: ElementFilter): string | null => {
-//                 switch (filter.filter.type) {
-//                     case "coding": {
-//                         const codingFilter = filter.filter as CodingFilter;
-//                         if (codingFilter.filteredCoding.filterType === CodeFilterType.None) {
-//                             return null;
-//                         }
-//                         else {
-//                             return codingFilter.filteredCoding.selectedIndexes.map(selectedIndex => {
-//                                 const selectedCode = codingFilter.codeBinding.codes[selectedIndex];
-//                                 if (codingFilter.codeBinding.isSingleton) {
-//                                     return `R.${filter.elementName} ~ "${getOrCreateCodeIdentifier(selectedCode.system, selectedCode.code)}"${codingFilter.codeBinding.isCoding ? "" : ".code"}`
-//                                 }
-//                                 else {
-//                                     return `exists(R.${filter.elementName} RCodeList where RCodeList ~ "${getOrCreateCodeIdentifier(selectedCode.system, selectedCode.code)}"${codingFilter.codeBinding.isCoding ? "" : ".code"})`
-//                                 }
-//                             }).join(`
-//                 and `
-//                             );
-//                         }
-//                     }
+    console.log(codesystemDefinitions);
+    console.log(exprDefinitions);
 
-                   
-//                     case "date":  case "age": {
-//                         const dateFilter = filter.filter as DateFilter;
-//                         switch (dateFilter.filteredDate.filterType) {
-//                             case DateFilterType.None:
-//                                 return null;
-//                             case DateFilterType.After:
-//                                 return `R.${filter.elementName} after day of Date(${dateFilter.filteredDate.absoluteDate1?.year()}, ${dateFilter.filteredDate.absoluteDate1?.month()}, ${dateFilter.filteredDate.absoluteDate1?.day()})`;
-//                             case DateFilterType.Before:
-//                                 return `R.${filter.elementName} before day of Date(${dateFilter.filteredDate.absoluteDate1?.year()}, ${dateFilter.filteredDate.absoluteDate1?.month()}, ${dateFilter.filteredDate.absoluteDate1?.day()})`;
-//                             case DateFilterType.Between:
-//                                 return (
-// `R.${filter.elementName} included in day of Interval[DateTime(${dateFilter.filteredDate.absoluteDate1?.year()}, ${dateFilter.filteredDate.absoluteDate1?.month()}, ${dateFilter.filteredDate.absoluteDate1?.day()}), DateTime(${dateFilter.filteredDate.absoluteDate2?.year()}, ${dateFilter.filteredDate.absoluteDate2?.month()}, ${dateFilter.filteredDate.absoluteDate2?.day()})]`
-//                                 )
-//                             case DateFilterType.OlderThan:
-//                             case DateFilterType.NewerThan: {
-//                                 let cqlUnit = null;
-//                                 switch (dateFilter.filteredDate.relativeUnit) {
-//                                     case RelativeDateUnit.Minutes:
-//                                         cqlUnit = "minute";
-//                                         break;
-//                                     case RelativeDateUnit.Hours:
-//                                         cqlUnit = "hour";
-//                                         break;
-//                                     case RelativeDateUnit.Days:
-//                                         cqlUnit = "day";
-//                                         break;
-//                                     case RelativeDateUnit.Weeks:
-//                                         cqlUnit = "week";
-//                                         break;
-//                                     case RelativeDateUnit.Months:
-//                                         cqlUnit = "month";
-//                                         break;
-//                                     case RelativeDateUnit.Years:
-//                                         cqlUnit = "year";
-//                                         break;
-//                                 }
-//                                 return `R.${filter.elementName} ${dateFilter.filteredDate.filterType === DateFilterType.OlderThan ? "before" : "after"} ${cqlUnit} of (Now() - ${dateFilter.filteredDate.relativeAmount} ${cqlUnit})`;
-//                             }
-//                             default:
-//                                 return null;
-//                         }
-//                     }
+    /**
+     * Build final CQL output
+     */
+    const finalCql = (
+`${libraryDeclaration}
+${usingDataModel}
+${includeFhirHelpers}
 
-//                     case "period":
-//                         return null;
+// Codesystems and codes
+${Array.from(codesystemDefinitions.values()).map(codesystemDef => {
+    return (
+`${codesystemDef.codesystemDef.definition}
+${Array.from(codesystemDef.codeDefinitions.values()).map(codeDef=>codeDef.definition).join('\n')}`
+    )
+}).join('\n\n')}
 
-//                     case "boolean":
-//                         return null;
+// Context
+${contextPatient}
 
-//                     case "unknown":
-//                         return null;
-                    
-//                     default:
-//                         return null;
-//                 }
-//             }
-//             const clauses = conditionState.curWizState.filters.flatMap(filter => {
-//                 const res = filterToCQL(filter);
-//                 return res === null ? [] : [res]
-//             });
-//             console.log("Clauses", clauses);
-//             if (clauses.length > 0) {
-//                 innerResDef = (`
-// ${innerResDef}
-//         where ${clauses.join(`
-//             and `
-//                 )}`);
-//             }
-//         }
-        
-//         // Output filter (from the buttons on the the condition editor page)
-//         let resDefWrapped = null;
-//         switch (conditionState.exprAggregate.aggregate) {
-//             case AggregateType.Exists:
-//                 resDefWrapped = `exists(${innerResDef})`
-//                 break;
-//             case AggregateType.DoesNotExist:
-//                 resDefWrapped = `not exists(${innerResDef})`
-//                 break;
-//             case AggregateType.AtLeast:
-//                 resDefWrapped = `Count(${innerResDef}) >= ${conditionState.exprAggregate.count ?? 1}`
-//                 break;
-//             case AggregateType.NoMoreThan:
-//                 resDefWrapped = `Count(${innerResDef}) <= ${conditionState.exprAggregate.count ?? 1}`
-//                 break;
-//         }
+// Evaluated expressions
+${Array.from(exprDefinitions.values()).map(exprDef=>exprDef.definition).join('\n')}`
+    );
 
-//         exprDefinitions.set(conditionState.conditionId, {
-//             identifier: conditionState.conditionId,
-//             definition:
-// `define "${conditionState.conditionId}":
-//     ${resDefWrapped}`
-//         });
-//     }
-
-//     console.log(codesystemDefinitions);
-//     console.log(exprDefinitions);
-
-//     /**
-//      * Build final CQL output
-//      */
-//     const finalCql = (
-// `${libraryDeclaration}
-// ${usingDataModel}
-// ${includeFhirHelpers}
-
-// // Codesystems and codes
-// ${Array.from(codesystemDefinitions.values()).map(codesystemDef => {
-//     return (
-// `${codesystemDef.codesystemDef.definition}
-// ${Array.from(codesystemDef.codeDefinitions.values()).map(codeDef=>codeDef.definition).join('\n')}`
-//     )
-// }).join('\n\n')}
-
-// // Context
-// ${contextPatient}
-
-// // Evaluated expressions
-// ${Array.from(exprDefinitions.values()).map(exprDef=>exprDef.definition).join('\n')}`
-//     );
-
-//     console.log(finalCql);
-//     return finalCql;
-    return "";
+    console.log(finalCql);
+    return finalCql;
 }
 
 export async function makeCQLtoELMRequest(cql: string) {
@@ -258,4 +133,172 @@ export async function makeCQLtoELMRequest(cql: string) {
         console.log(error);
         return null;
     });
+}
+
+function generateCqlFromSubExpression(subExpressionId: string, subExpression: SubExpression, getOrCreateCodeIdentifier: (system: string, code: string) => string): CqlDefinition {
+    const subExprDefinitions = new Map<string, CqlDefinition>();
+    for (const subExpr of subExpression.subExpr) {
+        if ('curWizState' in subExpr) {
+            if (subExpr.curWizState === null) {
+                console.log(`warning: null wizard state received -- skipping subexpression with id: ${subExpressionId}`)
+                continue;
+            }
+            // Base filtering of the resource selected on page 1 of the wizard using the codes selected on page 2 of the wizard
+            let innerResDef = `[${subExpr.curWizState.resType}: { "${subExpr.curWizState.codes.map(v=>getOrCreateCodeIdentifier(v.system, v.code)).join('", "')}" }] R`;
+
+            // Extra filters (from the restrictions selected on page 3 of the wizard)
+            //  Iterate through each conditionstate's filters and add them to a list of clauses per condition
+            if (subExpr.curWizState.filters.length > 0) {
+                const filterToCQL = (filter: ElementFilter): string | null => {
+                    switch (filter.filter.type) {
+                        case FilterType.Coding: {
+                            const codingFilter = filter.filter as CodingFilter;
+                            if (codingFilter.filteredCoding.filterType === CodeFilterType.None) {
+                                return null;
+                            }
+                            else {
+                                return codingFilter.filteredCoding.selectedIndexes.map(selectedIndex => {
+                                    const selectedCode = codingFilter.codeBinding.codes[selectedIndex];
+                                    if (codingFilter.codeBinding.isSingleton) {
+                                        return `R.${filter.elementName} ~ "${getOrCreateCodeIdentifier(selectedCode.system, selectedCode.code)}"${codingFilter.codeBinding.isCoding ? "" : ".code"}`
+                                    }
+                                    else {
+                                        return `exists(R.${filter.elementName} RCodeList where RCodeList ~ "${getOrCreateCodeIdentifier(selectedCode.system, selectedCode.code)}"${codingFilter.codeBinding.isCoding ? "" : ".code"})`
+                                    }
+                                }).join(`
+                    and `
+                                );
+                            }
+                        }
+
+                    
+                        case FilterType.Date:
+                        case FilterType.Age: {
+                            const dateFilter = filter.filter as DateFilter;
+                            switch (dateFilter.filteredDate.filterType) {
+                                case DateFilterType.None:
+                                    return null;
+                                case DateFilterType.After:
+                                    return `R.${filter.elementName} after day of Date(${dateFilter.filteredDate.absoluteDate1?.year()}, ${dateFilter.filteredDate.absoluteDate1?.month()}, ${dateFilter.filteredDate.absoluteDate1?.day()})`;
+                                case DateFilterType.Before:
+                                    return `R.${filter.elementName} before day of Date(${dateFilter.filteredDate.absoluteDate1?.year()}, ${dateFilter.filteredDate.absoluteDate1?.month()}, ${dateFilter.filteredDate.absoluteDate1?.day()})`;
+                                case DateFilterType.Between:
+                                    return (
+    `R.${filter.elementName} included in day of Interval[DateTime(${dateFilter.filteredDate.absoluteDate1?.year()}, ${dateFilter.filteredDate.absoluteDate1?.month()}, ${dateFilter.filteredDate.absoluteDate1?.day()}), DateTime(${dateFilter.filteredDate.absoluteDate2?.year()}, ${dateFilter.filteredDate.absoluteDate2?.month()}, ${dateFilter.filteredDate.absoluteDate2?.day()})]`
+                                    )
+                                case DateFilterType.OlderThan:
+                                case DateFilterType.NewerThan: {
+                                    let cqlUnit = null;
+                                    switch (dateFilter.filteredDate.relativeUnit) {
+                                        case RelativeDateUnit.Minutes:
+                                            cqlUnit = "minute";
+                                            break;
+                                        case RelativeDateUnit.Hours:
+                                            cqlUnit = "hour";
+                                            break;
+                                        case RelativeDateUnit.Days:
+                                            cqlUnit = "day";
+                                            break;
+                                        case RelativeDateUnit.Weeks:
+                                            cqlUnit = "week";
+                                            break;
+                                        case RelativeDateUnit.Months:
+                                            cqlUnit = "month";
+                                            break;
+                                        case RelativeDateUnit.Years:
+                                            cqlUnit = "year";
+                                            break;
+                                    }
+                                    return `R.${filter.elementName} ${dateFilter.filteredDate.filterType === DateFilterType.OlderThan ? "before" : "after"} ${cqlUnit} of (Now() - ${dateFilter.filteredDate.relativeAmount} ${cqlUnit})`;
+                                }
+                                default:
+                                    return null;
+                            }
+                        }
+
+                        case FilterType.Period:
+                            return null;
+
+                        case FilterType.Boolean:
+                            return `R.${filter.elementName} is ${filter.filter.filteredBoolean === true ? 'true' : 'false'}`; // Avoiding the slim chance that some browser prints true as 'True' or something
+
+                        case FilterType.Multitype: {
+                            const mtFilter = filter.filter as MultitypeFilter;
+                            if (mtFilter.selectedFilter === undefined) {
+                                return null;
+                            }
+                            else {
+                                return filterToCQL({
+                                    elementName: `${filter.elementName.slice(0, -3)}${mtFilter.possibleFilters[mtFilter.selectedFilter].elementName}`,
+                                    filter: mtFilter.possibleFilters[mtFilter.selectedFilter].filter
+                                })
+                            }
+                        }
+
+                        case FilterType.Unknown:
+                            return null;
+                        
+                        default:
+                            return null;
+                    }
+                }
+                const clauses = subExpr.curWizState.filters.flatMap(filter => {
+                    const res = filterToCQL(filter);
+                    return res === null ? [] : [res]
+                });
+                console.log("Clauses", clauses);
+                if (clauses.length > 0) {
+                    innerResDef = (`
+    ${innerResDef}
+            where ${clauses.join(`
+                and `
+                    )}`);
+                }
+            }
+            
+            // Output filter (from the buttons on the the condition editor page)
+            let resDefWrapped = null;
+            switch (subExpr.exprAggregate.aggregate) {
+                case AggregateType.Exists:
+                    resDefWrapped = `exists(${innerResDef})`
+                    break;
+                case AggregateType.DoesNotExist:
+                    resDefWrapped = `not exists(${innerResDef})`
+                    break;
+                case AggregateType.AtLeast:
+                    resDefWrapped = `Count(${innerResDef}) >= ${subExpr.exprAggregate.count ?? 1}`
+                    break;
+                case AggregateType.NoMoreThan:
+                    resDefWrapped = `Count(${innerResDef}) <= ${subExpr.exprAggregate.count ?? 1}`
+                    break;
+            }
+            
+            const subExprId = generateUniqueId();
+            subExprDefinitions.set(subExprId, {
+                identifier: subExprId,
+                definition: `
+define "${subExprId}":
+        ${resDefWrapped}
+`
+            });
+        }
+        else {
+            const subExprDef = generateCqlFromSubExpression(generateUniqueId(), subExpr, getOrCreateCodeIdentifier);
+            subExprDefinitions.set(subExprDef.identifier, subExprDef);
+        }
+    }
+    const subExprDef = `
+${Array.from(subExprDefinitions.values()).map(exprDef=>exprDef.definition).join('\n')}
+define ${subExpressionId}:
+    ${Array.from(subExprDefinitions.keys()).join(subExpression.subExprBool === 'and' ? ' and ' : ' or ')}
+`
+    return {
+        identifier: subExpressionId,
+        definition: subExprDef
+    };
+}
+
+let uniqueIdCount = 0;
+function generateUniqueId() {
+    return `UniqueId${uniqueIdCount++}`;
 }

@@ -216,7 +216,7 @@ const createDropdownElement = (friendlyField: FriendlyResourceProps, fieldElemen
                         >
                             <option hidden disabled value=''>{'Select...'}</option>
                             {fieldElements.values().map(function(sType, index) {
-                                return <option key={fieldKey + "-" + sType + "-" + index} value={sType}>{sType}</option>;
+                                return <option key={fieldKey + "-" + sType + "-" + index} value={sType}>{fieldElements.display !== undefined ? fieldElements.display(sType) : sType}</option>;
                             })}
                         </Form.Control>
                     </InputGroup>
@@ -240,7 +240,7 @@ const createDropdownElement = (friendlyField: FriendlyResourceProps, fieldElemen
                     >
                         <option hidden disabled value=''>{'--Please Select an Option--'}</option>
                         {fieldElements.values().map(function(sType, index)  {
-                            return <option key={fieldKey + "-" + sType + "-" + index} value={sType}>{sType}</option>;
+                            return <option key={fieldKey + "-" + sType + "-" + index} value={sType}>{fieldElements.display !== undefined ? fieldElements.display(sType) : sType}</option>;
                         })}
                     </Form.Control>
                 </InputGroup>
@@ -267,13 +267,14 @@ const createCodeableConceptElement = (friendlyField: FriendlyResourceProps, code
 }
 
 const createDisplayElement = ( displayProps: previewProps,friendlyFields: FriendlyResourceFormElement[], fieldHandler: FieldHandlerProps): JSX.Element => {
-        return (
-            <Form.Group key={fieldHandler.fieldName + "-fromGroup"} as={Col} controlId={fieldHandler.fieldName} {...(displayProps.displayFieldTitle) == true && {className: displayProps.className}}>
-                <Form.Label key={fieldHandler.fieldName + "-label"} className = {displayProps.className}> <b> 
-                    {(displayProps.displayFieldTitle) == true && (friendlyFields.find(ff => ff.SELF.FHIR === fieldHandler.fieldName)?.SELF.FRIENDLY ?? "FRIENDLY_NAME_UNKNOWN")}
-                </b>{fieldHandler.fieldContents}</Form.Label>
-            </Form.Group>
-        )
+    return (
+        <Form.Group key={fieldHandler.fieldName + "-fromGroup"} as={Col} controlId={fieldHandler.fieldName} {...(displayProps.displayFieldTitle) == true && {className: displayProps.className}}>
+            <Form.Label key={fieldHandler.fieldName + "-label"} className = {displayProps.className}>
+                <b>{(displayProps.displayFieldTitle) == true && (friendlyFields.find(ff => ff.SELF.FHIR === fieldHandler.fieldName)?.SELF.FRIENDLY ?? "FRIENDLY_NAME_UNKNOWN")}</b>
+                {displayProps.friendlyDisplay !== undefined ? displayProps.friendlyDisplay(fieldHandler.fieldContents) : fieldHandler.fieldContents}
+            </Form.Label>
+        </Form.Group>
+    )
 }
 
 const createDisplayElementList = (innerCardForm: ICardForm,fieldHandlers: Map<string, FieldHandlerProps>, resourceType: FriendlyResourceProps): JSX.Element[] => {
@@ -283,9 +284,18 @@ const createDisplayElementList = (innerCardForm: ICardForm,fieldHandlers: Map<st
     const list: JSX.Element[] = [];
 
     fieldHandlers.forEach(fh => {
-        list.push(createDisplayElement(innerCardForm.textBoxFields.get(fh.fieldName)?.preview ?? defaultBoxProps,flattenFriendlyFields,fh));
-        list.push(createDisplayElement(innerCardForm.dropdownFields.get(fh.fieldName)?.preview ?? defaultBoxProps,flattenFriendlyFields,fh));
-        list.push(createDisplayElement(innerCardForm.codeableConceptFields.get(fh.fieldName)?.preview ?? defaultBoxProps,flattenFriendlyFields,fh));
+        if (innerCardForm.textBoxFields.get(fh.fieldName) !== undefined) {
+            list.push(createDisplayElement(innerCardForm.textBoxFields.get(fh.fieldName)?.preview ?? defaultBoxProps,flattenFriendlyFields,fh));
+        }
+        else if (innerCardForm.dropdownFields.get(fh.fieldName) !== undefined) {
+            list.push(createDisplayElement(innerCardForm.dropdownFields.get(fh.fieldName)?.preview ?? defaultBoxProps,flattenFriendlyFields,fh));
+        }
+        else if (innerCardForm.codeableConceptFields.get(fh.fieldName) !== undefined) {
+            list.push(createDisplayElement(innerCardForm.codeableConceptFields.get(fh.fieldName)?.preview ?? defaultBoxProps,flattenFriendlyFields,fh));
+        }
+        else {
+            list.push(createDisplayElement(defaultBoxProps,flattenFriendlyFields,fh));
+        }
     })
 
     return list;
@@ -400,6 +410,14 @@ export const CardEditor = (props: CardEditorProps) => {
         setInnerCardForm(actTypeToICardForm(newActResourceType));
     }, [actNode])
 
+    /**
+     * Callback to write changes from the editor into the freezer-js state and return to the collection view
+     */
+    async function handleSaveResource() {
+        fieldHandlers.forEach((handler) => handler.fieldSaveHandler(handler.fieldName, handler.fieldContents, actNode, planNode, handler.fieldAncestry));
+        props.handleSaveResource();
+    }
+
     return (
         <div>
             <div key={actResourceType.FHIR + "-form"}  id="commonMetaDataForm">
@@ -417,14 +435,6 @@ export const CardEditor = (props: CardEditorProps) => {
             </div>
         </div>
     );
-
-    /**
-     * Callback to write changes from the editor into the freezer-js state and return to the collection view
-     */
-    async function handleSaveResource() {
-        fieldHandlers.forEach((handler) => handler.fieldSaveHandler(handler.fieldName, handler.fieldContents, actNode, planNode, handler.fieldAncestry));
-        props.handleSaveResource();
-    }
 
 }
 

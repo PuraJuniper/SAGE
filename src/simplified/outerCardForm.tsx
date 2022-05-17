@@ -4,7 +4,7 @@ import React from "react";
 import State, { SageNodeInitializedFreezerNode } from '../state';
 
 import { FieldHandlerProps, ICardForm } from './cardEditor';
-import { FriendlyResourceProps } from './nameHelpers';
+import { FriendlyResourceProps, friendlyTimeUnit } from './nameHelpers';
 import { Card, Col, Container, Row } from "react-bootstrap";
 import { Progress } from './topProgressBar';
 
@@ -22,6 +22,7 @@ export enum ElemType {
 export type previewProps = {
     className: string;
     displayFieldTitle: boolean;
+    friendlyDisplay?: (value: string) => string; // Convert `value` to friendly name
 }
 
 export type fieldFormProps = {
@@ -45,7 +46,21 @@ export type invisibleFieldProps = fieldFormProps
 
 export type dropdownBoxProps = fieldFormProps & {
     values: () => string[];
+    display?: (value: string) => string; // Returns a friendly name for `value` from `values`
 }
+export const timeUnitsDropdownProps = (values: string[]): dropdownBoxProps => {
+    return {
+        values: () => values, //['h', 'd', 'wk', 'mo', 'a'],
+        display: v => `${friendlyTimeUnit(v)}(s)`,
+        requiredFor: ["text"],
+        preview: {
+            className: "",
+            displayFieldTitle: true,
+            friendlyDisplay: v => `${friendlyTimeUnit(v)}(s)`
+        }
+    }
+}
+
 export interface CardFormState {
     step: number;
 }
@@ -63,8 +78,8 @@ export type CardFormProps = {
 }
 export class OuterCardForm extends React.Component<CardFormProps, CardFormState>{
     cardHeader: JSX.Element;
-    saveButton: JSX.Element;
-    deleteCardButton: JSX.Element;
+    saveButton: (callback: () => void) => JSX.Element;
+    deleteCardButton: (callback: () => void) => JSX.Element;
     pageTitles: Map<number, string>;
 
     constructor(props: CardFormProps) {
@@ -74,20 +89,17 @@ export class OuterCardForm extends React.Component<CardFormProps, CardFormState>
                 {this.props.resourceType ? this.props.resourceType?.FRIENDLY ?? "Unknown Resource Type" : ""}
             </b></h3>;
             
-        this.saveButton =
+        this.saveButton = (callback) =>
             <button className="navigate w-100"
                 type="button"
-                onClick={this.props.handleSaveResource}>
+                onClick={callback}>
                 Save Card&nbsp;
                 <FontAwesomeIcon key="butSaveIcon" icon={faCaretRight} />
             </button>;
 
-        this.deleteCardButton =
+        this.deleteCardButton = (callback) =>
             <button key="butDel" type='button' className="navigate w-100"
-                onClick={() => {
-                    this.setState({ step: 1 });
-                    this.props.handleDeleteResource();
-                }}>
+                onClick={callback}>
                 Cancel
             </button>;
 
@@ -145,13 +157,16 @@ export class OuterCardForm extends React.Component<CardFormProps, CardFormState>
                 </Row>
                 <Row className="mt-5">
                     <Col lg="2" xs="3">
-                        {this.deleteCardButton}
+                        {this.deleteCardButton(() => {
+                            this.setState({ step: 1 });
+                            this.props.handleDeleteResource();
+                        })}
                     </Col>
                     <Col lg={{ span: 2, offset: 3 }} xs={{ span: 3, offset: 1 }}>
                         {this.state.step > 1 ? this.leftNavButton() : null}
                     </Col>
                     <Col lg={{ span: 2, offset: 3 }} xs={{ span: 3, offset: 1 }}>
-                        {this.state.step <= 2 ? this.rightNavButton() : this.saveButton}
+                        {this.state.step <= 2 ? this.rightNavButton() : this.saveButton(this.props.handleSaveResource)}
                     </Col>
                 </Row>
             </Container>
