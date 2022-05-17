@@ -22,7 +22,7 @@ interface PlanDefEditorProps {
 }
 
 export function deletePdAndRefNodes(pdIndex: number, refIndex: number | null) {
-    if (refIndex) {
+    if (refIndex != null) {
         State.emit("remove_from_bundle", pdIndex, refIndex);
     }
     else {
@@ -57,7 +57,7 @@ export const PlanDefEditor = (props: PlanDefEditorProps) => {
             //navigate back to home
                 navigate("/basic-home");
             } else { //cancel editting an existing card
-                //warn the user that unsaved changes will be lost
+                //TODO: warn the user that unsaved changes will be lost
                 //navigate back to saved-cards
                 navigate(`/${SAVED_CARDS_ROUTE}`);
             }
