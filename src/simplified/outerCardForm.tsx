@@ -81,8 +81,8 @@ export type CardFormProps = {
 }
 export class OuterCardForm extends React.Component<CardFormProps, CardFormState>{
     cardHeader: JSX.Element;
-    saveButton: JSX.Element;
-    CancelButton: JSX.Element;
+    saveButton: (callback: () => void) => JSX.Element;
+    cancelButton: (callback: () => void) => JSX.Element;
     pageTitles: Map<number, string>;
 
     constructor(props: CardFormProps) {
@@ -92,20 +92,17 @@ export class OuterCardForm extends React.Component<CardFormProps, CardFormState>
                 {this.props.resourceType ? this.props.resourceType?.FRIENDLY ?? "Unknown Resource Type" : ""}
             </b></h3>;
             
-        this.saveButton =
+        this.saveButton = (callback) =>
             <button className="navigate w-100"
                 type="button"
-                onClick={() => this.props.handleSaveResource()}>
+                onClick={callback}>
                 Save Card&nbsp;
                 <FontAwesomeIcon key="butSaveIcon" icon={faCaretRight} />
             </button>;
 
-        this.CancelButton =
+        this.cancelButton = (callback) => 
             <button key="butCancel" type='button' className="navigate w-100"
-                onClick={() => {
-                    this.setState({ step: 1 });
-                    this.props.handleExit();
-                }}>
+                onClick={callback}>
                 Cancel
             </button>;
 
@@ -163,10 +160,13 @@ export class OuterCardForm extends React.Component<CardFormProps, CardFormState>
                 </Row>
                 <Row className="mt-5">
                     <Col lg="2" xs="3">
-                        {this.CancelButton}
+                        {this.cancelButton(() => {
+                            this.setState({ step: 1 });
+                            this.props.handleExit();
+                        })}
                     </Col>
                     {buttonSpacer(this.state.step > 1 ? this.leftNavButton() : null)}
-                    {buttonSpacer(this.state.step <= 2 ? this.rightNavButton() : this.saveButton)}
+                    {buttonSpacer(this.state.step <= 2 ? this.rightNavButton() : this.saveButton(this.props.handleSaveResource))}
                 </Row>
             </Container>
         );

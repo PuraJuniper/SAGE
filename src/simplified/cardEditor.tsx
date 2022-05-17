@@ -410,6 +410,14 @@ export const CardEditor = (props: CardEditorProps) => {
         setInnerCardForm(actTypeToICardForm(newActResourceType));
     }, [actNode])
 
+    /**
+     * Callback to write changes from the editor into the freezer-js state and return to the collection view
+     */
+    async function handleSaveResource() {
+        fieldHandlers.forEach((handler) => handler.fieldSaveHandler(handler.fieldName, handler.fieldContents, actNode, planNode, handler.fieldAncestry));
+        props.handleSaveResource();
+    }
+
     return (
         <div>
             <div key={actResourceType.FHIR + "-form"}  id="commonMetaDataForm">
@@ -427,14 +435,6 @@ export const CardEditor = (props: CardEditorProps) => {
             </div>
         </div>
     );
-
-    /**
-     * Callback to write changes from the editor into the freezer-js state and return to the collection view
-     */
-    async function handleSaveResource() {
-        fieldHandlers.forEach((handler) => handler.fieldSaveHandler(handler.fieldName, handler.fieldContents, actNode, planNode, handler.fieldAncestry));
-        props.handleSaveResource();
-    }
 
 }
 
