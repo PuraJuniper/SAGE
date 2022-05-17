@@ -3,6 +3,10 @@ import { useParams } from "react-router-dom";
 import State from "../state";
 import { PlanDefEditor } from "./planDefEditor";
 
+interface PlanDefLoaderProps {
+    newCard: boolean
+}
+
 export const getPlanDef = (planDefPosNum: number) => {
     return {
         planDefNode: State.get().bundle.resources[planDefPosNum],
@@ -10,7 +14,7 @@ export const getPlanDef = (planDefPosNum: number) => {
     }
 }
 
-export const PlanDefLoader = () => {
+export const PlanDefLoader = (props: PlanDefLoaderProps) => {
     const { planDefPos } = useParams();
     const planDefPosNum = planDefPos ? parseInt(planDefPos, 10) : NaN;
 
@@ -18,6 +22,6 @@ export const PlanDefLoader = () => {
         isNaN(planDefPosNum) || planDefPosNum >= State.get().bundle.resources.length ?
             <div>
                 Invalid bundle position: {planDefPos}
-            </div> : <PlanDefEditor {...getPlanDef(planDefPosNum)} />
+            </div> : <PlanDefEditor newCard={props.newCard} {...getPlanDef(planDefPosNum)} />
     );
 }

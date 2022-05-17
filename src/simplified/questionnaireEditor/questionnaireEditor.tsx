@@ -13,7 +13,7 @@ import {Progress} from "../topProgressBar"
 interface QuestionnaireEditorProps {
     planDefNode: SageNodeInitializedFreezerNode,
     questionnareNode: SageNodeInitializedFreezerNode,
-    handleDeleteResource: () => void,
+    handleExit: () => void,
     handleSaveResource: () => void,
     conditionEditor: JSX.Element,
 }
@@ -70,7 +70,7 @@ export const QuestionnaireEditor = (props: QuestionnaireEditorProps) => {
 
     const deleteCardButton = (
         <button key="butDel" type='button' className="navigate col-lg-2 col-md-3"
-            onClick={props.handleDeleteResource}
+            onClick={props.handleExit}
         >
             Cancel
         </button>

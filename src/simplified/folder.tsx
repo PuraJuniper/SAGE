@@ -9,6 +9,8 @@ import * as SchemaUtils from '../helpers/schema-utils';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faExclamationTriangle, faQuestionCircle } from "@fortawesome/pro-solid-svg-icons";
 import { useNavigate } from "react-router-dom";
+import { deletePdAndRefNodes } from './planDefEditor';
+import { editCardAtPos } from './basicView';
 
 interface FolderProps {
     actTitle: string,
@@ -86,7 +88,7 @@ export const Folder = (props: FolderProps) => {
     <div className="folder" style={{position:"relative", marginBottom:"100px", marginTop: "10px"}}
         onClick={(e) => {
             setShow(false);
-            navigate(`/edit/${props.pdIndex}`);
+            editCardAtPos(props.pdIndex, navigate, false);
         }}>
         <BaseCard header="_" title={PLAN_DEFINITION} hideHeader={false}/>
         <div className="folder-type" style={{position:"absolute", top:"-18px", left:"20px", maxWidth:"90%"}}>
@@ -110,12 +112,7 @@ export const Folder = (props: FolderProps) => {
             <CloseButton
                 onClick={(e) => {
                     e.stopPropagation();
-                    if (props.refIndex !== null) {
-                        State.emit("remove_from_bundle", props.pdIndex, props.refIndex);
-                    }
-                    else {
-                        State.emit("remove_from_bundle", props.pdIndex);
-                    }
+                    deletePdAndRefNodes(props.pdIndex, props.refIndex);
                 }}
             />
         </div>

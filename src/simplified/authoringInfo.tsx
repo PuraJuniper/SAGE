@@ -10,6 +10,7 @@ import { generateCardNameString, generateResourceReference } from "../helpers/sc
 import { ACTIVITY_DEFINITION, PLAN_DEFINITION } from "./nameHelpers";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCaretRight } from "@fortawesome/pro-solid-svg-icons";
+import { buttonSpacer } from "./outerCardForm";
 export interface AuthoringState {
     submitInvalid: boolean,
     showSpinner: boolean,
@@ -243,14 +244,14 @@ const NavButtons = (
     const [searchParams, _] = useSearchParams();
     const nextPage = searchParams.get('next') ?? 'create'
 
-    const continueToCreateCardButton = <button type='button' className="navigate col-lg-2 col-md-3"
+    const continueToCreateCardButton = <button type='button' className="navigate w-100"
         onClick={() => {
             props.handleSave();
             navigate('/create');
         } }>
         {<> {"Continue to Create Card "} <FontAwesomeIcon icon={faCaretRight} /></>}
     </button>;
-    const saveAndExitButton = <button type='button' className="navigate-reverse col-lg-2 col-md-3"
+    const saveAndExitButton = <button type='button' className="navigate-reverse w-100"
         onClick={() => {
             props.handleSave();
             props.handleUpdateExistingCards();
@@ -258,7 +259,7 @@ const NavButtons = (
         } }>
         {<> {"Save"} </>}
     </button>;
-    const cancelButton = <button type='button' className="navigate col-lg-2 col-md-3"
+    const cancelButton = <button type='button' className="navigate w-100"
         onClick={() => {
             navigate('/basic-home');
         } }>
@@ -270,10 +271,10 @@ const NavButtons = (
             //     navigate("/");
             // }
     return (
-        <div style={{ display: "flex", marginTop: '1rem' }} >
-            {props.continueToCreateCard ? null : saveAndExitButton}
-            {props.continueToCreateCard ? continueToCreateCardButton : null}
-            {cancelButton}
+        <div style={{ display: "flex", marginTop: '1rem' }}>
+            <Col lg={{ span: 2 }} xs={{ span: 2}}>{cancelButton}</Col>
+            <Col lg={{ span: 2, offset: 6 }} xs={{ span: 3, offset: 1 }}>{props.continueToCreateCard ? null : saveAndExitButton}</Col>
+            <Col lg={{ span: 2, offset: 0 }}>{props.continueToCreateCard ? continueToCreateCardButton : null}</Col>
         </div>
     );
 }

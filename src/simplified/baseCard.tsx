@@ -1,5 +1,5 @@
 import React from 'react';
-import {Card, Container, Row} from "react-bootstrap";
+import {Button, Card, Container, Row} from "react-bootstrap";
 import {useState, useEffect} from "react";
 import { CSSTransition } from 'react-transition-group';
 import State from "../state";
@@ -35,6 +35,7 @@ interface BaseCardProps {
 
 export const BaseCard = (props: BaseCardProps) => {
     const [show, setShow] = useState(false);
+    const [isClickable, setIsClickable] = useState(true);
     
     useEffect(() => {
         const timeoutId = setTimeout(() => {
@@ -59,7 +60,7 @@ export const BaseCard = (props: BaseCardProps) => {
             bg={props.bsBg}
             text={props.bsText as Color}
             border={props.bsBorder}
-            onClick={props.onClick}
+            onClick={isClickable ? props.onClick : () => void(0)}
         >
             <Card.Header style={headerPadding} hidden = {props.hideHeader}>
                 {props.header}
@@ -68,13 +69,14 @@ export const BaseCard = (props: BaseCardProps) => {
                 <Container>
                     <Row className="align-content-end">
                         {props.infoLink !== undefined ?
-                            <span style={{ fontSize: "20px", textAlign: "right" }}>
+                                <span style={{ fontSize: "20px", textAlign: "right" }} onMouseEnter={() => setIsClickable(false)} onMouseLeave={() => setIsClickable(true)}>
                                 <a href={props.infoLink} target="_blank" rel="noreferrer" className="c-tooltip">
                                     <FontAwesomeIcon icon={faInfoCircle} style={{'color':props.IconColor}} />
                                     <span className="c-tooltiptext">FHIR Docs</span>
                                 </a>
                             </span> :
                             <div className="m-3" />}
+
                     </Row>
                     <Row className="align-content-center">
                         <Card.Title className="col" style={{ fontSize: props.titleSize, textAlign: "center" }}>{props.title}</Card.Title>
