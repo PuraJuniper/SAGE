@@ -111,13 +111,16 @@ span {
   border-color: #DEF1DF;
   box-shadow: 0 0 0 0.2rem rgba(38, 143, 255, 0.5);
 }
+
 .btn-sage-white-secondary:active, .btn-sage-white-secondary.active {
   background-color: #DEF1DF;
   border-color: rgba(0,0,0,0);
 }
+
 .btn-sage-white-secondary:disabled, .btn-sage-white-secondary.disabled {
   color: #5b5b5b;
 }
+
 .btn-sage-white-secondary:hover {
   color: white;
   background-color: #65BE67;

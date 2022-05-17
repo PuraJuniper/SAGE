@@ -90,7 +90,7 @@ export class OuterCardForm extends React.Component<CardFormProps, CardFormState>
     cardHeader: JSX.Element;
     saveButton: (callback: () => void) => JSX.Element;
     cancelButton: (callback: () => void) => JSX.Element;
-    pageTitles: Map<number, string>;
+    // pageTitles: Map<number, string>;
 
     constructor(props: CardFormProps) {
         super(props);
@@ -117,11 +117,11 @@ export class OuterCardForm extends React.Component<CardFormProps, CardFormState>
             step: 1,
         };
 
-        this.pageTitles = new Map([
-            [1, "What does the card do?"],
-            [2, "When is the card played?"],
-            [3, "Review card"]
-        ])
+        // this.pageTitles = new Map([
+        //     [1, "What does the card do?"],
+        //     [2, "When is the card played?"],
+        //     [3, "Review card"]
+        // ])
 
     }
 
@@ -148,13 +148,8 @@ export class OuterCardForm extends React.Component<CardFormProps, CardFormState>
         return (
             <Container className="p-5">
                 <Row>
-                    <h4 id='page-title' className="col-12">{this.props.resourceType.FRIENDLY}</h4>
+                    <h4 id='page-title' className="col-12">{this.props.resourceType.FRIENDLY} Card</h4>
                 </Row>
-                {/* <Row>
-                    <Col xs="12">
-                        <Progress pageTitle={this.pageTitles.get(this.state.step)} steps={activityPlanSteps}></Progress>
-                    </Col>
-                </Row> */}
                 <Row style={{ padding: "1px"}}>
                     <Col xs="12">
                         <Nav justify variant="tabs"
@@ -162,7 +157,7 @@ export class OuterCardForm extends React.Component<CardFormProps, CardFormState>
                             onSelect={(selectedKey) => {this.setState({ step: parseInt(selectedKey ?? "1") })}}
                             >
                             <Nav.Item>
-                                <Nav.Link eventKey="1">{activityPlanSteps[0].pageTitle}</Nav.Link>
+                                <Nav.Link bsPrefix='left-nav-button btn btn-sage-white-secondary' eventKey="1">{activityPlanSteps[0].pageTitle}</Nav.Link>
                             </Nav.Item>
                             <Nav.Item>
                                 <Nav.Link eventKey="2">{activityPlanSteps[1].pageTitle}</Nav.Link>
