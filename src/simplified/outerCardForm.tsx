@@ -5,7 +5,7 @@ import State, { SageNodeInitializedFreezerNode } from '../state';
 
 import { FieldHandlerProps, ICardForm } from './cardEditor';
 import { FriendlyResourceProps, friendlyTimeUnit } from './nameHelpers';
-import { Card, Col, Container, Row } from "react-bootstrap";
+import { Card, Col, Container, Nav, Row } from "react-bootstrap";
 import { Progress, progressStep } from './topProgressBar';
 
 
@@ -150,13 +150,30 @@ export class OuterCardForm extends React.Component<CardFormProps, CardFormState>
                 <Row>
                     <h3 id='page-title' className="col-12">{this.pageTitles.get(this.state.step)}</h3>
                 </Row>
-                <Row>
+                {/* <Row>
                     <Col xs="12">
                         <Progress pageTitle={this.pageTitles.get(this.state.step)} steps={activityPlanSteps}></Progress>
                     </Col>
-                </Row>
+                </Row> */}
                 <Row>
                     <Col xs="12">
+                        <Nav variant="tabs"
+                            activeKey={this.state.step.toString()}
+                            onSelect={(selectedKey) => {
+                                this.setState({ step: parseInt(selectedKey ?? "1") })
+                            }
+                            }
+                            >
+                            <Nav.Item>
+                                <Nav.Link eventKey="1">{activityPlanSteps[0].pageTitle}</Nav.Link>
+                            </Nav.Item>
+                            <Nav.Item>
+                                <Nav.Link eventKey="2">{activityPlanSteps[1].pageTitle}</Nav.Link>
+                            </Nav.Item>
+                            <Nav.Item>
+                                <Nav.Link eventKey="3">{activityPlanSteps[2].pageTitle}</Nav.Link>
+                            </Nav.Item>
+                    </Nav>
                         {this.state.step == 1 ? <PageOne fieldElements={this.props.elementList} /> : null}
                         {this.state.step == 2 ? <PageTwo conditionEditor={this.props.conditionEditor} /> : null}
                         {this.state.step == 3 ? <Card style={{ padding: "20px", margin: "10px", borderWidth: "2px", borderColor:'#2D2E74', borderRadius: '40px'}}>
