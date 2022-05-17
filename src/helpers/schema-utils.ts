@@ -135,7 +135,7 @@ export function toFhir(decorated: SageNodeInitialized, validate: boolean): [Sage
 				} else if (["valueArray"].includes(child.nodeType)) {
 					return _walkNode(child, []);
 				} else if (["objectArray"].includes(child.nodeType)) {
-					return _walkNode(child, [{}]);
+					return _walkNode(child, []);
 				} else {
 					let err;
 					if (validate && child?.ui?.validationErr) {
