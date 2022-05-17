@@ -148,21 +148,18 @@ export class OuterCardForm extends React.Component<CardFormProps, CardFormState>
         return (
             <Container className="p-5">
                 <Row>
-                    <h3 id='page-title' className="col-12">{this.pageTitles.get(this.state.step)}</h3>
+                    <h4 id='page-title' className="col-12">{this.props.resourceType.FRIENDLY}</h4>
                 </Row>
                 {/* <Row>
                     <Col xs="12">
                         <Progress pageTitle={this.pageTitles.get(this.state.step)} steps={activityPlanSteps}></Progress>
                     </Col>
                 </Row> */}
-                <Row>
+                <Row style={{ padding: "1px"}}>
                     <Col xs="12">
-                        <Nav variant="tabs"
+                        <Nav justify variant="tabs"
                             activeKey={this.state.step.toString()}
-                            onSelect={(selectedKey) => {
-                                this.setState({ step: parseInt(selectedKey ?? "1") })
-                            }
-                            }
+                            onSelect={(selectedKey) => {this.setState({ step: parseInt(selectedKey ?? "1") })}}
                             >
                             <Nav.Item>
                                 <Nav.Link eventKey="1">{activityPlanSteps[0].pageTitle}</Nav.Link>
@@ -174,6 +171,10 @@ export class OuterCardForm extends React.Component<CardFormProps, CardFormState>
                                 <Nav.Link eventKey="3">{activityPlanSteps[2].pageTitle}</Nav.Link>
                             </Nav.Item>
                     </Nav>
+                    </Col>
+                </Row>
+                <Row>
+                    <Col>
                         {this.state.step == 1 ? <PageOne fieldElements={this.props.elementList} /> : null}
                         {this.state.step == 2 ? <PageTwo conditionEditor={this.props.conditionEditor} /> : null}
                         {this.state.step == 3 ? <Card style={{ padding: "20px", margin: "10px", borderWidth: "2px", borderColor:'#2D2E74', borderRadius: '40px'}}>
