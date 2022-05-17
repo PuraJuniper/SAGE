@@ -8,7 +8,7 @@ import {faCaretRight, faCaretLeft} from  '@fortawesome/pro-solid-svg-icons';
 import State from "../../state";
 import { useRef, useState } from "react";
 import { Card } from "react-bootstrap";
-import {Progress} from "../topProgressBar"
+import {Progress, progressStep} from "../topProgressBar"
 
 interface QuestionnaireEditorProps {
     planDefNode: SageNodeInitializedFreezerNode,
@@ -105,11 +105,18 @@ export const QuestionnaireEditor = (props: QuestionnaireEditorProps) => {
         </button>
     );
 
+    const questionaireSteps: progressStep[] =
+[
+	{pageTitle:"Page 1: Creating a Questionnaire", text: "Enter What the card does"},
+	{pageTitle:"Page 2: Adding Conditions",	       text: "Enter When the card is played"},
+	{pageTitle:"Page 3: Card Preview",	           text: "Review and Save"},
+];
+
     return (
         <div style={{display: "flex"}} >
             <div style={{flexGrow: 1, margin: "50px"}}>
             <div className='basic-page-titles'>{pageTitles.get(step)}</div>
-            <Progress pageTitle={pageTitles.get(step)} fhirType='questionaire'></Progress>
+            <Progress pageTitle={pageTitles.get(step)} steps={questionaireSteps}></Progress>
             {step === 1 ?
                 <StructorFrame ref={structorRef} questionnaireFromSage={questionnaireResource} questionnaireSavedCallback={handleQuestionnaireSaved} 
                     structorReadyCallback={()=>{return 0;}}

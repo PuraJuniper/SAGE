@@ -6,7 +6,7 @@ import State, { SageNodeInitializedFreezerNode } from '../state';
 import { FieldHandlerProps, ICardForm } from './cardEditor';
 import { FriendlyResourceProps, friendlyTimeUnit } from './nameHelpers';
 import { Card, Col, Container, Row } from "react-bootstrap";
-import { Progress } from './topProgressBar';
+import { Progress, progressStep } from './topProgressBar';
 
 
 export type cardRow = string[];
@@ -63,6 +63,13 @@ export const timeUnitsDropdownProps = (values: string[]): dropdownBoxProps => {
         }
     }
 }
+
+const activityPlanSteps: progressStep[] =
+[
+	{pageTitle: "What does the card do?",	  text: "Enter What the card does"},
+	{pageTitle: "When is the card played?",	text: "Enter When the card is played"},
+	{pageTitle: "Review card",	              text: "Review and Save"},
+]
 
 export interface CardFormState {
     step: number;
@@ -145,7 +152,7 @@ export class OuterCardForm extends React.Component<CardFormProps, CardFormState>
                 </Row>
                 <Row>
                     <Col xs="12">
-                        <Progress pageTitle={this.pageTitles.get(this.state.step)} fhirType='activity'></Progress>
+                        <Progress pageTitle={this.pageTitles.get(this.state.step)} steps={activityPlanSteps}></Progress>
                     </Col>
                 </Row>
                 <Row>
