@@ -135,9 +135,6 @@ export function toFhir(decorated: SageNodeInitialized, validate: boolean): [Sage
 				} else if (["valueArray"].includes(child.nodeType)) {
 					return _walkNode(child, []);
 				} else if (["objectArray"].includes(child.nodeType)) {
-					// Uncomment this line to bring back the behavior that fixed the relatedArtifact export error, 
-					//  but note that it will break some tests in schema-utils.test.ts and thus the CI deployment
-					// return _walkNode(child, [{}]);
 					return _walkNode(child, []);
 				} else {
 					let err;
