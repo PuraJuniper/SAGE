@@ -55,7 +55,7 @@ export const BaseCard = (props: BaseCardProps) => {
         classNames="res-card"
         >
         <Card
-            className={`raise-card-animation ${props.disabled ? "disabled-card" : ""}`}
+            className={`sage-card raise-card-animation ${props.disabled ? "disabled-card" : ""}`}
             bg={props.bsBg}
             text={props.bsText as Color}
             border={props.bsBorder}
@@ -82,9 +82,11 @@ export const BaseCard = (props: BaseCardProps) => {
                     <Row className="align-content-center">
                         <Card.Text className="col">{content}</Card.Text>
                     </Row>
-                    <Row className="align-content-center">
-                        <FontAwesomeIcon className="col pe-none" icon={props.cardImage} style={{'color':props.IconColor, 'height':props.IconSize}} />
-                    </Row>
+                    {props.cardImage ?
+                        <Row className="align-content-center">
+                            <FontAwesomeIcon className="col pe-none" icon={props.cardImage} style={{'color':props.IconColor, 'height':props.IconSize}} />
+                        </Row> :
+                        null}
                 </Container>
             </Card.Body>
         </Card>

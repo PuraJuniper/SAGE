@@ -424,6 +424,10 @@ a {
 
 /* CARDS AND FOLDERS */
 
+.sage-card {
+  min-height: 11rem;
+}
+
 /* .card {
   cursor:pointer;
   margin:0px 0px 15px 0px;
@@ -1041,7 +1045,6 @@ a {
   box-shadow: 0 0.5em 0.5em -0.4em var(--hover);
   transform: translateY(-0.25em);
   transition: 0.25s;
-  color: white;
 
 }
 .breadcrumb{

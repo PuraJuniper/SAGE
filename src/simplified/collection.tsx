@@ -7,9 +7,11 @@ import * as SchemaUtils from "../helpers/schema-utils"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faDownload, faCaretLeft } from '@fortawesome/pro-solid-svg-icons';
 import { SageNodeInitialized } from "../helpers/schema-utils";
-import { PLAN_DEFINITION } from "./nameHelpers";
+import { PLAN_DEFINITION, profileToFriendlyResourceListEntry } from "./nameHelpers";
 import { useNavigate } from "react-router-dom";
 import ExportDialog from '../dialogs/export-dialog';
+import { Button, Container } from 'react-bootstrap';
+import { BaseCard } from './baseCard';
 
 
 const Collection = () => {
@@ -18,11 +20,12 @@ const Collection = () => {
     const [showExport, setShowExport] = useState(false);
 
     return (
-        <div style={{display: "flex"}} >
-                <div style={{flexGrow: 1, margin: "50px"}}>
-
-            <div className="row">
-                <h3 className="col-lg-10 col-md-9"><b>Saved Cards</b></h3>
+        <Container className="p-5">
+            <div className="row g-2">
+                <h3 className="col-lg-8 col-md-6"><b>Saved Cards</b></h3>
+                <button className="navigate-reverse col-lg-2 col-md-3" disabled>
+                    New Folder
+                </button>
                 <button className="navigate-reverse col-lg-2 col-md-3"
                     onClick={() => navigate('/basic-home')}>
                     <FontAwesomeIcon icon={faCaretLeft} />
@@ -79,16 +82,21 @@ const Collection = () => {
                                         }
                                     }
                                     return <div className="col-lg-3 col-md-4 col-sm-6" key={i*2}>
-                                        <Folder
-                                            actTitle={actTitleNode?.value ? actTitleNode.value : "Untitled AD"}
-                                            planTitle={planTitleNode?.value ? planTitleNode.value : "Untitled PD"}
-                                            actDesc={actDescNode?.value ? actDescNode.value : ""}
-                                            conditionExpressions={conditionExpressions}
-                                            referencedLibraries={libraryUrls}
-                                            profile={SchemaUtils.toFhir(referencedNode, false).meta?.profile?.[0] ?? ""}
-                                            wait={i * 25}
-                                            pdIndex={planDefPos}
-                                            refIndex={referencedNodePos}
+                                        <BaseCard
+                                            title={planTitleNode?.value ? planTitleNode.value : "Untitled PD"}
+                                            header={profileToFriendlyResourceListEntry(SchemaUtils.toFhir(referencedNode, false).meta?.profile?.[0] ?? "")?.SELF.FRIENDLY ?? "Unknown"}
+                                            hideHeader={false}
+                                            onClick={() => navigate(`/edit/${planDefPos}`)}
+                                            content={
+                                                <Button className="col-6 w-100" variant="sage-primary"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        State.emit("remove_from_bundle", planDefPos, referencedNodePos);
+                                                    }}
+                                                >
+                                                    Delete
+                                                </Button>
+                                            }
                                         />
                                     </div>
                                 }
@@ -99,9 +107,8 @@ const Collection = () => {
                 }
                 {resources.length == 0 ? <div style={{ margin: "50px", marginTop: "40px" }}> <i>No Cards</i> </div> : undefined}
             </div>
-            </div>
             <ExportDialog show={showExport} bundle={State.get().bundle} handleClose={() => setShowExport(false)} />
-        </div>
+        </Container>
     );
 }
 
