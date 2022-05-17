@@ -92,7 +92,7 @@ export class OuterCardForm extends React.Component<CardFormProps, CardFormState>
         this.saveButton =
             <button className="navigate w-100"
                 type="button"
-                onClick={this.props.handleSaveResource}>
+                onClick={() => this.props.handleSaveResource()}>
                 Save Card&nbsp;
                 <FontAwesomeIcon key="butSaveIcon" icon={faCaretRight} />
             </button>;
