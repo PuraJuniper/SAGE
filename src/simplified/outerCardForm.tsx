@@ -77,12 +77,12 @@ export type CardFormProps = {
     conditionEditor: JSX.Element,
     innerCardForm: ICardForm,
     handleSaveResource: ()=> void,
-    handleDeleteResource: () => void,
+    handleExit: () => void,
 }
 export class OuterCardForm extends React.Component<CardFormProps, CardFormState>{
     cardHeader: JSX.Element;
     saveButton: JSX.Element;
-    deleteCardButton: JSX.Element;
+    CancelButton: JSX.Element;
     pageTitles: Map<number, string>;
 
     constructor(props: CardFormProps) {
@@ -100,11 +100,11 @@ export class OuterCardForm extends React.Component<CardFormProps, CardFormState>
                 <FontAwesomeIcon key="butSaveIcon" icon={faCaretRight} />
             </button>;
 
-        this.deleteCardButton =
-            <button key="butDel" type='button' className="navigate w-100"
+        this.CancelButton =
+            <button key="butCancel" type='button' className="navigate w-100"
                 onClick={() => {
                     this.setState({ step: 1 });
-                    this.props.handleDeleteResource();
+                    this.props.handleExit();
                 }}>
                 Cancel
             </button>;
@@ -163,7 +163,7 @@ export class OuterCardForm extends React.Component<CardFormProps, CardFormState>
                 </Row>
                 <Row className="mt-5">
                     <Col lg="2" xs="3">
-                        {this.deleteCardButton}
+                        {this.CancelButton}
                     </Col>
                     {buttonSpacer(this.state.step > 1 ? this.leftNavButton() : null)}
                     {buttonSpacer(this.state.step <= 2 ? this.rightNavButton() : this.saveButton)}
