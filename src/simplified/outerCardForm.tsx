@@ -152,12 +152,12 @@ export class OuterCardForm extends React.Component<CardFormProps, CardFormState>
                 </Row>
                 <Row style={{ padding: "1px"}}>
                     <Col xs="12">
-                        <Nav justify variant="tabs"
+                        <Nav  justify variant="tabs"
                             activeKey={this.state.step.toString()}
                             onSelect={(selectedKey) => {this.setState({ step: parseInt(selectedKey ?? "1") })}}
                             >
                             <Nav.Item>
-                                <Nav.Link bsPrefix='left-nav-button btn btn-sage-white-secondary' eventKey="1">{activityPlanSteps[0].pageTitle}</Nav.Link>
+                                <Nav.Link eventKey="1">{activityPlanSteps[0].pageTitle}</Nav.Link>
                             </Nav.Item>
                             <Nav.Item>
                                 <Nav.Link eventKey="2">{activityPlanSteps[1].pageTitle}</Nav.Link>
