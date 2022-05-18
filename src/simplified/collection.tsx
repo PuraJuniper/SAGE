@@ -11,6 +11,8 @@ import { PLAN_DEFINITION } from "./nameHelpers";
 import { useNavigate } from "react-router-dom";
 import ExportDialog from '../dialogs/export-dialog';
 import { CreateCardWorkflow } from './selectView';
+import { AUTHOR_THEN_EXIT_ROUTE } from './basicView';
+import { Col } from 'react-bootstrap';
 
 
 const Collection = () => {
@@ -24,7 +26,7 @@ const Collection = () => {
 
             <div className="row">
                 <h3 className="col-lg-10 col-md-9"><b>Saved Cards</b></h3>
-                <button className="navigate-reverse col-lg-2 col-md-3"
+                    <button className="navigate-reverse col-lg-2 col-md-2"
                     onClick={() => CreateCardWorkflow(navigate)}>
                     <FontAwesomeIcon icon={faCaretLeft} />
                     &nbsp;New Card
@@ -98,6 +100,14 @@ const Collection = () => {
                             return null;
                         })
                 }
+
+                    <Col lg="2" xs="3">
+                        {
+                            <button className="navigate w-100"
+                                onClick={() => navigate(`/${AUTHOR_THEN_EXIT_ROUTE}`)}>
+                                Edit Authoring Information
+                            </button>}
+                    </Col>
                 {resources.length == 0 ? <div style={{ margin: "50px", marginTop: "40px" }}> <i>No Cards</i> </div> : undefined}
             </div>
             </div>
