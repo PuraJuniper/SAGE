@@ -1,5 +1,5 @@
 import React from 'react';
-import {Card, Container, Row} from "react-bootstrap";
+import {Button, Card, Container, Row} from "react-bootstrap";
 import {useState, useEffect} from "react";
 import { CSSTransition } from 'react-transition-group';
 import State from "../state";
@@ -68,13 +68,14 @@ export const BaseCard = (props: BaseCardProps) => {
                 <Container>
                     <Row className="align-content-end">
                         {props.infoLink !== undefined ?
-                            <span style={{ fontSize: "20px", textAlign: "right" }}>
-                                <a href={props.infoLink} target="_blank" rel="noreferrer" className="c-tooltip">
+                                <span style={{ fontSize: "20px", textAlign: "right" }}>
+                                <a onClick={e => e.stopPropagation()} href={props.infoLink} target="_blank" rel="noreferrer" className="c-tooltip">
                                     <FontAwesomeIcon icon={faInfoCircle} style={{'color':props.IconColor}} />
                                     <span className="c-tooltiptext">FHIR Docs</span>
                                 </a>
                             </span> :
                             <div className="m-3" />}
+
                     </Row>
                     <Row className="align-content-center">
                         <Card.Title className="col" style={{ fontSize: props.titleSize, textAlign: "center" }}>{props.title}</Card.Title>

@@ -5,7 +5,7 @@ import { NavigateFunction, useNavigate } from "react-router-dom";
 import { generateResourceReference, incrementNextId } from '../helpers/schema-utils';
 import State from "../state";
 import { BaseCard } from "./baseCard";
-import { AUTHOR_THEN_CARD_ROUTE, AUTHOR_THEN_EXIT_ROUTE } from './basicView';
+import { AUTHOR_THEN_CARD_ROUTE, AUTHOR_THEN_EXIT_ROUTE, editCardAtPos } from './basicView';
 import { ACTIVITY_DEFINITION, friendlyResourceRoot, PLAN_DEFINITION, QUESTIONNAIRE } from "./nameHelpers";
 import { Progress } from './topProgressBar';
 
@@ -95,7 +95,7 @@ const SelectView = () => {
                                                         State.emit("load_json_resource", json);
                                                         // Set current editor position to the last resource (should be the PlanDefinition in `json` after the "load_json_resource" call)
                                                         State.emit("set_bundle_pos", State.get().bundle.resources.length-1);
-                                                        navigate(`/edit/${State.get().bundle.resources.length-1}`);
+                                                        editCardAtPos(State.get().bundle.resources.length-1, navigate, true);
                                                     }}
                                                     profile={resource.DEFAULT_PROFILE_URI}
                                                     titleSize='15px'

@@ -17,7 +17,7 @@ interface ExpressionOptionDict {
 interface CardEditorProps {
     actNode: SageNodeInitializedFreezerNode,
     planNode: SageNodeInitializedFreezerNode,
-    handleDeleteResource: () => void,
+    handleExit: () => void,
     handleSaveResource: () => void,
     conditionEditor: JSX.Element,
 }
@@ -430,7 +430,7 @@ export const CardEditor = (props: CardEditorProps) => {
                     previewList={createDisplayElementList(innerCardForm,fieldHandlers, actResourceType)}
                     innerCardForm={innerCardForm}
                     handleSaveResource={handleSaveResource}
-                    handleDeleteResource={props.handleDeleteResource}
+                    handleExit={props.handleExit}
                 />
             </div>
         </div>
