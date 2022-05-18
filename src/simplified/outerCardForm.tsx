@@ -107,8 +107,8 @@ export class OuterCardForm extends React.Component<CardFormProps, CardFormState>
                 <FontAwesomeIcon key="butSaveIcon" icon={faCaretRight} />
             </button>;
 
-        this.cancelButton = (callback) =>
-        <button key="butCancel" type='button' className="navigate w-100"
+        this.cancelButton = (callback) => 
+            <button key="butCancel" type='button' className="navigate w-100"
                 onClick={callback}>
                 Cancel
             </button>;
@@ -180,10 +180,10 @@ export class OuterCardForm extends React.Component<CardFormProps, CardFormState>
                 </Row>
                 <Row className="mt-5">
                     <Col lg="2" xs="3">
-                        {this.cancelButton (() => {
-                    this.setState({ step: 1 });
-                    this.props.handleExit();
-                })}
+                        {this.cancelButton(() => {
+                            this.setState({ step: 1 });
+                            this.props.handleExit();
+                        })}
                     </Col>
                     {buttonSpacer(this.state.step > 1 ? this.leftNavButton() : null)}
                     {buttonSpacer(this.state.step <= 2 ? this.rightNavButton() : this.saveButton(this.props.handleSaveResource))}

@@ -35,7 +35,6 @@ interface BaseCardProps {
 
 export const BaseCard = (props: BaseCardProps) => {
     const [show, setShow] = useState(false);
-    const [isClickable, setIsClickable] = useState(true);
     
     useEffect(() => {
         const timeoutId = setTimeout(() => {
@@ -60,7 +59,7 @@ export const BaseCard = (props: BaseCardProps) => {
             bg={props.bsBg}
             text={props.bsText as Color}
             border={props.bsBorder}
-            onClick={isClickable ? props.onClick : () => void(0)}
+            onClick={props.onClick}
         >
             <Card.Header style={headerPadding} hidden = {props.hideHeader}>
                 {props.header}
@@ -69,8 +68,8 @@ export const BaseCard = (props: BaseCardProps) => {
                 <Container>
                     <Row className="align-content-end">
                         {props.infoLink !== undefined ?
-                                <span style={{ fontSize: "20px", textAlign: "right" }} onMouseEnter={() => setIsClickable(false)} onMouseLeave={() => setIsClickable(true)}>
-                                <a href={props.infoLink} target="_blank" rel="noreferrer" className="c-tooltip">
+                                <span style={{ fontSize: "20px", textAlign: "right" }}>
+                                <a onClick={e => e.stopPropagation()} href={props.infoLink} target="_blank" rel="noreferrer" className="c-tooltip">
                                     <FontAwesomeIcon icon={faInfoCircle} style={{'color':props.IconColor}} />
                                     <span className="c-tooltiptext">FHIR Docs</span>
                                 </a>
