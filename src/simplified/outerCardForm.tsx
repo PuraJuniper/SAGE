@@ -13,6 +13,9 @@ export type cardRow = string[];
 export type cardLayout = {
     cardColumns: cardRow[];
 }
+
+export const buttonSpacer = (button: JSX.Element | null) => <Col lg={{ span: 2, offset: 3 }} xs={{ span: 3, offset: 1 }}>{button}</Col>;
+
 export enum ElemType {
     TextBox,
     Dropdown
@@ -74,12 +77,12 @@ export type CardFormProps = {
     conditionEditor: JSX.Element,
     innerCardForm: ICardForm,
     handleSaveResource: ()=> void,
-    handleDeleteResource: () => void,
+    handleExit: () => void,
 }
 export class OuterCardForm extends React.Component<CardFormProps, CardFormState>{
     cardHeader: JSX.Element;
-    saveButton: JSX.Element;
-    deleteCardButton: JSX.Element;
+    saveButton: (callback: () => void) => JSX.Element;
+    cancelButton: (callback: () => void) => JSX.Element;
     pageTitles: Map<number, string>;
 
     constructor(props: CardFormProps) {
@@ -89,20 +92,17 @@ export class OuterCardForm extends React.Component<CardFormProps, CardFormState>
                 {this.props.resourceType ? this.props.resourceType?.FRIENDLY ?? "Unknown Resource Type" : ""}
             </b></h3>;
             
-        this.saveButton =
+        this.saveButton = (callback) =>
             <button className="navigate w-100"
                 type="button"
-                onClick={this.props.handleSaveResource}>
+                onClick={callback}>
                 Save Card&nbsp;
                 <FontAwesomeIcon key="butSaveIcon" icon={faCaretRight} />
             </button>;
 
-        this.deleteCardButton =
-            <button key="butDel" type='button' className="navigate w-100"
-                onClick={() => {
-                    this.setState({ step: 1 });
-                    this.props.handleDeleteResource();
-                }}>
+        this.cancelButton = (callback) => 
+            <button key="butCancel" type='button' className="navigate w-100"
+                onClick={callback}>
                 Cancel
             </button>;
 
@@ -160,14 +160,13 @@ export class OuterCardForm extends React.Component<CardFormProps, CardFormState>
                 </Row>
                 <Row className="mt-5">
                     <Col lg="2" xs="3">
-                        {this.deleteCardButton}
+                        {this.cancelButton(() => {
+                            this.setState({ step: 1 });
+                            this.props.handleExit();
+                        })}
                     </Col>
-                    <Col lg={{ span: 2, offset: 3 }} xs={{ span: 3, offset: 1 }}>
-                        {this.state.step > 1 ? this.leftNavButton() : null}
-                    </Col>
-                    <Col lg={{ span: 2, offset: 3 }} xs={{ span: 3, offset: 1 }}>
-                        {this.state.step <= 2 ? this.rightNavButton() : this.saveButton}
-                    </Col>
+                    {buttonSpacer(this.state.step > 1 ? this.leftNavButton() : null)}
+                    {buttonSpacer(this.state.step <= 2 ? this.rightNavButton() : this.saveButton(this.props.handleSaveResource))}
                 </Row>
             </Container>
         );

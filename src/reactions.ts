@@ -364,8 +364,9 @@ State.on('save_changes_to_bundle_json', function() {
 
 
 State.on("remove_from_bundle", function(...deleteAt) {
+	const deleteIds = deleteAt.map(dn => State.get().bundle.resources[dn].id ?? -1)
 	State.get().bundle.set({
-		resources: State.get().bundle.resources.filter((v, i) => !(i in deleteAt)),
+		resources: State.get().bundle.resources.filter(res => !deleteIds.includes(res.id ?? -1)),
 		pos: Math.max(0, State.get().bundle.pos - deleteAt.length),
 	});
 

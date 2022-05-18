@@ -106,7 +106,7 @@ class RootComponent extends React.Component<RootProps, RootState> {
 		} else if (state.bundle.resources.length > 0) {
 			return (
 					state.mode === "basic" ? 
-					<PlanDefEditor planDefNode={state.bundle.resources[state.bundle.pos]} planDefPos={state.bundle.pos} /> :
+					<PlanDefEditor planDefNode={state.bundle.resources[state.bundle.pos]} planDefPos={state.bundle.pos} newCard={false} /> :
 					<DomainResource node={state.bundle.resources[state.bundle.pos]} errFields={state.errFields}/>
 			);
 		} 

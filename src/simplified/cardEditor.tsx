@@ -17,7 +17,7 @@ interface ExpressionOptionDict {
 interface CardEditorProps {
     actNode: SageNodeInitializedFreezerNode,
     planNode: SageNodeInitializedFreezerNode,
-    handleDeleteResource: () => void,
+    handleExit: () => void,
     handleSaveResource: () => void,
     conditionEditor: JSX.Element,
 }
@@ -410,6 +410,14 @@ export const CardEditor = (props: CardEditorProps) => {
         setInnerCardForm(actTypeToICardForm(newActResourceType));
     }, [actNode])
 
+    /**
+     * Callback to write changes from the editor into the freezer-js state and return to the collection view
+     */
+    async function handleSaveResource() {
+        fieldHandlers.forEach((handler) => handler.fieldSaveHandler(handler.fieldName, handler.fieldContents, actNode, planNode, handler.fieldAncestry));
+        props.handleSaveResource();
+    }
+
     return (
         <div>
             <div key={actResourceType.FHIR + "-form"}  id="commonMetaDataForm">
@@ -422,19 +430,11 @@ export const CardEditor = (props: CardEditorProps) => {
                     previewList={createDisplayElementList(innerCardForm,fieldHandlers, actResourceType)}
                     innerCardForm={innerCardForm}
                     handleSaveResource={handleSaveResource}
-                    handleDeleteResource={props.handleDeleteResource}
+                    handleExit={props.handleExit}
                 />
             </div>
         </div>
     );
-
-    /**
-     * Callback to write changes from the editor into the freezer-js state and return to the collection view
-     */
-    async function handleSaveResource() {
-        fieldHandlers.forEach((handler) => handler.fieldSaveHandler(handler.fieldName, handler.fieldContents, actNode, planNode, handler.fieldAncestry));
-        props.handleSaveResource();
-    }
 
 }
 

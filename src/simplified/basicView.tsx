@@ -1,5 +1,5 @@
 import React, { createContext, useEffect, useState } from "react";
-import { Routes, Route, Outlet } from "react-router-dom";
+import { Routes, Route, Outlet, NavigateFunction } from "react-router-dom";
 import Footer from "../footer";
 import NavbarFred from "../navbar";
 import Collection from "./collection";
@@ -18,6 +18,15 @@ export const BundleContext = createContext<SageFreezerNode<StateVars['bundle']>>
 export const AUTHOR_THEN_EXIT_ROUTE = "author"
 export const AUTHOR_THEN_CARD_ROUTE = "create-first"
 export const SAVED_CARDS_ROUTE = "saved-cards"
+export const EDIT_CARD_ROUTE = "edit/:planDefPos"
+export const ADD_CARD_ROUTE = "add/:planDefPos"
+export const editCardAtPos = (pos: number, navigate: NavigateFunction, newCard: boolean) => {
+    if (newCard) {
+        navigate(`/add/${pos}`);
+    } else {
+        navigate(`/edit/${pos}`);
+    }
+}
 
 export const BasicView = () => {
     const [freezerState, setFreezerState] = useState<SageFreezerNode<StateVars>>(() => State.get());
@@ -63,7 +72,8 @@ export const BasicView = () => {
                 <Route path={AUTHOR_THEN_EXIT_ROUTE} element={<Authoring continueToCreateCard={false}/>} /> 
                 <Route path={AUTHOR_THEN_CARD_ROUTE} element={<Authoring continueToCreateCard={true}/>} />
                 <Route path="create" element={<SelectView />} />
-                <Route path="edit/:planDefPos" element={<PlanDefLoader />} />
+                <Route path={EDIT_CARD_ROUTE} element={<PlanDefLoader newCard={false}/>} />
+                <Route path={ADD_CARD_ROUTE} element={<PlanDefLoader newCard={true}/>} />
                 <Route index element={<Collection />} />
                 <Route path={SAVED_CARDS_ROUTE} element={<Collection />} /> {/* Fall back to collection view if no other path matches */}
             </Route>

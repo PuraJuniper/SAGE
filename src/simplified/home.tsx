@@ -12,7 +12,6 @@ import { CreateCardWorkflow } from './selectView';
 console.log(friendlyResourceRoot.RESOURCES)
 
 interface homePageCardProps {
-    header: string,
     title: string,
     profile?: string,
     cardImage: IconDefinition,
@@ -24,7 +23,6 @@ interface homePageCardProps {
 
 const listOfHomePage: homePageCardProps[] = [
     {
-        'header':'New Card',
         'title':'Create Cards',
         'cardImage':faCirclePlus,
         'cardColor':'sage-purple',
@@ -32,7 +30,6 @@ const listOfHomePage: homePageCardProps[] = [
         clickHandler: CreateCardWorkflow
     },
     {
-        'header':'Saved Cards',
         'title':'Saved Cards',
         'cardImage':faGrid,
         'cardColor':'sage-green',
@@ -56,7 +53,6 @@ const BasicHomeView = () => {
                                 (resource, i) => {
                                     return (
                                         <div style={{ flex: '0 0 35%' , maxWidth: '35%' , padding: "10px" }} key={`${resource.title}-${i}`}>
-                                        <h4 style={{'fontSize':'10px'}}>{resource.header}</h4>
                                             <Col style={{ padding: "0px" }}>
                                                  <BaseCard
                                                     bsBg={resource.cardColor}

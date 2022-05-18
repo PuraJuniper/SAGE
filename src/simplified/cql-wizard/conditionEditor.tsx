@@ -25,7 +25,7 @@ export interface WizExpression {
     curWizState: WizardState | null,
     exprAggregate: WizExprAggregate,
 }
-interface SubExpression {
+export interface SubExpression {
     subExpr: (WizExpression | SubExpression)[],
     subExprBool: 'and' | 'or',
 }
