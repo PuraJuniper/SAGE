@@ -10,6 +10,7 @@ import { SageNodeInitialized } from "../helpers/schema-utils";
 import { PLAN_DEFINITION } from "./nameHelpers";
 import { useNavigate } from "react-router-dom";
 import ExportDialog from '../dialogs/export-dialog';
+import { CreateCardWorkflow } from './selectView';
 
 
 const Collection = () => {
@@ -24,7 +25,7 @@ const Collection = () => {
             <div className="row">
                 <h3 className="col-lg-10 col-md-9"><b>Saved Cards</b></h3>
                 <button className="navigate-reverse col-lg-2 col-md-3"
-                    onClick={() => navigate('/basic-home')}>
+                    onClick={() => CreateCardWorkflow(navigate)}>
                     <FontAwesomeIcon icon={faCaretLeft} />
                     &nbsp;New Card
                 </button>
