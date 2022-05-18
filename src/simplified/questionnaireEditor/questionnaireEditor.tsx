@@ -1,14 +1,12 @@
-import React from 'react';
+import { faCaretLeft, faCaretRight } from '@fortawesome/pro-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Questionnaire } from "fhir/r4";
-import { decorateFhirData, getChildOfNode, getChildOfNodePath, toFhir } from "../../helpers/schema-utils";
-import { SageNodeInitializedFreezerNode } from "../../state";
-import StructorFrame, { StructorFrameRef } from "./structorFrame";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import {faCaretRight, faCaretLeft} from  '@fortawesome/pro-solid-svg-icons';
-import State from "../../state";
-import { useRef, useState } from "react";
+import React, { useRef, useState } from 'react';
 import { Card } from "react-bootstrap";
-import {Progress} from "../topProgressBar"
+import { decorateFhirData, getChildOfNode, getChildOfNodePath, toFhir } from "../../helpers/schema-utils";
+import State, { SageNodeInitializedFreezerNode } from "../../state";
+import { CardNav, stepProps } from '../outerCardForm';
+import StructorFrame, { StructorFrameRef } from "./structorFrame";
 
 interface QuestionnaireEditorProps {
     planDefNode: SageNodeInitializedFreezerNode,
@@ -105,11 +103,19 @@ export const QuestionnaireEditor = (props: QuestionnaireEditorProps) => {
         </button>
     );
 
+    const questionaireSteps: stepProps[] =
+[
+	{title:"Page 1: Creating a Questionnaire", text: "Enter What the card does"},
+	{title:"Page 2: Adding Conditions",	       text: "Enter When the card is played"},
+	{title:"Page 3: Card Preview",	           text: "Review and Save"},
+];
+
     return (
         <div style={{display: "flex"}} >
             <div style={{flexGrow: 1, margin: "50px"}}>
             <div className='basic-page-titles'>{pageTitles.get(step)}</div>
-            <Progress pageTitle={pageTitles.get(step)} fhirType='questionaire'></Progress>
+
+            {CardNav(step, questionaireSteps, (selectedKey) => setStep(parseInt(selectedKey ?? "1") ))}
             {step === 1 ?
                 <StructorFrame ref={structorRef} questionnaireFromSage={questionnaireResource} questionnaireSavedCallback={handleQuestionnaireSaved} 
                     structorReadyCallback={()=>{return 0;}}

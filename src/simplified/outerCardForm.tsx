@@ -1,12 +1,11 @@
 import { faCaretLeft, faCaretRight } from '@fortawesome/pro-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React from "react";
-import State, { SageNodeInitializedFreezerNode } from '../state';
-
+import { Card, Col, Container, Nav, Row } from "react-bootstrap";
+import { SageNodeInitializedFreezerNode } from '../state';
 import { FieldHandlerProps, ICardForm } from './cardEditor';
 import { FriendlyResourceProps, friendlyTimeUnit } from './nameHelpers';
-import { Card, Col, Container, Row } from "react-bootstrap";
-import { Progress } from './topProgressBar';
+
 
 
 export type cardRow = string[];
@@ -64,6 +63,28 @@ export const timeUnitsDropdownProps = (values: string[]): dropdownBoxProps => {
     }
 }
 
+export type stepProps = { title: string, text: string}
+
+export const CardNav = (curStep: number, steps: stepProps[], onSelectFn: {(selectedKey: string | null): void}) => {
+  return <Nav justify variant="tabs"
+    activeKey={curStep.toString()}
+    onSelect={(selectedKey) => onSelectFn(selectedKey)}
+  >
+    {steps.map((step, i) => {
+      return <Nav.Item key={i}>
+        <Nav.Link eventKey={(i + 1).toString()}>{step.title}</Nav.Link>
+      </Nav.Item>
+    })}
+  </Nav>
+}
+
+const activityPlanSteps: stepProps[] =
+[
+	{title: "What does the card do?",	  text: "Enter What the card does"},
+	{title: "When is the card played?",	text: "Enter When the card is played"},
+	{title: "Review card",	              text: "Review and Save"},
+]
+
 export interface CardFormState {
     step: number;
 }
@@ -83,7 +104,7 @@ export class OuterCardForm extends React.Component<CardFormProps, CardFormState>
     cardHeader: JSX.Element;
     saveButton: (callback: () => void) => JSX.Element;
     cancelButton: (callback: () => void) => JSX.Element;
-    pageTitles: Map<number, string>;
+    // pageTitles: Map<number, string>;
 
     constructor(props: CardFormProps) {
         super(props);
@@ -110,12 +131,6 @@ export class OuterCardForm extends React.Component<CardFormProps, CardFormState>
             step: 1,
         };
 
-        this.pageTitles = new Map([
-            [1, "What does the card do?"],
-            [2, "When is the card played?"],
-            [3, "Review card"]
-        ])
-
     }
 
     leftNavButton = () => {
@@ -141,15 +156,15 @@ export class OuterCardForm extends React.Component<CardFormProps, CardFormState>
         return (
             <Container className="p-5">
                 <Row>
-                    <h3 id='page-title' className="col-12">{this.pageTitles.get(this.state.step)}</h3>
+                    <h4 id='page-title' className="col-12">{this.props.resourceType.FRIENDLY} Card</h4>
                 </Row>
-                <Row>
+                <Row style={{ padding: "1px"}}>
                     <Col xs="12">
-                        <Progress pageTitle={this.pageTitles.get(this.state.step)} fhirType='activity'></Progress>
+                        {CardNav(this.state.step, activityPlanSteps, (selectedKey) => this.setState({ step: parseInt(selectedKey ?? "1") }))}
                     </Col>
                 </Row>
                 <Row>
-                    <Col xs="12">
+                    <Col>
                         {this.state.step == 1 ? <PageOne fieldElements={this.props.elementList} /> : null}
                         {this.state.step == 2 ? <PageTwo conditionEditor={this.props.conditionEditor} /> : null}
                         {this.state.step == 3 ? <Card style={{ padding: "20px", margin: "10px", borderWidth: "2px", borderColor:'#2D2E74', borderRadius: '40px'}}>

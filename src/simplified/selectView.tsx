@@ -5,9 +5,8 @@ import { NavigateFunction, useNavigate } from "react-router-dom";
 import { generateResourceReference, incrementNextId } from '../helpers/schema-utils';
 import State from "../state";
 import { BaseCard } from "./baseCard";
-import { AUTHOR_THEN_CARD_ROUTE, AUTHOR_THEN_EXIT_ROUTE, editCardAtPos } from './basicView';
+import { AUTHOR_THEN_CARD_ROUTE, editCardAtPos } from './basicView';
 import { ACTIVITY_DEFINITION, friendlyResourceRoot, PLAN_DEFINITION, QUESTIONNAIRE } from "./nameHelpers";
-import { Progress } from './topProgressBar';
 
 
 export const CreateCardWorkflow = (navigate: NavigateFunction) => {

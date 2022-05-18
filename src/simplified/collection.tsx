@@ -1,17 +1,17 @@
-import React from 'react';
-import { useState, useEffect } from "react";
-import { Folder } from "./folder";
-import State, { SageReactions } from "../state";
-import * as SchemaUtils from "../helpers/schema-utils"
-
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faDownload, faCaretLeft } from '@fortawesome/pro-solid-svg-icons';
-import { SageNodeInitialized } from "../helpers/schema-utils";
-import { PLAN_DEFINITION, profileToFriendlyResourceListEntry } from "./nameHelpers";
+import { faCaretLeft, faDownload } from '@fortawesome/pro-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import React, { useState } from 'react';
+import { Button, Col, Container } from 'react-bootstrap';
 import { useNavigate } from "react-router-dom";
 import ExportDialog from '../dialogs/export-dialog';
-import { Button, Container } from 'react-bootstrap';
+import * as SchemaUtils from "../helpers/schema-utils";
+import { SageNodeInitialized } from "../helpers/schema-utils";
+import State from "../state";
 import { BaseCard } from './baseCard';
+import { AUTHOR_THEN_EXIT_ROUTE } from './basicView';
+import { PLAN_DEFINITION, profileToFriendlyResourceListEntry } from "./nameHelpers";
+import { CreateCardWorkflow } from './selectView';
+
 
 
 const Collection = () => {
@@ -27,7 +27,7 @@ const Collection = () => {
                     New Folder
                 </button>
                 <button className="navigate-reverse col-lg-2 col-md-3"
-                    onClick={() => navigate('/basic-home')}>
+                    onClick={() => CreateCardWorkflow(navigate)}>
                     <FontAwesomeIcon icon={faCaretLeft} />
                     &nbsp;New Card
                 </button>
@@ -105,6 +105,14 @@ const Collection = () => {
                             return null;
                         })
                 }
+
+                    <Col lg="2" xs="3">
+                        {
+                            <button className="navigate w-100"
+                                onClick={() => navigate(`/${AUTHOR_THEN_EXIT_ROUTE}`)}>
+                                Edit Authoring Information
+                            </button>}
+                    </Col>
                 {resources.length == 0 ? <div style={{ margin: "50px", marginTop: "40px" }}> <i>No Cards</i> </div> : undefined}
             </div>
             <ExportDialog show={showExport} bundle={State.get().bundle} handleClose={() => setShowExport(false)} />
