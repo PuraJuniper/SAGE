@@ -1,7 +1,7 @@
-import { faCaretLeft, faDownload } from '@fortawesome/pro-solid-svg-icons';
+import { faCaretLeft, faDownload, faInfoCircle } from '@fortawesome/pro-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React, { useState } from 'react';
-import { Button, Col, Container } from 'react-bootstrap';
+import { Button, Card, Col, Container } from 'react-bootstrap';
 import { useNavigate } from "react-router-dom";
 import ExportDialog from '../dialogs/export-dialog';
 import * as SchemaUtils from "../helpers/schema-utils";
@@ -9,6 +9,7 @@ import { SageNodeInitialized } from "../helpers/schema-utils";
 import State from "../state";
 import { BaseCard } from './baseCard';
 import { AUTHOR_THEN_EXIT_ROUTE } from './basicView';
+import { Folder } from './folder';
 import { PLAN_DEFINITION, profileToFriendlyResourceListEntry } from "./nameHelpers";
 import { CreateCardWorkflow } from './selectView';
 
@@ -21,7 +22,7 @@ const SavedCards = () => {
 
     return (
         <Container className="p-5">
-            <div className="row g-2">
+            <div className="row">
                 <h3 className="col-lg-8 col-md-6"><b>Saved Cards</b></h3>
                 <Button variant='outline-primary' bsPrefix="card-btn btn" disabled>
                     New Folder
@@ -37,7 +38,7 @@ const SavedCards = () => {
                     &nbsp;Export as FHIR Bundle
                 </Button>
             </div>
-            <div className="row box">
+            <Card bsPrefix='folder row card'>
                 {
                     resources.reduce<{node: SageNodeInitialized, pos: number}[]>(
                         function (accumulator, currentValue, currentIndex, array) {
@@ -81,7 +82,7 @@ const SavedCards = () => {
                                             libraryUrls = [libraryNode.value];
                                         }
                                     }
-                                    return <div className="col-lg-3 col-md-4 col-sm-6" key={i*2}>
+                                    return <div className="col-lg-3 col-md-4 col-sm-6" key={i*2}>   
                                         <BaseCard
                                             title={planTitleNode?.value ? planTitleNode.value : "Untitled PD"}
                                             header={profileToFriendlyResourceListEntry(SchemaUtils.toFhir(referencedNode, false).meta?.profile?.[0] ?? "")?.SELF.FRIENDLY ?? "Unknown"}
@@ -108,14 +109,15 @@ const SavedCards = () => {
 
                     <Col lg="2" xs="3">
                         {
-                            
-        <                   Button variant='outline-primary' bsPrefix="card-nav-btn btn"
+                            <>
+                            <Button variant='outline-primary' bsPrefix="card-nav-btn btn"
                                 onClick={() => navigate(`/${AUTHOR_THEN_EXIT_ROUTE}`)}>
                                 Edit Authoring Information
-                            </Button>}
+                            </Button>
+                        </> }
                     </Col>
                 {resources.length == 0 ? <div style={{ margin: "50px", marginTop: "40px" }}> <i>No Cards</i> </div> : undefined}
-            </div>
+            </Card>
             <ExportDialog show={showExport} bundle={State.get().bundle} handleClose={() => setShowExport(false)} />
         </Container>
     );
