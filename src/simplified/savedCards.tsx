@@ -38,21 +38,19 @@ const SavedCards = () => {
                     &nbsp;Export as FHIR Bundle
                 </Button>
             </div>
-            <Card bsPrefix='folder row card'>
-                <div>
-                    <svg x="0px" y="0px" viewBox="0 0 54 54" >
-                        <g>
-                            <path d="M53,10.5H23.535l-3.703-5.555C19.646,4.667,19.334,4.5,19,4.5H1c-0.552,0-1,0.447-1,1v6v4v29.003
-		C0,47.259,2.24,49.5,4.994,49.5h44.012C51.76,49.5,54,47.259,54,44.503V15.5v-4C54,10.947,53.552,10.5,53,10.5z M52,14.5H2v-2h21
-		h29V14.5z M2,6.5h16.465l2.667,4H2V6.5z M52,44.503c0,1.652-1.343,2.997-2.994,2.997H4.994C3.343,47.5,2,46.155,2,44.503V16.5h50
-		V44.503z"/>
+            <div>
+                <svg viewBox="0 0 1080 540">
+                    <g>
+                        <path fill="#2D2E74" strokeWidth={17} stroke="white"
+                        d="m 530 60 h -295 l -37 -55 c -2 -3 -5 -5 -8 -5 h -180 c -6 0 -10 5 -10 10 v 60 v 40 v 290 c 0 28 22 50 50 50 h 1000 c 28 0 50 -22 50 -50 v -290 v -40 c 0 -6 -5 -10 -10 -10 z m -10 40 h -500 v -20 h 210 h 850 v 20 z m -500 -80 h 165 l 27 40 h -191 v -40 z m 1060 380 c 0 16 -13 30 -30 30 h -1000 c -16 0 -30 -13 -30 -30 v -280 h 1060 v 280 z" />
 
-                        </g>
-                        <foreignObject width="100%" height="100%">
-                            <div style={{color: "blue",margin: "25% auto 5% auto",textAlign: "center", fontSize:"5px"}}>Im a div inside a SVG.</div>
-                        </foreignObject>
-                    </svg>
-                </div>
+                    </g>
+                <foreignObject width="100%" height="50%" y="50%">
+                    <div style={{ color: "blue", textAlign: "center", fontSize: "20px" }}>Im a div inside a SVG.</div>
+                    </foreignObject>
+                </svg>
+            </div>
+            <Card bsPrefix='folder row card'>
                 {
                     resources.reduce<{node: SageNodeInitialized, pos: number}[]>(
                         function (accumulator, currentValue, currentIndex, array) {
