@@ -1,6 +1,6 @@
 import { faUserDoctor } from '@fortawesome/pro-solid-svg-icons';
 import React from 'react';
-import { Col, Container, Row } from "react-bootstrap";
+import { Button, Col, Container, Row } from "react-bootstrap";
 import { NavigateFunction, useNavigate } from "react-router-dom";
 import { generateResourceReference, incrementNextId } from '../helpers/schema-utils';
 import State from "../state";
@@ -111,9 +111,9 @@ const SelectView = () => {
                 }
             </Row>
             <Row>
-                <button className="navigate col-lg-2 col-3" onClick={() => navigate('/basic-home')}>
+                <Button variant='outline-primary' bsPrefix="card-btn btn" onClick={() => navigate('/basic-home')}>
                     Cancel
-                </button>
+                </Button>
             </Row>
         </Container>
     );

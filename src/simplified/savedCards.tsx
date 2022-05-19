@@ -14,7 +14,7 @@ import { CreateCardWorkflow } from './selectView';
 
 
 
-const Collection = () => {
+const SavedCards = () => {
     const navigate = useNavigate();
     const resources = State.get().bundle?.resources ?? [];
     const [showExport, setShowExport] = useState(false);
@@ -108,10 +108,11 @@ const Collection = () => {
 
                     <Col lg="2" xs="3">
                         {
-                            <button className="navigate w-100"
+                            
+        <                   Button variant='outline-primary' bsPrefix="card-nav-btn btn"
                                 onClick={() => navigate(`/${AUTHOR_THEN_EXIT_ROUTE}`)}>
                                 Edit Authoring Information
-                            </button>}
+                            </Button>}
                     </Col>
                 {resources.length == 0 ? <div style={{ margin: "50px", marginTop: "40px" }}> <i>No Cards</i> </div> : undefined}
             </div>
@@ -120,4 +121,4 @@ const Collection = () => {
     );
 }
 
-export default Collection
+export default SavedCards
