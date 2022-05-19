@@ -1,5 +1,5 @@
 import React from "react";
-import { Col, Container, Row } from "react-bootstrap";
+import { Button, Col, Container, Row } from "react-bootstrap";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import "react-step-progress-bar/styles.css";
 import State from "../state";
@@ -244,27 +244,27 @@ const NavButtons = (
     const [searchParams, _] = useSearchParams();
     const nextPage = searchParams.get('next') ?? 'create'
 
-    const continueToCreateCardButton = <button type='button' className="navigate w-100"
+    const continueToCreateCardButton = <Button variant='outline-primary' bsPrefix="card-nav-btn btn"
         onClick={() => {
             props.handleSave();
             navigate('/create');
         } }>
         {<> {"Continue to Create Card "} <FontAwesomeIcon icon={faCaretRight} /></>}
-    </button>;
-    const saveAndExitButton = <button type='button' className="navigate-reverse w-100"
+    </Button>;
+    const saveAndExitButton = <Button variant='outline-primary' bsPrefix="card-nav-btn btn"
         onClick={() => {
             props.handleSave();
             props.handleUpdateExistingCards();
             navigate('/basic-home');
         } }>
         {<> {"Save"} </>}
-    </button>;
-    const cancelButton = <button type='button' className="navigate w-100"
+    </Button>;
+    const cancelButton = <Button variant='outline-primary' bsPrefix="card-nav-btn btn"
         onClick={() => {
             navigate('/basic-home');
         } }>
         {<> {"Cancel"} </>}
-    </button>;
+    </Button>;
 
 
             // export function handleCancelEdit() {

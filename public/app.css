@@ -627,31 +627,50 @@ a {
   background: linear-gradient(to left, white 50%, var(--sage-dark-purple) 50%) right;
 }
 
-.navigate-reverse {
-  background: linear-gradient(to right, white 50%, var(--sage-dark-purple) 50%) left;
+.card-btn:disabled,
+.card-nav-btn:disabled {
+  color: grey;
+  border-color: grey;
 }
 
-.navigate, .navigate-reverse {
+.card-btn{
+  flex: 0 0 auto;
+  width: 16.66666667%;
+}
+
+.card-nav-btn {
+  width: 100%
+}
+
+.navigate, .navigate-reverse,
+.card-btn, .btn-outline-primary,
+.btn-outline-primary:focus {
+  color: var(--sage-dark-purple);
+  border: 2px solid var(--sage-dark-purple);
+  background: linear-gradient(to right, white 50%, var(--sage-dark-purple) 50%) left;
   background-size: 200%;
   transition: .3s ease-out;
-  border: 2px solid var(--sage-dark-purple);
-  color: var(--sage-dark-purple);
   text-align: center;
   text-decoration: none;
   display: inline-block;
   font-size: 16px;
   border-radius:5px;
   margin-bottom:5px;
+  box-shadow: none;
 }
+
 
 .navigate:hover {
   background-position:left;
   color:white;
 }
 
-.navigate-reverse:enabled:hover {
-  background-position:right;
+.card-btn:hover,
+.card-nav-btn:hover {
+  border: 2px solid var(--sage-dark-purple);
   color:white;
+  background-position:right;
+
 }
 
 .open-resource {

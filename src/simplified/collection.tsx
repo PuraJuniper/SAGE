@@ -23,19 +23,19 @@ const Collection = () => {
         <Container className="p-5">
             <div className="row g-2">
                 <h3 className="col-lg-8 col-md-6"><b>Saved Cards</b></h3>
-                <Button variant='outline-primary'>
+                <Button variant='outline-primary' bsPrefix="card-btn btn" disabled>
                     New Folder
                 </Button>
-                <button className="navigate-reverse col-lg-2 col-md-3"
+                <Button variant='outline-primary' bsPrefix="card-btn btn"
                     onClick={() => CreateCardWorkflow(navigate)}>
                     <FontAwesomeIcon icon={faCaretLeft} />
                     &nbsp;New Card
-                </button>
-                <button className="navigate-reverse col-lg-2 col-md-2"
+                </Button>
+                <Button variant='outline-primary' bsPrefix="card-btn btn"
                     onClick={() => setShowExport(true)}>
                     <FontAwesomeIcon icon={faDownload} />
                     &nbsp;Export as FHIR Bundle
-                </button>
+                </Button>
             </div>
             <div className="row box">
                 {

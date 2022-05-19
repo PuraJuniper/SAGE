@@ -1,7 +1,7 @@
 import { faCaretLeft, faCaretRight } from '@fortawesome/pro-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React from "react";
-import { Card, Col, Container, Nav, Row } from "react-bootstrap";
+import { Button, Card, Col, Container, Nav, Row } from "react-bootstrap";
 import { SageNodeInitializedFreezerNode } from '../state';
 import { FieldHandlerProps, ICardForm } from './cardEditor';
 import { FriendlyResourceProps, friendlyTimeUnit } from './nameHelpers';
@@ -114,18 +114,18 @@ export class OuterCardForm extends React.Component<CardFormProps, CardFormState>
             </b></h3>;
             
         this.saveButton = (callback) =>
-            <button className="navigate w-100"
+            <Button variant='outline-primary' bsPrefix="card-nav-btn btn"
                 type="button"
                 onClick={callback}>
                 Save Card&nbsp;
                 <FontAwesomeIcon key="butSaveIcon" icon={faCaretRight} />
-            </button>;
+            </Button>;
 
         this.cancelButton = (callback) => 
-            <button key="butCancel" type='button' className="navigate w-100"
+            <Button variant='outline-primary' bsPrefix="card-nav-btn btn"
                 onClick={callback}>
                 Cancel
-            </button>;
+            </Button>;
 
         this.state = {
             step: 1,
@@ -135,18 +135,18 @@ export class OuterCardForm extends React.Component<CardFormProps, CardFormState>
 
     leftNavButton = () => {
         return (
-            <button type='button' className={"navigate-reverse w-100"}
+            <Button variant='outline-primary' bsPrefix="card-nav-btn btn"
                 onClick={() => this.setState({ step: this.state.step - 1 })}>
                 {<> <FontAwesomeIcon icon={faCaretLeft} /> {" Previous"} </>}
-            </button>);
+            </Button>);
     }
 
     rightNavButton = () => {
         return (
-            <button type='button' className={"navigate w-100"}
+            <Button variant='outline-primary' bsPrefix="card-nav-btn btn"
                 onClick={() => this.setState({ step: this.state.step + 1 })}>
                 {<> {"Next "} <FontAwesomeIcon icon={faCaretRight} /></>}
-            </button>);
+            </Button>);
     }
 
     render() {
