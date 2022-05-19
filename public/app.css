@@ -83,7 +83,7 @@
 .nav-tabs .nav-link.active,
 .nav-tabs .nav-link.active, .nav-link:hover {
  color: white;
- background-color: var(--sage-dark-purple);
+ background-color: var(--sage-green);
  border-color:#dee2e6 #dee2e6 #fff;
  opacity: 1.0;
 }
@@ -1085,7 +1085,7 @@ a {
 }
 .top-bread-crumb{
   height: 1px;
-  background-color: var(--sage-dark-purple);
+  background-color: var(--sage-green);
 }
 
 .step-numbers{
