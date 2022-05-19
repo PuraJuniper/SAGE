@@ -23,9 +23,9 @@ const Collection = () => {
         <Container className="p-5">
             <div className="row g-2">
                 <h3 className="col-lg-8 col-md-6"><b>Saved Cards</b></h3>
-                <button className="navigate-reverse col-lg-2 col-md-3" disabled>
+                <Button variant='outline-primary'>
                     New Folder
-                </button>
+                </Button>
                 <button className="navigate-reverse col-lg-2 col-md-3"
                     onClick={() => CreateCardWorkflow(navigate)}>
                     <FontAwesomeIcon icon={faCaretLeft} />

@@ -1,7 +1,7 @@
 import React from "react";
 import State from "./state";
 import { useNavigate } from "react-router-dom";
-import {Navbar, Nav, NavItem} from 'react-bootstrap';
+import { Navbar, Nav, NavItem, Button } from 'react-bootstrap';
 
 export const LandingPage = () => {
     const navigate = useNavigate();
@@ -13,43 +13,37 @@ export const LandingPage = () => {
             </Navbar.Brand></Navbar>
             <div className="container">
                 <div className="row justify-content-md-center" style={{ marginTop: 40, marginBottom: 40 }}>
-                    <div className="col-lg-1"></div>
                     <div className="col-lg-2 ">
                         <img src="../img/Juniper-CDS-colour.png" className="img-thumbnail" style={{ border: 0 }} />
                     </div>
-                    <div className="col-lg-1"></div>
                 </div>
-                <div className="row justify-content-md-center">
-                    <div className="col col-lg-1 bg-sage-darkpurple"></div>
-                    <div className="col-lg-2 bg-sage-darkpurple text-center">
+            </div>
+            <div className="container bg-sage-darkpurple" style={{ width: 500 }}>
+                <div className="row justify-content-md-center" >
+                    <div className="col text-center">
                         <p style={{ marginTop: 60 }}><span style={{ color: "#E0C758", textAlign: "center", fontWeight: "bold" }}>Choose Account</span></p>
                     </div>
-                    <div className="col col-lg-1 bg-sage-darkpurple"></div>
                 </div>
                 <div className="row justify-content-md-center">
-                    <div className="col-lg-1 bg-sage-darkpurple"></div>
-                    <div className="col-lg-2 bg-sage-darkpurple">
-                        <button className="btn btn-secondary btn-block" style={{ marginTop: 60, width: "100%" }} onClick={(e) => {
+                    <div className="col-lg-2" style={{ width: "40%"}}>
+                        <Button variant="secondary" bsPrefix="landing-page-btn btn" onClick={(e) => {
                             State.get().bundle?.set("resources", []);
                             State.get().set("mode", "basic");
                             navigate('/basic-home');
                         } }>
                             Basic CPG
-                        </button>
+                        </Button>
                     </div>
-                    <div className="col-lg-1 bg-sage-darkpurple"></div>
                 </div>
-                <div className="row justify-content-md-center">
-                    <div className="col-lg-1 bg-sage-darkpurple"></div>
-                    <div className="col-lg-2 bg-sage-darkpurple">
-                        <button className="btn btn-secondary btn-block" style={{ marginTop: 10, marginBottom: 100, width: "100%" }} onClick={(e) => {
+                <div className="row justify-content-md-center" >
+                    <div className="col-lg-2" style={{ marginBottom: 60, width: "40%"}}>
+                        <Button variant="secondary" bsPrefix="landing-page-btn btn" onClick={(e) => {
                             State.get().ui.set("status", "advanced-cpg");
                             State.get().set("mode", "advanced");
                         } }>
                             Advanced CPG
-                        </button>
+                        </Button>
                     </div>
-                    <div className="col-lg-1 bg-sage-darkpurple"></div>
                 </div>
             </div>
         </>

@@ -15,6 +15,9 @@
 	margin: 20px;
 }
 
+.container .bg-sage-darkpurple {
+}
+
 #sage-main-content {
   margin-left: var(--sage-sidebar-width); /* Set margin to avoid drawing main content behind the sidebar */
   transition-property: margin-left;
@@ -119,14 +122,22 @@ span {
   border-color: var(--sage-dark-purple);
 }
 
-.btn-secondary {
-  background-color: #64be66;
-  border-color: #64be66;
+
+.landing-page-btn {
+  margin-top: 10px;
+  margin-bottom: 10px;
+  width: 100%;
 }
+
+.btn-secondary {
+  background-color: var(--sage-green);
+  border-color: var(--sage-green);
+}
+
 .btn-sage-secondary {
   color: #fff;
-  background-color: #64be66;
-  border-color: #64be66;
+  background-color: var(--sage-green);
+  border-color: var(--sage-green);
 }
 .btn-sage-white-secondary {
   background-color: white;
