@@ -1,7 +1,7 @@
 import { faCaretLeft, faDownload, faInfoCircle } from '@fortawesome/pro-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React, { useState } from 'react';
-import { Button, Card, Col, Container } from 'react-bootstrap';
+import { Button, Card, Col, Container, Row } from 'react-bootstrap';
 import { useNavigate } from "react-router-dom";
 import ExportDialog from '../dialogs/export-dialog';
 import * as SchemaUtils from "../helpers/schema-utils";
@@ -21,36 +21,32 @@ const SavedCards = () => {
     const [showExport, setShowExport] = useState(false);
 
     return (
-        <Container className="p-5">
-            <div className="row">
-                <h3 className="col-lg-8 col-md-6"><b>Saved Cards</b></h3>
-                <Button variant='outline-primary' bsPrefix="card-btn btn" disabled>
-                    New Folder
-                </Button>
-                <Button variant='outline-primary' bsPrefix="card-btn btn"
-                    onClick={() => CreateCardWorkflow(navigate)}>
-                    <FontAwesomeIcon icon={faCaretLeft} />
-                    &nbsp;New Card
-                </Button>
-                <Button variant='outline-primary' bsPrefix="card-btn btn"
-                    onClick={() => setShowExport(true)}>
-                    <FontAwesomeIcon icon={faDownload} />
-                    &nbsp;Export as FHIR Bundle
-                </Button>
-            </div>
-            <div>
-                <svg viewBox="0 0 1080 540">
-                    <g>
-                        <path fill="#2D2E74" strokeWidth={17} stroke="white"
-                        d="m 530 60 h -295 l -37 -55 c -2 -3 -5 -5 -8 -5 h -180 c -6 0 -10 5 -10 10 v 60 v 40 v 290 c 0 28 22 50 50 50 h 1000 c 28 0 50 -22 50 -50 v -290 v -40 c 0 -6 -5 -10 -10 -10 z m -10 40 h -500 v -20 h 210 h 850 v 20 z m -500 -80 h 165 l 27 40 h -191 v -40 z m 1060 380 c 0 16 -13 30 -30 30 h -1000 c -16 0 -30 -13 -30 -30 v -280 h 1060 v 280 z" />
-
-                    </g>
-                <foreignObject width="100%" height="50%" y="50%">
-                    <div style={{ color: "blue", textAlign: "center", fontSize: "20px" }}>Im a div inside a SVG.</div>
-                    </foreignObject>
-                </svg>
-            </div>
-            <Card bsPrefix='folder row card'>
+        <Container>
+            <h3 className="col-lg-8 col-md-6"><b>Saved Cards</b></h3>
+            <Row>
+                <Col md={3}>
+                    <Button variant='outline-primary' bsPrefix="card-btn btn"
+                        onClick={() => setShowExport(true)}>
+                        <FontAwesomeIcon icon={faDownload} />
+                        &nbsp;Export as FHIR Bundle
+                    </Button>
+                </Col>
+                <Col md={{offset: "6"}}>
+                    <Button variant='outline-primary' bsPrefix="card-btn btn" disabled>
+                        New Folder
+                    </Button>
+                </Col>
+                <Col>
+                    <Button variant='outline-primary' bsPrefix="card-btn btn"
+                        onClick={() => CreateCardWorkflow(navigate)}>
+                        <FontAwesomeIcon icon={faCaretLeft} />
+                        &nbsp;New Card
+                    </Button>
+                </Col>
+            </Row>
+            <Card>
+                <Card.Img src="img/svg-path.svg" alt="Card image" />
+                <Card.ImgOverlay>
                 {
                     resources.reduce<{node: SageNodeInitialized, pos: number}[]>(
                         function (accumulator, currentValue, currentIndex, array) {
@@ -117,18 +113,15 @@ const SavedCards = () => {
                             // planDefNode has no defined definitionCanonical or the referenced FHIR Resource has not been loaded by SAGE (or doesn't exist)
                             return null;
                         })
-                }
-
-                    <Col lg="2" xs="3">
-                        {
-                            <>
-                            <Button variant='outline-primary' bsPrefix="card-nav-btn btn"
-                                onClick={() => navigate(`/${AUTHOR_THEN_EXIT_ROUTE}`)}>
-                                Edit Authoring Information
-                            </Button>
-                        </> }
-                    </Col>
-                {resources.length == 0 ? <div style={{ margin: "50px", marginTop: "40px" }}> <i>No Cards</i> </div> : undefined}
+                    }   
+                    {resources.length == 0 ? <div style={{ position: "relative", margin: "50px", marginTop: "40px" }}> <i>No Cards</i> </div> : undefined}
+                    <Row lg={2}>
+                        <Button variant='outline-primary' bsPrefix="card-btn btn"
+                            onClick={() => navigate(`/${AUTHOR_THEN_EXIT_ROUTE}`)}>
+                            Edit Authoring Information
+                        </Button>
+                    </Row>
+                </Card.ImgOverlay>  
             </Card>
             <ExportDialog show={showExport} bundle={State.get().bundle} handleClose={() => setShowExport(false)} />
         </Container>

@@ -648,13 +648,13 @@ a {
   border-color: grey;
 }
 
-.card-btn{
-  flex: 0 0 auto;
-  width: 16.66666667%;
-}
-
 .card-nav-btn {
   width: 100%
+}
+
+.edit-author-btn {  
+  margin-top: 15%;
+  position: relative; 
 }
 
 .navigate, .navigate-reverse,
@@ -672,6 +672,7 @@ a {
   border-radius:5px;
   margin-bottom:5px;
   box-shadow: none;
+  flex: auto;
 }
 
 
