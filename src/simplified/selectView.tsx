@@ -111,9 +111,11 @@ const SelectView = () => {
                 }
             </Row>
             <Row>
-                <Button variant='outline-primary' bsPrefix="card-btn btn" onClick={() => navigate('/basic-home')}>
+                <Col md={{span: "2"}}>
+                <Button variant='outline-primary' bsPrefix="card-nav-btn btn" onClick={() => navigate('/basic-home')}>
                     Cancel
                 </Button>
+                </Col>
             </Row>
         </Container>
     );

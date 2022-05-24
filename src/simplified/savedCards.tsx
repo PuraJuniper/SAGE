@@ -113,7 +113,7 @@ const SavedCards = () => {
                                                         hideHeader={false}
                                                         onClick={() => navigate(`/edit/${planDefPos}`)}
                                                         content={
-                                                            <Button className="col-6 w-100" variant="sage-primary"
+                                                            <Button variant='outline-primary' bsPrefix="card-btn btn"
                                                                 onClick={(e) => {
                                                                     e.stopPropagation();
                                                                     State.emit("remove_from_bundle", planDefPos, referencedNodePos);

@@ -1,5 +1,5 @@
 import React from 'react';
-import {Button, Card, Container, Row} from "react-bootstrap";
+import {Button, Card, Col, Container, Row} from "react-bootstrap";
 import {useState, useEffect} from "react";
 import { CSSTransition } from 'react-transition-group';
 import State from "../state";
@@ -81,7 +81,9 @@ export const BaseCard = (props: BaseCardProps) => {
                         <Card.Title className="col" style={{ fontSize: props.titleSize, textAlign: "center" }}>{props.title}</Card.Title>
                     </Row>
                     <Row className="align-content-center">
-                        <Card.Text className="col">{content}</Card.Text>
+                        <Col md={{offset: "8"}}>
+                            {content}
+                        </Col>
                     </Row>
                     {props.cardImage ?
                         <Row className="align-content-center">
