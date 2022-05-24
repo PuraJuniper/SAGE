@@ -51,12 +51,17 @@ const SavedCards = () => {
                 <Card.ImgOverlay>
                     <Card.Body>
                         <Container>
-                        <Col md={{ offset: "9" }} style={{paddingTop: "73px"}}>
-                                <Button variant='outline-primary' bsPrefix="card-btn btn"
-                                    onClick={() => navigate(`/${AUTHOR_THEN_EXIT_ROUTE}`)}>
-                                    Edit Authoring Information
-                                </Button>
-                            </Col>
+                            <Row style={{paddingTop: "20px"}}>
+                                <Col md={"auto"}> <h5>{State.get().author.authorings[State.get().author.pos].CPGName}</h5></Col>
+                            </Row>
+                            <Row style={{paddingTop: "21px"}}>
+                                <Col md={{span: "3", offset: "9" }}>
+                                    <Button variant='outline-primary' bsPrefix="card-btn btn"
+                                        onClick={() => navigate(`/${AUTHOR_THEN_EXIT_ROUTE}`)}>
+                                        Edit Authoring Information
+                                    </Button>
+                                </Col>
+                            </Row>
                             <Row style={{paddingTop: "10px"}}>
                             {
                                 resources.reduce<{ node: SageNodeInitialized, pos: number }[]>(
@@ -128,7 +133,7 @@ const SavedCards = () => {
                             </Row>
                             {resources.length == 0 ?
                                     <Row style={{paddingTop: "60px"}}>
-                                        <Col md={{ offset: "5" }}> <i>No Cards</i> </Col>
+                                        <Col md={{ offset: "5" }}> <h5><i>No Cards</i></h5> </Col>
                                     </Row>
                                 : undefined}
                         </Container>
