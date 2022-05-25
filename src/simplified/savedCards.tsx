@@ -1,7 +1,7 @@
 import { faCaretLeft, faDownload, faInfoCircle } from '@fortawesome/pro-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React, { useState } from 'react';
-import { Button, Card, Col, Container, Row } from 'react-bootstrap';
+import { Button, Card, Col, Container, ListGroup, ListGroupItem, Nav, Row } from 'react-bootstrap';
 import { useNavigate } from "react-router-dom";
 import ExportDialog from '../dialogs/export-dialog';
 import * as SchemaUtils from "../helpers/schema-utils";
@@ -46,23 +46,35 @@ const SavedCards = () => {
                     </Col>
                 </Row>
             </Container>
-            <Card>
-                <Card.Img src="img/svg-path.svg" alt="Card image" />
-                <Card.ImgOverlay>
-                    <Card.Body>
-                        <Container>
-                            <Row style={{paddingTop: "20px"}}>
-                                <Col md={"auto"}> <h5>{State.get().author.authorings[State.get().author.pos].CPGName}</h5></Col>
-                            </Row>
-                            <Row style={{paddingTop: "21px"}}>
-                                <Col md={{span: "3", offset: "9" }}>
+            <Card style={{borderStyle: "hidden", borderColor: "var(--sage-dark-purple)"}}>
+                {/* <Card.Img src="img/svg-path.svg" alt="Card image" /> */}
+                {/* <Card.ImgOverlay> */}
+                <Nav as={"header"} variant="tabs" defaultActiveKey="#disabled" style={{borderBottom: "unset"}}>
+                    <Nav.Item style={{borderBottom: "white"}}>
+                        <Nav.Link href="#disabled" disabled style={{borderColor: "inherit", borderBottomColor: "white", zIndex: "+1", marginBottom: "-2px",
+                        position: "relative", borderBottomLeftRadius: "3px", borderWidth: "2px"}}>
+                        {State.get().author.authorings[State.get().author.pos].CPGName}
+                        </Nav.Link>
+                    </Nav.Item>
+                </Nav>
+                    <Card.Body style={{borderStyle: "solid", borderWidth: "2px", borderRadius: "25px", borderTopLeftRadius: "unset", borderColor: "inherit"}}>
+                        {/* <Container> */}
+                            {/* <Row style={{paddingTop: "20px"}}> */}
+                                {/* <Col md={"auto"}>  */}
+                                {/* </Col> */}
+                            {/* </Row> */}
+                            {/* <Row style={{paddingTop: "21px"}}> */}
+                                {/* <Col md={{span: "3", offset: "9" }}> */}
+                        <ListGroup>
+                            <ListGroupItem>
                                     <Button variant='outline-primary' bsPrefix="card-btn btn"
                                         onClick={() => navigate(`/${AUTHOR_THEN_EXIT_ROUTE}`)}>
                                         Edit Authoring Information
                                     </Button>
-                                </Col>
-                            </Row>
-                            <Row style={{paddingTop: "10px"}}>
+                            </ListGroupItem>
+                                {/* </Col> */}
+                            {/* </Row> */}
+                            {/* <Row style={{paddingTop: "10px"}}>*/}
                             {
                                 resources.reduce<{ node: SageNodeInitialized, pos: number }[]>(
                                     function (accumulator, currentValue, currentIndex, array) {
@@ -130,15 +142,15 @@ const SavedCards = () => {
                                         return null;
                                     })
                             }
-                            </Row>
+                        </ListGroup>   
                             {resources.length == 0 ?
                                     <Row style={{paddingTop: "60px"}}>
                                         <Col md={{ offset: "5" }}> <h5><i>No Cards</i></h5> </Col>
                                     </Row>
                                 : undefined}
-                        </Container>
+                        {/* </Container> */}
                     </Card.Body>
-                </Card.ImgOverlay>
+                {/* </Card.ImgOverlay> */}
             </Card>
             <ExportDialog show={showExport} bundle={State.get().bundle} handleClose={() => setShowExport(false)} />
         </Container>

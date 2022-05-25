@@ -91,6 +91,12 @@
  opacity: 1.0;
 }
 
+.nav-tabs .nav-link.active, .nav-tabs .nav-link.active, .nav-link.disabled {
+  color: var(--sage-dark-purple);
+  background-color: transparent;
+  border-color: #000;
+}
+
 
 
 .spinner {
