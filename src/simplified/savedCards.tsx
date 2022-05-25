@@ -70,6 +70,7 @@ const SavedCards = () => {
                             </Button>
                             </Col>
                         </ListGroupItem>
+                        <Row>
                         {
                             resources.reduce<{ node: SageNodeInitialized, pos: number }[]>(
                                 function (accumulator, currentValue, currentIndex, array) {
@@ -113,12 +114,14 @@ const SavedCards = () => {
                                                     libraryUrls = [libraryNode.value];
                                                 }
                                             }
-                                            return <div className="col-lg-3 col-md-4 col-sm-6" key={i * 2}>
+                                            return (
+                                                <Col md={3} style={{paddingBottom: "calc(var(--bs-gutter-x) * .5)"}}>
                                                 <BaseCard
                                                     title={planTitleNode?.value ? planTitleNode.value : "Untitled PD"}
                                                     header={profileToFriendlyResourceListEntry(SchemaUtils.toFhir(referencedNode, false).meta?.profile?.[0] ?? "")?.SELF.FRIENDLY ?? "Unknown"}
                                                     hideHeader={false}
                                                     onClick={() => navigate(`/edit/${planDefPos}`)}
+                                                    bsBg={"sage-grey"}
                                                     content={
                                                         <Button variant='outline-primary' bsPrefix="card-btn btn"
                                                             onClick={(e) => {
@@ -130,13 +133,15 @@ const SavedCards = () => {
                                                         </Button>
                                                     }
                                                 />
-                                            </div>
+                                                </Col>
+                                            )
                                         }
                                     }
                                     // planDefNode has no defined definitionCanonical or the referenced FHIR Resource has not been loaded by SAGE (or doesn't exist)
                                     return null;
                                 })
                         }
+                        </Row>
                     </ListGroup>
                     {resources.length == 0 ?
                         <Row style={{ paddingTop: "60px" }}>

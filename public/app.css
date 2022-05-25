@@ -482,7 +482,14 @@ a {
 /* CARDS AND FOLDERS */
 
 .sage-card {
-  min-height: 11rem;
+  min-height: 10rem;
+  max-height: 12rem;
+  min-width: 10rem;
+  max-width: 15rem;
+  padding-left: 0.25rem;
+  padding-right: 0.25rem;
+  padding-top: 0.5rem;
+  padding-bottom: 0.75rem;
 }
 
 /* .card {
@@ -561,6 +568,9 @@ a {
 }
 .bg-sage-beige {
   background-color: var(--sage-beige);
+}
+.bg-sage-grey {
+  background-color: lightgrey;
 }
 .disabled-card {
   pointer-events: none;

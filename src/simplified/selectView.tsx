@@ -45,9 +45,8 @@ const SelectView = () => {
                                     //  create both an ActivityDefinition and a Questionnaire
                                     const isQuestionnaire = resource.DEFAULT_PROFILE_URI?.endsWith('cpg-collectinformationactivity');
                                     return (
-                                        <div style={{ padding: "10px" }} key={resource.FHIR}>
-                                            <Col>
-                                                <BaseCard
+                                            // <Col key={resource.FHIR}>
+                                                <BaseCard key={resource.FHIR}
                                                     bsBg="sage-beige"
                                                     cardImage= {faUserDoctor}
                                                     IconColor = 'black'
@@ -101,8 +100,8 @@ const SelectView = () => {
                                                     IconSize= '50px'
                                                     disabled={disabled}
                                                 /> 
-                                            </Col>
-                                        </div>);
+                                            // </Col>
+                                        );
                                     }
                                 );
                             }
