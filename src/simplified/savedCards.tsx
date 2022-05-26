@@ -1,7 +1,7 @@
 import { faCaretLeft, faDownload, faInfoCircle } from '@fortawesome/pro-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React, { useState } from 'react';
-import { Button, Card, Col, Container, ListGroup, ListGroupItem, Nav, Row } from 'react-bootstrap';
+import { Button, Card, Col, Container, ListGroup, ListGroupItem, Modal, Nav, Row } from 'react-bootstrap';
 import { useNavigate } from "react-router-dom";
 import ExportDialog from '../dialogs/export-dialog';
 import * as SchemaUtils from "../helpers/schema-utils";
@@ -18,7 +18,18 @@ import { CreateCardWorkflow } from './selectView';
 const SavedCards = () => {
     const navigate = useNavigate();
     const resources = State.get().bundle?.resources ?? [];
+    const savedCards = resources.reduce<{ node: SageNodeInitialized, pos: number }[]>(
+        function (accumulator, currentValue, currentIndex, array) {
+            if (SchemaUtils.getResourceType(currentValue) === PLAN_DEFINITION) {
+                accumulator.push({
+                    node: currentValue,
+                    pos: currentIndex,
+                });
+            }
+            return accumulator;
+        }, []);
     const [showExport, setShowExport] = useState(false);
+    const [show, setShow] = useState(Array(savedCards.length).fill(false))
 
     return (
         <Container>
@@ -72,16 +83,7 @@ const SavedCards = () => {
                         </ListGroupItem>
                         <Row>
                         {
-                            resources.reduce<{ node: SageNodeInitialized, pos: number }[]>(
-                                function (accumulator, currentValue, currentIndex, array) {
-                                    if (SchemaUtils.getResourceType(currentValue) === PLAN_DEFINITION) {
-                                        accumulator.push({
-                                            node: currentValue,
-                                            pos: currentIndex,
-                                        });
-                                    }
-                                    return accumulator;
-                                }, []).map((planDefNodeAndPos, i) => {
+                            savedCards.map((planDefNodeAndPos, i: number) => {
                                     const { node: planDefNode, pos: planDefPos } = planDefNodeAndPos;
                                     // Find SageNode for FHIR Resource referenced in planDefNode's definitionCanonical
                                     const referencedNodeURI = SchemaUtils.getChildOfNodePath(planDefNode, ["action", "definitionCanonical"])?.value;
@@ -114,10 +116,12 @@ const SavedCards = () => {
                                                     libraryUrls = [libraryNode.value];
                                                 }
                                             }
+                                            const cardTitle = planTitleNode?.value ? planTitleNode.value : "Untitled PD";
+
                                             return (
                                                 <Col md={3} style={{paddingBottom: "calc(var(--bs-gutter-x) * .5)"}}>
                                                 <BaseCard
-                                                    title={planTitleNode?.value ? planTitleNode.value : "Untitled PD"}
+                                                    title={cardTitle}
                                                     header={profileToFriendlyResourceListEntry(SchemaUtils.toFhir(referencedNode, false).meta?.profile?.[0] ?? "")?.SELF.FRIENDLY ?? "Unknown"}
                                                     hideHeader={false}
                                                     onClick={() => navigate(`/edit/${planDefPos}`)}
@@ -126,14 +130,39 @@ const SavedCards = () => {
                                                         <Button variant='outline-primary' bsPrefix="card-btn btn"
                                                             onClick={(e) => {
                                                                 e.stopPropagation();
-                                                                State.emit("remove_from_bundle", planDefPos, referencedNodePos);
+                                                                setShow(show.map((val, j) => {
+                                                                    return i === j ? true : val;
+                                                                }));
                                                             }}
                                                         >
                                                             Delete
                                                         </Button>
                                                     }
                                                 />
+                                                    <Modal show={show[i]} size="sm">
+                                                        <Modal.Header className="justify-content-md-center">
+                                                            Delete {cardTitle}?
+                                                        </Modal.Header>
+                                                        <Modal.Body>
+                                                            <button key="butDelete" className="btn btn-secondary" type="button"
+                                                                onClick=
+                                                                {(e) => {
+                                                                    e.stopPropagation();
+                                                                    State.emit("remove_from_bundle", planDefPos, referencedNodePos);
+                                                                    show.splice(i, 1)
+                                                                }}>
+                                                                Yes, delete it
+                                                            </button>
+                                                            <button key="butCancel" className="btn btn-tertiary" style={{ float: "right" }} type="button" onClick={() => setShow(show.map(val => {
+                                                                    return val === true ? false : val;
+                                                                }))
+                                                                }>
+                                                                No
+                                                            </button>
+                                                        </Modal.Body>
+                                                    </Modal>
                                                 </Col>
+
                                             )
                                         }
                                     }
