@@ -20,6 +20,7 @@ interface CardEditorProps {
     handleExit: () => void,
     handleSaveResource: () => void,
     conditionEditor: JSX.Element,
+    conditionPreview: JSX.Element
 }
 interface ExpressionOption {
     expressionInLibrary: string,
@@ -36,6 +37,7 @@ export interface pageTwoProps {
 }
 export interface pageThreeProps {
     displayElements: JSX.Element[],
+    conditions: JSX.Element
 }
 export interface ICardForm {
     resourceType: FriendlyResourceProps;
@@ -425,6 +427,7 @@ export const CardEditor = (props: CardEditorProps) => {
                     sageNode={actNode}
                     fieldHandlers={fieldHandlers}
                     conditionEditor={props.conditionEditor}
+                    conditionPreview={props.conditionPreview}
                     resourceType={actResourceType}
                     elementList={fieldElementListForType(innerCardForm, getFormElementListForResource(innerCardForm.resourceType.FHIR), fieldHandlers, actNode)}
                     previewList={createDisplayElementList(innerCardForm,fieldHandlers, actResourceType)}
