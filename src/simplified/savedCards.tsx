@@ -29,39 +29,39 @@ const SavedCards = () => {
             return accumulator;
         }, []);
     const [showExport, setShowExport] = useState(false);
-    const [show, setShow] = useState(Array(savedCards.length).fill(false))
+    const [showDeleteModal, setShowDeleteModal] = useState(Array(savedCards.length).fill(false))
 
     return (
         <Container>
             <h3 className="col-lg-8 col-md-6"><b>Saved Cards</b></h3>
             <Row>
-            <Col md={3} style={{textAlign: "left"}}>
-                <Button variant='outline-primary' bsPrefix="card-btn btn"
-                    onClick={() => setShowExport(true)}>
-                    <FontAwesomeIcon icon={faDownload} />
-                    &nbsp;Export as FHIR Bundle
-                </Button>
-            </Col>
-            <Col md={{offset: "6"}}style={{textAlign: "right"}}>
-                <Row>
-                    <Col>
-                <Button variant='outline-primary' bsPrefix="card-btn btn" disabled>
-                    New Folder
-                </Button>
+                <Col md={3} style={{ textAlign: "left" }}>
+                    <Button variant='outline-primary' bsPrefix="card-btn btn"
+                        onClick={() => setShowExport(true)}>
+                        <FontAwesomeIcon icon={faDownload} />
+                        &nbsp;Export as FHIR Bundle
+                    </Button>
                 </Col>
-                <Col>
-                <Button variant='outline-primary' bsPrefix="card-btn btn"
-                    onClick={() => CreateCardWorkflow(navigate)}>
-                    <FontAwesomeIcon icon={faCaretLeft} />
-                    &nbsp;New Card
-                </Button>
+                <Col md={{ offset: "6" }} style={{ textAlign: "right" }}>
+                    <Row>
+                        <Col>
+                            <Button variant='outline-primary' bsPrefix="card-btn btn" disabled>
+                                New Folder
+                            </Button>
+                        </Col>
+                        <Col>
+                            <Button variant='outline-primary' bsPrefix="card-btn btn"
+                                onClick={() => CreateCardWorkflow(navigate)}>
+                                <FontAwesomeIcon icon={faCaretLeft} />
+                                &nbsp;New Card
+                            </Button>
+                        </Col>
+                    </Row>
                 </Col>
-                </Row>
-            </Col>
             </Row>
             <Card style={{ borderStyle: "hidden", borderColor: "var(--sage-dark-purple)" }}>
-                <Nav as={"header"} variant="tabs" defaultActiveKey="#disabled" style={{ borderBottom: "unset"}}>
-                    <Nav.Item style={{ borderBottom: "white"}}>
+                <Nav as={"header"} variant="tabs" defaultActiveKey="#disabled" style={{ borderBottom: "unset" }}>
+                    <Nav.Item style={{ borderBottom: "white" }}>
                         <Nav.Link href="#disabled" disabled style={{
                             color: "var(--sage-dark-purple)", backgroundColor: "transparent", borderColor: "inherit",
                             borderBottomColor: "white", zIndex: "+1", marginBottom: "-2px",
@@ -74,16 +74,16 @@ const SavedCards = () => {
                 <Card.Body style={{ borderStyle: "solid", borderWidth: "2px", borderRadius: "25px", borderTopLeftRadius: "unset", borderColor: "inherit" }}>
                     <ListGroup>
                         <ListGroupItem style={{ borderStyle: "unset" }}>
-                            <Col style={{textAlign: "right"}}>
-                            <Button variant='outline-primary' bsPrefix="card-btn btn"
-                                onClick={() => navigate(`/${AUTHOR_THEN_EXIT_ROUTE}`)}>
-                                Edit Authoring Information
-                            </Button>
+                            <Col style={{ textAlign: "right" }}>
+                                <Button variant='outline-primary' bsPrefix="card-btn btn"
+                                    onClick={() => navigate(`/${AUTHOR_THEN_EXIT_ROUTE}`)}>
+                                    Edit Authoring Information
+                                </Button>
                             </Col>
                         </ListGroupItem>
                         <Row>
-                        {
-                            savedCards.map((planDefNodeAndPos, i: number) => {
+                            {
+                                savedCards.map((planDefNodeAndPos, i: number) => {
                                     const { node: planDefNode, pos: planDefPos } = planDefNodeAndPos;
                                     // Find SageNode for FHIR Resource referenced in planDefNode's definitionCanonical
                                     const referencedNodeURI = SchemaUtils.getChildOfNodePath(planDefNode, ["action", "definitionCanonical"])?.value;
@@ -119,27 +119,24 @@ const SavedCards = () => {
                                             const cardTitle = planTitleNode?.value ? planTitleNode.value : "Untitled PD";
 
                                             return (
-                                                <Col md={3} style={{paddingBottom: "calc(var(--bs-gutter-x) * .5)"}}>
-                                                <BaseCard
-                                                    title={cardTitle}
-                                                    header={profileToFriendlyResourceListEntry(SchemaUtils.toFhir(referencedNode, false).meta?.profile?.[0] ?? "")?.SELF.FRIENDLY ?? "Unknown"}
-                                                    hideHeader={false}
-                                                    onClick={() => navigate(`/edit/${planDefPos}`)}
-                                                    bsBg={"sage-grey"}
-                                                    content={
-                                                        <Button variant='outline-primary' bsPrefix="card-btn btn"
-                                                            onClick={(e) => {
-                                                                e.stopPropagation();
-                                                                setShow(show.map((val, j) => {
-                                                                    return i === j ? true : val;
-                                                                }));
-                                                            }}
-                                                        >
-                                                            Delete
-                                                        </Button>
-                                                    }
-                                                />
-                                                    <Modal show={show[i]} size="sm">
+                                                <Col md={3} style={{ paddingBottom: "calc(var(--bs-gutter-x) * .5)" }}>
+                                                    <BaseCard
+                                                        title={cardTitle}
+                                                        header={profileToFriendlyResourceListEntry(SchemaUtils.toFhir(referencedNode, false).meta?.profile?.[0] ?? "")?.SELF.FRIENDLY ?? "Unknown"}
+                                                        hideHeader={false}
+                                                        onClick={() => navigate(`/edit/${planDefPos}`)}
+                                                        bsBg={"sage-grey"}
+                                                        content={
+                                                            <Button variant='outline-primary' bsPrefix="card-btn btn"
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    setShowDeleteModal(showDeleteModal.map((val, j) => {return i === j ? true : val;}));}}
+                                                            >
+                                                                Delete
+                                                            </Button>
+                                                        }
+                                                    />
+                                                    <Modal show={showDeleteModal[i]} size="sm">
                                                         <Modal.Header className="justify-content-md-center">
                                                             Delete {cardTitle}?
                                                         </Modal.Header>
@@ -149,14 +146,12 @@ const SavedCards = () => {
                                                                 {(e) => {
                                                                     e.stopPropagation();
                                                                     State.emit("remove_from_bundle", planDefPos, referencedNodePos);
-                                                                    show.splice(i, 1)
+                                                                    showDeleteModal.splice(i, 1)
                                                                 }}>
                                                                 Yes, delete it
                                                             </button>
-                                                            <button key="butCancel" className="btn btn-tertiary" style={{ float: "right" }} type="button" onClick={() => setShow(show.map(val => {
-                                                                    return val === true ? false : val;
-                                                                }))
-                                                                }>
+                                                            <button key="butCancel" className="btn btn-tertiary" style={{ float: "right" }} type="button"
+                                                                onClick={() => setShowDeleteModal(showDeleteModal.map(val => { return val === true ? false : val;})) }>
                                                                 No
                                                             </button>
                                                         </Modal.Body>
@@ -169,7 +164,7 @@ const SavedCards = () => {
                                     // planDefNode has no defined definitionCanonical or the referenced FHIR Resource has not been loaded by SAGE (or doesn't exist)
                                     return null;
                                 })
-                        }
+                            }
                         </Row>
                     </ListGroup>
                     {resources.length == 0 ?
