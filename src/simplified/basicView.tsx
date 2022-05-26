@@ -2,7 +2,7 @@ import React, { createContext, useEffect, useState } from "react";
 import { Routes, Route, Outlet, NavigateFunction } from "react-router-dom";
 import Footer from "../footer";
 import NavbarFred from "../navbar";
-import Collection from "./collection";
+import SavedCards from "./savedCards";
 import Sidebar from "./sidebar";
 import { Header } from "./header";
 import { PlanDefLoader } from "./planDefLoader";
@@ -74,8 +74,8 @@ export const BasicView = () => {
                 <Route path="create" element={<SelectView />} />
                 <Route path={EDIT_CARD_ROUTE} element={<PlanDefLoader newCard={false}/>} />
                 <Route path={ADD_CARD_ROUTE} element={<PlanDefLoader newCard={true}/>} />
-                <Route index element={<Collection />} />
-                <Route path={SAVED_CARDS_ROUTE} element={<Collection />} /> {/* Fall back to collection view if no other path matches */}
+                <Route index element={<SavedCards />} />
+                <Route path={SAVED_CARDS_ROUTE} element={<SavedCards />} /> {/* Fall back to collection view if no other path matches */}
             </Route>
         </Routes>
     );

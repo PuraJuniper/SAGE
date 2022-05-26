@@ -18,7 +18,7 @@ import RefWarning from "./ref-warning";
 import Footer from "./footer";
 import BasicHomeView from "./simplified/home"
 import SelectView from "./simplified/selectView"
-import Collection from "./simplified/collection"
+import SavedCards from "./simplified/savedCards"
 
 import DomainResource from "./domain-resource/";
 import CpgDialog from "./dialogs/cpg-dialog";
@@ -102,7 +102,7 @@ class RootComponent extends React.Component<RootProps, RootState> {
 			return <SelectView />
 		} else if (state.ui.status === "collection" || 
 				prevStatus === "collection" && changeLessContentStatuses.includes(state.ui.status)) {
-			return <Collection />
+			return <SavedCards />
 		} else if (state.bundle.resources.length > 0) {
 			return (
 					state.mode === "basic" ? 

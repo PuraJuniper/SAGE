@@ -1,5 +1,5 @@
 import React from 'react';
-import {Button, Card, Container, Row} from "react-bootstrap";
+import {Button, Card, Col, Container, ListGroup, ListGroupItem, Row} from "react-bootstrap";
 import {useState, useEffect} from "react";
 import { CSSTransition } from 'react-transition-group';
 import State from "../state";
@@ -55,39 +55,45 @@ export const BaseCard = (props: BaseCardProps) => {
         classNames="res-card"
         >
         <Card
-            className={`raise-card-animation ${props.disabled ? "disabled-card" : ""}`}
+            className={`sage-card raise-card-animation ${props.disabled ? "disabled-card" : ""}`}
             bg={props.bsBg}
             text={props.bsText as Color}
             border={props.bsBorder}
             onClick={props.onClick}
+            style={{margin: "5px", height: "auto"}}
         >
             <Card.Header style={headerPadding} hidden = {props.hideHeader}>
                 {props.header}
             </Card.Header>
-            <Card.Body>
-                <Container>
-                    <Row className="align-content-end">
-                        {props.infoLink !== undefined ?
-                                <span style={{ fontSize: "20px", textAlign: "right" }}>
-                                <a onClick={e => e.stopPropagation()} href={props.infoLink} target="_blank" rel="noreferrer" className="c-tooltip">
-                                    <FontAwesomeIcon icon={faInfoCircle} style={{'color':props.IconColor}} />
-                                    <span className="c-tooltiptext">FHIR Docs</span>
-                                </a>
-                            </span> :
-                            <div className="m-3" />}
-
-                    </Row>
-                    <Row className="align-content-center">
+            <Card.Body style={{maxHeight: "inherit", maxWidth: "inherit", backgroundColor: "transparent", border: "unset", color: "unset", paddingTop: "0rem", paddingBottom: "0rem"}}>
+                <Row style={{ backgroundColor: "transparent", border: "unset", color: "unset", maxHeight: "inherit", maxWidth: "inherit"}}>
+                {props.infoLink !== undefined &&
+                        <Card.Title style={{backgroundColor: "inherit", border: "inherit", color: "inherit", textAlign: "right", paddingLeft: "0.5rem", paddingTop: "0"}}>
+                            <a onClick={e => e.stopPropagation()} href={props.infoLink} target="_blank" rel="noreferrer" className="c-tooltip">
+                                <FontAwesomeIcon icon={faInfoCircle} style={{'color':props.IconColor}} />
+                                <span className="c-tooltiptext">FHIR Docs</span>
+                            </a>
+                        </Card.Title>
+                    }
+                    <ListGroupItem style={{backgroundColor: "inherit", border: "inherit", color: "inherit"}}>
                         <Card.Title className="col" style={{ fontSize: props.titleSize, textAlign: "center" }}>{props.title}</Card.Title>
-                    </Row>
-                    <Row className="align-content-center">
-                        <Card.Text className="col">{content}</Card.Text>
-                    </Row>
-                    <Row className="align-content-center">
-                        <FontAwesomeIcon className="col pe-none" icon={props.cardImage} style={{'color':props.IconColor, 'height':props.IconSize}} />
-                    </Row>
-                </Container>
+                    </ListGroupItem>
+                </Row>
+                <ListGroup>
+                    {content !== undefined &&
+                    <ListGroupItem style={{backgroundColor: "inherit", border: "inherit", color: "inherit"}}>
+                        <Col md={{offset: "8"}}>
+                            {content}
+                        </Col>
+                    </ListGroupItem>
+                    }
+                </ListGroup>
             </Card.Body>
+
+            {props.cardImage &&
+                <Card.Footer style={{border: "unset", backgroundColor: "transparent", textAlign: "center", padding: "0rem"}}>
+                    <FontAwesomeIcon className="col pe-none" icon={props.cardImage} style={{'color':props.IconColor, 'height':props.IconSize}} />
+                </Card.Footer>}
         </Card>
         </CSSTransition>
         );

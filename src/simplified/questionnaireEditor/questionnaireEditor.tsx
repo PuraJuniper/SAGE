@@ -2,10 +2,10 @@ import { faCaretLeft, faCaretRight } from '@fortawesome/pro-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Questionnaire } from "fhir/r4";
 import React, { useRef, useState } from 'react';
-import { Card } from "react-bootstrap";
+import { Button, Card, Col, Row } from "react-bootstrap";
 import { decorateFhirData, getChildOfNode, getChildOfNodePath, toFhir } from "../../helpers/schema-utils";
 import State, { SageNodeInitializedFreezerNode } from "../../state";
-import { CardNav, stepProps } from '../outerCardForm';
+import { buttonSpacer, CardNav, stepProps } from '../outerCardForm';
 import StructorFrame, { StructorFrameRef } from "./structorFrame";
 
 interface QuestionnaireEditorProps {
@@ -58,20 +58,20 @@ export const QuestionnaireEditor = (props: QuestionnaireEditorProps) => {
     }
     
     const saveButton = (
-        <button key="butSave" type="button" className="navigate col-lg-2 col-md-3"
+        <Button key="butSave" variant='outline-primary' bsPrefix="card-nav-btn btn"
             onClick={handleSaveCard}
         >
             Save Card&nbsp;
             <FontAwesomeIcon key="butSaveIcon" icon={faCaretRight} />
-        </button>
+        </Button>
     )
 
     const deleteCardButton = (
-        <button key="butDel" type='button' className="navigate col-lg-2 col-md-3"
+        <Button key="butCancel" variant='outline-primary' bsPrefix="card-nav-btn btn"
             onClick={props.handleExit}
         >
             Cancel
-        </button>
+        </Button>
     );
 
     const pageTitles = new Map([
@@ -82,14 +82,14 @@ export const QuestionnaireEditor = (props: QuestionnaireEditorProps) => {
 
 
     const leftNavButton = (
-        <button type='button' className={"navigate-reverse col-lg-2 col-md-3"}
+        <Button variant='outline-primary' bsPrefix="card-nav-btn btn"
             onClick={() => setStep(curStep => curStep - 1)}>
             {<> <FontAwesomeIcon icon={faCaretLeft} /> {" Previous"} </>}
-        </button>
+        </Button>
     );
 
     const rightNavButton = (
-        <button type='button' className={"navigate col-lg-2 col-md-3"}
+        <Button variant='outline-primary' bsPrefix="card-nav-btn btn"
             onClick={() => {
                 if (step === 1) {
                     // This function should cause `handleQuestionnaireSaved` to run, which will increment the step
@@ -100,7 +100,7 @@ export const QuestionnaireEditor = (props: QuestionnaireEditorProps) => {
                 }
             }}>
             {<> {"Next "} <FontAwesomeIcon icon={faCaretRight} /></>}
-        </button>
+        </Button>
     );
 
     const questionaireSteps: stepProps[] =
@@ -130,11 +130,13 @@ export const QuestionnaireEditor = (props: QuestionnaireEditorProps) => {
                     </Card.Body>
                 </Card> :
                 null}
-            <div>
-                {step > 1 ? leftNavButton : null}
-                {step <= 2 ? rightNavButton : saveButton}
-                {deleteCardButton}
-            </div>
+            <Row className="mt-5">
+                <Col lg="2" xs="3">
+                    {deleteCardButton}
+                </Col>
+                {buttonSpacer(step > 1 ? leftNavButton : null)}
+                {buttonSpacer(step <= 2 ? rightNavButton : saveButton)}
+            </Row>
             </div>
         </div>
     );
