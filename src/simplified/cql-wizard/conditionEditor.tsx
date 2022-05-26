@@ -157,11 +157,11 @@ const SubExpressionElement = (props: ConditionElementProps) => {
         <>
             <Card>
                 <Card.Body>
-                    <Card.Title>
+                    {/* <Card.Title>
                         {props.subExpression.subExprBool}
                         {props.isPreview ? null : <Button onClick={props.handleDeleteSubExpression}>Delete</Button>}
                         
-                    </Card.Title>
+                    </Card.Title> */}
                     {props.subExpression.subExpr.map((expr, exprIdx) => {
                         if ('subExprBool' in expr) {
                             return (
