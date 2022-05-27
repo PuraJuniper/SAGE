@@ -9,7 +9,7 @@ export const LandingPage = () => {
     return (
         <>
             <Navbar className="navbar-custom"><Navbar.Brand>
-                <img alt="Sage Logo" src="../img/WhiteSageLogo-colour.png" height="30"/>
+                <img alt="Sage Logo" src="../img/WhiteSAGELogo-colour.png" height="30"/>
             </Navbar.Brand></Navbar>
             <div className="container">
                 <div className="row justify-content-md-center" style={{ marginTop: 40, marginBottom: 40 }}>

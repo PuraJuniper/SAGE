@@ -6,13 +6,13 @@ import { useNavigate } from "react-router-dom";
 
 
 export const Header: React.FC = () => {
-    
+
     const navigate = useNavigate();
 
     return (
         <Navbar sticky="top" className="navbar-custom">
-            <Navbar.Brand>         
-            <img alt="Sage Logo" src="../img/WhiteSageLogo-colour.png" height="30"/> Basic
+            <Navbar.Brand>
+            <img alt="Sage Logo" src="../img/WhiteSAGELogo-colour.png" height="30"/> Basic
             </Navbar.Brand>
 			<Nav.Link key='home-button' onClick={() => navigate('/basic-home')}>
 			<FontAwesomeIcon key="butSaveIcon" icon={faHomeLgAlt} style={{'color':'white','height':'30px','marginRight':'3rem'}} />
