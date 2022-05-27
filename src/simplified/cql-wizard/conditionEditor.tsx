@@ -9,6 +9,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPenToSquare, faPlus, faTrash } from "@fortawesome/pro-solid-svg-icons";
 import { propTypes } from "react-bootstrap/esm/Image";
 import { CardTabTitle } from "../savedCards";
+import { trim } from "lodash";
 
 /**
  * Types required for the condition editor
@@ -133,15 +134,27 @@ interface ConditionElementProps {
 }
 const SubExpressionElement = (props: ConditionElementProps) => {
     const [newWizardState, setNewWizardState] = useState<{ show: boolean, onClose: (savedState?: WizardState) => void }>({ show: false, onClose: () => 0 })
+    function isWizardExpression(val: WizExpression | SubExpression | undefined): val is WizExpression { return (val as WizExpression).curWizState !== undefined; }
+    function hasExtraSubExpression(expList: (WizExpression | SubExpression)[]): boolean { return (expList.length === 1 && !isWizardExpression(expList.at(0))) }
+    function removeExtraExpressions(exp: SubExpression): SubExpression {
+        const firstSubExp = exp.subExpr.at(0)
+        if (hasExtraSubExpression(exp.subExpr) && (firstSubExp !== undefined) && (!isWizardExpression(firstSubExp))) {
+            return removeExtraExpressions(firstSubExp);
+        } else {
+            return exp;
+        }
+    }
+
+    const expressionTrimmed = removeExtraExpressions(props.subExpression);
 
     function handleDelete(deletedIdx: number) {
-        const newSubExpr = props.subExpression.subExpr.flatMap((v, i) => i === deletedIdx ? [] : [v])
+        const newSubExpr = expressionTrimmed.subExpr.flatMap((v, i) => i === deletedIdx ? [] : [v])
         if (newSubExpr.length === 0) {
             props.handleDeleteSubExpression();
         }
         else {
             props.handleEditSubExpression({
-                ...props.subExpression,
+                ...expressionTrimmed,
                 subExpr: newSubExpr,
             });
         }
@@ -149,54 +162,52 @@ const SubExpressionElement = (props: ConditionElementProps) => {
 
     function handleEditExpr(editedIdx: number, newExpr: SubExpression | WizExpression) {
         props.handleEditSubExpression({
-            ...props.subExpression,
-            subExpr: props.subExpression.subExpr.map((v, i) => i === editedIdx ? newExpr : v)
+            ...expressionTrimmed,
+            subExpr: expressionTrimmed.subExpr.map((v, i) => i === editedIdx ? newExpr : v)
         });
     }
 
-    function isWizardExpression(val: WizExpression | SubExpression): val is WizExpression { return (val as WizExpression).curWizState !== undefined; }
     return (
         <>
-
-            {props.subExpression.subExpr.length === 0 ? null : 
-            <Card style={{backgroundColor: props.subExpression.subExprBool === "or" ? "white" : "lightgrey" , borderWidth: "2px", borderColor: 'var(--sage-dark-purple)'}}>
-                <Card.Body >
-                    {
-                        props.subExpression.subExpr.map((expr, exprIdx) => {
-                            if (isWizardExpression(expr)) {
-                                return (
-                                    <>
-                                        {exprIdx > 0 ? CardTabTitle(props.subExpression.subExprBool.toUpperCase()) : null}
-                                        {wizExpressionWithConditional(expr, handleEditExpr, exprIdx, handleDelete, props, setNewWizardState)}
+            {expressionTrimmed.subExpr.length === 0 ? null :
+                <Card style={{ backgroundColor: expressionTrimmed.subExprBool === "or" ? "white" : "lightgrey", borderWidth: "2px", borderColor: 'var(--sage-dark-purple)' }}>
+                    <Card.Body >
+                        {
+                            expressionTrimmed.subExpr.map((expr, exprIdx) => {
+                                if (isWizardExpression(expr)) {
+                                    return (
+                                        <>
+                                            {exprIdx > 0 ? CardTabTitle(expressionTrimmed.subExprBool.toUpperCase()) : null}
+                                            {wizExpressionWithConditional(expr, handleEditExpr, exprIdx, handleDelete, props.isPreview, expressionTrimmed, setNewWizardState)}
+                                        </>
+                                    )
+                                } else {
+                                    return (<>
+                                        {exprIdx > 0 ? CardTabTitle(expr.subExprBool.toUpperCase()) : null}
+                                        <SubExpressionElement
+                                            key={expr.subExpr.toString()}
+                                            subExpression={expr}
+                                            handleEditSubExpression={(newExpr) => handleEditExpr(exprIdx, newExpr)}
+                                            handleDeleteSubExpression={() => handleDelete(exprIdx)}
+                                            isPreview={props.isPreview}
+                                        />
                                     </>
-                                )
-                            } else {
-                                return (<>
-                                    {exprIdx > 0 ? CardTabTitle(expr.subExprBool.toUpperCase()) : null}
-                                    <SubExpressionElement
-                                        key={expr.subExpr.toString()}
-                                        subExpression={expr}
-                                        handleEditSubExpression={(newExpr) => handleEditExpr(exprIdx, newExpr)}
-                                        handleDeleteSubExpression={() => handleDelete(exprIdx)}
-                                        isPreview={props.isPreview}
-                                    />
-                                </>
-                                )
-                            }
-                        })
-                    }
+                                    )
+                                }
+                            })
+                        }
 
-                </Card.Body>
-                <Card.Footer>
-                {newBooleanButton(props, setNewWizardState,
-                        function handleSubEditExpr(ss: WizardState) {
-                            props.handleEditSubExpression({
-                                ...props.subExpression,
-                                subExpr: props.subExpression.subExpr.concat(createNewWizExpression(ss))
-                            });
-                        }, props.subExpression.subExprBool.toUpperCase())}
-                </Card.Footer>
-            </Card>
+                    </Card.Body>
+                    <Card.Footer>
+                        {newBooleanButton(props.isPreview, setNewWizardState,
+                            function handleSubEditExpr(ss: WizardState) {
+                                props.handleEditSubExpression({
+                                    ...expressionTrimmed,
+                                    subExpr: expressionTrimmed.subExpr.concat(createNewWizExpression(ss))
+                                });
+                            }, expressionTrimmed.subExprBool.toUpperCase())}
+                    </Card.Footer>
+                </Card>
             }
 
             {newWizardState.show ?
@@ -233,7 +244,7 @@ const WizardExpression = (props: WizardExpressionProps) => {
                     })
                 }}
             />
-            <Container style={{borderStyle: 'solid',  borderWidth: "2px", borderColor: 'var(--sage-dark-purple)'}}>
+            <Container style={{ borderStyle: 'solid', borderWidth: "2px", borderColor: 'var(--sage-dark-purple)' }}>
                 <svg height="20px" width="20px" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
                     <line x1="0" y1="50" x2="100" y2="50" stroke="black" />
                 </svg>
@@ -265,27 +276,27 @@ const FreshWizardModal = ({ onClose }: FreshWizardModalProps) => {
     )
 }
 
-function wizExpressionWithConditional(expr: WizExpression, handleEditExpr: (editedIdx: number, newExpr: SubExpression | WizExpression) => void, exprIdx: number, handleDelete: (deletedIdx: number) => void, props: ConditionElementProps, setNewWizardState: React.Dispatch<React.SetStateAction<{ show: boolean; onClose: (savedState?: WizardState | undefined) => void; }>>): JSX.Element {
+function wizExpressionWithConditional(expr: WizExpression, handleEditExpr: (editedIdx: number, newExpr: SubExpression | WizExpression) => void, exprIdx: number, handleDelete: (deletedIdx: number) => void, isPreview: boolean | undefined, subExp: SubExpression, setNewWizardState: React.Dispatch<React.SetStateAction<{ show: boolean; onClose: (savedState?: WizardState | undefined) => void; }>>): JSX.Element {
     return <>
         <WizardExpression
             wizExpression={expr}
             handleEditExpression={(newExpr) => handleEditExpr(exprIdx, newExpr)}
             handleDeleteExpression={() => handleDelete(exprIdx)}
-            isPreview={props.isPreview}
-            booleanConditionalButton={newBooleanButton(props, setNewWizardState,
+            isPreview={isPreview}
+            booleanConditionalButton={newBooleanButton(isPreview, setNewWizardState,
                 function handleWizEditExpr(savedState: WizardState) {
                     handleEditExpr(exprIdx, {
                         subExpr: [expr, createNewWizExpression(savedState)],
-                        subExprBool: props.subExpression.subExprBool === "or" ? "and" : "or",
+                        subExprBool: subExp.subExprBool === "or" ? "and" : "or",
                     });
-                }, props.subExpression.subExprBool === "or" ? "AND" : "OR")} />
+                }, subExp.subExprBool === "or" ? "AND" : "OR")} />
 
     </>;
 }
-function newBooleanButton(props: ConditionElementProps,
+function newBooleanButton(isPreview: boolean | undefined,
     setNewWizardState: React.Dispatch<React.SetStateAction<{ show: boolean; onClose: (savedState?: WizardState | undefined) => void; }>>,
     handleWizEditExpr: (savedState: WizardState) => void, buttonText: string) {
-    return props.isPreview ? null :
+    return isPreview ? null :
         <Button
             onClick={() => {
                 setNewWizardState({
@@ -303,7 +314,6 @@ function newBooleanButton(props: ConditionElementProps,
             }}
         >
             {buttonText}
-            {/* {props.subExpression.subExprBool === "or" ? "AND" : "OR"} */}
         </Button>;
 }
 
