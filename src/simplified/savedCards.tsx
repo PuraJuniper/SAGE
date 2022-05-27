@@ -15,6 +15,17 @@ import { CreateCardWorkflow } from './selectView';
 
 
 
+export const CardTabTitle = (text: string) => <Nav as={"header"} variant="tabs" defaultActiveKey="#disabled" style={{ borderBottom: "unset" }}>
+    <Nav.Item style={{ borderBottom: "white" }}>
+        <Nav.Link href="#disabled" disabled style={{
+            color: "var(--sage-dark-purple)", backgroundColor: "transparent", borderColor: "inherit",
+            borderBottomColor: "white", zIndex: "+1", marginBottom: "-2px",
+            position: "relative", borderBottomLeftRadius: "3px", borderWidth: "2px", borderTopLeftRadius: "15px", borderTopRightRadius: "15px"
+        }}>
+            {text}
+        </Nav.Link>
+    </Nav.Item>
+</Nav>;
 const SavedCards = () => {
     const navigate = useNavigate();
     const resources = State.get().bundle?.resources ?? [];
@@ -60,17 +71,7 @@ const SavedCards = () => {
                 </Col>
             </Row>
             <Card style={{ borderStyle: "hidden", borderColor: "var(--sage-dark-purple)" }}>
-                <Nav as={"header"} variant="tabs" defaultActiveKey="#disabled" style={{ borderBottom: "unset" }}>
-                    <Nav.Item style={{ borderBottom: "white" }}>
-                        <Nav.Link href="#disabled" disabled style={{
-                            color: "var(--sage-dark-purple)", backgroundColor: "transparent", borderColor: "inherit",
-                            borderBottomColor: "white", zIndex: "+1", marginBottom: "-2px",
-                            position: "relative", borderBottomLeftRadius: "3px", borderWidth: "2px", borderTopLeftRadius: "15px", borderTopRightRadius: "15px"
-                        }}>
-                            {State.get().author.authorings[State.get().author.pos].CPGName}
-                        </Nav.Link>
-                    </Nav.Item>
-                </Nav>
+                {CardTabTitle(State.get().author.authorings[State.get().author.pos].CPGName)}
                 <Card.Body style={{ borderStyle: "solid", borderWidth: "2px", borderRadius: "25px", borderTopLeftRadius: "unset", borderColor: "inherit" }}>
                     <ListGroup>
                         <ListGroupItem style={{ borderStyle: "unset" }}>

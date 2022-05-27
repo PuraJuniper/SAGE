@@ -1,6 +1,6 @@
 import { PlanDefinitionActionCondition } from "fhir/r4";
 import React, { useState } from "react";
-import { Button, ListGroup, Card, InputGroup, Form } from "react-bootstrap";
+import { Button, ListGroup, Card, InputGroup, Form, Container } from "react-bootstrap";
 import { CqlWizardModal } from "./cqlWizardModal";
 import { convertFormInputToNumber } from "./cqlWizardSelectFilters";
 import { CodeFilterType, DateFilterType, findEditableCondition, saveEditableCondition, WizardState } from "./wizardLogic";
@@ -8,6 +8,7 @@ import * as SchemaUtils from "../../helpers/schema-utils";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPenToSquare, faPlus, faTrash } from "@fortawesome/pro-solid-svg-icons";
 import { propTypes } from "react-bootstrap/esm/Image";
+import { CardTabTitle } from "../savedCards";
 
 /**
  * Types required for the condition editor
@@ -153,87 +154,49 @@ const SubExpressionElement = (props: ConditionElementProps) => {
         });
     }
 
+    function isWizardExpression(val: WizExpression | SubExpression): val is WizExpression { return (val as WizExpression).curWizState !== undefined; }
     return (
         <>
+
+            {props.subExpression.subExpr.length === 0 ? null : 
             <Card>
-                <Card.Body>
-                    {/* <Card.Title>
-                        {props.subExpression.subExprBool}
-                        {props.isPreview ? null : <Button onClick={props.handleDeleteSubExpression}>Delete</Button>}
-                        
-                    </Card.Title> */}
-                    {props.subExpression.subExpr.map((expr, exprIdx) => {
-                        if ('subExprBool' in expr) {
-                            return (
-                                <SubExpressionElement
-                                    subExpression={expr}
-                                    handleEditSubExpression={(newExpr) => handleEditExpr(exprIdx, newExpr)}
-                                    handleDeleteSubExpression={() => handleDelete(exprIdx)}
-                                    isPreview={props.isPreview}
-                                />
-                            )
-                        }
-                        else {
-                            return (
-                                <>
-                                    <WizardExpression
-                                        wizExpression={expr}
-                                        handleEditExpression={(newExpr) => handleEditExpr(exprIdx, newExpr)}
-                                        handleDeleteExpression={() => handleDelete(exprIdx)}
+                <Card.Body style={{ border: "solid" }}>
+                    {
+                        props.subExpression.subExpr.map((expr, exprIdx) => {
+                            if (isWizardExpression(expr)) {
+                                return (
+                                    <>
+                                        {exprIdx > 0 ? CardTabTitle(props.subExpression.subExprBool) : null}
+                                        {wizExpressionWithConditional(expr, handleEditExpr, exprIdx, handleDelete, props, setNewWizardState)}
+                                    </>
+                                )
+                            } else {
+                                return (<>
+                                    {exprIdx > 0 ? CardTabTitle(expr.subExprBool) : null}
+                                    <SubExpressionElement
+                                        key={expr.subExpr.toString()}
+                                        subExpression={expr}
+                                        handleEditSubExpression={(newExpr) => handleEditExpr(exprIdx, newExpr)}
+                                        handleDeleteSubExpression={() => handleDelete(exprIdx)}
                                         isPreview={props.isPreview}
                                     />
-                                    {props.isPreview ? null :
-                                        <Button
-                                            onClick={() => {
-                                                setNewWizardState({
-                                                    show: true,
-                                                    onClose: (savedState) => {
-                                                        if (savedState !== undefined) {
-                                                            handleEditExpr(exprIdx, {
-                                                                subExpr: [expr, createNewWizExpression(savedState)],
-                                                                subExprBool: props.subExpression.subExprBool === "or" ? "and" : "or",
-                                                            })
-                                                        }
-                                                        setNewWizardState({
-                                                            show: false,
-                                                            onClose: () => 0
-                                                        })
-                                                    }
-                                                })
-                                            }}
-                                        >
-                                            {props.subExpression.subExprBool === "or" ? "AND" : "OR"}
-                                        </Button>
-                                    }
                                 </>
-                            )
-                        }
-                    })}
+                                )
+                            }
+                        })
+                    }
+                    {newBooleanButton(props, setNewWizardState,
+                        function handleSubEditExpr(ss: WizardState) {
+                            props.handleEditSubExpression({
+                                ...props.subExpression,
+                                subExpr: props.subExpression.subExpr.concat(createNewWizExpression(ss))
+                            });
+                        }, props.subExpression.subExprBool.toUpperCase())}
+
                 </Card.Body>
-                {props.isPreview ? null :
-                    <Button
-                        onClick={() => {
-                            setNewWizardState({
-                                show: true,
-                                onClose: (savedState) => {
-                                    if (savedState !== undefined) {
-                                        props.handleEditSubExpression({
-                                            ...props.subExpression,
-                                            subExpr: props.subExpression.subExpr.concat(createNewWizExpression(savedState))
-                                        })
-                                    }
-                                    setNewWizardState({
-                                        show: false,
-                                        onClose: () => 0
-                                    })
-                                }
-                            })
-                        }}
-                    >
-                        {props.subExpression.subExprBool.toUpperCase()}
-                    </Button>
-                }
+
             </Card>
+            }
             {newWizardState.show ?
                 <FreshWizardModal onClose={newWizardState.onClose} /> :
                 null}
@@ -245,6 +208,7 @@ interface WizardExpressionProps {
     wizExpression: WizExpression,
     handleEditExpression: (newExpr: WizExpression) => void,
     handleDeleteExpression: () => void,
+    booleanConditionalButton: JSX.Element | null,
     isPreview?: boolean
 }
 const WizardExpression = (props: WizardExpressionProps) => {
@@ -267,24 +231,22 @@ const WizardExpression = (props: WizardExpressionProps) => {
                     })
                 }}
             />
-            <div>
-                <span>
-                    <svg height="20px" width="20px" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                        <line x1="0" y1="50" x2="100" y2="50" stroke="black" />
-                    </svg>
-                    {props.wizExpression.curWizState?.resType}
-                    {props.isPreview ? null : <>
-                        <Button onClick={() => setShowWiz(true)}>
-                            <FontAwesomeIcon icon={faPenToSquare} /> Edit
-                        </Button>
-                        <Button onClick={props.handleDeleteExpression}>
-                            <FontAwesomeIcon icon={faTrash} /> Delete
-                        </Button>
-                    </>
-                    }
-
-                </span>
-            </div>
+            <Container style={{ border: "solid" }}>
+                <svg height="20px" width="20px" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <line x1="0" y1="50" x2="100" y2="50" stroke="black" />
+                </svg>
+                {props.wizExpression.curWizState?.resType}
+                {props.isPreview ? null : <>
+                    {props.booleanConditionalButton}
+                    <Button onClick={() => setShowWiz(true)}>
+                        <FontAwesomeIcon icon={faPenToSquare} /> Edit
+                    </Button>
+                    <Button onClick={props.handleDeleteExpression}>
+                        <FontAwesomeIcon icon={faTrash} /> Delete
+                    </Button>
+                </>
+                }
+            </Container>
         </>
     )
 }
@@ -300,3 +262,46 @@ const FreshWizardModal = ({ onClose }: FreshWizardModalProps) => {
         />
     )
 }
+
+function wizExpressionWithConditional(expr: WizExpression, handleEditExpr: (editedIdx: number, newExpr: SubExpression | WizExpression) => void, exprIdx: number, handleDelete: (deletedIdx: number) => void, props: ConditionElementProps, setNewWizardState: React.Dispatch<React.SetStateAction<{ show: boolean; onClose: (savedState?: WizardState | undefined) => void; }>>): JSX.Element {
+    return <>
+        <WizardExpression
+            wizExpression={expr}
+            handleEditExpression={(newExpr) => handleEditExpr(exprIdx, newExpr)}
+            handleDeleteExpression={() => handleDelete(exprIdx)}
+            isPreview={props.isPreview}
+            booleanConditionalButton={newBooleanButton(props, setNewWizardState,
+                function handleWizEditExpr(savedState: WizardState) {
+                    handleEditExpr(exprIdx, {
+                        subExpr: [expr, createNewWizExpression(savedState)],
+                        subExprBool: props.subExpression.subExprBool === "or" ? "and" : "or",
+                    });
+                }, props.subExpression.subExprBool === "or" ? "AND" : "OR")} />
+
+    </>;
+}
+function newBooleanButton(props: ConditionElementProps,
+    setNewWizardState: React.Dispatch<React.SetStateAction<{ show: boolean; onClose: (savedState?: WizardState | undefined) => void; }>>,
+    handleWizEditExpr: (savedState: WizardState) => void, buttonText: string) {
+    return props.isPreview ? null :
+        <Button
+            onClick={() => {
+                setNewWizardState({
+                    show: true,
+                    onClose: (savedState) => {
+                        if (savedState !== undefined) {
+                            handleWizEditExpr(savedState);
+                        }
+                        setNewWizardState({
+                            show: false,
+                            onClose: () => 0
+                        });
+                    }
+                });
+            }}
+        >
+            {buttonText}
+            {/* {props.subExpression.subExprBool === "or" ? "AND" : "OR"} */}
+        </Button>;
+}
+
