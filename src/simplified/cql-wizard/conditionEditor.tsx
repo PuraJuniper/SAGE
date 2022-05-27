@@ -159,20 +159,20 @@ const SubExpressionElement = (props: ConditionElementProps) => {
         <>
 
             {props.subExpression.subExpr.length === 0 ? null : 
-            <Card>
-                <Card.Body style={{ border: "solid" }}>
+            <Card style={{backgroundColor: props.subExpression.subExprBool === "or" ? "white" : "lightgrey" , borderWidth: "2px", borderColor: 'var(--sage-dark-purple)'}}>
+                <Card.Body >
                     {
                         props.subExpression.subExpr.map((expr, exprIdx) => {
                             if (isWizardExpression(expr)) {
                                 return (
                                     <>
-                                        {exprIdx > 0 ? CardTabTitle(props.subExpression.subExprBool) : null}
+                                        {exprIdx > 0 ? CardTabTitle(props.subExpression.subExprBool.toUpperCase()) : null}
                                         {wizExpressionWithConditional(expr, handleEditExpr, exprIdx, handleDelete, props, setNewWizardState)}
                                     </>
                                 )
                             } else {
                                 return (<>
-                                    {exprIdx > 0 ? CardTabTitle(expr.subExprBool) : null}
+                                    {exprIdx > 0 ? CardTabTitle(expr.subExprBool.toUpperCase()) : null}
                                     <SubExpressionElement
                                         key={expr.subExpr.toString()}
                                         subExpression={expr}
@@ -185,18 +185,20 @@ const SubExpressionElement = (props: ConditionElementProps) => {
                             }
                         })
                     }
-                    {newBooleanButton(props, setNewWizardState,
+
+                </Card.Body>
+                <Card.Footer>
+                {newBooleanButton(props, setNewWizardState,
                         function handleSubEditExpr(ss: WizardState) {
                             props.handleEditSubExpression({
                                 ...props.subExpression,
                                 subExpr: props.subExpression.subExpr.concat(createNewWizExpression(ss))
                             });
                         }, props.subExpression.subExprBool.toUpperCase())}
-
-                </Card.Body>
-
+                </Card.Footer>
             </Card>
             }
+
             {newWizardState.show ?
                 <FreshWizardModal onClose={newWizardState.onClose} /> :
                 null}
@@ -231,7 +233,7 @@ const WizardExpression = (props: WizardExpressionProps) => {
                     })
                 }}
             />
-            <Container style={{ border: "solid" }}>
+            <Container style={{borderStyle: 'solid',  borderWidth: "2px", borderColor: 'var(--sage-dark-purple)'}}>
                 <svg height="20px" width="20px" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
                     <line x1="0" y1="50" x2="100" y2="50" stroke="black" />
                 </svg>
