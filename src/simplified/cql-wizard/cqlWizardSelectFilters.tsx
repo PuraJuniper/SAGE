@@ -1,5 +1,5 @@
 import React, { Dispatch, useEffect, useState } from "react";
-import { BooleanFilter, CodeFilterType, CodingFilter, DateFilter, DateFilterType, PeriodFilter, PeriodDateFilterType, RelativeDateUnit, WizardAction, WizardState, PeriodDateType, PeriodDateFilter, FilterType, MultitypeFilter } from './wizardLogic';
+import { BooleanFilter, CodeFilterType, CodingFilter, DateFilter, DateFilterType, PeriodFilter, PeriodDateFilterType, RelativeDateUnit, WizardAction, WizardState, PeriodDateType, PeriodDateFilter, FilterTypeCode, MultitypeFilter, BooleanFilterType } from './wizardLogic';
 import { ToggleButtonGroup, ToggleButton, Card, Form, Container, InputGroup, FormControl, DropdownButton, Dropdown } from 'react-bootstrap';
 import { ElementFilter } from './wizardLogic';
 import 'react-dates/initialize';
@@ -46,31 +46,31 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
 
     function getFilterUI(elemFilter: ElementFilter, dispatchNewFilters: (elementToReplace: string, replaceFunc: (v: ElementFilter) => ElementFilter) => void) {
         switch (elemFilter.filter.type) {
-            case FilterType.Coding: {
+            case FilterTypeCode.Coding: {
                 return (
                     codingFilterUI(elemFilter, dispatchNewFilters)
                 );
             }
-            case FilterType.Date:
-            case FilterType.Age: {
+            case FilterTypeCode.Date:
+            case FilterTypeCode.Age: {
                 return (
                     dateFilterUI(elemFilter, dispatchNewFilters)
                 );
             }
-            case FilterType.Boolean: {
+            case FilterTypeCode.Boolean: {
                 return (
                     booleanFilterUI(elemFilter, dispatchNewFilters)
                 );
             }
-            case FilterType.Period: {
+            case FilterTypeCode.Period: {
                 return (
                     periodFilterUI(elemFilter, dispatchNewFilters)
                 );
             }
-            case FilterType.Multitype: {
+            case FilterTypeCode.Multitype: {
                 return multitypeFilterUI(elemFilter as ElementFilter<MultitypeFilter>, dispatchNewFilters);
             }
-            case FilterType.Unknown:
+            case FilterTypeCode.Unknown:
                 return (
                     <div key={elemFilter.elementName}>
                         Unknown Filter {elemFilter.elementName}
@@ -131,7 +131,7 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
                         >
                             <ToggleButton key={`Any`} id={`Any-${elementFilter.elementName}`} variant="outline-secondary" value={-1}>Any Value</ToggleButton>
                             {elementFilter.filter.possibleFilters.flatMap((possibleFilter, i) =>
-                                possibleFilter.filter.type === FilterType.Unknown ?
+                                possibleFilter.filter.type === FilterTypeCode.Unknown ?
                                     [] :
                                     [<ToggleButton key={`${i}-${elementFilter.elementName}`} id={`${i}-${elementFilter.elementName}`} variant="outline-secondary" value={i}>{possibleFilter.filter.type}</ToggleButton>]
                             )}
@@ -148,15 +148,11 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
     }
 
     function booleanFilterUI(elementFilter: ElementFilter, dispatchNewFilters: (elementToReplace: string, replaceFunc: (v: ElementFilter) => ElementFilter) => void): JSX.Element {
-        function dispatchNewBooleanFilter(elementName: string, newBool: boolean | null) {
+        function dispatchNewBooleanFilter(elementName: string, newBool: BooleanFilterType) {
             dispatchNewFilters(elementName, v => {
-                const oldFilter = v.filter as BooleanFilter;
                 return {
                     ...v,
-                    filter: {
-                        ...oldFilter,
-                        filteredBoolean: newBool,
-                    }
+                    filter: (new BooleanFilter(newBool))
                 }
             });
         }
@@ -171,7 +167,7 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
                     <ToggleButtonGroup
                         type="radio"
                         name={`${elementFilter.elementName}-boolean`}
-                        value={booleanFilter.filteredBoolean === null ? BooleanSelectOptions.Any : booleanFilter.filteredBoolean ? BooleanSelectOptions.True : BooleanSelectOptions.False}
+                        value={booleanFilter.filterProps.filterType === null ? BooleanSelectOptions.Any : booleanFilter.filterProps.filterType ? BooleanSelectOptions.True : BooleanSelectOptions.False}
                         onChange={newBoolOption => {
                             const newBool = newBoolOption === BooleanSelectOptions.Any ? null : newBoolOption === BooleanSelectOptions.True ? true : false;
                             dispatchNewBooleanFilter(elementFilter.elementName, newBool)
@@ -213,7 +209,7 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
                     ...v,
                     filter: {
                         ...oldFilter,
-                        filteredCoding: {
+                        filterProps: {
                             filterType,
                             selectedIndexes: selectedIndexes,
                         },
@@ -226,7 +222,7 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
         const codeFilter = elementFilter.filter as CodingFilter;
         return <>
             {(() => {
-                const codeBinding = codeFilter.codeBinding;
+                const codeBinding = codeFilter.binding;
                 if (!codeBinding) {
                     return (
                         <div key={`${elementFilter.elementName}-no-binding`}>No binding found for {elementFilter.elementName}</div>
@@ -242,8 +238,8 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
                                     <ToggleButtonGroup
                                         type="radio"
                                         name={`${elementFilter.elementName}-code-filter-type`}
-                                        value={codeFilter.filteredCoding.filterType === CodeFilterType.None ? "Any" : "Specific"}
-                                        onChange={selected => dispatchNewCodingFilter(elementFilter.elementName, selected === "Any" ? CodeFilterType.None : CodeFilterType.Filtered, codeFilter.filteredCoding.selectedIndexes)}
+                                        value={codeFilter.filterProps.filterType === CodeFilterType.None ? "Any" : "Specific"}
+                                        onChange={selected => dispatchNewCodingFilter(elementFilter.elementName, selected === "Any" ? CodeFilterType.None : CodeFilterType.Filtered, codeFilter.filterProps.selectedIndexes)}
                                     >
                                         <ToggleButton id={`Any-${elementFilter.elementName}`} type="checkbox" variant="outline-secondary" value="Any">
                                             Any Value
@@ -261,13 +257,13 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
                                     getOptionValue={codeIdx => `${codeIdx.idx}`}
                                     getOptionLabel={codeIdx => codeBinding.codes[codeIdx.idx].display ?? codeBinding.codes[codeIdx.idx].code}
                                     onChange={newValue => dispatchNewCodingFilter(elementFilter.elementName, CodeFilterType.Filtered, newValue.map(v => v.idx))}
-                                    value={codeFilter.filteredCoding.selectedIndexes.map(v => {
+                                    value={codeFilter.filterProps.selectedIndexes.map(v => {
                                         return { idx: v };
                                     })}
                                     styles={{ menu: provided => ({ ...provided, zIndex: 9999 }) }} // https://stackoverflow.com/a/55831990
                                     isSearchable={true}
                                     closeMenuOnSelect={false}
-                                    isDisabled={codeFilter.filteredCoding.filterType === CodeFilterType.None} />
+                                    isDisabled={codeFilter.filterProps.filterType === CodeFilterType.None} />
                                 {/* <ToggleButtonGroup type="checkbox" value={codeFilter.filteredCoding.selectedIndexes} className="cql-wizard-element-filters-button-group"
         onChange={selectedIndexes => dispatchNewCodingFilter(elementFilter.elementName, CodeFilterType.Filtered, selectedIndexes)}
     >
@@ -346,12 +342,12 @@ function checkDateFilterErrors(filter: DateFilter, filterType: DateFilterType): 
     switch(filterType) {
         case DateFilterType.After:
         case DateFilterType.Before:
-            return filter.filteredDate.absoluteDate1 === null;
+            return filter.filterProps.absoluteDate1 === null;
         case DateFilterType.Between:
-            return filter.filteredDate.absoluteDate1 === null || filter.filteredDate.absoluteDate2 === null || filter.filteredDate.absoluteDate2 <= filter.filteredDate.absoluteDate1;
+            return filter.filterProps.absoluteDate1 === null || filter.filterProps.absoluteDate2 === null || filter.filterProps.absoluteDate2 <= filter.filterProps.absoluteDate1;
         case DateFilterType.OlderThan:
         case DateFilterType.NewerThan:
-            return filter.filteredDate.relativeAmount < 1 || filter.filteredDate.relativeUnit === undefined;
+            return filter.filterProps.relativeAmount < 1 || filter.filterProps.relativeUnit === undefined;
         case DateFilterType.None:
             return false;
     }
@@ -387,9 +383,9 @@ const DateFilterCard: React.FC<DateFilterCardProps> = (props) => {
     // Mutable dates used by react-date components
     const [datePickerState, setDatePickerState] = useState<{ dateOne: Moment | null, focusDateOne: boolean, dateTwo: Moment | null, focusDateTwo: boolean }>(() => {
         return {
-            dateOne: props.dateFilter.filteredDate.absoluteDate1?.clone() || null,
+            dateOne: props.dateFilter.filterProps.absoluteDate1?.clone() || null,
             focusDateOne: false,
-            dateTwo: props.dateFilter.filteredDate.absoluteDate2?.clone() || null,
+            dateTwo: props.dateFilter.filterProps.absoluteDate2?.clone() || null,
             focusDateTwo: false,
         }
     });
@@ -399,9 +395,9 @@ const DateFilterCard: React.FC<DateFilterCardProps> = (props) => {
      */
     useEffect(() => {
         setDatePickerState({
-            dateOne: props.dateFilter.filteredDate.absoluteDate1?.clone() || null,
+            dateOne: props.dateFilter.filterProps.absoluteDate1?.clone() || null,
             focusDateOne: false,
-            dateTwo: props.dateFilter.filteredDate.absoluteDate2?.clone() || null,
+            dateTwo: props.dateFilter.filterProps.absoluteDate2?.clone() || null,
             focusDateTwo: false,
         });
     }, [props.dateFilter])
@@ -409,17 +405,17 @@ const DateFilterCard: React.FC<DateFilterCardProps> = (props) => {
     function dispatchNewDateFilter(elementName: string, newFilterType: DateFilterType, newDate1?: Moment | null, newDate2?: Moment | null, newRelativeUnit?: RelativeDateUnit, newRelativeAmountInput?: number) {
         props.dispatchNewFilters(elementName, v => {
             const oldFilter = v.filter as DateFilter;
-            const newRelativeAmount = typeof(newRelativeAmountInput) === 'undefined' ? oldFilter.filteredDate.relativeAmount : newRelativeAmountInput;
+            const newRelativeAmount = typeof(newRelativeAmountInput) === 'undefined' ? oldFilter.filterProps.relativeAmount : newRelativeAmountInput;
             const newElementFilter: ElementFilter = {
                 ...v,
                 filter: {
                     ...oldFilter,
-                    filteredDate: {
-                        ...oldFilter.filteredDate,
+                    filterProps: {
+                        ...oldFilter.filterProps,
                         filterType: newFilterType,
-                        absoluteDate1: newDate1 === undefined ? oldFilter.filteredDate.absoluteDate1 : (newDate1?.clone() || null),
-                        absoluteDate2: newDate2 === undefined ? oldFilter.filteredDate.absoluteDate2 : (newDate2?.clone() || null),
-                        relativeUnit: newRelativeUnit ?? oldFilter.filteredDate.relativeUnit,
+                        absoluteDate1: newDate1 === undefined ? oldFilter.filterProps.absoluteDate1 : (newDate1?.clone() || null),
+                        absoluteDate2: newDate2 === undefined ? oldFilter.filterProps.absoluteDate2 : (newDate2?.clone() || null),
+                        relativeUnit: newRelativeUnit ?? oldFilter.filterProps.relativeUnit,
                         relativeAmount: newRelativeAmount,
                     }
                 }
@@ -432,7 +428,7 @@ const DateFilterCard: React.FC<DateFilterCardProps> = (props) => {
         });
     }
 
-    const isAge = props.dateFilter.type === FilterType.Age;
+    const isAge = props.dateFilter.type === FilterTypeCode.Age;
 
     return (
         <Card>
@@ -443,7 +439,7 @@ const DateFilterCard: React.FC<DateFilterCardProps> = (props) => {
                     <ToggleButtonGroup
                         type="radio"
                         name={`${props.elementFilter.elementName}-date-type`}
-                        value={getDateTypeFromFilterType(props.dateFilter.filteredDate.filterType)}
+                        value={getDateTypeFromFilterType(props.dateFilter.filterProps.filterType as DateFilterType)}
                         onChange={newDateType => {
                             const newFilterType = newDateType === DateType.None ? DateFilterType.None : newDateType === DateType.Relative ? DateFilterType.OlderThan : DateFilterType.Before;
                             dispatchNewDateFilter(props.elementFilter.elementName, newFilterType)
@@ -457,11 +453,11 @@ const DateFilterCard: React.FC<DateFilterCardProps> = (props) => {
                     <ToggleButtonGroup
                         type="radio"
                         name={`${props.elementFilter.elementName}-date-filter-type`}
-                        value={props.dateFilter.filteredDate.filterType}
+                        value={props.dateFilter.filterProps.filterType}
                         onChange={newFilterType => dispatchNewDateFilter(props.elementFilter.elementName, newFilterType)}
                     >
                         {(() => {
-                            switch(getDateTypeFromFilterType(props.dateFilter.filteredDate.filterType)) {
+                            switch(getDateTypeFromFilterType(props.dateFilter.filterProps.filterType as DateFilterType)) {
                                 case DateType.Absolute:
                                     return [
                                         <ToggleButton id={`${DateFilterType.Before}-${props.elementFilter.elementName}`} key={DateFilterType.Before} variant="outline-secondary" value={DateFilterType.Before}>Before</ToggleButton>,
@@ -480,7 +476,7 @@ const DateFilterCard: React.FC<DateFilterCardProps> = (props) => {
                     </ToggleButtonGroup>
                 </Card.Title>
                 {(() => {
-                    switch(props.dateFilter.filteredDate.filterType) {
+                    switch(props.dateFilter.filterProps.filterType) {
                         case DateFilterType.Before:
                         case DateFilterType.After:
                             return (
@@ -489,7 +485,7 @@ const DateFilterCard: React.FC<DateFilterCardProps> = (props) => {
                                     numberOfMonths={1}
                                     showClearDate
                                     reopenPickerOnClearDate
-                                    onClose={({date}) => dispatchNewDateFilter(props.elementFilter.elementName, props.dateFilter.filteredDate.filterType, date)}
+                                    onClose={({date}) => dispatchNewDateFilter(props.elementFilter.elementName, props.dateFilter.filterProps.filterType as DateFilterType, date)}
                                     isOutsideRange={() => false}
                                     id={`${props.elementFilter.elementName}-date-1`}
                                     date={datePickerState.dateOne}
@@ -514,7 +510,7 @@ const DateFilterCard: React.FC<DateFilterCardProps> = (props) => {
                                     openDirection="down"
                                     showClearDates
                                     reopenPickerOnClearDates
-                                    onClose={({startDate, endDate}) => dispatchNewDateFilter(props.elementFilter.elementName, props.dateFilter.filteredDate.filterType, startDate, endDate)}
+                                    onClose={({startDate, endDate}) => dispatchNewDateFilter(props.elementFilter.elementName, props.dateFilter.filterProps.filterType as DateFilterType, startDate, endDate)}
                                     isOutsideRange={() => false}
                                     startDate={datePickerState.dateOne}
                                     startDateId={`${props.elementFilter.elementName}-date-between-start`}
@@ -544,19 +540,19 @@ const DateFilterCard: React.FC<DateFilterCardProps> = (props) => {
                                     <Form.Control
                                         placeholder="Amount of time"
                                         type="number"
-                                        defaultValue={props.dateFilter.filteredDate.relativeAmount}
+                                        defaultValue={props.dateFilter.filterProps.relativeAmount}
                                         min={0}
                                         onChange={e => 
                                             dispatchNewDateFilter(
-                                                props.elementFilter.elementName, props.dateFilter.filteredDate.filterType, undefined, undefined, 
-                                                props.dateFilter.filteredDate.relativeUnit, convertFormInputToNumber(e.target.value, props.dateFilter.filteredDate.relativeAmount))
+                                                props.elementFilter.elementName, props.dateFilter.filterProps.filterType as DateFilterType, undefined, undefined, 
+                                                props.dateFilter.filterProps.relativeUnit, convertFormInputToNumber(e.target.value, props.dateFilter.filterProps.relativeAmount))
                                             }
                                     />
                                     <ToggleButtonGroup
                                         type="radio"
                                         name={`${props.elementFilter.elementName}-date-relative-unit`}
-                                        value={props.dateFilter.filteredDate.relativeUnit}
-                                        onChange={newUnit => dispatchNewDateFilter(props.elementFilter.elementName, props.dateFilter.filteredDate.filterType, undefined, undefined, newUnit, props.dateFilter.filteredDate.relativeAmount)}
+                                        value={props.dateFilter.filterProps.relativeUnit}
+                                        onChange={newUnit => dispatchNewDateFilter(props.elementFilter.elementName, props.dateFilter.filterProps.filterType as DateFilterType, undefined, undefined, newUnit, props.dateFilter.filterProps.relativeAmount)}
                                     >
                                         {props.dateFilter.type === "date" ?
                                             [
@@ -617,11 +613,11 @@ const PeriodFilterCard: React.FC<PeriodFilterCardProps> = (props) => {
      * Reset mutable dates used by react-date components to match any upstream changes to the date
      */
     useEffect(() => {
-        if (props.periodFilter.filteredDate.dateType === PeriodDateType.Absolute) {
+        if (props.periodFilter.filterProps.dateType === PeriodDateType.Absolute) {
             setDatePickerState({
-                dateOne: props.periodFilter.filteredDate.startDate?.clone() || null,
+                dateOne: props.periodFilter.filterProps.startDate?.clone() || null,
                 focusDateOne: false,
-                dateTwo: props.periodFilter.filteredDate.endDate?.clone() || null,
+                dateTwo: props.periodFilter.filterProps.endDate?.clone() || null,
                 focusDateTwo: false,
             });
         }
@@ -639,7 +635,10 @@ const PeriodFilterCard: React.FC<PeriodFilterCardProps> = (props) => {
         props.dispatchNewFilters(elementName, v => {
             const newFilter: PeriodFilter = {
                 ...v.filter as PeriodFilter,
-                filteredDate: newPeriodFilter,
+                filterProps: {
+                    ...newPeriodFilter,
+                    filterType: null
+                },
                 error: checkPeriodFilterErrors(newPeriodFilter),
             }
 
@@ -661,13 +660,13 @@ const PeriodFilterCard: React.FC<PeriodFilterCardProps> = (props) => {
                     <ToggleButtonGroup
                         type="radio"
                         name={`${props.elementFilter.elementName}-date-type`}
-                        value={props.periodFilter.filteredDate.dateType}
+                        value={props.periodFilter.filterProps.dateType}
                         onChange={newDateType => {
-                            if (newDateType === props.periodFilter.filteredDate.dateType) {
+                            if (newDateType === props.periodFilter.filterProps.dateType) {
                                 return;
                             }
                             dispatchNewPeriodFilter(props.elementFilter.elementName, {
-                                ...props.periodFilter.filteredDate,
+                                ...props.periodFilter.filterProps,
                                 startDate: null,
                                 endDate: null,
                                 dateType: newDateType,
@@ -679,7 +678,7 @@ const PeriodFilterCard: React.FC<PeriodFilterCardProps> = (props) => {
                     </ToggleButtonGroup>
                 </Card.Title>
                 {[PeriodDatePart.Start, PeriodDatePart.End].map(v => {
-                    const filteredDate = props.periodFilter.filteredDate;
+                    const filteredDate = props.periodFilter.filterProps;
                     const displayText = v === PeriodDatePart.Start ? "Starts": "Ends";
                     const dateTypeKey: keyof typeof filteredDate = v === PeriodDatePart.Start ? "startDateType" : "endDateType";
                     const dateKey: keyof typeof filteredDate = v === PeriodDatePart.Start ? "startDate" : "endDate";

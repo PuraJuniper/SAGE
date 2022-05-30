@@ -1,6 +1,6 @@
 import axios, { AxiosRequestConfig } from "axios";
 import { AggregateType, EditableCondition, SubExpression } from "./conditionEditor";
-import { ElementFilter, CodeFilterType, DateFilterType, CodingFilter, DateFilter, RelativeDateUnit, FilterType, MultitypeFilter } from "./wizardLogic";
+import { ElementFilter, CodeFilterType, DateFilterType, CodingFilter, DateFilter, RelativeDateUnit, FilterTypeCode, MultitypeFilter } from "./wizardLogic";
 
 interface CqlDefinition {
     identifier: string, // identifier to reference this definition elsewhere in the CQL file
@@ -151,19 +151,19 @@ function generateCqlFromSubExpression(subExpressionId: string, subExpression: Su
             if (subExpr.curWizState.filters.length > 0) {
                 const filterToCQL = (filter: ElementFilter): string | null => {
                     switch (filter.filter.type) {
-                        case FilterType.Coding: {
+                        case FilterTypeCode.Coding: {
                             const codingFilter = filter.filter as CodingFilter;
-                            if (codingFilter.filteredCoding.filterType === CodeFilterType.None) {
+                            if (codingFilter.filterProps.filterType === CodeFilterType.None) {
                                 return null;
                             }
                             else {
-                                return codingFilter.filteredCoding.selectedIndexes.map(selectedIndex => {
-                                    const selectedCode = codingFilter.codeBinding.codes[selectedIndex];
-                                    if (codingFilter.codeBinding.isSingleton) {
-                                        return `R.${filter.elementName} ~ "${getOrCreateCodeIdentifier(selectedCode.system, selectedCode.code)}"${codingFilter.codeBinding.isCoding ? "" : ".code"}`
+                                return codingFilter.filterProps.selectedIndexes.map(selectedIndex => {
+                                    const selectedCode = codingFilter.binding.codes[selectedIndex];
+                                    if (codingFilter.binding.isSingleton) {
+                                        return `R.${filter.elementName} ~ "${getOrCreateCodeIdentifier(selectedCode.system, selectedCode.code)}"${codingFilter.binding.isCoding ? "" : ".code"}`
                                     }
                                     else {
-                                        return `exists(R.${filter.elementName} RCodeList where RCodeList ~ "${getOrCreateCodeIdentifier(selectedCode.system, selectedCode.code)}"${codingFilter.codeBinding.isCoding ? "" : ".code"})`
+                                        return `exists(R.${filter.elementName} RCodeList where RCodeList ~ "${getOrCreateCodeIdentifier(selectedCode.system, selectedCode.code)}"${codingFilter.binding.isCoding ? "" : ".code"})`
                                     }
                                 }).join(`
                     and `
@@ -172,24 +172,24 @@ function generateCqlFromSubExpression(subExpressionId: string, subExpression: Su
                         }
 
                     
-                        case FilterType.Date:
-                        case FilterType.Age: {
+                        case FilterTypeCode.Date:
+                        case FilterTypeCode.Age: {
                             const dateFilter = filter.filter as DateFilter;
-                            switch (dateFilter.filteredDate.filterType) {
+                            switch (dateFilter.filterProps.filterType) {
                                 case DateFilterType.None:
                                     return null;
                                 case DateFilterType.After:
-                                    return `R.${filter.elementName} after day of Date(${dateFilter.filteredDate.absoluteDate1?.year()}, ${dateFilter.filteredDate.absoluteDate1?.month()}, ${dateFilter.filteredDate.absoluteDate1?.day()})`;
+                                    return `R.${filter.elementName} after day of Date(${dateFilter.filterProps.absoluteDate1?.year()}, ${dateFilter.filterProps.absoluteDate1?.month()}, ${dateFilter.filterProps.absoluteDate1?.day()})`;
                                 case DateFilterType.Before:
-                                    return `R.${filter.elementName} before day of Date(${dateFilter.filteredDate.absoluteDate1?.year()}, ${dateFilter.filteredDate.absoluteDate1?.month()}, ${dateFilter.filteredDate.absoluteDate1?.day()})`;
+                                    return `R.${filter.elementName} before day of Date(${dateFilter.filterProps.absoluteDate1?.year()}, ${dateFilter.filterProps.absoluteDate1?.month()}, ${dateFilter.filterProps.absoluteDate1?.day()})`;
                                 case DateFilterType.Between:
                                     return (
-    `R.${filter.elementName} included in day of Interval[DateTime(${dateFilter.filteredDate.absoluteDate1?.year()}, ${dateFilter.filteredDate.absoluteDate1?.month()}, ${dateFilter.filteredDate.absoluteDate1?.day()}), DateTime(${dateFilter.filteredDate.absoluteDate2?.year()}, ${dateFilter.filteredDate.absoluteDate2?.month()}, ${dateFilter.filteredDate.absoluteDate2?.day()})]`
+    `R.${filter.elementName} included in day of Interval[DateTime(${dateFilter.filterProps.absoluteDate1?.year()}, ${dateFilter.filterProps.absoluteDate1?.month()}, ${dateFilter.filterProps.absoluteDate1?.day()}), DateTime(${dateFilter.filterProps.absoluteDate2?.year()}, ${dateFilter.filterProps.absoluteDate2?.month()}, ${dateFilter.filterProps.absoluteDate2?.day()})]`
                                     )
                                 case DateFilterType.OlderThan:
                                 case DateFilterType.NewerThan: {
                                     let cqlUnit = null;
-                                    switch (dateFilter.filteredDate.relativeUnit) {
+                                    switch (dateFilter.filterProps.relativeUnit) {
                                         case RelativeDateUnit.Minutes:
                                             cqlUnit = "minute";
                                             break;
@@ -209,20 +209,20 @@ function generateCqlFromSubExpression(subExpressionId: string, subExpression: Su
                                             cqlUnit = "year";
                                             break;
                                     }
-                                    return `R.${filter.elementName} ${dateFilter.filteredDate.filterType === DateFilterType.OlderThan ? "before" : "after"} ${cqlUnit} of (Now() - ${dateFilter.filteredDate.relativeAmount} ${cqlUnit})`;
+                                    return `R.${filter.elementName} ${dateFilter.filterProps.filterType === DateFilterType.OlderThan ? "before" : "after"} ${cqlUnit} of (Now() - ${dateFilter.filterProps.relativeAmount} ${cqlUnit})`;
                                 }
                                 default:
                                     return null;
                             }
                         }
 
-                        case FilterType.Period:
+                        case FilterTypeCode.Period:
                             return null;
 
-                        case FilterType.Boolean:
-                            return `R.${filter.elementName} is ${filter.filter.filteredBoolean === true ? 'true' : 'false'}`; // Avoiding the slim chance that some browser prints true as 'True' or something
+                        case FilterTypeCode.Boolean:
+                            return `R.${filter.elementName} is ${filter.filter.filterProps.filterType === true ? 'true' : 'false'}`; // Avoiding the slim chance that some browser prints true as 'True' or something
 
-                        case FilterType.Multitype: {
+                        case FilterTypeCode.Multitype: {
                             const mtFilter = filter.filter as MultitypeFilter;
                             if (mtFilter.selectedFilter === undefined) {
                                 return null;
@@ -235,7 +235,7 @@ function generateCqlFromSubExpression(subExpressionId: string, subExpression: Su
                             }
                         }
 
-                        case FilterType.Unknown:
+                        case FilterTypeCode.Unknown:
                             return null;
                         
                         default:

@@ -25,7 +25,7 @@ export interface WizExprAggregate {
     count?: number,
 }
 export interface WizExpression {
-    curWizState: WizardState | null,
+    curWizState: WizardState,
     exprAggregate: WizExprAggregate,
 }
 export interface SubExpression {
