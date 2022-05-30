@@ -176,7 +176,7 @@ export type GenericFilterType = CodeFilterType | DateFilterType | PeriodDateFilt
 export type BooleanFilterType = boolean | null
 export interface GenericFilter {
     type: FilterTypeCode;
-    toString: () => string,
+    toFriendlyString(): string,
     binding?: CodeBinding | {definition: string | undefined}
     filterProps : GenericFilterProperties, 
     error: boolean
@@ -212,6 +212,7 @@ export class CodingFilter implements GenericFilter {
         selectedIndexes: [], // Indexes into CodeBinding.codes
     }
     error = false;
+    toFriendlyString: () => string = () => this.toString();
 }
 
 export enum CodeFilterType {
@@ -227,6 +228,7 @@ interface CodeBinding {
 export class DateFilter implements GenericFilter{
     binding: { definition: string | undefined; };
     error = false;
+    toFriendlyString: () => string = () => this.toString();
     type: FilterTypeCode;
 
     constructor(fhirPath: string, schemaDef?: string) {
@@ -265,6 +267,7 @@ export enum RelativeDateUnit {
 export class PeriodFilter implements GenericFilter {
     type = FilterTypeCode.Period;
     error = false;
+    toFriendlyString: () => string = () => this.toString();
 
     constructor(definition?: string) {
         this.binding = {definition: definition}
@@ -332,28 +335,34 @@ export class BooleanFilter implements GenericFilter {
     filterProps: {filterType: BooleanFilterType};
     type = FilterTypeCode.Boolean;
     error = false; // All possibilities for this filter are accepted
+    toFriendlyString(): string {return this.toString();}
 }
-export interface UnknownFilter {
-    type: FilterTypeCode.Unknown,
-    curValue: unknown,
-    error: boolean,
+export class UnknownFilter implements GenericFilter {
+    toFriendlyString(): string {return this.toString()}
+    binding?: undefined;
+    filterProps: GenericFilterProperties = { filterType: null };
+    type = FilterTypeCode.Unknown;
+    curValue = "test";
+    error = false;
 }
-export interface MultitypeFilter {
-    type: FilterTypeCode.Multitype,
-    selectedFilter?: number, // Index of selected filter in `possibleFilters`
-    possibleFilters: ElementFilter[],
-    error: boolean,
+export class MultitypeFilter implements GenericFilter {
+    constructor(possibleFilters: ElementFilter[]) {
+        this.possibleFilters = possibleFilters;
+    }
+    toFriendlyString(): string {return this.toString(); }
+    binding?: CodeBinding | { definition: string | undefined; } | undefined;
+    filterProps: GenericFilterProperties = { filterType: null };
+    type = FilterTypeCode.Multitype;
+    selectedFilter?: number = undefined; // Index of selected filter in `possibleFilters`
+    possibleFilters: ElementFilter[] = [];
+    error = false;
 }
 
 // Returns a filter type for the given element path in the profile identified by `url`
 // These filter types should include all information needed by the UI to know what controls should be displayed
 //  to the user for the element.
 async function getFilterTypeOfElement(url: string, elementFhirPath: string, typeIndex?: number): Promise<GenericElementFilter> {
-    const unknownFilter: UnknownFilter = {
-        type: FilterTypeCode.Unknown,
-        curValue: "test",
-        error: false,
-    }
+    const unknownFilter: UnknownFilter = new UnknownFilter();
     const elementSchema = State.get().profiles[url][`${elementFhirPath}`];
     if (!elementSchema) {
         console.log(`No schema found for ${elementFhirPath} in ${url}`);
@@ -363,16 +372,12 @@ async function getFilterTypeOfElement(url: string, elementFhirPath: string, type
     let selectedTypeIndex = typeIndex;
     // If no particular index was given, check if this element has multiple possible types
     if (selectedTypeIndex === undefined && elementSchema.type.length > 1) {
-        return {
-            type: FilterTypeCode.Multitype,
-            possibleFilters: await Promise.all(elementSchema.type.map(async (type, i): Promise<ElementFilter> => {
-                return {
-                    elementName: `${type.code[0].toUpperCase()}${type.code.slice(1)}`,
-                    filter: await getFilterTypeOfElement(url, elementFhirPath, i),
-                }
-            })),
-            error: false,
-        }
+        return new MultitypeFilter(await Promise.all(elementSchema.type.map(async (type, i): Promise<ElementFilter> => {
+            return {
+                elementName: `${type.code[0].toUpperCase()}${type.code.slice(1)}`,
+                filter: await getFilterTypeOfElement(url, elementFhirPath, i),
+            }
+        })))
     }
 
     // Default to the first type

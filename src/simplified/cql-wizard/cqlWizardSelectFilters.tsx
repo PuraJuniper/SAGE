@@ -88,14 +88,13 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
 
     function multitypeFilterUI(elementFilter: ElementFilter<MultitypeFilter>, dispatchNewFilters: (elementToReplace: string, replaceFunc: (v: ElementFilter) => ElementFilter) => void): JSX.Element {
         function dispatchNewMultitypeFilter(elementName: string, replaceFunc: (v: ElementFilter) => ElementFilter) {
-            dispatchNewFilters(elementFilter.elementName, oldElementFilter => {
-                const oldFilter = oldElementFilter.filter as MultitypeFilter;
+            dispatchNewFilters(elementName, v => {
+                const oldFilter = v.filter as MultitypeFilter;
                 let error = false;
                 return {
-                    ...oldElementFilter,
-                    filter: {
-                        ...oldFilter,
-                        possibleFilters: oldFilter.possibleFilters.map(v => {
+                    ...v,
+                    filter: new MultitypeFilter(
+                        oldFilter.possibleFilters.map(v => {
                             if (v.elementName !== elementName) {
                                 return v;
                             }
@@ -104,9 +103,8 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
                                 error = newV.filter.error;
                                 return newV;
                             }
-                        }),
-                        error: error
-                    },
+                        })
+                    )
                 }
             })
         }
@@ -124,8 +122,14 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
                             onChange={newSelectedIdx => {
                                 const selectedIdx = newSelectedIdx === -1 ? undefined : newSelectedIdx;
                                 dispatchNewFilters(elementFilter.elementName, (v) => {
-                                    const multitypeFilter = v.filter as MultitypeFilter;
-                                    return { ...v, filter: { ...multitypeFilter, selectedFilter: selectedIdx, error: selectedIdx === undefined ? false : multitypeFilter.possibleFilters[selectedIdx].filter.error } }
+                                    const oldFilter = v.filter as MultitypeFilter;
+                                    const newFilter = new MultitypeFilter(oldFilter.possibleFilters);
+                                    newFilter.selectedFilter = selectedIdx;
+                                    newFilter.error = selectedIdx === undefined ? false : oldFilter.possibleFilters[selectedIdx].filter.error
+                                    return {
+                                        ...v,
+                                        filter: newFilter
+                                    }
                                 });
                             }}
                         >

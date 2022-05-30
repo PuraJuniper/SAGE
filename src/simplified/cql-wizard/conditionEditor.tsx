@@ -248,7 +248,7 @@ const WizardExpression = (props: WizardExpressionProps) => {
                 <svg height="20px" width="20px" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
                     <line x1="0" y1="50" x2="100" y2="50" stroke="black" />
                 </svg>
-                {props.wizExpression.curWizState?.resType}
+                {friendlyWizardExpression()}
                 {props.isPreview ? null : <>
                     {props.booleanConditionalButton}
                     <Button onClick={() => setShowWiz(true)}>
@@ -262,6 +262,12 @@ const WizardExpression = (props: WizardExpressionProps) => {
             </Container>
         </>
     )
+
+    function friendlyWizardExpression(): string | undefined {
+        const filters = props.wizExpression.curWizState.filters.map(filter => filter.filter.toFriendlyString())
+        return `${props.wizExpression.curWizState?.resType}
+                    ${filters}`;
+    }
 }
 
 interface FreshWizardModalProps {
