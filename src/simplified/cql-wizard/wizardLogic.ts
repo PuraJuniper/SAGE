@@ -212,7 +212,12 @@ export class CodingFilter implements GenericFilter {
         selectedIndexes: [], // Indexes into CodeBinding.codes
     }
     error = false;
-    toFriendlyString(): string {return "To Be Implemented..."}
+    toFriendlyString(): string {
+            return `${
+                (this.filterProps.selectedIndexes.length === 0 || this.filterProps.filterType === CodeFilterType.None) ? 'Any' :
+                this.binding.codes[this.filterProps.selectedIndexes[0]].display
+            }`;
+        }
 }
 
 export enum CodeFilterType {
@@ -248,7 +253,7 @@ export class DateFilter implements GenericFilter{
                     : this.filterProps.filterType === DateFilterType.OlderThan ? 'Occured after '
                     : this.filterProps.filterType === DateFilterType.YoungerThan ? 'Occured before ' : ''
             }`
-            const suffix = this.type === FilterTypeCode.Age ? "old." : "of time."       
+            const suffix = this.type === FilterTypeCode.Age ? "old" : "of time"       
 
             return prefix + relativeWord + this.filterProps.relativeAmount  + ` ${this.filterProps.relativeUnit} ` + suffix;
         }

@@ -1,6 +1,6 @@
 import { PlanDefinitionActionCondition } from "fhir/r4";
 import React, { useState } from "react";
-import { Button, ListGroup, Card, InputGroup, Form, Container } from "react-bootstrap";
+import { Button, ListGroup, Card, InputGroup, Form, Container, Row, Col } from "react-bootstrap";
 import { CqlWizardModal } from "./cqlWizardModal";
 import { convertFormInputToNumber } from "./cqlWizardSelectFilters";
 import { CodeFilterType, DateFilterType, findEditableCondition, saveEditableCondition, WizardState } from "./wizardLogic";
@@ -10,6 +10,7 @@ import { faPenToSquare, faPlus, faTrash } from "@fortawesome/pro-solid-svg-icons
 import { propTypes } from "react-bootstrap/esm/Image";
 import { CardTabTitle } from "../savedCards";
 import { trim } from "lodash";
+import { capitalizeWord } from "../nameHelpers";
 
 /**
  * Types required for the condition editor
@@ -245,28 +246,49 @@ const WizardExpression = (props: WizardExpressionProps) => {
                 }}
             />
             <Container style={{ borderStyle: 'solid', borderWidth: "2px", borderColor: 'var(--sage-dark-purple)' }}>
-                <svg height="20px" width="20px" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                {/* <svg height="20px" width="20px" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
                     <line x1="0" y1="50" x2="100" y2="50" stroke="black" />
-                </svg>
+                </svg> */}
                 {friendlyWizardExpression()}
                 {props.isPreview ? null : <>
-                    {props.booleanConditionalButton}
-                    <Button onClick={() => setShowWiz(true)}>
-                        <FontAwesomeIcon icon={faPenToSquare} /> Edit
-                    </Button>
-                    <Button onClick={props.handleDeleteExpression}>
-                        <FontAwesomeIcon icon={faTrash} /> Delete
-                    </Button>
+                    <Container style={{textAlign: 'right'}}>
+                        {props.booleanConditionalButton}
+                        <Button onClick={() => setShowWiz(true)}>
+                            <FontAwesomeIcon icon={faPenToSquare} /> Edit
+                        </Button>
+                        <Button onClick={props.handleDeleteExpression}>
+                            <FontAwesomeIcon icon={faTrash} /> Delete
+                        </Button>
+                    </Container>
                 </>
                 }
             </Container>
         </>
     )
 
-    function friendlyWizardExpression(): string | undefined {
-        const filters = props.wizExpression.curWizState.filters.map(filter => filter.filter.toFriendlyString())
-        return `${props.wizExpression.curWizState?.resType}
-                    ${filters}`;
+    function friendlyWizardExpression(): JSX.Element | undefined {
+        // const filters = props.wizExpression.curWizState.filters.map(filter => `${capitalizeWord(filter.elementName)}: ${filter.filter.toFriendlyString()}`)
+        return (
+                <Container>
+                    <Col><b>{props.wizExpression.curWizState?.resType} conditions: </b></Col>
+                    <Col>
+                        <Row>
+                            {props.wizExpression.curWizState.filters.map(f => {
+                                return (
+                                    <Col key={f.elementName}>
+                                        <Col style={{borderStyle: 'solid', borderColor: 'grey', margin: '0.25rem'}}>
+                                        <Container >
+                                            <Row><b>{capitalizeWord(f.elementName)}:</b></Row>
+                                            <Row><Col style={{textAlign: 'center'}}>{f.filter.toFriendlyString()}</Col></Row>
+                                        </Container>
+                                        </Col>
+                                    </Col>
+                                )
+                            })}
+                        </Row>
+                    </Col>
+                </Container>
+        );
     }
 }
 
