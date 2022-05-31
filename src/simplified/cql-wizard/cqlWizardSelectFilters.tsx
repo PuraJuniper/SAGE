@@ -209,16 +209,15 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
         function dispatchNewCodingFilter(elementName: string, filterType: CodeFilterType, selectedIndexes: number[]) {
             dispatchNewFilters(elementName, v => {
                 const oldFilter = v.filter as CodingFilter; // Ok to cast because this current function should only be called when editing CodingFilters
+                const newFilter = new CodingFilter(oldFilter.binding);
+                newFilter.filterProps = {
+                    filterType,
+                    selectedIndexes: selectedIndexes,
+                }
+                newFilter.error = filterType === CodeFilterType.Filtered && selectedIndexes.length === 0
                 return {
                     ...v,
-                    filter: {
-                        ...oldFilter,
-                        filterProps: {
-                            filterType,
-                            selectedIndexes: selectedIndexes,
-                        },
-                        error: filterType === CodeFilterType.Filtered && selectedIndexes.length === 0,
-                    }
+                    filter: newFilter
                 }
             });
         }
@@ -350,7 +349,7 @@ function checkDateFilterErrors(filter: DateFilter, filterType: DateFilterType): 
         case DateFilterType.Between:
             return filter.filterProps.absoluteDate1 === null || filter.filterProps.absoluteDate2 === null || filter.filterProps.absoluteDate2 <= filter.filterProps.absoluteDate1;
         case DateFilterType.OlderThan:
-        case DateFilterType.NewerThan:
+        case DateFilterType.YoungerThan:
             return filter.filterProps.relativeAmount < 1 || filter.filterProps.relativeUnit === undefined;
         case DateFilterType.None:
             return false;
@@ -363,7 +362,7 @@ function getDateTypeFromFilterType(filter: DateFilterType): DateType {
         case DateFilterType.Before:
         case DateFilterType.Between:
             return DateType.Absolute;
-        case DateFilterType.NewerThan:
+        case DateFilterType.YoungerThan:
         case DateFilterType.OlderThan:
             return DateType.Relative;
         case DateFilterType.None:
@@ -409,25 +408,19 @@ const DateFilterCard: React.FC<DateFilterCardProps> = (props) => {
     function dispatchNewDateFilter(elementName: string, newFilterType: DateFilterType, newDate1?: Moment | null, newDate2?: Moment | null, newRelativeUnit?: RelativeDateUnit, newRelativeAmountInput?: number) {
         props.dispatchNewFilters(elementName, v => {
             const oldFilter = v.filter as DateFilter;
-            const newRelativeAmount = typeof(newRelativeAmountInput) === 'undefined' ? oldFilter.filterProps.relativeAmount : newRelativeAmountInput;
+            const newFilter = new DateFilter(oldFilter.binding.definition, oldFilter.type);
+            newFilter.filterProps.filterType= newFilterType;
+            newFilter.filterProps.absoluteDate1 = newDate1 === undefined ? oldFilter.filterProps.absoluteDate1 : (newDate1?.clone() || null);
+            newFilter.filterProps.absoluteDate2 = newDate2 === undefined ? oldFilter.filterProps.absoluteDate2 : (newDate2?.clone() || null);
+            newFilter.filterProps.relativeAmount = typeof(newRelativeAmountInput) === 'undefined' ? oldFilter.filterProps.relativeAmount : newRelativeAmountInput;
+            newFilter.filterProps.relativeUnit = newRelativeUnit ?? oldFilter.filterProps.relativeUnit;
+
             const newElementFilter: ElementFilter = {
                 ...v,
-                filter: {
-                    ...oldFilter,
-                    filterProps: {
-                        ...oldFilter.filterProps,
-                        filterType: newFilterType,
-                        absoluteDate1: newDate1 === undefined ? oldFilter.filterProps.absoluteDate1 : (newDate1?.clone() || null),
-                        absoluteDate2: newDate2 === undefined ? oldFilter.filterProps.absoluteDate2 : (newDate2?.clone() || null),
-                        relativeUnit: newRelativeUnit ?? oldFilter.filterProps.relativeUnit,
-                        relativeAmount: newRelativeAmount,
-                    }
-                }
+                filter: newFilter
             }
 
-            const newFilter = newElementFilter.filter as DateFilter;
-            newFilter.error = checkDateFilterErrors(newFilter, newFilterType);
-
+            newFilter.error = checkDateFilterErrors(newElementFilter.filter as DateFilter, newFilterType);
             return newElementFilter;
         });
     }
@@ -471,7 +464,7 @@ const DateFilterCard: React.FC<DateFilterCardProps> = (props) => {
                                 case DateType.Relative: 
                                     return [
                                         <ToggleButton id={`${DateFilterType.OlderThan}-${props.elementFilter.elementName}`} key={DateFilterType.OlderThan} variant="outline-secondary" value={DateFilterType.OlderThan}>Older than</ToggleButton>,
-                                        <ToggleButton id={`${DateFilterType.NewerThan}-${props.elementFilter.elementName}`}  key={DateFilterType.NewerThan} variant="outline-secondary" value={DateFilterType.NewerThan}>{isAge ? "Younger Than" : "Within last"}</ToggleButton>
+                                        <ToggleButton id={`${DateFilterType.YoungerThan}-${props.elementFilter.elementName}`}  key={DateFilterType.YoungerThan} variant="outline-secondary" value={DateFilterType.YoungerThan}>{isAge ? "Younger Than" : "Within last"}</ToggleButton>
                                     ];
                                 case DateType.None:
                                     return undefined;
@@ -537,7 +530,7 @@ const DateFilterCard: React.FC<DateFilterCardProps> = (props) => {
                                     })}
                                 />
                             );
-                        case DateFilterType.NewerThan:
+                        case DateFilterType.YoungerThan:
                         case DateFilterType.OlderThan:
                             return (
                                 <div className="cql-wizard-element-filters-relative-date-controls">

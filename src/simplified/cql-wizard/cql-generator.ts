@@ -187,7 +187,7 @@ function generateCqlFromSubExpression(subExpressionId: string, subExpression: Su
     `R.${filter.elementName} included in day of Interval[DateTime(${dateFilter.filterProps.absoluteDate1?.year()}, ${dateFilter.filterProps.absoluteDate1?.month()}, ${dateFilter.filterProps.absoluteDate1?.day()}), DateTime(${dateFilter.filterProps.absoluteDate2?.year()}, ${dateFilter.filterProps.absoluteDate2?.month()}, ${dateFilter.filterProps.absoluteDate2?.day()})]`
                                     )
                                 case DateFilterType.OlderThan:
-                                case DateFilterType.NewerThan: {
+                                case DateFilterType.YoungerThan: {
                                     let cqlUnit = null;
                                     switch (dateFilter.filterProps.relativeUnit) {
                                         case RelativeDateUnit.Minutes:
