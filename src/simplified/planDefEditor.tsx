@@ -11,7 +11,7 @@ import { buildFredId } from "../helpers/bundle-utils";
 import { generateCqlFromConditions, makeCQLtoELMRequest } from "./cql-wizard/cql-generator";
 import { exprToWizStateMap } from "./cql-wizard/wizardLogic";
 import { useState } from "react";
-import { ConditionEditor } from "./cql-wizard/conditionEditor";
+import { ConditionEditor, ConditionPreview } from "./cql-wizard/conditionEditor";
 import { useNavigate } from "react-router-dom";
 import { SAVED_CARDS_ROUTE } from './basicView';
 
@@ -43,6 +43,7 @@ export const PlanDefEditor = (props: PlanDefEditorProps) => {
     
     // All types of cards have identical requirements with respect to reading and writing conditions
     const conditionEditor = <ConditionEditor pdConditions={pdConditions} setPdConditions={setPdConditions} />
+    const conditionPreview = <ConditionPreview pdConditions={pdConditions} setPdConditions={setPdConditions}/>
     
     function getEditorForURI(planDefNode: SageNodeInitializedFreezerNode, referencedURI: string): JSX.Element {
         const {
@@ -168,7 +169,7 @@ export const PlanDefEditor = (props: PlanDefEditorProps) => {
                     </div>
                 );
             case ACTIVITY_DEFINITION:
-                return <CardEditor actNode={linkedResourceNode} planNode={props.planDefNode} handleExit={exitHandler} handleSaveResource={handleSaveResource} conditionEditor={conditionEditor} />
+                return <CardEditor actNode={linkedResourceNode} planNode={props.planDefNode} handleExit={exitHandler} handleSaveResource={handleSaveResource} conditionEditor={conditionEditor} conditionPreview={conditionPreview}/>
             case QUESTIONNAIRE:
                 return <QuestionnaireEditor planDefNode={props.planDefNode} questionnareNode={linkedResourceNode} handleExit={exitHandler}  handleSaveResource={handleSaveResource} conditionEditor={conditionEditor} />
             default:

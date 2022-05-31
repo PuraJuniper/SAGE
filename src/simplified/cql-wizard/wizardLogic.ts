@@ -166,13 +166,28 @@ export function initFromState(state: WizardState | null): WizardState {
 }
 
 // Various types for filtering by FHIR element
-export type ElementFilterType = CodingFilter | DateFilter | BooleanFilter | PeriodFilter | MultitypeFilter | UnknownFilter
-export interface ElementFilter<FilterType extends ElementFilterType = ElementFilterType> {
+
+export interface GenericFilterProperties {
+    filterType: GenericFilterType
+}
+
+export type GenericFilterType = CodeFilterType | DateFilterType | PeriodDateFilterType | BooleanFilterType
+
+export type BooleanFilterType = boolean | null
+export interface GenericFilter {
+    type: FilterTypeCode;
+    toFriendlyString(): string,
+    binding?: CodeBinding | {definition: string | undefined}
+    filterProps : GenericFilterProperties, 
+    error: boolean
+}
+export type GenericElementFilter = CodingFilter | DateFilter | BooleanFilter | PeriodFilter | MultitypeFilter | UnknownFilter
+export interface ElementFilter<FilterType extends GenericElementFilter = GenericElementFilter> {
     elementName: string,
     filter: FilterType,
 }
 
-export enum FilterType {
+export enum FilterTypeCode {
     Coding = "coding",
     Date = "date",
     Age = "age",
@@ -184,15 +199,27 @@ export enum FilterType {
     Unknown = "unknown",
 }
 
-export interface CodingFilter {
-    type: FilterType.Coding,
-    filteredCoding: {
-        filterType: CodeFilterType,
-        selectedIndexes: number[], // Indexes into CodeBinding.codes
+export class CodingFilter implements GenericFilter {
+    type = FilterTypeCode.Coding;
+    binding: CodeBinding;
+
+    constructor(binding: CodeBinding) {
+        this.binding = binding;
     }
-    codeBinding: CodeBinding,
-    error: boolean,
+
+    filterProps: GenericFilterProperties & {selectedIndexes: number[]} = {
+        filterType: CodeFilterType.None,
+        selectedIndexes: [], // Indexes into CodeBinding.codes
+    }
+    error = false;
+    toFriendlyString(): string {
+            return `${
+                (this.filterProps.selectedIndexes.length === 0 || this.filterProps.filterType === CodeFilterType.None) ? 'Any' :
+                this.binding.codes[this.filterProps.selectedIndexes[0]].display
+            }`;
+        }
 }
+
 export enum CodeFilterType {
     None = "no_code",
     Filtered = "some_code(s)",
@@ -203,27 +230,60 @@ interface CodeBinding {
     isSingleton: boolean, // if false, we need to loop through codes of the element in CQL
     definition: string | undefined
 }
-export interface DateFilter {
-    type: FilterType.Date | FilterType.Age,
-    filteredDate: {
-        filterType: DateFilterType,
+export class DateFilter implements GenericFilter{
+    binding: { definition: string | undefined; };
+    error = false;
+    toFriendlyString() {
+        const dateOne = this.filterProps.absoluteDate1 !== null ? this.filterProps.absoluteDate1.format('MMMM Do YYYY') : '';
+        const dateTwo = this.filterProps.absoluteDate2 !== null ? this.filterProps.absoluteDate2.format('MMMM Do YYYY') : '';
+        if (this.filterProps.filterType === DateFilterType.None) {
+            return DateFilterType.None;
+        } else if (this.filterProps.filterType === DateFilterType.Before || this.filterProps.filterType === DateFilterType.After){
+            const prefix = this.type === FilterTypeCode.Age ? 'Birthday: ' : 'Date: '
+            const relativeWord = this.filterProps.filterType + ' '
+            return prefix + relativeWord + dateOne;
+        } else if (this.filterProps.filterType === DateFilterType.Between){
+            const prefix = this.type === FilterTypeCode.Age ? 'Birthday: ' : 'Date: '
+            const relativeWord = this.filterProps.filterType + ' '
+            return prefix + `${relativeWord} ${dateOne} and ${dateTwo}`;
+        } else {
+            const prefix = this.type === FilterTypeCode.Age ? 'Age: ' : 'Date: '             
+            const relativeWord = `${
+                this.type === FilterTypeCode.Age ? this.filterProps.filterType + ' than '
+                    : this.filterProps.filterType === DateFilterType.OlderThan ? 'Occured after '
+                    : this.filterProps.filterType === DateFilterType.YoungerThan ? 'Occured before ' : ''
+            }`
+            const suffix = this.type === FilterTypeCode.Age ? "old" : "of time"       
+
+            return prefix + relativeWord + this.filterProps.relativeAmount  + ` ${this.filterProps.relativeUnit} ` + suffix;
+        }
+    }
+    type: FilterTypeCode;
+
+    constructor(schemaDef: string | undefined, typecheck: string | FilterTypeCode)
+     {
+        this.type = (typecheck.endsWith(".birthDate") || typecheck.endsWith(FilterTypeCode.Age)) ? FilterTypeCode.Age : FilterTypeCode.Date;
+        this.binding = {definition: schemaDef}
+    }
+    filterProps: GenericFilterProperties & {
         absoluteDate1: Moment | null,
         absoluteDate2: Moment | null,
         relativeAmount: number,
         relativeUnit?: RelativeDateUnit,
-    },
-    dateBinding: {
-        definition: string | undefined
-    },
-    error: boolean,
+    } = {
+        filterType: DateFilterType.None,
+        absoluteDate1: null,
+        absoluteDate2: null,
+        relativeAmount: 0,
+    }
 }
 export enum DateFilterType {
-    None = "any_date",
-    Before = "abs_before",
-    After = "abs_after",
-    Between = "abs_between",
-    OlderThan = "rel_older",
-    NewerThan = "rel_newer",
+    None = "Any Date",
+    Before = "Before",
+    After = "After",
+    Between = "Between",
+    OlderThan = "Older",
+    YoungerThan = "Younger",
 }
 
 export enum RelativeDateUnit {
@@ -234,14 +294,28 @@ export enum RelativeDateUnit {
     Months = "months",
     Years = "years",
 }
-export interface PeriodFilter {
-    type: FilterType.Period,
-    filteredDate: PeriodDateFilter<PeriodDateType>,
-    dateBinding: {
+export class PeriodFilter implements GenericFilter {
+    type = FilterTypeCode.Period;
+    error = false;
+    toFriendlyString: () => string = () => "To Be Implemented...";
+
+    constructor(definition?: string) {
+        this.binding = {definition: definition}
+    }
+    filterProps: GenericFilterProperties & PeriodDateFilter<PeriodDateType> = {
+        filterType: null,
+        dateType: PeriodDateType.Relative,
+        startDateType: PeriodDateFilterType.None,
+        startDate: null,
+        endDateType: PeriodDateFilterType.None,
+        endDate: null,
+    };
+
+    binding: {
         definition: string | undefined
-    },
-    error: boolean,
+    }
 }
+
 export type PeriodDateFilter<DateType extends PeriodDateType> = DateType extends PeriodDateType.Absolute ? {
     dateType: DateType,
     startDateType: PeriodDateFilterType,
@@ -268,32 +342,42 @@ export enum PeriodDateFilterType {
     Before = "before",
     After = "after",
 }
-export interface BooleanFilter {
-    type: FilterType.Boolean,
-    filteredBoolean: boolean | null,
-    error: false, // All possibilities for this filter are accepted
+export class BooleanFilter implements GenericFilter {
+    constructor();
+    constructor(boolVal: BooleanFilterType);
+    constructor(boolVal?: BooleanFilterType) {
+        this.filterProps = {filterType: boolVal ?? null};
+    }
+    filterProps: {filterType: BooleanFilterType};
+    type = FilterTypeCode.Boolean;
+    error = false; // All possibilities for this filter are accepted
+    toFriendlyString(): string {return "To Be Implemented...";}
 }
-export interface UnknownFilter {
-    type: FilterType.Unknown,
-    curValue: unknown,
-    error: boolean,
+export class UnknownFilter implements GenericFilter {
+    toFriendlyString(): string {return "To Be Implemented..."}
+    binding?: undefined;
+    filterProps: GenericFilterProperties = { filterType: null };
+    type = FilterTypeCode.Unknown;
+    error = false;
 }
-export interface MultitypeFilter {
-    type: FilterType.Multitype,
-    selectedFilter?: number, // Index of selected filter in `possibleFilters`
-    possibleFilters: ElementFilter[],
-    error: boolean,
+export class MultitypeFilter implements GenericFilter {
+    constructor(possibleFilters: ElementFilter[]) {
+        this.possibleFilters = possibleFilters;
+    }
+    toFriendlyString(): string {return "To Be Implemented..."; }
+    binding?: CodeBinding | { definition: string | undefined; } | undefined;
+    filterProps: GenericFilterProperties = { filterType: null };
+    type = FilterTypeCode.Multitype;
+    selectedFilter?: number = undefined; // Index of selected filter in `possibleFilters`
+    possibleFilters: ElementFilter[] = [];
+    error = false;
 }
 
 // Returns a filter type for the given element path in the profile identified by `url`
 // These filter types should include all information needed by the UI to know what controls should be displayed
 //  to the user for the element.
-async function getFilterTypeOfElement(url: string, elementFhirPath: string, typeIndex?: number): Promise<ElementFilterType> {
-    const unknownFilter: UnknownFilter = {
-        type: FilterType.Unknown,
-        curValue: "test",
-        error: false,
-    }
+async function getFilterTypeOfElement(url: string, elementFhirPath: string, typeIndex?: number): Promise<GenericElementFilter> {
+    const unknownFilter: UnknownFilter = new UnknownFilter();
     const elementSchema = State.get().profiles[url][`${elementFhirPath}`];
     if (!elementSchema) {
         console.log(`No schema found for ${elementFhirPath} in ${url}`);
@@ -303,16 +387,12 @@ async function getFilterTypeOfElement(url: string, elementFhirPath: string, type
     let selectedTypeIndex = typeIndex;
     // If no particular index was given, check if this element has multiple possible types
     if (selectedTypeIndex === undefined && elementSchema.type.length > 1) {
-        return {
-            type: FilterType.Multitype,
-            possibleFilters: await Promise.all(elementSchema.type.map(async (type, i): Promise<ElementFilter> => {
-                return {
-                    elementName: `${type.code[0].toUpperCase()}${type.code.slice(1)}`,
-                    filter: await getFilterTypeOfElement(url, elementFhirPath, i),
-                }
-            })),
-            error: false,
-        }
+        return new MultitypeFilter(await Promise.all(elementSchema.type.map(async (type, i): Promise<ElementFilter> => {
+            return {
+                elementName: `${type.code[0].toUpperCase()}${type.code.slice(1)}`,
+                filter: await getFilterTypeOfElement(url, elementFhirPath, i),
+            }
+        })))
     }
 
     // Default to the first type
@@ -333,62 +413,22 @@ async function getFilterTypeOfElement(url: string, elementFhirPath: string, type
         }
         const codes = await getConceptsOfValueSet(valueSet.rawElement, State.get().valuesets, State.get().codesystems);
 
-        const codingFilter: CodingFilter = {
-            type: FilterType.Coding,
-            codeBinding: {
+        return new CodingFilter(
+            {
                 codes,
                 isCoding: elementSchema.type[selectedTypeIndex]?.code !== "code",
                 isSingleton: elementSchema.max === "1",
                 definition: elementSchema.rawElement.definition,
-            },
-            filteredCoding: {
-                filterType: CodeFilterType.None,
-                selectedIndexes: []
-            },
-            error: false,
-        }
-        return codingFilter;
+            });
     }
     else if (["dateTime", "date"].includes(elementSchema.type[selectedTypeIndex]?.code)) {
-        const filter: DateFilter = {
-            type: elementFhirPath.endsWith(".birthDate") ? FilterType.Age : FilterType.Date,
-            dateBinding: {
-                definition: elementSchema.rawElement.definition,
-            },
-            filteredDate: {
-                filterType: DateFilterType.None,
-                absoluteDate1: null,
-                absoluteDate2: null,
-                relativeAmount: 0,
-            },
-            error: false,
-        }
-        return filter;
+        return new DateFilter(elementSchema.rawElement.definition, elementFhirPath)
     }
     else if (["Period"].includes(elementSchema.type[selectedTypeIndex]?.code)) {
-        const filter: PeriodFilter = {
-            type: FilterType.Period,
-            dateBinding: {
-                definition: elementSchema.rawElement.definition,
-            },
-            filteredDate: {
-                dateType: PeriodDateType.Relative,
-                startDateType: PeriodDateFilterType.None,
-                startDate: null,
-                endDateType: PeriodDateFilterType.None,
-                endDate: null,
-            },
-            error: false,
-        }
-        return filter;
+        return new PeriodFilter(elementSchema.rawElement.definition);
     }
     else if (elementSchema.type[selectedTypeIndex]?.code === "boolean") {
-        const booleanFilter: BooleanFilter = {
-            type: FilterType.Boolean,
-            filteredBoolean: null,
-            error: false,
-        }
-        return booleanFilter;
+        return new BooleanFilter();
     }
     else {
         console.debug("unknown", elementSchema);

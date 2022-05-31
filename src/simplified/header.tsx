@@ -3,7 +3,7 @@ import {Navbar, Nav, NavItem} from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {faHomeLgAlt} from  '@fortawesome/pro-solid-svg-icons';
 import { useNavigate } from "react-router-dom";
-import logo from "../../public/img/WhiteSAGELogo-colour.png"
+import logo from "../../public/img/WhiteSAGELogo-colour.png";
 
 
 export const Header: React.FC = () => {

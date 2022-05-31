@@ -285,7 +285,9 @@ export class MedicationRequestForm implements ICardForm {
                         </Row>
                     )
                 })
-            }</div>
+            }
+            {props.conditions}
+            </div>
         );
     }
 }
