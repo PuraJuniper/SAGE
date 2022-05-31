@@ -2,6 +2,7 @@ import React from "react";
 import State from "./state";
 import { useNavigate } from "react-router-dom";
 import { Navbar, Nav, NavItem, Button } from 'react-bootstrap';
+import logo from "../public/img/WhiteSAGELogo-colour.png"
 
 export const LandingPage = () => {
     const navigate = useNavigate();
@@ -9,12 +10,12 @@ export const LandingPage = () => {
     return (
         <>
             <Navbar className="navbar-custom"><Navbar.Brand>
-                <img alt="Sage Logo" src="../img/WhiteSageLogo-colour.png" height="30"/>
+                <img src={logo} style={{height: 30}}/>
             </Navbar.Brand></Navbar>
             <div className="container">
                 <div className="row justify-content-md-center" style={{ marginTop: 40, marginBottom: 40 }}>
                     <div className="col-lg-2 ">
-                        <img src="../img/Juniper-CDS-colour.png" className="img-thumbnail" style={{ border: 0 }} />
+                        <img src="/img/Juniper-CDS-colour.png" className="img-thumbnail" style={{ border: 0 }} />
                     </div>
                 </div>
             </div>
