@@ -123,7 +123,7 @@
         },
         {
           "FHIR": "CommunicationRequest",
-          "FRIENDLY": "Communication Medications",
+          "FRIENDLY": "Communicate With the Patient",
           "DEFAULT_PROFILE_URI": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-communicationactivity"
         },
         {
