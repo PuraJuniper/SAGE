@@ -90,6 +90,7 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
         const multiTypeFilter = elementFilter.filter as MultitypeFilter;
 
         function dispatchNewMultitypeFilter(elementName: string, replaceFunc: (v: ElementFilter) => ElementFilter) {
+
             dispatchNewFilters(elementName, v => {
                 const oldFilter = v.filter as MultitypeFilter;
                 let error = false;
@@ -192,7 +193,7 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
     }
 
     function periodFilterUI(elementFilter: ElementFilter, dispatchNewFilters: (elementToReplace: string, replaceFunc: (v: ElementFilter) => ElementFilter) => void): JSX.Element {
-        const periodFilter = elementFilter.filter as PeriodFilter;
+        const periodFilter = new PeriodFilter((elementFilter.filter as PeriodFilter).binding.definition);
         return (
             <div key={elementFilter.elementName}>
                 <PeriodFilterCard elementFilter={elementFilter} periodFilter={periodFilter} dispatchNewFilters={dispatchNewFilters} />

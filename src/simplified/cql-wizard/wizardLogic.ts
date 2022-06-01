@@ -361,6 +361,7 @@ export class UnknownFilter implements GenericFilter {
     error = false;
 }
 export class MultitypeFilter implements GenericFilter {
+    //TODO: possible filters may need setters so they can be accessed and changed later. Need to investigate
     possibleFilters: ElementFilter[];
     constructor(possibleFilters: ElementFilter[]) {
         this.possibleFilters = possibleFilters;
@@ -390,7 +391,7 @@ async function getFilterTypeOfElement(url: string, elementFhirPath: string, type
     if (selectedTypeIndex === undefined && elementSchema.type.length > 1) {
         return new MultitypeFilter(await Promise.all(elementSchema.type.map(async (type, i): Promise<ElementFilter> => {
             return {
-                elementName: `${type.code[0].toUpperCase()}${type.code.slice(1)}`,
+                elementName: `${elementFhirPath.split('.')[1].replace(/\[[^\]]*\]/,'')}${type.code[0].toUpperCase()}${type.code.slice(1)}`,
                 filter: await getFilterTypeOfElement(url, elementFhirPath, i),
             }
         })))
@@ -456,8 +457,10 @@ export async function createExpectedFiltersForResType(resType: string): Promise<
             break;
         }
         case "AllergyIntolerance":
-            expectedElements = ['clinicalStatus', 'verificationStatus', 'type', 'category', 'criticality', 'onset[x]', 'recordedDate',
-             'reaction.severity', 'reaction.onset', 'reaction.substance', 'reaction.exposureRoute'];
+            expectedElements = ['clinicalStatus', 'verificationStatus', 'type', 'category', 'criticality',
+            'onset[x]',
+            'recordedDate',
+            'reaction.severity', 'reaction.onset', 'reaction.substance', 'reaction.exposureRoute'];
             url = "http://hl7.org/fhir/StructureDefinition/AllergyIntolerance"; // temporary
             break;
         case "Condition":

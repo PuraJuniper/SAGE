@@ -1,16 +1,13 @@
+import { faPenToSquare, faPlus, faTrash } from "@fortawesome/pro-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { PlanDefinitionActionCondition } from "fhir/r4";
 import React, { useState } from "react";
-import { Button, ListGroup, Card, InputGroup, Form, Container, Row, Col } from "react-bootstrap";
-import { CqlWizardModal } from "./cqlWizardModal";
-import { convertFormInputToNumber } from "./cqlWizardSelectFilters";
-import { CodeFilterType, DateFilterType, findEditableCondition, saveEditableCondition, WizardState } from "./wizardLogic";
+import { Button, Card, Col, Container, Row } from "react-bootstrap";
 import * as SchemaUtils from "../../helpers/schema-utils";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPenToSquare, faPlus, faTrash } from "@fortawesome/pro-solid-svg-icons";
-import { propTypes } from "react-bootstrap/esm/Image";
-import { CardTabTitle } from "../savedCards";
-import { trim } from "lodash";
 import { capitalizeWord } from "../nameHelpers";
+import { CardTabTitle } from "../savedCards";
+import { CqlWizardModal } from "./cqlWizardModal";
+import { findEditableCondition, saveEditableCondition, WizardState } from "./wizardLogic";
 
 /**
  * Types required for the condition editor
@@ -38,11 +35,11 @@ export interface EditableCondition {
     conditionId: string,
 }
 
-function createNewWizExpression(wizState: WizardState): WizExpression {
+function createNewWizExpression(wizState: WizardState, aggregateOption?: AggregateType): WizExpression {
     return {
         curWizState: wizState,
         exprAggregate: {
-            aggregate: AggregateType.Exists
+            aggregate: aggregateOption ?? AggregateType.Exists
         }
     }
 }
@@ -200,6 +197,7 @@ const SubExpressionElement = (props: ConditionElementProps) => {
 
                     </Card.Body>
                     <Card.Footer>
+                        {buttonNot()}
                         {newBooleanButton(props.isPreview, setNewWizardState,
                             function handleSubEditExpr(ss: WizardState) {
                                 props.handleEditSubExpression({
@@ -225,6 +223,10 @@ interface WizardExpressionProps {
     booleanConditionalButton: JSX.Element | null,
     isPreview?: boolean
 }
+const buttonNot = () =>
+    <Button>
+        NOT
+    </Button>;
 const WizardExpression = (props: WizardExpressionProps) => {
     const [showWiz, setShowWiz] = useState(props.wizExpression.curWizState === null);
 
@@ -246,9 +248,10 @@ const WizardExpression = (props: WizardExpressionProps) => {
                 }}
             />
             <Container style={{ borderStyle: 'solid', borderWidth: "2px", borderColor: 'var(--sage-dark-purple)' }}>
-                {/* <svg height="20px" width="20px" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                    <line x1="0" y1="50" x2="100" y2="50" stroke="black" />
-                </svg> */}
+                {props.isPreview ? null : <>
+                    {buttonNot()}
+                </>
+                }
                 {friendlyWizardExpression()}
                 {props.isPreview ? null : <>
                     <Container style={{textAlign: 'right'}}>
