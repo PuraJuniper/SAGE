@@ -68,7 +68,7 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
                 );
             }
             case FilterTypeCode.Multitype: {
-                return multitypeFilterUI(elemFilter as ElementFilter<MultitypeFilter>, dispatchNewFilters);
+                return multitypeFilterUI(elemFilter, dispatchNewFilters);
             }
             case FilterTypeCode.Unknown:
                 return (
@@ -86,25 +86,29 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
         }
     }
 
-    function multitypeFilterUI(elementFilter: ElementFilter<MultitypeFilter>, dispatchNewFilters: (elementToReplace: string, replaceFunc: (v: ElementFilter) => ElementFilter) => void): JSX.Element {
+    function multitypeFilterUI(elementFilter: ElementFilter, dispatchNewFilters: (elementToReplace: string, replaceFunc: (v: ElementFilter) => ElementFilter) => void): JSX.Element {
+        const multiTypeFilter = elementFilter.filter as MultitypeFilter;
+
         function dispatchNewMultitypeFilter(elementName: string, replaceFunc: (v: ElementFilter) => ElementFilter) {
             dispatchNewFilters(elementName, v => {
                 const oldFilter = v.filter as MultitypeFilter;
                 let error = false;
+                const newMultiTypeFilter = new MultitypeFilter(
+                    oldFilter.possibleFilters.map(v => {
+                        if (v.elementName !== elementName) {
+                            return v;
+                        }
+                        else {
+                            const newV = replaceFunc(v);
+                            error = newV.filter.error;
+                            return newV;
+                        }
+                    })
+                );
+                newMultiTypeFilter.selectedFilter = oldFilter.selectedFilter;
                 return {
-                    ...v,
-                    filter: new MultitypeFilter(
-                        oldFilter.possibleFilters.map(v => {
-                            if (v.elementName !== elementName) {
-                                return v;
-                            }
-                            else {
-                                const newV = replaceFunc(v);
-                                error = newV.filter.error;
-                                return newV;
-                            }
-                        })
-                    )
+                    elementName: elementName,
+                    filter: newMultiTypeFilter
                 }
             })
         }
@@ -118,7 +122,7 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
                         <ToggleButtonGroup
                             type="radio"
                             name={`${elementFilter.elementName}-filter-select`}
-                            value={elementFilter.filter.selectedFilter}
+                            value={multiTypeFilter.selectedFilter ?? -1}
                             onChange={newSelectedIdx => {
                                 const selectedIdx = newSelectedIdx === -1 ? undefined : newSelectedIdx;
                                 dispatchNewFilters(elementFilter.elementName, (v) => {
@@ -134,7 +138,7 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
                             }}
                         >
                             <ToggleButton key={`Any`} id={`Any-${elementFilter.elementName}`} variant="outline-secondary" value={-1}>Any Value</ToggleButton>
-                            {elementFilter.filter.possibleFilters.flatMap((possibleFilter, i) =>
+                            {multiTypeFilter.possibleFilters.flatMap((possibleFilter, i) =>
                                 possibleFilter.filter.type === FilterTypeCode.Unknown ?
                                     [] :
                                     [<ToggleButton key={`${i}-${elementFilter.elementName}`} id={`${i}-${elementFilter.elementName}`} variant="outline-secondary" value={i}>{possibleFilter.filter.type}</ToggleButton>]
@@ -143,8 +147,8 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
                     </Card.Title>
                 </Card.Body>
                 <div className={"m-2"}>
-                    {elementFilter.filter.selectedFilter !== undefined ?
-                        getFilterUI(elementFilter.filter.possibleFilters[elementFilter.filter.selectedFilter], dispatchNewMultitypeFilter) :
+                    {multiTypeFilter.selectedFilter !== undefined ?
+                        getFilterUI(multiTypeFilter.possibleFilters[multiTypeFilter.selectedFilter], dispatchNewMultitypeFilter) :
                         null}
                 </div>
             </Card>

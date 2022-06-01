@@ -361,6 +361,7 @@ export class UnknownFilter implements GenericFilter {
     error = false;
 }
 export class MultitypeFilter implements GenericFilter {
+    possibleFilters: ElementFilter[];
     constructor(possibleFilters: ElementFilter[]) {
         this.possibleFilters = possibleFilters;
     }
@@ -368,8 +369,8 @@ export class MultitypeFilter implements GenericFilter {
     binding?: CodeBinding | { definition: string | undefined; } | undefined;
     filterProps: GenericFilterProperties = { filterType: null };
     type = FilterTypeCode.Multitype;
-    selectedFilter?: number = undefined; // Index of selected filter in `possibleFilters`
-    possibleFilters: ElementFilter[] = [];
+    selectedFilter = undefined; // Index of selected filter in `possibleFilters`
+
     error = false;
 }
 
