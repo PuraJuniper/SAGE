@@ -609,22 +609,23 @@ const PeriodFilterCard: React.FC<PeriodFilterCardProps> = (props) => {
     /**
      * Reset mutable dates used by react-date components to match any upstream changes to the date
      */
-    useEffect(() => {        if (props.periodFilter.filterProps.dateType === PeriodDateType.Absolute) {
-        setDatePickerState({
-            dateOne: props.periodFilter.filterProps.startDate?.clone() || null,
-            focusDateOne: false,
-            dateTwo: props.periodFilter.filterProps.endDate?.clone() || null,
-            focusDateTwo: false,
-        });
-    }
-    else {
-        setDatePickerState({
-            dateOne: null,
-            focusDateOne: false,
-            dateTwo: null,
-            focusDateTwo: false,
-        });
-    }
+    useEffect(() => {
+        if (props.periodFilter.filterProps.dateType === PeriodDateType.Absolute) {
+            setDatePickerState({
+                dateOne: props.periodFilter.filterProps.startDate?.clone() || null,
+                focusDateOne: false,
+                dateTwo: props.periodFilter.filterProps.endDate?.clone() || null,
+                focusDateTwo: false,
+            });
+        }
+        else {
+            setDatePickerState({
+                dateOne: null,
+                focusDateOne: false,
+                dateTwo: null,
+                focusDateTwo: false,
+            });
+        }
     }, [props.periodFilter])
 
     function dispatchNewPeriodFilter(elementName: string, newPeriodFilter: PeriodDateFilter<PeriodDateType>) {
