@@ -685,6 +685,19 @@ a {
   flex: auto;
 }
 
+/* Overridding built-in bootstrap style
+This is necessary when modifying default variants like "outline-primary"
+We will use brand new variants once we have a common set of UI element designs to avoid having to override various built-in styles
+*/
+.btn-check:checked+.btn-outline-primary {
+  color: var(--sage-dark-purple);
+}
+.btn-outline-primary:active {
+  color: var(--sage-dark-purple);
+}
+.btn-outline-primary:hover {
+  color: var(--sage-dark-purple);
+}
 
 .navigate:hover {
   background-position:left;

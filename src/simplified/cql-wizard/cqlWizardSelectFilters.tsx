@@ -1,5 +1,5 @@
 import React, { Dispatch, useEffect, useState } from "react";
-import { BooleanFilter, CodeFilterType, CodingFilter, DateFilter, DateFilterType, PeriodFilter, PeriodDateFilterType, RelativeDateUnit, WizardAction, WizardState, PeriodDateType, PeriodDateFilter, FilterTypeCode, MultitypeFilter, BooleanFilterType } from './wizardLogic';
+import { BooleanFilter, CodeFilterType, CodingFilter, DateFilter, DateFilterType, PeriodFilter, PeriodDateFilterType, RelativeDateUnit, WizardAction, WizardState, PeriodDateType, PeriodDateFilter, FilterTypeCode, MultitypeFilter, BooleanFilterType, instanceOfRelativeDate as instanceOfRelativeDateOrNull, RelativeDate } from './wizardLogic';
 import { ToggleButtonGroup, ToggleButton, Card, Form, Container, InputGroup, FormControl, DropdownButton, Dropdown } from 'react-bootstrap';
 import { ElementFilter } from './wizardLogic';
 import 'react-dates/initialize';
@@ -630,17 +630,15 @@ const PeriodFilterCard: React.FC<PeriodFilterCardProps> = (props) => {
 
     function dispatchNewPeriodFilter(elementName: string, newPeriodFilter: PeriodDateFilter<PeriodDateType>) {
         props.dispatchNewFilters(elementName, v => {
-            const newFilter: PeriodFilter = {
-                ...v.filter as PeriodFilter,
-                filterProps: {
-                    ...newPeriodFilter,
-                    filterType: null
-                },
-                error: checkPeriodFilterErrors(newPeriodFilter),
+            const oldFilter = v.filter as PeriodFilter;
+            const newFilter: PeriodFilter = new PeriodFilter(oldFilter.binding.definition)
+            newFilter.filterProps = {
+                filterType: null,
+                ...newPeriodFilter
             }
-
+            newFilter.error = checkPeriodFilterErrors(newPeriodFilter);
             const newElementFilter: ElementFilter = {
-                ...v,
+                elementName: elementName,
                 filter: newFilter,
             }
 
@@ -686,6 +684,7 @@ const PeriodFilterCard: React.FC<PeriodFilterCardProps> = (props) => {
                             <InputGroup className="mb-3">
                                     <InputGroup.Text id="basic-addon1">{displayText}</InputGroup.Text>
                                 <ToggleButtonGroup
+                                    key={`${props.elementFilter.elementName}-${v}-date-type-${displayText}`}
                                     type="radio"
                                     name={`${props.elementFilter.elementName}-${v}-date-type`}
                                     value={filteredDate[dateTypeKey]}
@@ -696,9 +695,9 @@ const PeriodFilterCard: React.FC<PeriodFilterCardProps> = (props) => {
                                         })
                                     }}
                                 >
-                                    <ToggleButton id={`${PeriodDateFilterType.None}-${props.elementFilter.elementName}`} variant="outline-secondary" value={PeriodDateFilterType.None}>At Any Time</ToggleButton>
-                                    <ToggleButton id={`${PeriodDateFilterType.Before}-${props.elementFilter.elementName}`} variant="outline-secondary" value={PeriodDateFilterType.Before}>Before</ToggleButton>
-                                    <ToggleButton id={`${PeriodDateFilterType.After}-${props.elementFilter.elementName}`} variant="outline-secondary" value={PeriodDateFilterType.After}>After</ToggleButton>
+                                    <ToggleButton id={`${PeriodDateFilterType.None}-${props.elementFilter.elementName}-${displayText}`} variant="outline-secondary" value={PeriodDateFilterType.None}>At Any Time</ToggleButton>
+                                    <ToggleButton id={`${PeriodDateFilterType.Before}-${props.elementFilter.elementName}-${displayText}`} variant="outline-secondary" value={PeriodDateFilterType.Before}>Before</ToggleButton>
+                                    <ToggleButton id={`${PeriodDateFilterType.After}-${props.elementFilter.elementName}-${displayText}`} variant="outline-secondary" value={PeriodDateFilterType.After}>After</ToggleButton>
                                 </ToggleButtonGroup>
                             </InputGroup>
                             {filteredDate.dateType === PeriodDateType.Relative ?
@@ -720,6 +719,7 @@ const PeriodFilterCard: React.FC<PeriodFilterCardProps> = (props) => {
                                         }
                                     />
                                     <ToggleButtonGroup
+                                        key={`${props.elementFilter.elementName}-${v}-date-type-${displayText}`}
                                         type="radio"
                                         name={`${props.elementFilter.elementName}-date-relative-unit`}
                                         value={filteredDate[dateKey]?.unit}
@@ -733,12 +733,12 @@ const PeriodFilterCard: React.FC<PeriodFilterCardProps> = (props) => {
                                             } as PeriodDateFilter<PeriodDateType.Relative>)
                                         }
                                     >
-                                        <ToggleButton id={`${RelativeDateUnit.Minutes}-${props.elementFilter.elementName}`} key="mins" variant="outline-primary" value={RelativeDateUnit.Minutes}>Minute(s)</ToggleButton>
-                                        <ToggleButton id={`${RelativeDateUnit.Hours}-${props.elementFilter.elementName}`} key="hours" variant="outline-primary" value={RelativeDateUnit.Hours}>Hour(s)</ToggleButton>
-                                        <ToggleButton id={`${RelativeDateUnit.Days}-${props.elementFilter.elementName}`} key="days" variant="outline-primary" value={RelativeDateUnit.Days}>Day(s)</ToggleButton>
-                                        <ToggleButton id={`${RelativeDateUnit.Weeks}-${props.elementFilter.elementName}`} variant="outline-primary" value={RelativeDateUnit.Weeks}>Week(s)</ToggleButton>
-                                        <ToggleButton id={`${RelativeDateUnit.Months}-${props.elementFilter.elementName}`} variant="outline-primary" value={RelativeDateUnit.Months}>Month(s)</ToggleButton>
-                                        <ToggleButton id={`${RelativeDateUnit.Years}-${props.elementFilter.elementName}`} variant="outline-primary" value={RelativeDateUnit.Years}>Year(s)</ToggleButton>
+                                        <ToggleButton id={`${RelativeDateUnit.Minutes}-${props.elementFilter.elementName}-${displayText}`} key="mins" variant="outline-primary" value={RelativeDateUnit.Minutes}>Minute(s)</ToggleButton>
+                                        <ToggleButton id={`${RelativeDateUnit.Hours}-${props.elementFilter.elementName}-${displayText}`} key="hours" variant="outline-primary" value={RelativeDateUnit.Hours}>Hour(s)</ToggleButton>
+                                        <ToggleButton id={`${RelativeDateUnit.Days}-${props.elementFilter.elementName}-${displayText}`} key="days" variant="outline-primary" value={RelativeDateUnit.Days}>Day(s)</ToggleButton>
+                                        <ToggleButton id={`${RelativeDateUnit.Weeks}-${props.elementFilter.elementName}-${displayText}`} variant="outline-primary" value={RelativeDateUnit.Weeks}>Week(s)</ToggleButton>
+                                        <ToggleButton id={`${RelativeDateUnit.Months}-${props.elementFilter.elementName}-${displayText}`} variant="outline-primary" value={RelativeDateUnit.Months}>Month(s)</ToggleButton>
+                                        <ToggleButton id={`${RelativeDateUnit.Years}-${props.elementFilter.elementName}-${displayText}`} variant="outline-primary" value={RelativeDateUnit.Years}>Year(s)</ToggleButton>
                                     </ToggleButtonGroup>
                                 </div> :
                                 <SingleDatePicker

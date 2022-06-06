@@ -297,7 +297,18 @@ export enum RelativeDateUnit {
 export class PeriodFilter implements GenericFilter {
     type = FilterTypeCode.Period;
     error = false;
-    toFriendlyString: () => string = () => "To Be Implemented...";
+    toFriendlyString() {
+        const dateOrTime = (this.filterProps.dateType === PeriodDateType.Absolute ? 'date' : 'time') + ':';
+        const startPrefix = `Start-${dateOrTime} ${this.filterProps.startDateType}`;
+        const endPrefix = `End-${dateOrTime} ${this.filterProps.endDateType}`
+        const friendify = (prefix: string, date: RelativeDate | Moment | null) => 
+        `${prefix}  ${date ? `${instanceOfRelativeDate(date) && date !== null ?
+             `${date.amount === undefined ? '' : `${date.amount} ${date.unit}`}` : date !== null ? date.toLocaleString() : ''}` : ''}`;
+        const friendlyStart = friendify(startPrefix, this.filterProps.startDate);
+        const friendlyEnd = friendify(endPrefix, this.filterProps.endDate);
+        const conjunction = (friendlyStart === '' || friendlyEnd === '') ? '' : 'and';
+        return `${friendlyStart} ${conjunction} ${friendlyEnd}`;
+    }
 
     constructor(definition?: string) {
         this.binding = {definition: definition}
@@ -327,7 +338,12 @@ export type PeriodDateFilter<DateType extends PeriodDateType> = DateType extends
     startDateType: PeriodDateFilterType,
     startDate: RelativeDate | null,
     endDateType: PeriodDateFilterType,
-    endDate: RelativeDate | null,
+    endDate: RelativeDate | null
+}
+
+
+export function instanceOfRelativeDate(object: Moment | RelativeDate | null): object is RelativeDate | null {
+    return object ? 'unit' in object : true;
 }
 export interface RelativeDate {
     amount: number,
@@ -338,9 +354,9 @@ export enum PeriodDateType { // Both dates must be the same type or else the CQL
     Absolute = "absolute",
 }
 export enum PeriodDateFilterType {
-    None = "any",
-    Before = "before",
-    After = "after",
+    None = "Any",
+    Before = "Before",
+    After = "After",
 }
 export class BooleanFilter implements GenericFilter {
     constructor();
@@ -351,10 +367,14 @@ export class BooleanFilter implements GenericFilter {
     filterProps: {filterType: BooleanFilterType};
     type = FilterTypeCode.Boolean;
     error = false; // All possibilities for this filter are accepted
-    toFriendlyString(): string {return "To Be Implemented...";}
+    toFriendlyString(): string {
+        return  this.filterProps.filterType !== null ?
+                    this.filterProps.filterType ? 'Yes' : 'No'
+                : 'Any';
+    }
 }
 export class UnknownFilter implements GenericFilter {
-    toFriendlyString(): string {return "To Be Implemented..."}
+    toFriendlyString(): string {return "Unknown Filter"}
     binding?: undefined;
     filterProps: GenericFilterProperties = { filterType: null };
     type = FilterTypeCode.Unknown;
@@ -364,7 +384,10 @@ export class MultitypeFilter implements GenericFilter {
     constructor(possibleFilters: ElementFilter[]) {
         this.possibleFilters = possibleFilters;
     }
-    toFriendlyString(): string {return "To Be Implemented..."; }
+    toFriendlyString(): string {
+        return  this.selectedFilter === undefined ? 'None'
+                    : `${this.possibleFilters[this.selectedFilter].elementName}: ${this.possibleFilters[this.selectedFilter].filter.toFriendlyString()}`; 
+    }
     binding?: CodeBinding | { definition: string | undefined; } | undefined;
     filterProps: GenericFilterProperties = { filterType: null };
     type = FilterTypeCode.Multitype;
