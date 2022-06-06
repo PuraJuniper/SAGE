@@ -1,6 +1,6 @@
 import React, { Dispatch, useEffect, useState } from "react";
 import { BooleanFilter, CodeFilterType, CodingFilter, DateFilter, DateFilterType, PeriodFilter, PeriodDateFilterType, RelativeDateUnit, WizardAction, WizardState, PeriodDateType, PeriodDateFilter, FilterTypeCode, MultitypeFilter, BooleanFilterType, instanceOfRelativeDate as instanceOfRelativeDateOrNull, RelativeDate } from './wizardLogic';
-import { ToggleButtonGroup, ToggleButton, Card, Form, Container, InputGroup, FormControl, DropdownButton, Dropdown } from 'react-bootstrap';
+import { ToggleButtonGroup, ToggleButton, Card, Form, Container, InputGroup, FormControl, DropdownButton, Dropdown, ButtonGroup, ButtonToolbar, Col } from 'react-bootstrap';
 import { ElementFilter } from './wizardLogic';
 import 'react-dates/initialize';
 import { DateRangePicker, SingleDatePicker, DayPickerRangeController } from 'react-dates';
@@ -304,21 +304,45 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
         return self.indexOf(value) === index;
     }
 
+    const [existsValue, setExistsValue] = useState('1');
+
     const allParentsAndChildren = props.wizState.filters.filter(containsSubResource);
     const onlyParents = allParentsAndChildren.map(getParent).filter(onlyUnique)
     const noParents = props.wizState.filters.filter(filter => !allParentsAndChildren.includes(filter))
     return (
         <>
-            <Card>
-                <Card.Body>
-                    <Card.Title>
-                        Selected Codes
-                    </Card.Title>
-                    <CqlWizardSelectCodes wizState={props.wizState} wizDispatch={props.wizDispatch} />
-                </Card.Body>
-            </Card>
-            
+
+
             <div className="cql-wizard-select-filters-grid mt-2">
+                <Card style={{borderStyle: 'None'}}>
+                    <Col md='4'>
+                        <ButtonGroup>
+                            {[{ name: 'Should Exist', value: '1' }, { name: 'Should Not Exist', value: '2' }]
+                                .map((radio, idx) => (
+                                    <ToggleButton
+                                        key={idx}
+                                        id={`radio-${idx}`}
+                                        type="radio"
+                                        variant={idx % 2 ? 'outline-danger' : 'outline-success'}
+                                        name="radio"
+                                        value={radio.value}
+                                        checked={existsValue === radio.value}
+                                        onChange={(e) => setExistsValue(e.currentTarget.value)}
+                                    >
+                                        {radio.name}
+                                    </ToggleButton>
+                                ))}
+                        </ButtonGroup>
+                    </Col>
+                </Card>
+                <Card>
+                    <Card.Body>
+                        <Card.Title>
+                            Selected Codes
+                        </Card.Title>
+                        <CqlWizardSelectCodes wizState={props.wizState} wizDispatch={props.wizDispatch} />
+                    </Card.Body>
+                </Card> 
                 {noParents.map((elementFilter): JSX.Element => {
                     return getFilterUI(elementFilter, dispatchNewFilters);
                 })}
