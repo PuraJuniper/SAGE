@@ -366,10 +366,14 @@ export class BooleanFilter implements GenericFilter {
     filterProps: {filterType: BooleanFilterType};
     type = FilterTypeCode.Boolean;
     error = false; // All possibilities for this filter are accepted
-    toFriendlyString(): string {return "To Be Implemented...";}
+    toFriendlyString(): string {
+        return  this.filterProps.filterType !== null ?
+                    this.filterProps.filterType ? 'Yes' : 'No'
+                : 'Any';
+    }
 }
 export class UnknownFilter implements GenericFilter {
-    toFriendlyString(): string {return "To Be Implemented..."}
+    toFriendlyString(): string {return "Unknown Filter"}
     binding?: undefined;
     filterProps: GenericFilterProperties = { filterType: null };
     type = FilterTypeCode.Unknown;
