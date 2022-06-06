@@ -731,12 +731,12 @@ const PeriodFilterCard: React.FC<PeriodFilterCardProps> = (props) => {
                                             } as PeriodDateFilter<PeriodDateType.Relative>)
                                         }
                                     >
-                                        <ToggleButton id={`${RelativeDateUnit.Minutes}-${props.elementFilter.elementName}`} key="mins" variant="outline-primary" value={RelativeDateUnit.Minutes}>Minute(s)</ToggleButton>
-                                        <ToggleButton id={`${RelativeDateUnit.Hours}-${props.elementFilter.elementName}`} key="hours" variant="outline-primary" value={RelativeDateUnit.Hours}>Hour(s)</ToggleButton>
-                                        <ToggleButton id={`${RelativeDateUnit.Days}-${props.elementFilter.elementName}`} key="days" variant="outline-primary" value={RelativeDateUnit.Days}>Day(s)</ToggleButton>
-                                        <ToggleButton id={`${RelativeDateUnit.Weeks}-${props.elementFilter.elementName}`} variant="outline-primary" value={RelativeDateUnit.Weeks}>Week(s)</ToggleButton>
-                                        <ToggleButton id={`${RelativeDateUnit.Months}-${props.elementFilter.elementName}`} variant="outline-primary" value={RelativeDateUnit.Months}>Month(s)</ToggleButton>
-                                        <ToggleButton id={`${RelativeDateUnit.Years}-${props.elementFilter.elementName}`} variant="outline-primary" value={RelativeDateUnit.Years}>Year(s)</ToggleButton>
+                                        <ToggleButton id={`${RelativeDateUnit.Minutes}-${props.elementFilter.elementName}-${displayText}`} key="mins" variant="outline-primary" value={RelativeDateUnit.Minutes}>Minute(s)</ToggleButton>
+                                        <ToggleButton id={`${RelativeDateUnit.Hours}-${props.elementFilter.elementName}-${displayText}`} key="hours" variant="outline-primary" value={RelativeDateUnit.Hours}>Hour(s)</ToggleButton>
+                                        <ToggleButton id={`${RelativeDateUnit.Days}-${props.elementFilter.elementName}-${displayText}`} key="days" variant="outline-primary" value={RelativeDateUnit.Days}>Day(s)</ToggleButton>
+                                        <ToggleButton id={`${RelativeDateUnit.Weeks}-${props.elementFilter.elementName}-${displayText}`} variant="outline-primary" value={RelativeDateUnit.Weeks}>Week(s)</ToggleButton>
+                                        <ToggleButton id={`${RelativeDateUnit.Months}-${props.elementFilter.elementName}-${displayText}`} variant="outline-primary" value={RelativeDateUnit.Months}>Month(s)</ToggleButton>
+                                        <ToggleButton id={`${RelativeDateUnit.Years}-${props.elementFilter.elementName}-${displayText}`} variant="outline-primary" value={RelativeDateUnit.Years}>Year(s)</ToggleButton>
                                     </ToggleButtonGroup>
                                 </div> :
                                 <SingleDatePicker
