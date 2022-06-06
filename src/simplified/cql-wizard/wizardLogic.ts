@@ -302,7 +302,8 @@ export class PeriodFilter implements GenericFilter {
         const startPrefix = `Start-${dateOrTime} ${this.filterProps.startDateType}`;
         const endPrefix = `End-${dateOrTime} ${this.filterProps.endDateType}`
         const friendify = (prefix: string, date: RelativeDate | Moment | null) => 
-            date ? `${prefix} ${instanceOfRelativeDate(date) ? `${date.amount} ${date.unit}` : date.toLocaleString()}` : '';
+        `${prefix}  ${date ? `${instanceOfRelativeDate(date) && date !== null ?
+             `${date.amount === undefined ? '' : `${date.amount} ${date.unit}`}` : date !== null ? date.toLocaleString() : ''}` : ''}`;
         const friendlyStart = friendify(startPrefix, this.filterProps.startDate);
         const friendlyEnd = friendify(endPrefix, this.filterProps.endDate);
         const conjunction = (friendlyStart === '' || friendlyEnd === '') ? '' : 'and';
