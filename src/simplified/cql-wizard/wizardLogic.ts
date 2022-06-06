@@ -384,7 +384,10 @@ export class MultitypeFilter implements GenericFilter {
     constructor(possibleFilters: ElementFilter[]) {
         this.possibleFilters = possibleFilters;
     }
-    toFriendlyString(): string {return "To Be Implemented..."; }
+    toFriendlyString(): string {
+        return  this.selectedFilter === undefined ? 'None'
+                    : `${this.possibleFilters[this.selectedFilter].elementName}: ${this.possibleFilters[this.selectedFilter].filter.toFriendlyString()}`; 
+    }
     binding?: CodeBinding | { definition: string | undefined; } | undefined;
     filterProps: GenericFilterProperties = { filterType: null };
     type = FilterTypeCode.Multitype;
