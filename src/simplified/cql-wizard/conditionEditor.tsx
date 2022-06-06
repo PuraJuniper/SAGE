@@ -16,8 +16,6 @@ import { capitalizeWord } from "../nameHelpers";
  * Types required for the condition editor
  */
 export enum AggregateType {
-    Exists = "exists",
-    DoesNotExist = "doesNotExist",
     AtLeast = "atLeast",
     NoMoreThan = "noMoreThan"
 }
@@ -27,7 +25,7 @@ export interface WizExprAggregate {
 }
 export interface WizExpression {
     curWizState: WizardState,
-    exprAggregate: WizExprAggregate,
+    exprAggregate?: WizExprAggregate,
 }
 export interface SubExpression {
     subExpr: (WizExpression | SubExpression)[],
@@ -40,10 +38,7 @@ export interface EditableCondition {
 
 function createNewWizExpression(wizState: WizardState): WizExpression {
     return {
-        curWizState: wizState,
-        exprAggregate: {
-            aggregate: AggregateType.Exists
-        }
+        curWizState: wizState
     }
 }
 
@@ -178,7 +173,8 @@ const SubExpressionElement = (props: ConditionElementProps) => {
                                 if (isWizardExpression(expr)) {
                                     return (
                                         <>
-                                            {exprIdx > 0 ? CardTabTitle(expressionTrimmed.subExprBool.toUpperCase()) : null}
+                                            {exprIdx > 0 ? CardTabTitle(expressionTrimmed.subExprBool.toUpperCase() + (expr.curWizState.exists ? '' : ' NOT')) 
+                                                : expr.curWizState.exists ? null : CardTabTitle('NOT')}
                                             {wizExpressionWithConditional(expr, handleEditExpr, exprIdx, handleDelete, props.isPreview, expressionTrimmed, setNewWizardState)}
                                         </>
                                     )

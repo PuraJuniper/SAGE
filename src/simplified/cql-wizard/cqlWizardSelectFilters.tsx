@@ -39,6 +39,7 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
      * @param elementToReplace Name of the element being replaced
      * @param replaceFunc Function called to generate the replacement element
      */
+
     function dispatchNewFilters(elementToReplace: string, replaceFunc: (v: ElementFilter) => ElementFilter) {
         const newElementFilters = props.wizState.filters.map(v => v.elementName !== elementToReplace ? v : replaceFunc(v));
         props.wizDispatch(["setFilters", newElementFilters]);
@@ -304,20 +305,18 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
         return self.indexOf(value) === index;
     }
 
-    const [existsValue, setExistsValue] = useState('1');
-
     const allParentsAndChildren = props.wizState.filters.filter(containsSubResource);
     const onlyParents = allParentsAndChildren.map(getParent).filter(onlyUnique)
     const noParents = props.wizState.filters.filter(filter => !allParentsAndChildren.includes(filter))
+
+    const [existsValue, setExistsValue] = useState(props.wizState.exists ? '1' : '2');
     return (
         <>
-
-
             <div className="cql-wizard-select-filters-grid mt-2">
                 <Card style={{borderStyle: 'None'}}>
                     <Col md='4'>
                         <ButtonGroup>
-                            {[{ name: 'Should Exist', value: '1' }, { name: 'Should Not Exist', value: '2' }]
+                            {[{ name: 'Should Exist', value: '1'}, { name: 'Should Not Exist', value: '2'}]
                                 .map((radio, idx) => (
                                     <ToggleButton
                                         key={idx}
@@ -327,7 +326,10 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
                                         name="radio"
                                         value={radio.value}
                                         checked={existsValue === radio.value}
-                                        onChange={(e) => setExistsValue(e.currentTarget.value)}
+                                        onChange={e => {
+                                            props.wizDispatch(["setExists", e.currentTarget.value === '1']);
+                                            setExistsValue(e.currentTarget.value)
+                                        }}
                                     >
                                         {radio.name}
                                     </ToggleButton>
