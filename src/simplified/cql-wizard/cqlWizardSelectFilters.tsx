@@ -718,6 +718,7 @@ const PeriodFilterCard: React.FC<PeriodFilterCardProps> = (props) => {
                                         }
                                     />
                                     <ToggleButtonGroup
+                                        key={`${props.elementFilter.elementName}-${v}-date-type-${displayText}`}
                                         type="radio"
                                         name={`${props.elementFilter.elementName}-date-relative-unit`}
                                         value={filteredDate[dateKey]?.unit}
