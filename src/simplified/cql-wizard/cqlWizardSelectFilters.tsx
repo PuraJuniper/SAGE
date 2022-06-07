@@ -1,6 +1,6 @@
 import React, { Dispatch, useEffect, useState } from "react";
 import { BooleanFilter, CodeFilterType, CodingFilter, DateFilter, DateFilterType, PeriodFilter, PeriodDateFilterType, RelativeDateUnit, WizardAction, WizardState, PeriodDateType, PeriodDateFilter, FilterTypeCode, MultitypeFilter, BooleanFilterType, instanceOfRelativeDate as instanceOfRelativeDateOrNull, RelativeDate } from './wizardLogic';
-import { ToggleButtonGroup, ToggleButton, Card, Form, Container, InputGroup, FormControl, DropdownButton, Dropdown } from 'react-bootstrap';
+import { ToggleButtonGroup, ToggleButton, Card, Form, Container, InputGroup, FormControl, DropdownButton, Dropdown, ButtonGroup, ButtonToolbar, Col } from 'react-bootstrap';
 import { ElementFilter } from './wizardLogic';
 import 'react-dates/initialize';
 import { DateRangePicker, SingleDatePicker, DayPickerRangeController } from 'react-dates';
@@ -39,6 +39,7 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
      * @param elementToReplace Name of the element being replaced
      * @param replaceFunc Function called to generate the replacement element
      */
+
     function dispatchNewFilters(elementToReplace: string, replaceFunc: (v: ElementFilter) => ElementFilter) {
         const newElementFilters = props.wizState.filters.map(v => v.elementName !== elementToReplace ? v : replaceFunc(v));
         props.wizDispatch(["setFilters", newElementFilters]);
@@ -307,18 +308,43 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
     const allParentsAndChildren = props.wizState.filters.filter(containsSubResource);
     const onlyParents = allParentsAndChildren.map(getParent).filter(onlyUnique)
     const noParents = props.wizState.filters.filter(filter => !allParentsAndChildren.includes(filter))
+
+    const [existsValue, setExistsValue] = useState(props.wizState.exists ? '1' : '2');
     return (
         <>
-            <Card>
-                <Card.Body>
-                    <Card.Title>
-                        Selected Codes
-                    </Card.Title>
-                    <CqlWizardSelectCodes wizState={props.wizState} wizDispatch={props.wizDispatch} />
-                </Card.Body>
-            </Card>
-            
             <div className="cql-wizard-select-filters-grid mt-2">
+                <Card style={{borderStyle: 'None'}}>
+                    <Col md='4'>
+                        <ButtonGroup>
+                            {[{ name: 'Should Exist', value: '1'}, { name: 'Should Not Exist', value: '2'}]
+                                .map((radio, idx) => (
+                                    <ToggleButton
+                                        key={idx}
+                                        id={`radio-${idx}`}
+                                        type="radio"
+                                        variant={idx % 2 ? 'outline-danger' : 'outline-success'}
+                                        name="radio"
+                                        value={radio.value}
+                                        checked={existsValue === radio.value}
+                                        onChange={e => {
+                                            props.wizDispatch(["setExists", e.currentTarget.value === '1']);
+                                            setExistsValue(e.currentTarget.value)
+                                        }}
+                                    >
+                                        {radio.name}
+                                    </ToggleButton>
+                                ))}
+                        </ButtonGroup>
+                    </Col>
+                </Card>
+                <Card>
+                    <Card.Body>
+                        <Card.Title>
+                            Selected Codes
+                        </Card.Title>
+                        <CqlWizardSelectCodes wizState={props.wizState} wizDispatch={props.wizDispatch} />
+                    </Card.Body>
+                </Card> 
                 {noParents.map((elementFilter): JSX.Element => {
                     return getFilterUI(elementFilter, dispatchNewFilters);
                 })}
