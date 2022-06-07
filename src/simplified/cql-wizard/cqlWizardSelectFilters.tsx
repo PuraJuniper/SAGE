@@ -353,8 +353,8 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
     const noParents = props.wizState.filters.filter(filter => !allParentsAndChildren.includes(filter))
 
     const [existsValue, setExistsValue] = useState({ toggleState: props.wizState.exists ? '1' : '2' });
-    const [atLeastValue, setAtLeastValue] = useState({toggleState: props.wizState.atLeast ? 'atLeastOn' : 'atLeastOff', value: props.wizState.atLeast ?? 0});
-    const [noMoreThanValue, setNoMoreThanValue] = useState({toggleState: props.wizState.noMoreThan ? 'noMoreThanOn' : 'noMoreThanOff', value: props.wizState.atLeast ?? 0});
+    const [atLeast, setAtLeast] = useState({toggleState: props.wizState.atLeast ? 'atLeastOn' : 'atLeastOff', value: props.wizState.atLeast ?? 0});
+    const [noMoreThan, setNoMoreThan] = useState({toggleState: props.wizState.noMoreThan ? 'noMoreThanOn' : 'noMoreThanOff', value: props.wizState.atLeast ?? 0});
     return (
         <>
             <div className="cql-wizard-select-filters-grid mt-2">
@@ -371,28 +371,29 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
                     'atLeast',
                     [{ name: 'No Minimum', value: 'atLeastOff' }, { name: 'At Least', value: 'atLeastOn' }],
                     (n) => 'outline-secondary',
-                    atLeastValue,
+                    atLeast,
                     function (e: React.ChangeEvent<HTMLInputElement>) {
-                            setAtLeastValue({ toggleState: e.currentTarget.value, value: props.wizState.atLeast ?? 0 });
-                            props.wizDispatch(["setAtLeast", e.currentTarget.value === 'atLeastOff' ? null : atLeastValue.value]) 
+                            setAtLeast({ toggleState: e.currentTarget.value, value: props.wizState.atLeast ?? 0 });
+                            props.wizDispatch(["setAtLeast", {atLeast: e.currentTarget.value === 'atLeastOff' ? null : atLeast.value, noMoreThan: props.wizState.noMoreThan}]) 
                     },
                     'atLeastOn',
                     props.wizState.atLeast ?? 0,
-                    (e: any) => props.wizDispatch(["setAtLeast", convertFormInputToNumber(e.currentTarget.value)]))
+                    (e: any) => props.wizDispatch(["setAtLeast", {atLeast: convertFormInputToNumber(e.currentTarget.value), noMoreThan: props.wizState.noMoreThan}]),
+                    atLeast.value)
                 }
                 {cardinalityButtonGroup(
                     'noMoreThan',
                     [{ name: 'No Maximum', value: 'noMoreThanOff' }, { name: 'No More Than', value: 'noMoreThanOn' }],
                     (n) => 'outline-secondary',
-                    noMoreThanValue,
+                    noMoreThan,
                     function (e: React.ChangeEvent<HTMLInputElement>) {
-                        setNoMoreThanValue({ toggleState: e.currentTarget.value, value: props.wizState.noMoreThan ?? 0 });
-                        props.wizDispatch(["setNoMoreThan", e.currentTarget.value === 'noMoreThanOff' ? null : noMoreThanValue.value]) 
+                        setNoMoreThan({ toggleState: e.currentTarget.value, value: props.wizState.noMoreThan ?? 0 });
+                        props.wizDispatch(["setNoMoreThan", {atLeast: props.wizState.atLeast, noMoreThan: e.currentTarget.value === 'noMoreThanOff' ? null : noMoreThan.value}]) 
                     },
                     'noMoreThanOn',
                     props.wizState.noMoreThan ?? 0,
-                    (e: any) => props.wizDispatch(["setNoMoreThan", convertFormInputToNumber(e.currentTarget.value)]),
-                    atLeastValue.value)
+                    (e: any) => props.wizDispatch(["setNoMoreThan", {atLeast: props.wizState.atLeast, noMoreThan: convertFormInputToNumber(e.currentTarget.value)}]),
+                    atLeast.value)
                 }
                 <Card>
                     <Card.Body>

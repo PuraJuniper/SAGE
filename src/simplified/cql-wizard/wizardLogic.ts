@@ -41,7 +41,8 @@ export interface WizardState {
     actionsDisabled: boolean,
 }
 export type WizardAction = ['changePage', WizardPage ] | ['selectExprType', string, ElementFilter[]] | ['setCodes', SageCoding[]] | ['setFilters', ElementFilter[]] 
-            | ['setState', WizardState] | ['disableActions'] | ['enableActions'] | ['setExists', boolean] | ['setAtLeast', number | null] | ['setNoMoreThan', number | null];
+            | ['setState', WizardState] | ['disableActions'] | ['enableActions'] | ['setExists', boolean] 
+            | ['setAtLeast', {atLeast: number | null, noMoreThan: number | null}] | ['setNoMoreThan', {atLeast: number | null, noMoreThan: number | null}];
 export function WizardReducer(prevWizState: WizardState, action: WizardAction): WizardState {
     // If some asynchronous action is being performed, use 'disableActions' and 'enableActions' to drop all events that occur before it is complete
     if (prevWizState.actionsDisabled && action[0] !== "enableActions") {
@@ -49,19 +50,37 @@ export function WizardReducer(prevWizState: WizardState, action: WizardAction): 
     }
     switch(action[0]) {
         case 'setExists':
+            {
             return {
                 ...prevWizState,
                 exists: action[1]
             }        
+        }
         case 'setAtLeast':
-            return {
-                ...prevWizState,
-                atLeast: action[1]
+            {
+            const newPageStatus = {
+                ...prevWizState.pageStatus,
+                [WizardPage.SelectCodes]: action[1].atLeast === null || action[1].noMoreThan === null ? StepStatus.Complete 
+                    : action[1].atLeast > action[1].noMoreThan ? StepStatus.Incomplete : StepStatus.Complete,
             }
-        case 'setNoMoreThan':
             return {
                 ...prevWizState,
-                noMoreThan: action[1]
+                pageStatus: newPageStatus,
+                atLeast: action[1].atLeast
+            }
+        }
+        case 'setNoMoreThan':
+            {
+                const newPageStatus = {
+                    ...prevWizState.pageStatus,
+                    [WizardPage.SelectCodes]: action[1].atLeast === null || action[1].noMoreThan === null ? StepStatus.Complete 
+                        : action[1].atLeast > action[1].noMoreThan ? StepStatus.Incomplete : StepStatus.Complete,
+                }
+            return {
+                ...prevWizState,
+                pageStatus: newPageStatus,
+                noMoreThan: action[1].noMoreThan
+            }
             }
         case 'disableActions':
             return {
