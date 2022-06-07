@@ -310,7 +310,7 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
     const noParents = props.wizState.filters.filter(filter => !allParentsAndChildren.includes(filter))
 
     const [existsValue, setExistsValue] = useState({ toggleState: props.wizState.exists ? '1' : '2' });
-    const [atLeastValue, setAtLeastValue] = useState({toggleState: '1', value: 0});
+    const [atLeastValue, setAtLeastValue] = useState({toggleState: 'atLeastOff', value: 0});
     return (
         <>
             <div className="cql-wizard-select-filters-grid mt-2">
@@ -325,11 +325,12 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
                     })}
                 {sageButtonGroup(
                     'atLeast',
-                    [{ name: 'None', value: '1' }, { name: 'At Least', value: '2' }],
+                    [{ name: 'None', value: 'atLeastOff' }, { name: 'At Least', value: 'atLeastOn' }],
                     (n) => 'outline-secondary',
                     atLeastValue,
                     function (e: React.ChangeEvent<HTMLInputElement>) {
-                        setAtLeastValue({ toggleState: e.currentTarget.value, value: 0 })
+                        setAtLeastValue({ toggleState: e.currentTarget.value, value: 0 });
+                        // props.wizDispatch(["setAtLeast", e.currentTarget.value])
                     },
                     'Cardinality')
                 }
@@ -367,7 +368,7 @@ function sageButtonGroup(buttonGroupName: string, buttons: { name: string; value
             onButtonChange: (e: React.ChangeEvent<HTMLInputElement>) => void, cardTitle?: string) {
     return <Card style={{ borderStyle: 'None' }}>
         <Card.Title>{cardTitle}</Card.Title>
-        <Col md='4'>
+        <Col md='6'>
             <ButtonGroup id={buttonGroupName} key={buttonGroupName}>
                 {buttons
                     .map((btnRadio, idx) => (
@@ -383,6 +384,22 @@ function sageButtonGroup(buttonGroupName: string, buttons: { name: string; value
                             {btnRadio.name}
                         </ToggleButton>
                     ))}
+                    {(() => {
+                        switch(buttonValue.toggleState) {
+                            case 'atLeastOn': 
+                                return <Form>
+                                    <Form.Control
+                                            placeholder="Instances"
+                                            type="number"
+                                            defaultValue={0}
+                                            min={0}
+                                            // onChange={}
+                                />
+                                </Form>;
+                            default:
+                                return undefined;
+                            }
+                        })()}
             </ButtonGroup>
         </Col>
     </Card>;
