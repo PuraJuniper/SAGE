@@ -63,7 +63,6 @@ export function WizardReducer(prevWizState: WizardState, action: WizardAction): 
                 ...prevWizState,
                 noMoreThan: action[1]
             }
-
         case 'disableActions':
             return {
                 ...prevWizState,

@@ -259,20 +259,8 @@ function generateCqlFromSubExpression(subExpressionId: string, subExpression: Su
             // Output filter (from the buttons on the the condition editor page)
             const existsPrefix = `${subExpr.curWizState.exists ? '' : 'not '}exists(${innerResDef})`
             const atLeastVal = subExpr.curWizState.atLeast ? `Count(${innerResDef}) >= ${subExpr.curWizState.atLeast}` : null
-            const atMostVal = null
-            const resDefWrapped = `${existsPrefix}${atLeastVal ? ' and ' + atLeastVal : ''}${atMostVal ? ' and ' + atMostVal : ''}` ;
-            // if (subExpr.exprAggregate) {
-            //     switch (subExpr.exprAggregate.aggregate) {
-            //         case AggregateType.AtLeast:
-            //             resDefWrapped = `${existsPrefix} and Count(${innerResDef}) >= ${subExpr.exprAggregate.count ?? 1}`
-            //             break;
-            //         case AggregateType.NoMoreThan:
-            //             resDefWrapped = `${existsPrefix} and Count(${innerResDef}) <= ${subExpr.exprAggregate.count ?? 1}`
-            //             break;
-            //     }    
-            // } else {
-            //     resDefWrapped = existsPrefix
-            // }
+            const noMoreThanVal = subExpr.curWizState.noMoreThan ? `Count(${innerResDef}) <= ${subExpr.curWizState.noMoreThan}` : null
+            const resDefWrapped = `${existsPrefix}${atLeastVal ? ' and ' + atLeastVal : ''}${noMoreThanVal ? ' and ' + noMoreThanVal : ''}` ;
             
             const subExprId = generateUniqueId();
             subExprDefinitions.set(subExprId, {

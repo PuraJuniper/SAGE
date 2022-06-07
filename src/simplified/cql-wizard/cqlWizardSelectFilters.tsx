@@ -304,10 +304,28 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
     function onlyUnique(value: any, index: any, self: string | any[]) {
         return self.indexOf(value) === index;
     }
-    function sageButtonGroup(buttonGroupName: string, buttons: { name: string; value: string; }[], btnVariant: (idx: number) => string, buttonValue: { toggleState: string; value?: number; },
-        onButtonChange: (e: React.ChangeEvent<HTMLInputElement>) => void, cardTitle?: string) {
+    function cardinalityButtonGroup(buttonGroupName: string, buttons: { name: string; value: string; }[], btnVariant: (idx: number) => string, buttonValue: { toggleState: string; value?: number; },
+        onEnable: (e: React.ChangeEvent<HTMLInputElement>) => void, toggleConditionEnable?: string, defaultCardinality?: number, onChangeCardinality?: (e: any) => void) {
+        const openCardinalitySelector = (): React.ReactElement<any> | undefined => {
+            if (onChangeCardinality) {
+                if (buttonValue.toggleState == toggleConditionEnable) {
+                    return <Form>
+                        <Form.Control
+                            id={toggleConditionEnable}
+                            placeholder="Instances"
+                            type="number"
+                            defaultValue={defaultCardinality}
+                            min={0}
+                            onChange={e => onChangeCardinality(e)} />
+                    </Form>;
+                } else {
+                    return undefined;
+                }
+            } else {
+                return undefined;
+            }
+        }
         return <Card style={{ borderStyle: 'None' }}>
-            <Card.Title>{cardTitle}</Card.Title>
             <Col md='6'>
                 <ButtonGroup id={buttonGroupName} key={buttonGroupName}>
                     {buttons
@@ -319,28 +337,12 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
                                 variant={btnVariant(idx)}
                                 value={btnRadio.value}
                                 checked={buttonValue.toggleState === btnRadio.value}
-                                onChange={e => onButtonChange(e)}
+                                onChange={e => onEnable(e)}
                             >
                                 {btnRadio.name}
                             </ToggleButton>
                         ))}
-                    {(() => {
-                        switch (buttonValue.toggleState) {
-                            case 'atLeastOn':
-                                return <Form>
-                                    <Form.Control
-                                        placeholder="Instances"
-                                        type="number"
-                                        defaultValue={props.wizState.atLeast ?? 0}
-                                        min={0}
-                                        onChange={e =>
-                                            props.wizDispatch(["setAtLeast", convertFormInputToNumber(e.currentTarget.value)])}
-                                    />
-                                </Form>;
-                            default:
-                                return undefined;
-                        }
-                    })()}
+                    {openCardinalitySelector()}
                 </ButtonGroup>
             </Col>
         </Card>;
@@ -352,10 +354,11 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
 
     const [existsValue, setExistsValue] = useState({ toggleState: props.wizState.exists ? '1' : '2' });
     const [atLeastValue, setAtLeastValue] = useState({toggleState: props.wizState.atLeast ? 'atLeastOn' : 'atLeastOff', value: props.wizState.atLeast ?? 0});
+    const [noMoreThanValue, setNoMoreThanValue] = useState({toggleState: props.wizState.noMoreThan ? 'noMoreThanOn' : 'noMoreThanOff', value: props.wizState.atLeast ?? 0});
     return (
         <>
             <div className="cql-wizard-select-filters-grid mt-2">
-                {sageButtonGroup(
+                {cardinalityButtonGroup(
                     'exists',
                     [{ name: 'Should Exist', value: '1' }, { name: 'Should Not Exist', value: '2' }],
                     (idx: number): string => { return idx % 2 ? 'outline-danger' : 'outline-success' },
@@ -364,15 +367,29 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
                         setExistsValue({ toggleState: e.currentTarget.value })
                         props.wizDispatch(["setExists", e.currentTarget.value === '1']);
                     })}
-                {sageButtonGroup(
+                {cardinalityButtonGroup(
                     'atLeast',
-                    [{ name: 'None', value: 'atLeastOff' }, { name: 'At Least', value: 'atLeastOn' }],
+                    [{ name: 'No Minimum', value: 'atLeastOff' }, { name: 'At Least', value: 'atLeastOn' }],
                     (n) => 'outline-secondary',
                     atLeastValue,
                     function (e: React.ChangeEvent<HTMLInputElement>) {
                         setAtLeastValue({ toggleState: e.currentTarget.value, value: props.wizState.atLeast ?? 0 });
                     },
-                    'Cardinality')
+                    'atLeastOn',
+                    props.wizState.atLeast ?? 0,
+                    (e: any) => props.wizDispatch(["setAtLeast", convertFormInputToNumber(e.currentTarget.value)]))
+                }
+                {cardinalityButtonGroup(
+                    'noMoreThan',
+                    [{ name: 'No Maximum', value: 'noMoreThanOff' }, { name: 'No More Than', value: 'noMoreThanOn' }],
+                    (n) => 'outline-secondary',
+                    noMoreThanValue,
+                    function (e: React.ChangeEvent<HTMLInputElement>) {
+                        setNoMoreThanValue({ toggleState: e.currentTarget.value, value: props.wizState.noMoreThan ?? 0 });
+                    },
+                    'noMoreThanOn',
+                    props.wizState.noMoreThan ?? 0,
+                    (e: any) => props.wizDispatch(["setNoMoreThan", convertFormInputToNumber(e.currentTarget.value)]))
                 }
                 <Card>
                     <Card.Body>
