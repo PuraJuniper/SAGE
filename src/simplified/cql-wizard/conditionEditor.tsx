@@ -163,24 +163,35 @@ const SubExpressionElement = (props: ConditionElementProps) => {
         });
     }
 
+    function backgroundColor(boolVal: "or" | "and") { return boolVal === "or" ? "white" : "lightgrey"}
     return (
         <>
             {expressionTrimmed.subExpr.length === 0 ? null :
-                <Card style={{ backgroundColor: expressionTrimmed.subExprBool === "or" ? "white" : "lightgrey", borderWidth: "2px", borderColor: 'var(--sage-dark-purple)' }}>
+                <Card style={{ backgroundColor: backgroundColor(expressionTrimmed.subExprBool), borderWidth: "2px", borderColor: 'var(--sage-dark-purple)' }}>
                     <Card.Body >
                         {
                             expressionTrimmed.subExpr.map((expr, exprIdx) => {
                                 if (isWizardExpression(expr)) {
                                     return (
                                         <>
-                                            {exprIdx > 0 ? CardTabTitle(expressionTrimmed.subExprBool.toUpperCase() + (expr.curWizState.exists ? '' : ' NOT')) 
-                                                : expr.curWizState.exists ? null : CardTabTitle('NOT')}
+                                            {exprIdx > 0 ?
+                                                <span style={{backgroundColor: backgroundColor(expressionTrimmed.subExprBool), borderBottomColor: backgroundColor(expressionTrimmed.subExprBool), borderBottomWidth: "0px" }}>
+                                                    {CardTabTitle(expressionTrimmed.subExprBool.toUpperCase() + (expr.curWizState.exists ? '' : ' NOT'), backgroundColor(expressionTrimmed.subExprBool))}
+                                                </span>
+                                                : expr.curWizState.exists ? null :
+                                                    <span style={{backgroundColor: backgroundColor(expressionTrimmed.subExprBool), borderBottomColor: backgroundColor(expressionTrimmed.subExprBool), borderBottomWidth: "0px" }}>
+                                                        {CardTabTitle('NOT', backgroundColor(expressionTrimmed.subExprBool))}
+                                                    </span>}
                                             {wizExpressionWithConditional(expr, handleEditExpr, exprIdx, handleDelete, props.isPreview, expressionTrimmed, setNewWizardState)}
                                         </>
                                     )
                                 } else {
                                     return (<>
-                                        {exprIdx > 0 ? CardTabTitle(expr.subExprBool.toUpperCase()) : null}
+                                        {exprIdx > 0 ?
+                                            <span style={{ backgroundColor: backgroundColor(expr.subExprBool), borderBottomColor: backgroundColor(expr.subExprBool), borderBottomWidth: "0px" }}>
+                                                {CardTabTitle(expr.subExprBool.toUpperCase(), backgroundColor(expr.subExprBool))}
+                                            </span>
+                                            : null}
                                         <SubExpressionElement
                                             key={expr.subExpr.toString()}
                                             subExpression={expr}
