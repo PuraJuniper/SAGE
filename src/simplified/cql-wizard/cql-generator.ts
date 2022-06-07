@@ -326,7 +326,7 @@ define "${subExprId}":
     }
     const subExprDef = `
 ${Array.from(subExprDefinitions.values()).map(exprDef=>exprDef.definition).join('\n')}
-define ${subExpressionId}:
+define "${subExpressionId}":
     ${Array.from(subExprDefinitions.keys()).join(subExpression.subExprBool === 'and' ? ' and ' : ' or ')}
 `
     return {
