@@ -309,58 +309,30 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
     const onlyParents = allParentsAndChildren.map(getParent).filter(onlyUnique)
     const noParents = props.wizState.filters.filter(filter => !allParentsAndChildren.includes(filter))
 
-    const [existsValue, setExistsValue] = useState(props.wizState.exists ? '1' : '2');
+    const [existsValue, setExistsValue] = useState({ toggleState: props.wizState.exists ? '1' : '2' });
     const [atLeastValue, setAtLeastValue] = useState({toggleState: '1', value: 0});
     return (
         <>
             <div className="cql-wizard-select-filters-grid mt-2">
-                <Card style={{borderStyle: 'None'}}>
-                    <Col md='4'>
-                        <ButtonGroup id='exists' key='exists'>
-                            {[{ name: 'Should Exist', value: '1'}, { name: 'Should Not Exist', value: '2'}]
-                                .map((existRadio, idx) => (
-                                    <ToggleButton
-                                        key={idx}
-                                        id={`radio-exists-${idx}`}
-                                        type="radio"
-                                        variant={idx % 2 ? 'outline-danger' : 'outline-success'}
-                                        value={existRadio.value}
-                                        checked={existsValue === existRadio.value}
-                                        onChange={e => {
-                                            setExistsValue(e.currentTarget.value)
-                                            props.wizDispatch(["setExists", e.currentTarget.value === '1']);
-                                        }}
-                                    >
-                                        {existRadio.name}
-                                    </ToggleButton>
-                                ))}
-                        </ButtonGroup>
-                    </Col>
-                </Card>
-                <Card style={{borderStyle: 'None'}}>
-                    <Card.Title>Cardinality</Card.Title>
-                    <Col md='4'>
-                        <ButtonGroup id='atLeast' key='atLeast'>
-                            {[{ name: 'None', value: '1'}, { name: 'At Least', value: '2'}]
-                                .map((atLeastRadio, idx) => (
-                                    <ToggleButton
-                                        key={'atLeast-' + idx}
-                                        id={`radio-atleast-${idx}`}
-                                        type="checkbox"
-                                        variant={'outline-secondary'}
-                                        value={atLeastRadio.value}
-                                        checked={atLeastValue.toggleState === atLeastRadio.value}
-                                        onChange={e => {
-                                            // props.wizDispatch(["setExists", e.currentTarget.value === '1']);
-                                            setAtLeastValue({toggleState: e.currentTarget.value, value: 0})
-                                        }}
-                                    >
-                                        {atLeastRadio.name}
-                                    </ToggleButton>
-                                ))}
-                        </ButtonGroup>
-                    </Col>
-                </Card>
+                {sageButtonGroup(
+                    'exists',
+                    [{ name: 'Should Exist', value: '1' }, { name: 'Should Not Exist', value: '2' }],
+                    (idx: number): string => { return idx % 2 ? 'outline-danger' : 'outline-success' },
+                    existsValue,
+                    function (e: React.ChangeEvent<HTMLInputElement>) {
+                        setExistsValue({ toggleState: e.currentTarget.value })
+                        props.wizDispatch(["setExists", e.currentTarget.value === '1']);
+                    })}
+                {sageButtonGroup(
+                    'atLeast',
+                    [{ name: 'None', value: '1' }, { name: 'At Least', value: '2' }],
+                    (n) => 'outline-secondary',
+                    atLeastValue,
+                    function (e: React.ChangeEvent<HTMLInputElement>) {
+                        setAtLeastValue({ toggleState: e.currentTarget.value, value: 0 })
+                    },
+                    'Cardinality')
+                }
                 <Card>
                     <Card.Body>
                         <Card.Title>
@@ -389,6 +361,31 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
             </div>
         </>
     )
+}
+
+function sageButtonGroup(buttonGroupName: string, buttons: { name: string; value: string; }[], btnVariant: (idx: number) => string, buttonValue: { toggleState: string; value?: number; },
+            onButtonChange: (e: React.ChangeEvent<HTMLInputElement>) => void, cardTitle?: string) {
+    return <Card style={{ borderStyle: 'None' }}>
+        <Card.Title>{cardTitle}</Card.Title>
+        <Col md='4'>
+            <ButtonGroup id={buttonGroupName} key={buttonGroupName}>
+                {buttons
+                    .map((btnRadio, idx) => (
+                        <ToggleButton
+                            key={idx}
+                            id={`radio-${buttonGroupName}-${idx}`}
+                            type="radio"
+                            variant={btnVariant(idx)}
+                            value={btnRadio.value}
+                            checked={buttonValue.toggleState === btnRadio.value}
+                            onChange={e => onButtonChange(e)}
+                        >
+                            {btnRadio.name}
+                        </ToggleButton>
+                    ))}
+            </ButtonGroup>
+        </Col>
+    </Card>;
 }
 
 function checkDateFilterErrors(filter: DateFilter, filterType: DateFilterType): boolean {
