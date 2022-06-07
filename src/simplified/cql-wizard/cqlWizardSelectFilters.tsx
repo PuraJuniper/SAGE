@@ -304,13 +304,54 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
     function onlyUnique(value: any, index: any, self: string | any[]) {
         return self.indexOf(value) === index;
     }
+    function sageButtonGroup(buttonGroupName: string, buttons: { name: string; value: string; }[], btnVariant: (idx: number) => string, buttonValue: { toggleState: string; value?: number; },
+        onButtonChange: (e: React.ChangeEvent<HTMLInputElement>) => void, cardTitle?: string) {
+        return <Card style={{ borderStyle: 'None' }}>
+            <Card.Title>{cardTitle}</Card.Title>
+            <Col md='6'>
+                <ButtonGroup id={buttonGroupName} key={buttonGroupName}>
+                    {buttons
+                        .map((btnRadio, idx) => (
+                            <ToggleButton
+                                key={idx}
+                                id={`radio-${buttonGroupName}-${idx}`}
+                                type="radio"
+                                variant={btnVariant(idx)}
+                                value={btnRadio.value}
+                                checked={buttonValue.toggleState === btnRadio.value}
+                                onChange={e => onButtonChange(e)}
+                            >
+                                {btnRadio.name}
+                            </ToggleButton>
+                        ))}
+                    {(() => {
+                        switch (buttonValue.toggleState) {
+                            case 'atLeastOn':
+                                return <Form>
+                                    <Form.Control
+                                        placeholder="Instances"
+                                        type="number"
+                                        defaultValue={props.wizState.atLeast ?? 0}
+                                        min={0}
+                                        onChange={e =>
+                                            props.wizDispatch(["setAtLeast", convertFormInputToNumber(e.currentTarget.value)])}
+                                    />
+                                </Form>;
+                            default:
+                                return undefined;
+                        }
+                    })()}
+                </ButtonGroup>
+            </Col>
+        </Card>;
+    }
 
     const allParentsAndChildren = props.wizState.filters.filter(containsSubResource);
     const onlyParents = allParentsAndChildren.map(getParent).filter(onlyUnique)
     const noParents = props.wizState.filters.filter(filter => !allParentsAndChildren.includes(filter))
 
     const [existsValue, setExistsValue] = useState({ toggleState: props.wizState.exists ? '1' : '2' });
-    const [atLeastValue, setAtLeastValue] = useState({toggleState: 'atLeastOff', value: 0});
+    const [atLeastValue, setAtLeastValue] = useState({toggleState: props.wizState.atLeast ? 'atLeastOn' : 'atLeastOff', value: props.wizState.atLeast ?? 0});
     return (
         <>
             <div className="cql-wizard-select-filters-grid mt-2">
@@ -329,8 +370,7 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
                     (n) => 'outline-secondary',
                     atLeastValue,
                     function (e: React.ChangeEvent<HTMLInputElement>) {
-                        setAtLeastValue({ toggleState: e.currentTarget.value, value: 0 });
-                        // props.wizDispatch(["setAtLeast", e.currentTarget.value])
+                        setAtLeastValue({ toggleState: e.currentTarget.value, value: props.wizState.atLeast ?? 0 });
                     },
                     'Cardinality')
                 }
@@ -364,46 +404,7 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
     )
 }
 
-function sageButtonGroup(buttonGroupName: string, buttons: { name: string; value: string; }[], btnVariant: (idx: number) => string, buttonValue: { toggleState: string; value?: number; },
-            onButtonChange: (e: React.ChangeEvent<HTMLInputElement>) => void, cardTitle?: string) {
-    return <Card style={{ borderStyle: 'None' }}>
-        <Card.Title>{cardTitle}</Card.Title>
-        <Col md='6'>
-            <ButtonGroup id={buttonGroupName} key={buttonGroupName}>
-                {buttons
-                    .map((btnRadio, idx) => (
-                        <ToggleButton
-                            key={idx}
-                            id={`radio-${buttonGroupName}-${idx}`}
-                            type="radio"
-                            variant={btnVariant(idx)}
-                            value={btnRadio.value}
-                            checked={buttonValue.toggleState === btnRadio.value}
-                            onChange={e => onButtonChange(e)}
-                        >
-                            {btnRadio.name}
-                        </ToggleButton>
-                    ))}
-                    {(() => {
-                        switch(buttonValue.toggleState) {
-                            case 'atLeastOn': 
-                                return <Form>
-                                    <Form.Control
-                                            placeholder="Instances"
-                                            type="number"
-                                            defaultValue={0}
-                                            min={0}
-                                            // onChange={}
-                                />
-                                </Form>;
-                            default:
-                                return undefined;
-                            }
-                        })()}
-            </ButtonGroup>
-        </Col>
-    </Card>;
-}
+
 
 function checkDateFilterErrors(filter: DateFilter, filterType: DateFilterType): boolean {
     switch(filterType) {
