@@ -41,7 +41,7 @@ export interface WizardState {
     actionsDisabled: boolean,
 }
 export type WizardAction = ['changePage', WizardPage ] | ['selectExprType', string, ElementFilter[]] | ['setCodes', SageCoding[]] | ['setFilters', ElementFilter[]] 
-            | ['setState', WizardState] | ['disableActions'] | ['enableActions'] | ['setExists', boolean] | ['setAtLeast', number] | ['setNoMoreThan', number];
+            | ['setState', WizardState] | ['disableActions'] | ['enableActions'] | ['setExists', boolean] | ['setAtLeast', number | null] | ['setNoMoreThan', number | null];
 export function WizardReducer(prevWizState: WizardState, action: WizardAction): WizardState {
     // If some asynchronous action is being performed, use 'disableActions' and 'enableActions' to drop all events that occur before it is complete
     if (prevWizState.actionsDisabled && action[0] !== "enableActions") {

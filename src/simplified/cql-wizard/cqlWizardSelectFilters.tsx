@@ -305,7 +305,7 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
         return self.indexOf(value) === index;
     }
     function cardinalityButtonGroup(buttonGroupName: string, buttons: { name: string; value: string; }[], btnVariant: (idx: number) => string, buttonValue: { toggleState: string; value?: number; },
-        onEnable: (e: React.ChangeEvent<HTMLInputElement>) => void, toggleConditionEnable?: string, defaultCardinality?: number, onChangeCardinality?: (e: any) => void) {
+        onEnable: (e: React.ChangeEvent<HTMLInputElement>) => void, toggleConditionEnable?: string, defaultCardinality?: number, onChangeCardinality?: (e: any) => void, cardinalityMin?: number) {
         const openCardinalitySelector = (): React.ReactElement<any> | undefined => {
             if (onChangeCardinality) {
                 if (buttonValue.toggleState == toggleConditionEnable) {
@@ -315,7 +315,7 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
                             placeholder="Instances"
                             type="number"
                             defaultValue={defaultCardinality}
-                            min={0}
+                            min={cardinalityMin}
                             onChange={e => onChangeCardinality(e)} />
                     </Form>;
                 } else {
@@ -373,7 +373,8 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
                     (n) => 'outline-secondary',
                     atLeastValue,
                     function (e: React.ChangeEvent<HTMLInputElement>) {
-                        setAtLeastValue({ toggleState: e.currentTarget.value, value: props.wizState.atLeast ?? 0 });
+                            setAtLeastValue({ toggleState: e.currentTarget.value, value: props.wizState.atLeast ?? 0 });
+                            props.wizDispatch(["setAtLeast", e.currentTarget.value === 'atLeastOff' ? null : atLeastValue.value]) 
                     },
                     'atLeastOn',
                     props.wizState.atLeast ?? 0,
@@ -386,10 +387,12 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
                     noMoreThanValue,
                     function (e: React.ChangeEvent<HTMLInputElement>) {
                         setNoMoreThanValue({ toggleState: e.currentTarget.value, value: props.wizState.noMoreThan ?? 0 });
+                        props.wizDispatch(["setNoMoreThan", e.currentTarget.value === 'noMoreThanOff' ? null : noMoreThanValue.value]) 
                     },
                     'noMoreThanOn',
                     props.wizState.noMoreThan ?? 0,
-                    (e: any) => props.wizDispatch(["setNoMoreThan", convertFormInputToNumber(e.currentTarget.value)]))
+                    (e: any) => props.wizDispatch(["setNoMoreThan", convertFormInputToNumber(e.currentTarget.value)]),
+                    atLeastValue.value)
                 }
                 <Card>
                     <Card.Body>
