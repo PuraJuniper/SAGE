@@ -236,14 +236,14 @@ function generateCqlFromSubExpression(subExpressionId: string, subExpression: Su
                             if (periodFilter.filterProps.startDateType !== PeriodDateFilterType.None && periodFilter.filterProps.startDate !== null) {
                                 const dateExpr = periodFilter.filterProps.dateType === PeriodDateType.Absolute ?
                                     generateAbsoluteDateExpr(periodFilter.filterProps.startDate) :
-                                    generateRelativeDateExpr(periodFilter.filterProps.startDate.unit, periodFilter.filterProps.startDate.amount);
+                                    generateRelativeDateExpr(periodFilter.filterProps.startDate.unit, periodFilter.filterProps.startDate.amount, periodFilter.filterProps.startDateType === PeriodDateFilterType.Before ? "before" : "after");
                                 filterExpression = `R.${filter.elementName} starts ${periodFilter.filterProps.startDateType === PeriodDateFilterType.Before ? "before" : "after"} ${dateExpr}`
                             }
 
                             if (periodFilter.filterProps.endDateType !== PeriodDateFilterType.None && periodFilter.filterProps.endDate !== null) {
                                 const dateExpr = periodFilter.filterProps.dateType === PeriodDateType.Absolute ?
                                     generateAbsoluteDateExpr(periodFilter.filterProps.endDate) :
-                                    generateRelativeDateExpr(periodFilter.filterProps.endDate.unit, periodFilter.filterProps.endDate.amount);
+                                    generateRelativeDateExpr(periodFilter.filterProps.endDate.unit, periodFilter.filterProps.endDate.amount, periodFilter.filterProps.endDateType === PeriodDateFilterType.Before ? "before" : "after");
                                 const endFilterExpression = `R.${filter.elementName} ends ${periodFilter.filterProps.endDateType === PeriodDateFilterType.Before ? "before" : "after"} ${dateExpr}`;
                                 if (filterExpression === null) {
                                     filterExpression = endFilterExpression
@@ -336,9 +336,9 @@ define ${subExpressionId}:
 }
 
 /**
- * Generates CQL expression: "(Now() - {quantity})"
+ * Generates CQL expression: "(Now() {relationSymbol} {quantity})", where {relationSymbol} is "-" if `relation` === "before", or "+" otherwise
  */
-function generateRelativeDateExpr(unit: RelativeDateUnit, amount: number) {
+function generateRelativeDateExpr(unit: RelativeDateUnit, amount: number, relation: "before" | "after") {
     let cqlUnit: string;
     switch (unit) {
         case RelativeDateUnit.Minutes:
@@ -360,7 +360,7 @@ function generateRelativeDateExpr(unit: RelativeDateUnit, amount: number) {
             cqlUnit = "year";
             break;
     }
-    return `(Now() - ${amount} ${cqlUnit})`;
+    return `(Now() ${relation === "before" ? "-" : "+"} ${amount} ${cqlUnit})`;
 }
 
 /** 
