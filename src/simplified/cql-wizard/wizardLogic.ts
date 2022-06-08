@@ -4,6 +4,7 @@ import { getConceptsOfValueSet, SageCodeConcept, SimplifiedProfiles } from "../.
 import { Coding, PlanDefinitionActionCondition } from "fhir/r4";
 import { EditableCondition } from "./conditionEditor";
 import _ from "lodash";
+import { CONDITION, PATIENT } from "../nameHelpers";
 
 // Pages of the wizard
 export enum WizardPage {
@@ -122,7 +123,7 @@ export function WizardReducer(prevWizState: WizardState, action: WizardAction): 
                 newPageStatus[WizardPage.SelectCodes] = newCodes.length === 0 ? StepStatus.Incomplete : StepStatus.Complete;
 
                 // Skip code selection if we're filtering for Patient
-                if (['Patient'].includes(action[1])) {
+                if ([PATIENT].includes(action[1])) {
                     newPageStatus[WizardPage.SelectCodes] = StepStatus.Skipped;
                     newPage = WizardPage.SelectFilters;
                 }
@@ -523,7 +524,7 @@ export async function createExpectedFiltersForResType(resType: string): Promise<
              'reaction.severity', 'reaction.onset', 'reaction.substance', 'reaction.exposureRoute'];
             url = "http://hl7.org/fhir/StructureDefinition/AllergyIntolerance"; // temporary
             break;
-        case "Condition":
+        case CONDITION:
             expectedElements = ['clinicalStatus', 'verificationStatus', 'category', 'onset[x]', 'abatement[x]', 'recordedDate', 'stage.summary','stage.type']
             url = "http://hl7.org/fhir/StructureDefinition/Condition"
             break;
@@ -551,9 +552,9 @@ export async function createExpectedFiltersForResType(resType: string): Promise<
             expectedElements = ['status', 'intent', 'category', 'priority', 'doNotPerform', 'occurrence[x]', 'authoredOn']
             url = "http://hl7.org/fhir/StructureDefinition/ServiceRequest"
             break;
-        case "Patient":
+        case PATIENT:
             expectedElements = ['birthDate','gender'];
-            schemaResType = "Patient";
+            schemaResType = PATIENT;
             url = "http://hl7.org/fhir/StructureDefinition/Patient";
             break;
     }
@@ -569,7 +570,7 @@ export const memoizedCreateExpectedFiltersForResType = _.memoize(createExpectedF
 
 // Should be rewritten to use friendly-names
 export function getSelectableResourceTypes() {
-    return ['AllergyIntolerance', 'Condition', 'Device', 'Encounter', 'Immunization', 'MedicationStatement', 'MedicationRequest', 'Observation', 'Procedure', 'ServiceRequest', 'Patient']
+    return ['AllergyIntolerance', CONDITION, 'Device', 'Encounter', 'Immunization', 'MedicationStatement', 'MedicationRequest', 'Observation', 'Procedure', 'ServiceRequest', PATIENT]
 }
 
 export function getNextPage(curPage: WizardPage, stepStatus: WizardState["pageStatus"]): [true, WizardPage | null] | [false, WizardPage | null] {
