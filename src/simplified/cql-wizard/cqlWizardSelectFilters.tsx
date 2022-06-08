@@ -304,14 +304,14 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
     function onlyUnique(value: any, index: any, self: string | any[]) {
         return self.indexOf(value) === index;
     }
-    function cardinalityButtonGroup(buttonGroupName: string, buttons: { name: string; value: string; }[], btnVariant: (idx: number) => string, buttonValue: { toggleState: string; value?: number; },
-        onEnable: (e: React.ChangeEvent<HTMLInputElement>) => void, toggleConditionEnable?: string, defaultCardinality?: number, onChangeCardinality?: (e: any) => void, cardinalityMin?: number, isError?: boolean) {
+    function cardinalityButtonGroup(buttonGroupName: string, buttons: { name: string; value?: toggleState;}[], btnVariant: (idx: number) => string, buttonValue: { toggleState: toggleState; value?: number; },
+        onEnable: (e: React.ChangeEvent<HTMLInputElement>) => void, defaultCardinality?: number, onChangeCardinality?: (e: any) => void, cardinalityMin?: number, isError?: boolean) {
         const openCardinalitySelector = (): React.ReactElement<any> | undefined => {
             if (onChangeCardinality) {
-                if (buttonValue.toggleState == toggleConditionEnable) {
+                if (buttonValue.toggleState === toggleState.enabled) {
                     return <Form>
                         <Form.Control
-                            id={toggleConditionEnable}
+                            id={toggleState.enabled.toString()}
                             placeholder="Instances"
                             type="number"
                             defaultValue={defaultCardinality}
@@ -333,10 +333,10 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
                             <ToggleButton
                                 key={idx}
                                 id={`radio-${buttonGroupName}-${idx}`}
-                                type="radio"
+                                type={buttonGroupName === 'exists' ? 'radio' : 'checkbox'}
                                 variant={btnVariant(idx)}
-                                value={btnRadio.value}
-                                checked={buttonValue.toggleState === btnRadio.value}
+                                value={btnRadio.value ?? buttonValue.toggleState}
+                                checked={btnRadio.value !== undefined ? buttonValue.toggleState === btnRadio.value : buttonValue.toggleState === toggleState.enabled}
                                 onChange={e => onEnable(e)}
                             >
                                 {btnRadio.name}
@@ -357,45 +357,44 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
     const onlyParents = allParentsAndChildren.map(getParent).filter(onlyUnique)
     const noParents = props.wizState.filters.filter(filter => !allParentsAndChildren.includes(filter))
 
-    const [existsValue, setExistsValue] = useState({ toggleState: props.wizState.exists ? '1' : '2' });
-    const [atLeast, setAtLeast] = useState({toggleState: props.wizState.atLeast ? 'atLeastOn' : 'atLeastOff', value: props.wizState.atLeast ?? 0});
-    const [noMoreThan, setNoMoreThan] = useState({toggleState: props.wizState.noMoreThan ? 'noMoreThanOn' : 'noMoreThanOff', value: props.wizState.atLeast ?? 0});
+    enum toggleState {enabled, disabled}
+    const [existsValue, setExistsValue] = useState({ toggleState: props.wizState.exists ? toggleState.enabled : toggleState.disabled });
+    const [atLeast, setAtLeast] = useState({toggleState: props.wizState.atLeast ? toggleState.enabled : toggleState.disabled, value: props.wizState.atLeast ?? 0});
+    const [noMoreThan, setNoMoreThan] = useState({toggleState: props.wizState.noMoreThan ? toggleState.enabled : toggleState.disabled, value: props.wizState.noMoreThan ?? 0});
     return (
         <>
             <div className="cql-wizard-select-filters-grid mt-2">
                 {cardinalityButtonGroup(
                     'exists',
-                    [{ name: 'Should Exist', value: '1' }, { name: 'Should Not Exist', value: '2' }],
-                    (idx: number): string => { return idx % 2 ? 'outline-danger' : 'outline-success' },
+                    [{ name: 'Should Exist', value: toggleState.enabled }, { name: 'Should Not Exist', value: toggleState.disabled }],
+                    (curState: toggleState): string => { return curState === toggleState.disabled ? 'outline-danger' : 'outline-success' },
                     existsValue,
                     function (e: React.ChangeEvent<HTMLInputElement>) {
-                        setExistsValue({ toggleState: e.currentTarget.value })
-                        props.wizDispatch(["setExists", e.currentTarget.value === '1']);
+                        setExistsValue({ toggleState: e.currentTarget.value === toggleState.enabled.toString() ? toggleState.enabled : toggleState.disabled })
+                        props.wizDispatch(["setExists", e.currentTarget.value === toggleState.enabled.toString()]);
                     })}
                 {cardinalityButtonGroup(
                     'atLeast',
-                    [{ name: 'No Minimum', value: 'atLeastOff' }, { name: 'At Least', value: 'atLeastOn' }],
+                    [{ name: 'At Least'}],
                     (n) => 'outline-secondary',
                     atLeast,
                     function (e: React.ChangeEvent<HTMLInputElement>) {
-                            setAtLeast({ toggleState: e.currentTarget.value, value: props.wizState.atLeast ?? 0 });
-                            props.wizDispatch(["setAtLeast", {atLeast: e.currentTarget.value === 'atLeastOff' ? null : atLeast.value, noMoreThan: props.wizState.noMoreThan}]) 
+                            setAtLeast({ toggleState: e.currentTarget.value === toggleState.enabled.toString() ? toggleState.disabled : toggleState.enabled, value: props.wizState.atLeast ?? 0 });
+                            props.wizDispatch(["setAtLeast", {atLeast: !e.currentTarget.checked ? null : atLeast.value, noMoreThan: props.wizState.noMoreThan}]) 
                     },
-                    'atLeastOn',
                     props.wizState.atLeast ?? 0,
                     (e: any) => props.wizDispatch(["setAtLeast", {atLeast: convertFormInputToNumber(e.currentTarget.value), noMoreThan: props.wizState.noMoreThan}]),
                     atLeast.value)
                 }
                 {cardinalityButtonGroup(
                     'noMoreThan',
-                    [{ name: 'No Maximum', value: 'noMoreThanOff' }, { name: 'No More Than', value: 'noMoreThanOn' }],
+                    [{ name: 'No More Than'}],
                     (n) => 'outline-secondary',
                     noMoreThan,
                     function (e: React.ChangeEvent<HTMLInputElement>) {
-                        setNoMoreThan({ toggleState: e.currentTarget.value, value: props.wizState.noMoreThan ?? 0 });
-                        props.wizDispatch(["setNoMoreThan", {atLeast: props.wizState.atLeast, noMoreThan: e.currentTarget.value === 'noMoreThanOff' ? null : noMoreThan.value}]) 
+                        setNoMoreThan({ toggleState: e.currentTarget.value === toggleState.enabled.toString() ? toggleState.disabled : toggleState.enabled, value: props.wizState.noMoreThan ?? 0 });
+                        props.wizDispatch(["setNoMoreThan", {atLeast: props.wizState.atLeast, noMoreThan: !e.currentTarget.checked ? null : noMoreThan.value}]) 
                     },
-                    'noMoreThanOn',
                     props.wizState.noMoreThan ?? 0,
                     (e: any) => props.wizDispatch(["setNoMoreThan", {atLeast: props.wizState.atLeast, noMoreThan: convertFormInputToNumber(e.currentTarget.value)}]),
                     atLeast.value,
