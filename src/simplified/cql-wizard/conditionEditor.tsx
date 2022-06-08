@@ -127,6 +127,7 @@ interface ConditionElementProps {
     handleEditSubExpression: (newSubExpr: SubExpression) => void,
     handleDeleteSubExpression: () => void,
     isPreview?: boolean;
+    width?: string
 }
 const SubExpressionElement = (props: ConditionElementProps) => {
     const [newWizardState, setNewWizardState] = useState<{ show: boolean, onClose: (savedState?: WizardState) => void }>({ show: false, onClose: () => 0 })
@@ -167,7 +168,8 @@ const SubExpressionElement = (props: ConditionElementProps) => {
     return (
         <>
             {expressionTrimmed.subExpr.length === 0 ? null :
-                <Card style={{ backgroundColor: backgroundColor(expressionTrimmed.subExprBool), borderWidth: "2px", borderColor: 'var(--sage-dark-purple)' }}>
+                <Card style={{ backgroundColor: backgroundColor(expressionTrimmed.subExprBool), borderWidth: "2px", borderColor: 'var(--sage-dark-purple)',
+                        width: `${props.width ?? '100%'}`, marginLeft: 'unset' }}>
                     <Card.Body >
                         {
                             expressionTrimmed.subExpr.map((expr, exprIdx) => {
@@ -203,6 +205,7 @@ const SubExpressionElement = (props: ConditionElementProps) => {
                                             handleEditSubExpression={(newExpr) => handleEditExpr(exprIdx, newExpr)}
                                             handleDeleteSubExpression={() => handleDelete(exprIdx)}
                                             isPreview={props.isPreview}
+                                            width='90%'
                                         />
                                     </>
                                     )
@@ -257,7 +260,7 @@ const WizardExpression = (props: WizardExpressionProps) => {
                     })
                 }}
             />
-            <Container style={{ borderStyle: 'solid', borderWidth: "2px", borderColor: 'var(--sage-dark-purple)' }}>
+            <Container style={{ borderStyle: 'solid', borderWidth: "2px", borderColor: 'var(--sage-dark-purple)', width: '90%', marginLeft: 'unset'}}>
                 {/* <svg height="20px" width="20px" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
                     <line x1="0" y1="50" x2="100" y2="50" stroke="black" />
                 </svg> */}
