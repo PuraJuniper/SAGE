@@ -15,7 +15,8 @@ import { CreateCardWorkflow } from './selectView';
 
 
 
-export const CardTabTitle = (text: string, backgroundColor: string) => <Nav as={"header"} variant="tabs" defaultActiveKey="#disabled" style={{borderBottomColor: "inherit", borderBottomWidth: "inherit"}}>
+export const CardTabTitle = (text: string, backgroundColor: string) => <Nav
+    as={"header"} variant="tabs" defaultActiveKey="#disabled" style={{ borderBottomColor: "inherit", borderBottomWidth: "inherit", marginTop: '1rem' }}>
     <Nav.Item style={{backgroundColor: backgroundColor, borderBottomColor: "inherit" }}>
         <Nav.Link href="#disabled" disabled style={{
             color: "var(--sage-dark-purple)", backgroundColor: "transparent", borderColor: "inherit",

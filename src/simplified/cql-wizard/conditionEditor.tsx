@@ -169,7 +169,7 @@ const SubExpressionElement = (props: ConditionElementProps) => {
         <>
             {expressionTrimmed.subExpr.length === 0 ? null :
                 <Card style={{ backgroundColor: backgroundColor(expressionTrimmed.subExprBool), borderWidth: "2px", borderColor: 'var(--sage-dark-purple)',
-                        width: `${props.width ?? '100%'}`, marginLeft: 'unset' }}>
+                        width: `${props.width ?? '100%'}`, marginLeft: 'unset', marginBottom: '1rem' }}>
                     <Card.Body >
                         {
                             expressionTrimmed.subExpr.map((expr, exprIdx) => {
