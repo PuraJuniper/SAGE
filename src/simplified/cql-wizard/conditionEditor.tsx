@@ -60,7 +60,8 @@ export const ConditionPreview = (props: ConditionEditorProps) => {
                     handleDeleteSubExpression={function (): void {
                         throw new Error("Function not implemented.");
                     }}
-                    isPreview={true} />
+                    isPreview={true}
+                    first={true} />
             }
         </>
     )
@@ -115,6 +116,7 @@ export const ConditionEditor = (props: ConditionEditorProps) => {
                             saveEditableCondition(draftCondition.conditionId, newCond);
                             return setDraftCondition(newCond);
                         }}
+                        first={true}
                     />
                 }
             </React.StrictMode>
@@ -127,7 +129,7 @@ interface ConditionElementProps {
     handleEditSubExpression: (newSubExpr: SubExpression) => void,
     handleDeleteSubExpression: () => void,
     isPreview?: boolean;
-    width?: string
+    first?: boolean
 }
 const SubExpressionElement = (props: ConditionElementProps) => {
     const [newWizardState, setNewWizardState] = useState<{ show: boolean, onClose: (savedState?: WizardState) => void }>({ show: false, onClose: () => 0 })
@@ -164,12 +166,12 @@ const SubExpressionElement = (props: ConditionElementProps) => {
         });
     }
 
-    function backgroundColor(boolVal: "or" | "and") { return boolVal === "or" ? "white" : "lightgrey"}
+    function backgroundColor(boolVal: "or" | "and") { return props.first && expressionTrimmed.subExpr.length === 1 ? 'white' : (boolVal === "or" ? "white" : "lightgrey")}
     return (
         <>
             {expressionTrimmed.subExpr.length === 0 ? null :
                 <Card style={{ backgroundColor: backgroundColor(expressionTrimmed.subExprBool), borderWidth: "2px", borderColor: 'var(--sage-dark-purple)',
-                        width: `${props.width ?? '100%'}`, marginLeft: 'unset', marginBottom: '1rem' }}>
+                        width: `${props.first ? '100%' : '90%'}`, marginLeft: 'unset', marginBottom: '1rem' }}>
                     <Card.Body >
                         {
                             expressionTrimmed.subExpr.map((expr, exprIdx) => {
@@ -205,7 +207,6 @@ const SubExpressionElement = (props: ConditionElementProps) => {
                                             handleEditSubExpression={(newExpr) => handleEditExpr(exprIdx, newExpr)}
                                             handleDeleteSubExpression={() => handleDelete(exprIdx)}
                                             isPreview={props.isPreview}
-                                            width='90%'
                                         />
                                     </>
                                     )
