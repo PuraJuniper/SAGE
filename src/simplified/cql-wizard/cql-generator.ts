@@ -185,13 +185,19 @@ function generateCqlFromSubExpression(subExpressionId: string, subExpression: Su
                                 case DateFilterType.None:
                                     return null;
                                 case DateFilterType.After:
-                                    return `R.${filter.elementName} after day of Date(${dateFilter.filterProps.absoluteDate1?.year()}, ${dateFilter.filterProps.absoluteDate1?.month()}, ${dateFilter.filterProps.absoluteDate1?.date()})`;
+                                    return dateFilter.filterProps.absoluteDate1 === null ?
+                                        null :
+                                        `R.${filter.elementName} after day of Date(${dateFilter.filterProps.absoluteDate1.year()}, ${dateFilter.filterProps.absoluteDate1.month() + 1}, ${dateFilter.filterProps.absoluteDate1.date()})`;
                                 case DateFilterType.Before:
-                                    return `R.${filter.elementName} before day of Date(${dateFilter.filterProps.absoluteDate1?.year()}, ${dateFilter.filterProps.absoluteDate1?.month()}, ${dateFilter.filterProps.absoluteDate1?.date()})`;
+                                    return dateFilter.filterProps.absoluteDate1 === null ?
+                                        null :
+                                        `R.${filter.elementName} before day of Date(${dateFilter.filterProps.absoluteDate1.year()}, ${dateFilter.filterProps.absoluteDate1.month() + 1}, ${dateFilter.filterProps.absoluteDate1.date()})`;
                                 case DateFilterType.Between:
-                                    return (
-    `R.${filter.elementName} included in day of Interval[DateTime(${dateFilter.filterProps.absoluteDate1?.year()}, ${dateFilter.filterProps.absoluteDate1?.month()}, ${dateFilter.filterProps.absoluteDate1?.date()}), DateTime(${dateFilter.filterProps.absoluteDate2?.year()}, ${dateFilter.filterProps.absoluteDate2?.month()}, ${dateFilter.filterProps.absoluteDate2?.date()})]`
-                                    )
+                                    return dateFilter.filterProps.absoluteDate1 === null || dateFilter.filterProps.absoluteDate2 === null ? 
+                                        null :
+                                        (
+    `R.${filter.elementName} included in day of Interval[DateTime(${dateFilter.filterProps.absoluteDate1.year()}, ${dateFilter.filterProps.absoluteDate1.month() + 1}, ${dateFilter.filterProps.absoluteDate1.date()}), DateTime(${dateFilter.filterProps.absoluteDate2.year()}, ${dateFilter.filterProps.absoluteDate2.month() + 1}, ${dateFilter.filterProps.absoluteDate2.date()})]`
+                                        )
                                 case DateFilterType.OlderThan:
                                 case DateFilterType.YoungerThan: {
                                     let cqlUnit = null;
@@ -367,7 +373,7 @@ function generateRelativeDateExpr(unit: RelativeDateUnit, amount: number, relati
  * Generates CQL expression: "{function}", where {function} is the constructor for a date object http://cql.hl7.org/02-authorsguide.html#constructing-datetime-values
  */ 
 function generateAbsoluteDateExpr(date: Moment) {
-    return `Date(${date.year()}, ${date.month()}, ${date.date()})`;
+    return `Date(${date.year()}, ${date.month() + 1}, ${date.date()})`;
 }
 
 let uniqueIdCount = 0;
