@@ -84,7 +84,7 @@ export const ConditionEditor = (props: ConditionEditorProps) => {
                                         conditionId: `index-${SchemaUtils.getNextId()}`, // Need some unique id
                                         expr: {
                                             subExpr: [createNewWizExpression(savedState)],
-                                            subExprBool: "and",
+                                            subExprBool: "or",
                                         }
                                     };
                                     const newCondition: PlanDefinitionActionCondition = {
@@ -166,7 +166,7 @@ const SubExpressionElement = (props: ConditionElementProps) => {
         });
     }
 
-    function backgroundColor(boolVal: "or" | "and") { return props.first && expressionTrimmed.subExpr.length === 1 ? 'white' : (boolVal === "or" ? "white" : "lightgrey")}
+    function backgroundColor(boolVal: "or" | "and") { return boolVal === "or" ? "white" : "lightgrey"}
     return (
         <>
             {expressionTrimmed.subExpr.length === 0 ? null :
@@ -200,7 +200,7 @@ const SubExpressionElement = (props: ConditionElementProps) => {
                                     )
                                 } else {
                                     return (<>
-                                        {exprIdx > 0 ? exprTitle(expr.subExprBool.toUpperCase(), expr.subExprBool): null}
+                                        {exprIdx > 0 ? exprTitle(expressionTrimmed.subExprBool.toUpperCase(), expr.subExprBool): null}
                                         <SubExpressionElement
                                             key={expr.subExpr.toString()}
                                             subExpression={expr}
@@ -267,12 +267,12 @@ const WizardExpression = (props: WizardExpressionProps) => {
                 </svg> */}
                 {friendlyWizardExpression()}
                 {props.isPreview ? null : <>
-                    <Container style={{textAlign: 'right'}}>
+                    <Container>
                         {props.booleanConditionalButton}
-                        <Button onClick={() => setShowWiz(true)}>
+                        <Button style={{margin: '0.25rem'}} onClick={() => setShowWiz(true)}>
                             <FontAwesomeIcon icon={faPenToSquare} /> Edit
                         </Button>
-                        <Button onClick={props.handleDeleteExpression}>
+                        <Button style={{margin: '0.25rem'}} onClick={props.handleDeleteExpression}>
                             <FontAwesomeIcon icon={faTrash} /> Delete
                         </Button>
                     </Container>
@@ -341,7 +341,7 @@ function newBooleanButton(isPreview: boolean | undefined,
     setNewWizardState: React.Dispatch<React.SetStateAction<{ show: boolean; onClose: (savedState?: WizardState | undefined) => void; }>>,
     handleWizEditExpr: (savedState: WizardState) => void, buttonText: string) {
     return isPreview ? null :
-        <Button
+        <Button style={{margin: '0.25rem'}}
             onClick={() => {
                 setNewWizardState({
                     show: true,
