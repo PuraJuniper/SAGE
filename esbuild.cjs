@@ -19,6 +19,7 @@ require('esbuild').build({
     sourcemap: true,
     loader: {
         '.js': 'jsx',
+        '.png': 'file'
     },
     define: {
         ...envVars,

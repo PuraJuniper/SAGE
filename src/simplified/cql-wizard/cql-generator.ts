@@ -1,6 +1,12 @@
+/**
+ * Generates CQL following the syntax described at cql.hl7.org/19-l-cqlsyntaxdiagrams.html
+ * Any comments in this file with "{some identifier}" refers to the diagram for "some identifier" at the link above
+*/
+
 import axios, { AxiosRequestConfig } from "axios";
+import { Moment } from "moment";
 import { AggregateType, EditableCondition, SubExpression } from "./conditionEditor";
-import { ElementFilter, CodeFilterType, DateFilterType, CodingFilter, DateFilter, RelativeDateUnit, FilterTypeCode, MultitypeFilter } from "./wizardLogic";
+import { ElementFilter, CodeFilterType, DateFilterType, CodingFilter, DateFilter, RelativeDateUnit, FilterTypeCode, MultitypeFilter, PeriodFilter, PeriodDateFilterType, PeriodDateType, RelativeDate } from "./wizardLogic";
 
 interface CqlDefinition {
     identifier: string, // identifier to reference this definition elsewhere in the CQL file
@@ -179,13 +185,19 @@ function generateCqlFromSubExpression(subExpressionId: string, subExpression: Su
                                 case DateFilterType.None:
                                     return null;
                                 case DateFilterType.After:
-                                    return `R.${filter.elementName} after day of Date(${dateFilter.filterProps.absoluteDate1?.year()}, ${dateFilter.filterProps.absoluteDate1?.month()}, ${dateFilter.filterProps.absoluteDate1?.day()})`;
+                                    return dateFilter.filterProps.absoluteDate1 === null ?
+                                        null :
+                                        `R.${filter.elementName} after day of Date(${dateFilter.filterProps.absoluteDate1.year()}, ${dateFilter.filterProps.absoluteDate1.month() + 1}, ${dateFilter.filterProps.absoluteDate1.date()})`;
                                 case DateFilterType.Before:
-                                    return `R.${filter.elementName} before day of Date(${dateFilter.filterProps.absoluteDate1?.year()}, ${dateFilter.filterProps.absoluteDate1?.month()}, ${dateFilter.filterProps.absoluteDate1?.day()})`;
+                                    return dateFilter.filterProps.absoluteDate1 === null ?
+                                        null :
+                                        `R.${filter.elementName} before day of Date(${dateFilter.filterProps.absoluteDate1.year()}, ${dateFilter.filterProps.absoluteDate1.month() + 1}, ${dateFilter.filterProps.absoluteDate1.date()})`;
                                 case DateFilterType.Between:
-                                    return (
-    `R.${filter.elementName} included in day of Interval[DateTime(${dateFilter.filterProps.absoluteDate1?.year()}, ${dateFilter.filterProps.absoluteDate1?.month()}, ${dateFilter.filterProps.absoluteDate1?.day()}), DateTime(${dateFilter.filterProps.absoluteDate2?.year()}, ${dateFilter.filterProps.absoluteDate2?.month()}, ${dateFilter.filterProps.absoluteDate2?.day()})]`
-                                    )
+                                    return dateFilter.filterProps.absoluteDate1 === null || dateFilter.filterProps.absoluteDate2 === null ? 
+                                        null :
+                                        (
+    `R.${filter.elementName} included in day of Interval[DateTime(${dateFilter.filterProps.absoluteDate1.year()}, ${dateFilter.filterProps.absoluteDate1.month() + 1}, ${dateFilter.filterProps.absoluteDate1.date()}), DateTime(${dateFilter.filterProps.absoluteDate2.year()}, ${dateFilter.filterProps.absoluteDate2.month() + 1}, ${dateFilter.filterProps.absoluteDate2.date()})]`
+                                        )
                                 case DateFilterType.OlderThan:
                                 case DateFilterType.YoungerThan: {
                                     let cqlUnit = null;
@@ -216,8 +228,39 @@ function generateCqlFromSubExpression(subExpressionId: string, subExpression: Su
                             }
                         }
 
-                        case FilterTypeCode.Period:
-                            return null;
+                        case FilterTypeCode.Period: {
+                            /**
+                             * Generates CQL expressions of syntax:
+                             *  {expression} {intervalOperatorPhrase} {expression}
+                             * The first {expression} is the filtered Period element ("interval" in CQL), 
+                             *  the {intervalOperatorPhrase} is a {beforeOrAfterIntervalOperatorPhrase},
+                             *  and the second {expression} is a single Date to compare against
+                             */
+                            const periodFilter = filter.filter as PeriodFilter;
+                            let filterExpression = null;
+
+                            if (periodFilter.filterProps.startDateType !== PeriodDateFilterType.None && periodFilter.filterProps.startDate !== null) {
+                                const dateExpr = periodFilter.filterProps.dateType === PeriodDateType.Absolute ?
+                                    generateAbsoluteDateExpr(periodFilter.filterProps.startDate) :
+                                    generateRelativeDateExpr(periodFilter.filterProps.startDate.unit, periodFilter.filterProps.startDate.amount, periodFilter.filterProps.startDateType === PeriodDateFilterType.Before ? "before" : "after");
+                                filterExpression = `R.${filter.elementName} starts ${periodFilter.filterProps.startDateType === PeriodDateFilterType.Before ? "before" : "after"} ${dateExpr}`
+                            }
+
+                            if (periodFilter.filterProps.endDateType !== PeriodDateFilterType.None && periodFilter.filterProps.endDate !== null) {
+                                const dateExpr = periodFilter.filterProps.dateType === PeriodDateType.Absolute ?
+                                    generateAbsoluteDateExpr(periodFilter.filterProps.endDate) :
+                                    generateRelativeDateExpr(periodFilter.filterProps.endDate.unit, periodFilter.filterProps.endDate.amount, periodFilter.filterProps.endDateType === PeriodDateFilterType.Before ? "before" : "after");
+                                const endFilterExpression = `R.${filter.elementName} ends ${periodFilter.filterProps.endDateType === PeriodDateFilterType.Before ? "before" : "after"} ${dateExpr}`;
+                                if (filterExpression === null) {
+                                    filterExpression = endFilterExpression
+                                }
+                                else {
+                                    filterExpression += ` and ${endFilterExpression}`
+                                }
+                            }
+
+                            return filterExpression;
+                        }
 
                         case FilterTypeCode.Boolean:
                             return `R.${filter.elementName} is ${filter.filter.filterProps.filterType === true ? 'true' : 'false'}`; // Avoiding the slim chance that some browser prints true as 'True' or something
@@ -294,13 +337,48 @@ define "${subExprId}":
     }
     const subExprDef = `
 ${Array.from(subExprDefinitions.values()).map(exprDef=>exprDef.definition).join('\n')}
-define ${subExpressionId}:
+define "${subExpressionId}":
     ${Array.from(subExprDefinitions.keys()).join(subExpression.subExprBool === 'and' ? ' and ' : ' or ')}
 `
     return {
         identifier: subExpressionId,
         definition: subExprDef
     };
+}
+
+/**
+ * Generates CQL expression: "(Now() {relationSymbol} {quantity})", where {relationSymbol} is "-" if `relation` === "before", or "+" otherwise
+ */
+function generateRelativeDateExpr(unit: RelativeDateUnit, amount: number, relation: "before" | "after") {
+    let cqlUnit: string;
+    switch (unit) {
+        case RelativeDateUnit.Minutes:
+            cqlUnit = "minute";
+            break;
+        case RelativeDateUnit.Hours:
+            cqlUnit = "hour";
+            break;
+        case RelativeDateUnit.Days:
+            cqlUnit = "day";
+            break;
+        case RelativeDateUnit.Weeks:
+            cqlUnit = "week";
+            break;
+        case RelativeDateUnit.Months:
+            cqlUnit = "month";
+            break;
+        case RelativeDateUnit.Years:
+            cqlUnit = "year";
+            break;
+    }
+    return `(Now() ${relation === "before" ? "-" : "+"} ${amount} ${cqlUnit})`;
+}
+
+/** 
+ * Generates CQL expression: "{function}", where {function} is the constructor for a date object http://cql.hl7.org/02-authorsguide.html#constructing-datetime-values
+ */ 
+function generateAbsoluteDateExpr(date: Moment) {
+    return `Date(${date.year()}, ${date.month() + 1}, ${date.date()})`;
 }
 
 let uniqueIdCount = 0;
