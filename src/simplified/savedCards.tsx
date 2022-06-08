@@ -15,11 +15,11 @@ import { CreateCardWorkflow } from './selectView';
 
 
 
-export const CardTabTitle = (text: string) => <Nav as={"header"} variant="tabs" defaultActiveKey="#disabled" style={{ borderBottom: "unset" }}>
-    <Nav.Item style={{ borderBottom: "white" }}>
+export const CardTabTitle = (text: string, backgroundColor: string) => <Nav as={"header"} variant="tabs" defaultActiveKey="#disabled" style={{borderBottomColor: "inherit", borderBottomWidth: "inherit"}}>
+    <Nav.Item style={{backgroundColor: backgroundColor, borderBottomColor: "inherit" }}>
         <Nav.Link href="#disabled" disabled style={{
             color: "var(--sage-dark-purple)", backgroundColor: "transparent", borderColor: "inherit",
-            borderBottomColor: "white", zIndex: "+1", marginBottom: "-2px",
+            borderBottomColor: "inherit", zIndex: "+1", marginBottom: "-2px", borderBottomWidth: "2px",
             position: "relative", borderBottomLeftRadius: "3px", borderWidth: "2px", borderTopLeftRadius: "15px", borderTopRightRadius: "15px"
         }}>
             {text}
@@ -70,8 +70,8 @@ const SavedCards = () => {
                     </Row>
                 </Col>
             </Row>
-            <Card style={{ borderStyle: "hidden", borderColor: "var(--sage-dark-purple)" }}>
-                {CardTabTitle(State.get().author.authorings[State.get().author.pos].CPGName)}
+            <Card style={{ borderStyle: "hidden", borderColor: "var(--sage-dark-purple)"}}>
+                <span style={{borderBottomColor: "white", borderBottomWidth:"2px"}}> {CardTabTitle(State.get().author.authorings[State.get().author.pos].CPGName, "white")}</span>
                 <Card.Body style={{ borderStyle: "solid", borderWidth: "2px", borderRadius: "25px", borderTopLeftRadius: "unset", borderColor: "inherit" }}>
                     <ListGroup>
                         <ListGroupItem style={{ borderStyle: "unset" }}>

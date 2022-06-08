@@ -257,20 +257,25 @@ function generateCqlFromSubExpression(subExpressionId: string, subExpression: Su
             }
             
             // Output filter (from the buttons on the the condition editor page)
+            const existsPrefix = `${subExpr.curWizState.exists ? '' : 'not '}exists(${innerResDef})`
             let resDefWrapped = null;
-            switch (subExpr.exprAggregate.aggregate) {
-                case AggregateType.Exists:
-                    resDefWrapped = `exists(${innerResDef})`
-                    break;
-                case AggregateType.DoesNotExist:
-                    resDefWrapped = `not exists(${innerResDef})`
-                    break;
-                case AggregateType.AtLeast:
-                    resDefWrapped = `Count(${innerResDef}) >= ${subExpr.exprAggregate.count ?? 1}`
-                    break;
-                case AggregateType.NoMoreThan:
-                    resDefWrapped = `Count(${innerResDef}) <= ${subExpr.exprAggregate.count ?? 1}`
-                    break;
+            if (subExpr.exprAggregate) {
+                switch (subExpr.exprAggregate.aggregate) {
+                    // case AggregateType.Exists:
+                    //     resDefWrapped = `exists(${innerResDef})`
+                    //     break;
+                    // case AggregateType.DoesNotExist:
+                    //     resDefWrapped = `not exists(${innerResDef})`
+                    //     break;
+                    case AggregateType.AtLeast:
+                        resDefWrapped = `${existsPrefix} and Count(${innerResDef}) >= ${subExpr.exprAggregate.count ?? 1}`
+                        break;
+                    case AggregateType.NoMoreThan:
+                        resDefWrapped = `${existsPrefix} and Count(${innerResDef}) <= ${subExpr.exprAggregate.count ?? 1}`
+                        break;
+                }    
+            } else {
+                resDefWrapped = existsPrefix
             }
             
             const subExprId = generateUniqueId();

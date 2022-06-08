@@ -33,17 +33,24 @@ export interface WizardState {
     page: WizardPage,
     pageStatus: { [key in WizardPage]: StepStatus },
     resType: string,
+    exists: boolean,
     codes: SageCoding[],
     filters: ElementFilter[],
     actionsDisabled: boolean,
 }
-export type WizardAction = ['changePage', WizardPage ] | ['selectExprType', string, ElementFilter[]] | ['setCodes', SageCoding[]] | ['setFilters', ElementFilter[]] | ['setState', WizardState] | ['disableActions'] | ['enableActions'];
+export type WizardAction = ['changePage', WizardPage ] | ['selectExprType', string, ElementFilter[]] | ['setCodes', SageCoding[]] | ['setFilters', ElementFilter[]] 
+            | ['setState', WizardState] | ['disableActions'] | ['enableActions'] | ['setExists', boolean];
 export function WizardReducer(prevWizState: WizardState, action: WizardAction): WizardState {
     // If some asynchronous action is being performed, use 'disableActions' and 'enableActions' to drop all events that occur before it is complete
     if (prevWizState.actionsDisabled && action[0] !== "enableActions") {
         return prevWizState;
     }
     switch(action[0]) {
+        case 'setExists':
+            return {
+                ...prevWizState,
+                exists: action[1]
+            }
         case 'disableActions':
             return {
                 ...prevWizState,
@@ -160,6 +167,7 @@ export function initFromState(state: WizardState | null): WizardState {
             resType: "",
             codes: [],
             filters: [],
+            exists: true,
             actionsDisabled: false,
         }
     }

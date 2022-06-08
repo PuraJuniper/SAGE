@@ -16,8 +16,6 @@ import { capitalizeWord } from "../nameHelpers";
  * Types required for the condition editor
  */
 export enum AggregateType {
-    Exists = "exists",
-    DoesNotExist = "doesNotExist",
     AtLeast = "atLeast",
     NoMoreThan = "noMoreThan"
 }
@@ -27,7 +25,7 @@ export interface WizExprAggregate {
 }
 export interface WizExpression {
     curWizState: WizardState,
-    exprAggregate: WizExprAggregate,
+    exprAggregate?: WizExprAggregate,
 }
 export interface SubExpression {
     subExpr: (WizExpression | SubExpression)[],
@@ -40,10 +38,7 @@ export interface EditableCondition {
 
 function createNewWizExpression(wizState: WizardState): WizExpression {
     return {
-        curWizState: wizState,
-        exprAggregate: {
-            aggregate: AggregateType.Exists
-        }
+        curWizState: wizState
     }
 }
 
@@ -168,23 +163,35 @@ const SubExpressionElement = (props: ConditionElementProps) => {
         });
     }
 
+    function backgroundColor(boolVal: "or" | "and") { return boolVal === "or" ? "white" : "lightgrey"}
     return (
         <>
             {expressionTrimmed.subExpr.length === 0 ? null :
-                <Card style={{ backgroundColor: expressionTrimmed.subExprBool === "or" ? "white" : "lightgrey", borderWidth: "2px", borderColor: 'var(--sage-dark-purple)' }}>
+                <Card style={{ backgroundColor: backgroundColor(expressionTrimmed.subExprBool), borderWidth: "2px", borderColor: 'var(--sage-dark-purple)' }}>
                     <Card.Body >
                         {
                             expressionTrimmed.subExpr.map((expr, exprIdx) => {
                                 if (isWizardExpression(expr)) {
                                     return (
                                         <>
-                                            {exprIdx > 0 ? CardTabTitle(expressionTrimmed.subExprBool.toUpperCase()) : null}
+                                            {exprIdx > 0 ?
+                                                <span style={{backgroundColor: backgroundColor(expressionTrimmed.subExprBool), borderBottomColor: backgroundColor(expressionTrimmed.subExprBool), borderBottomWidth: "0px" }}>
+                                                    {CardTabTitle(expressionTrimmed.subExprBool.toUpperCase() + (expr.curWizState.exists ? '' : ' NOT'), backgroundColor(expressionTrimmed.subExprBool))}
+                                                </span>
+                                                : expr.curWizState.exists ? null :
+                                                    <span style={{backgroundColor: backgroundColor(expressionTrimmed.subExprBool), borderBottomColor: backgroundColor(expressionTrimmed.subExprBool), borderBottomWidth: "0px" }}>
+                                                        {CardTabTitle('NOT', backgroundColor(expressionTrimmed.subExprBool))}
+                                                    </span>}
                                             {wizExpressionWithConditional(expr, handleEditExpr, exprIdx, handleDelete, props.isPreview, expressionTrimmed, setNewWizardState)}
                                         </>
                                     )
                                 } else {
                                     return (<>
-                                        {exprIdx > 0 ? CardTabTitle(expr.subExprBool.toUpperCase()) : null}
+                                        {exprIdx > 0 ?
+                                            <span style={{ backgroundColor: backgroundColor(expr.subExprBool), borderBottomColor: backgroundColor(expr.subExprBool), borderBottomWidth: "0px" }}>
+                                                {CardTabTitle(expr.subExprBool.toUpperCase(), backgroundColor(expr.subExprBool))}
+                                            </span>
+                                            : null}
                                         <SubExpressionElement
                                             key={expr.subExpr.toString()}
                                             subExpression={expr}
