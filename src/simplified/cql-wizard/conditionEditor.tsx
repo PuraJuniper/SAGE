@@ -266,9 +266,6 @@ const WizardExpression = (props: WizardExpressionProps) => {
                 }}
             />
             <Container style={{ borderStyle: 'solid', borderWidth: "2px", borderColor: 'var(--sage-dark-purple)', width: '90%', marginLeft: 'unset', backgroundColor: backgroundColor(props.subExpr.subExprBool)}}>
-                {/* <svg height="20px" width="20px" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                    <line x1="0" y1="50" x2="100" y2="50" stroke="black" />
-                </svg> */}
                 {friendlyWizardExpression()}
                 {props.isPreview ? null : <>
                     <Container>
