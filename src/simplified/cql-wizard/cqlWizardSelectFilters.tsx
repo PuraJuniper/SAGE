@@ -1,6 +1,6 @@
 import React, { Dispatch, useEffect, useState } from "react";
 import { BooleanFilter, CodeFilterType, CodingFilter, DateFilter, DateFilterType, PeriodFilter, PeriodDateFilterType, RelativeDateUnit, WizardAction, WizardState, PeriodDateType, PeriodDateFilter, FilterTypeCode, MultitypeFilter, BooleanFilterType, instanceOfRelativeDate as instanceOfRelativeDateOrNull, RelativeDate } from './wizardLogic';
-import { ToggleButtonGroup, ToggleButton, Card, Form, Container, InputGroup, FormControl, DropdownButton, Dropdown, ButtonGroup, ButtonToolbar, Col } from 'react-bootstrap';
+import { ToggleButtonGroup, ToggleButton, Card, Form, Container, InputGroup, FormControl, DropdownButton, Dropdown, ButtonGroup, ButtonToolbar, Col, Alert } from 'react-bootstrap';
 import { ElementFilter } from './wizardLogic';
 import 'react-dates/initialize';
 import { DateRangePicker, SingleDatePicker, DayPickerRangeController } from 'react-dates';
@@ -305,7 +305,7 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
         return self.indexOf(value) === index;
     }
     function cardinalityButtonGroup(buttonGroupName: string, buttons: { name: string; value: string; }[], btnVariant: (idx: number) => string, buttonValue: { toggleState: string; value?: number; },
-        onEnable: (e: React.ChangeEvent<HTMLInputElement>) => void, toggleConditionEnable?: string, defaultCardinality?: number, onChangeCardinality?: (e: any) => void, cardinalityMin?: number) {
+        onEnable: (e: React.ChangeEvent<HTMLInputElement>) => void, toggleConditionEnable?: string, defaultCardinality?: number, onChangeCardinality?: (e: any) => void, cardinalityMin?: number, isError?: boolean) {
         const openCardinalitySelector = (): React.ReactElement<any> | undefined => {
             if (onChangeCardinality) {
                 if (buttonValue.toggleState == toggleConditionEnable) {
@@ -345,6 +345,11 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
                     {openCardinalitySelector()}
                 </ButtonGroup>
             </Col>
+            {isError !== null && isError ? 
+                <Col>
+                    <Alert key='danger' variant='danger'>{"Can't have a minimum greater than a maximum!"}</Alert>
+                </Col>
+            : null}
         </Card>;
     }
 
@@ -393,7 +398,8 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
                     'noMoreThanOn',
                     props.wizState.noMoreThan ?? 0,
                     (e: any) => props.wizDispatch(["setNoMoreThan", {atLeast: props.wizState.atLeast, noMoreThan: convertFormInputToNumber(e.currentTarget.value)}]),
-                    atLeast.value)
+                    atLeast.value,
+                    props.wizState.atLeast !== null && props.wizState.noMoreThan !== null && props.wizState.atLeast > props.wizState.noMoreThan)
                 }
                 <Card>
                     <Card.Body>
