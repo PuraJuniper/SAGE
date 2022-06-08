@@ -4,6 +4,7 @@ import { getConceptsOfValueSet, SageCodeConcept, SimplifiedProfiles } from "../.
 import { Coding, PlanDefinitionActionCondition } from "fhir/r4";
 import { EditableCondition } from "./conditionEditor";
 import _ from "lodash";
+import { CONDITION, PATIENT } from "../nameHelpers";
 
 // Pages of the wizard
 export enum WizardPage {
@@ -34,12 +35,15 @@ export interface WizardState {
     pageStatus: { [key in WizardPage]: StepStatus },
     resType: string,
     exists: boolean,
+    atLeast: number | null,
+    noMoreThan: number | null,
     codes: SageCoding[],
     filters: ElementFilter[],
     actionsDisabled: boolean,
 }
 export type WizardAction = ['changePage', WizardPage ] | ['selectExprType', string, ElementFilter[]] | ['setCodes', SageCoding[]] | ['setFilters', ElementFilter[]] 
-            | ['setState', WizardState] | ['disableActions'] | ['enableActions'] | ['setExists', boolean];
+            | ['setState', WizardState] | ['disableActions'] | ['enableActions'] | ['setExists', boolean] 
+            | ['setAtLeast', {atLeast: number | null, noMoreThan: number | null}] | ['setNoMoreThan', {atLeast: number | null, noMoreThan: number | null}];
 export function WizardReducer(prevWizState: WizardState, action: WizardAction): WizardState {
     // If some asynchronous action is being performed, use 'disableActions' and 'enableActions' to drop all events that occur before it is complete
     if (prevWizState.actionsDisabled && action[0] !== "enableActions") {
@@ -47,9 +51,37 @@ export function WizardReducer(prevWizState: WizardState, action: WizardAction): 
     }
     switch(action[0]) {
         case 'setExists':
+            {
             return {
                 ...prevWizState,
                 exists: action[1]
+            }        
+        }
+        case 'setAtLeast':
+            {
+            const newPageStatus = {
+                ...prevWizState.pageStatus,
+                [WizardPage.SelectCodes]: action[1].atLeast === null || action[1].noMoreThan === null ? StepStatus.Complete 
+                    : action[1].atLeast > action[1].noMoreThan ? StepStatus.Incomplete : StepStatus.Complete,
+            }
+            return {
+                ...prevWizState,
+                pageStatus: newPageStatus,
+                atLeast: action[1].atLeast
+            }
+        }
+        case 'setNoMoreThan':
+            {
+                const newPageStatus = {
+                    ...prevWizState.pageStatus,
+                    [WizardPage.SelectCodes]: action[1].atLeast === null || action[1].noMoreThan === null ? StepStatus.Complete 
+                        : action[1].atLeast > action[1].noMoreThan ? StepStatus.Incomplete : StepStatus.Complete,
+                }
+            return {
+                ...prevWizState,
+                pageStatus: newPageStatus,
+                noMoreThan: action[1].noMoreThan
+            }
             }
         case 'disableActions':
             return {
@@ -91,7 +123,7 @@ export function WizardReducer(prevWizState: WizardState, action: WizardAction): 
                 newPageStatus[WizardPage.SelectCodes] = newCodes.length === 0 ? StepStatus.Incomplete : StepStatus.Complete;
 
                 // Skip code selection if we're filtering for Patient
-                if (['Patient'].includes(action[1])) {
+                if ([PATIENT].includes(action[1])) {
                     newPageStatus[WizardPage.SelectCodes] = StepStatus.Skipped;
                     newPage = WizardPage.SelectFilters;
                 }
@@ -168,6 +200,8 @@ export function initFromState(state: WizardState | null): WizardState {
             codes: [],
             filters: [],
             exists: true,
+            atLeast: null,
+            noMoreThan: null,
             actionsDisabled: false,
         }
     }
@@ -490,7 +524,7 @@ export async function createExpectedFiltersForResType(resType: string): Promise<
              'reaction.severity', 'reaction.onset', 'reaction.substance', 'reaction.exposureRoute'];
             url = "http://hl7.org/fhir/StructureDefinition/AllergyIntolerance"; // temporary
             break;
-        case "Condition":
+        case CONDITION:
             expectedElements = ['clinicalStatus', 'verificationStatus', 'category', 'onset[x]', 'abatement[x]', 'recordedDate', 'stage.summary','stage.type']
             url = "http://hl7.org/fhir/StructureDefinition/Condition"
             break;
@@ -518,9 +552,9 @@ export async function createExpectedFiltersForResType(resType: string): Promise<
             expectedElements = ['status', 'intent', 'category', 'priority', 'doNotPerform', 'occurrence[x]', 'authoredOn']
             url = "http://hl7.org/fhir/StructureDefinition/ServiceRequest"
             break;
-        case "Patient":
+        case PATIENT:
             expectedElements = ['birthDate','gender'];
-            schemaResType = "Patient";
+            schemaResType = PATIENT;
             url = "http://hl7.org/fhir/StructureDefinition/Patient";
             break;
     }
@@ -536,7 +570,7 @@ export const memoizedCreateExpectedFiltersForResType = _.memoize(createExpectedF
 
 // Should be rewritten to use friendly-names
 export function getSelectableResourceTypes() {
-    return ['AllergyIntolerance', 'Condition', 'Device', 'Encounter', 'Immunization', 'MedicationStatement', 'MedicationRequest', 'Observation', 'Procedure', 'ServiceRequest', 'Patient']
+    return ['AllergyIntolerance', CONDITION, 'Device', 'Encounter', 'Immunization', 'MedicationStatement', 'MedicationRequest', 'Observation', 'Procedure', 'ServiceRequest', PATIENT]
 }
 
 export function getNextPage(curPage: WizardPage, stepStatus: WizardState["pageStatus"]): [true, WizardPage | null] | [false, WizardPage | null] {

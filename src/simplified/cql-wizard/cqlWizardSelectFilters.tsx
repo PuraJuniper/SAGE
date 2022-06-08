@@ -1,6 +1,6 @@
 import React, { Dispatch, useEffect, useState } from "react";
 import { BooleanFilter, CodeFilterType, CodingFilter, DateFilter, DateFilterType, PeriodFilter, PeriodDateFilterType, RelativeDateUnit, WizardAction, WizardState, PeriodDateType, PeriodDateFilter, FilterTypeCode, MultitypeFilter, BooleanFilterType, instanceOfRelativeDate as instanceOfRelativeDateOrNull, RelativeDate } from './wizardLogic';
-import { ToggleButtonGroup, ToggleButton, Card, Form, Container, InputGroup, FormControl, DropdownButton, Dropdown, ButtonGroup, ButtonToolbar, Col } from 'react-bootstrap';
+import { ToggleButtonGroup, ToggleButton, Card, Form, Container, InputGroup, FormControl, DropdownButton, Dropdown, ButtonGroup, ButtonToolbar, Col, Alert } from 'react-bootstrap';
 import { ElementFilter } from './wizardLogic';
 import 'react-dates/initialize';
 import { DateRangePicker, SingleDatePicker, DayPickerRangeController } from 'react-dates';
@@ -10,6 +10,7 @@ import './react-dates-overrides.css';
 import moment, { Moment } from 'moment';
 import Select, { ActionMeta, InputActionMeta, SingleValue } from "react-select";
 import { CqlWizardSelectCodes } from "./cqlWizardSelectCodes";
+import { CONDITION, PATIENT } from "../nameHelpers";
 
 interface CqlWizardSelectFiltersProps {
     wizDispatch: Dispatch<WizardAction>,
@@ -304,39 +305,103 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
     function onlyUnique(value: any, index: any, self: string | any[]) {
         return self.indexOf(value) === index;
     }
+    function cardinalityButtonGroup(buttonGroupName: string, buttons: { name: string; value?: toggleState;}[], btnVariant: (idx: number) => string, buttonValue: { toggleState: toggleState; value?: number; },
+        onEnable: (e: React.ChangeEvent<HTMLInputElement>) => void, defaultCardinality?: number, onChangeCardinality?: (e: any) => void, isError?: boolean) {
+        const openCardinalitySelector = (): React.ReactElement<any> | undefined => {
+            if (onChangeCardinality) {
+                if (buttonValue.toggleState === toggleState.enabled) {
+                    return <Form>
+                        <Form.Control
+                            id={toggleState.enabled.toString()}
+                            placeholder="Instances"
+                            type="number"
+                            defaultValue={defaultCardinality}
+                            min={0}
+                            onChange={e => onChangeCardinality(e)} />
+                    </Form>;
+                } else {
+                    return undefined;
+                }
+            } else {
+                return undefined;
+            }
+        }
+        return <Card style={{ borderStyle: 'None' }}>
+            <Col md='6'>
+                <ButtonGroup id={buttonGroupName} key={buttonGroupName}>
+                    {buttons
+                        .map((btnRadio, idx) => (
+                            <ToggleButton
+                                key={idx}
+                                id={`radio-${buttonGroupName}-${idx}`}
+                                type={buttonGroupName === 'exists' ? 'radio' : 'checkbox'}
+                                variant={btnVariant(idx)}
+                                value={btnRadio.value ?? buttonValue.toggleState}
+                                checked={btnRadio.value !== undefined ? buttonValue.toggleState === btnRadio.value : buttonValue.toggleState === toggleState.enabled}
+                                onChange={e => onEnable(e)}
+                            >
+                                {btnRadio.name}
+                            </ToggleButton>
+                        ))}
+                    {openCardinalitySelector()}
+                </ButtonGroup>
+            </Col>
+            {isError !== null && isError ? 
+                <Col>
+                    <Alert key='danger' variant='danger'>{"Can't have a minimum greater than a maximum!"}</Alert>
+                </Col>
+            : null}
+        </Card>;
+    }
 
     const allParentsAndChildren = props.wizState.filters.filter(containsSubResource);
     const onlyParents = allParentsAndChildren.map(getParent).filter(onlyUnique)
     const noParents = props.wizState.filters.filter(filter => !allParentsAndChildren.includes(filter))
 
-    const [existsValue, setExistsValue] = useState(props.wizState.exists ? '1' : '2');
+    enum toggleState {enabled, disabled}
+    const [existsValue, setExistsValue] = useState({ toggleState: props.wizState.exists ? toggleState.enabled : toggleState.disabled });
+    const [atLeast, setAtLeast] = useState({toggleState: props.wizState.atLeast ? toggleState.enabled : toggleState.disabled, value: props.wizState.atLeast ?? 0});
+    const [noMoreThan, setNoMoreThan] = useState({toggleState: props.wizState.noMoreThan ? toggleState.enabled : toggleState.disabled, value: props.wizState.noMoreThan ?? 0});
+    function includeCardinality(resType: string): boolean { 
+        return ![PATIENT, CONDITION].includes(resType)
+    }
     return (
         <>
             <div className="cql-wizard-select-filters-grid mt-2">
-                <Card style={{borderStyle: 'None'}}>
-                    <Col md='4'>
-                        <ButtonGroup>
-                            {[{ name: 'Should Exist', value: '1'}, { name: 'Should Not Exist', value: '2'}]
-                                .map((radio, idx) => (
-                                    <ToggleButton
-                                        key={idx}
-                                        id={`radio-${idx}`}
-                                        type="radio"
-                                        variant={idx % 2 ? 'outline-danger' : 'outline-success'}
-                                        name="radio"
-                                        value={radio.value}
-                                        checked={existsValue === radio.value}
-                                        onChange={e => {
-                                            props.wizDispatch(["setExists", e.currentTarget.value === '1']);
-                                            setExistsValue(e.currentTarget.value)
-                                        }}
-                                    >
-                                        {radio.name}
-                                    </ToggleButton>
-                                ))}
-                        </ButtonGroup>
-                    </Col>
-                </Card>
+                {cardinalityButtonGroup(
+                    'exists',
+                    [{ name: 'Should Exist', value: toggleState.enabled }, { name: 'Should Not Exist', value: toggleState.disabled }],
+                    (curState: toggleState): string => { return curState === toggleState.disabled ? 'outline-danger' : 'outline-success' },
+                    existsValue,
+                    function (e: React.ChangeEvent<HTMLInputElement>) {
+                        setExistsValue({ toggleState: e.currentTarget.value === toggleState.enabled.toString() ? toggleState.enabled : toggleState.disabled })
+                        props.wizDispatch(["setExists", e.currentTarget.value === toggleState.enabled.toString()]);
+                    })}
+                {includeCardinality(props.wizState.resType) ? cardinalityButtonGroup(
+                    'atLeast',
+                    [{ name: 'At Least'}],
+                    (n) => 'outline-secondary',
+                    atLeast,
+                    function (e: React.ChangeEvent<HTMLInputElement>) {
+                            setAtLeast({ toggleState: e.currentTarget.value === toggleState.enabled.toString() ? toggleState.disabled : toggleState.enabled, value: props.wizState.atLeast ?? 0 });
+                            props.wizDispatch(["setAtLeast", {atLeast: !e.currentTarget.checked ? null : atLeast.value, noMoreThan: props.wizState.noMoreThan}]) 
+                    },
+                    props.wizState.atLeast ?? 0,
+                    (e: any) => props.wizDispatch(["setAtLeast", {atLeast: convertFormInputToNumber(e.currentTarget.value), noMoreThan: props.wizState.noMoreThan}]))
+                : null}
+                {includeCardinality(props.wizState.resType) ? cardinalityButtonGroup(
+                    'noMoreThan',
+                    [{ name: 'No More Than'}],
+                    (n) => 'outline-secondary',
+                    noMoreThan,
+                    function (e: React.ChangeEvent<HTMLInputElement>) {
+                        setNoMoreThan({ toggleState: e.currentTarget.value === toggleState.enabled.toString() ? toggleState.disabled : toggleState.enabled, value: props.wizState.noMoreThan ?? 0 });
+                        props.wizDispatch(["setNoMoreThan", {atLeast: props.wizState.atLeast, noMoreThan: !e.currentTarget.checked ? null : noMoreThan.value}]) 
+                    },
+                    props.wizState.noMoreThan ?? 0,
+                    (e: any) => props.wizDispatch(["setNoMoreThan", {atLeast: props.wizState.atLeast, noMoreThan: convertFormInputToNumber(e.currentTarget.value)}]),
+                    props.wizState.atLeast !== null && props.wizState.noMoreThan !== null && props.wizState.atLeast > props.wizState.noMoreThan)
+                : null}
                 <Card>
                     <Card.Body>
                         <Card.Title>
@@ -366,6 +431,8 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
         </>
     )
 }
+
+
 
 function checkDateFilterErrors(filter: DateFilter, filterType: DateFilterType): boolean {
     switch(filterType) {

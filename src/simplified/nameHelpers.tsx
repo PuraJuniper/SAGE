@@ -74,6 +74,7 @@ export const PATIENT = getType("Patient")
 export const DATA_ELEMENT = getType("DataElement");
 export const VALUE_SET = getType("ValueSet");
 export const STRUCTURE_DEFINITION = getType("StructureDefinition");
+export const CONDITION = getType("Condition")
 
 export function getFhirSelf(resourceParent: FriendlyResourceType[], resourceType: string) {
     return resourceParent.find(

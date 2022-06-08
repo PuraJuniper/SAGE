@@ -171,27 +171,32 @@ const SubExpressionElement = (props: ConditionElementProps) => {
                     <Card.Body >
                         {
                             expressionTrimmed.subExpr.map((expr, exprIdx) => {
+                                const exprTitle = (titleString: string, exprBool: 'and' | 'or') => <span style={{
+                                    backgroundColor: backgroundColor(exprBool),
+                                    borderBottomColor: backgroundColor(exprBool), borderBottomWidth: "0px"
+                                }}>
+                                    {CardTabTitle(titleString, backgroundColor(exprBool))}
+                                </span>;
+                                const cardinalityString = (state : WizardState) => {
+                                    const atLeast = state.atLeast === null ? '' : `At least ${state.atLeast}`
+                                    const noMoreThan = state.noMoreThan === null ? '' : `No more than ${state.noMoreThan}`
+                                    const conjunction = atLeast !== '' && noMoreThan !== '' ? ' and ' : '';
+                                    return `${atLeast}${conjunction}${noMoreThan}`;
+                                }
                                 if (isWizardExpression(expr)) {
                                     return (
                                         <>
-                                            {exprIdx > 0 ?
-                                                <span style={{backgroundColor: backgroundColor(expressionTrimmed.subExprBool), borderBottomColor: backgroundColor(expressionTrimmed.subExprBool), borderBottomWidth: "0px" }}>
-                                                    {CardTabTitle(expressionTrimmed.subExprBool.toUpperCase() + (expr.curWizState.exists ? '' : ' NOT'), backgroundColor(expressionTrimmed.subExprBool))}
-                                                </span>
-                                                : expr.curWizState.exists ? null :
-                                                    <span style={{backgroundColor: backgroundColor(expressionTrimmed.subExprBool), borderBottomColor: backgroundColor(expressionTrimmed.subExprBool), borderBottomWidth: "0px" }}>
-                                                        {CardTabTitle('NOT', backgroundColor(expressionTrimmed.subExprBool))}
-                                                    </span>}
+                                            {exprIdx > 0 ? 
+                                                exprTitle(`${expressionTrimmed.subExprBool.toUpperCase()} ${cardinalityString(expr.curWizState)}${expr.curWizState.exists ? '' : ' NOT'}`, expressionTrimmed.subExprBool)
+                                                : expr.curWizState.exists ?
+                                                    exprTitle(`${cardinalityString(expr.curWizState)}`, expressionTrimmed.subExprBool) 
+                                                    : exprTitle(`${cardinalityString(expr.curWizState)} NOT`, expressionTrimmed.subExprBool)}
                                             {wizExpressionWithConditional(expr, handleEditExpr, exprIdx, handleDelete, props.isPreview, expressionTrimmed, setNewWizardState)}
                                         </>
                                     )
                                 } else {
                                     return (<>
-                                        {exprIdx > 0 ?
-                                            <span style={{ backgroundColor: backgroundColor(expr.subExprBool), borderBottomColor: backgroundColor(expr.subExprBool), borderBottomWidth: "0px" }}>
-                                                {CardTabTitle(expr.subExprBool.toUpperCase(), backgroundColor(expr.subExprBool))}
-                                            </span>
-                                            : null}
+                                        {exprIdx > 0 ? exprTitle(expr.subExprBool.toUpperCase(), expr.subExprBool): null}
                                         <SubExpressionElement
                                             key={expr.subExpr.toString()}
                                             subExpression={expr}
