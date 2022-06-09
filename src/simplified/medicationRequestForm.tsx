@@ -329,16 +329,14 @@ function GetDosageUnits() : string[] {
 
 async function GetDosageSageCodings(): Promise<void>  {
     const [searchResults, setSearchResults] = useState<SageCoding[]>([]);
+    // , 'capsule', 'patch', 'mcg', 'gram', 'ml', 'mg'
+    const shortList = ['tablet'].reduce((acc, item) => item + ', ' + acc);
     if (!State.get().bioportal.doseUnitsIsRetrieved && dosageCodes.length == 0) {
        State.get().bioportal.set({doseUnitsIsRetrieved: true});
-        await Bioportal.searchForSNOMEDConcept('"Basic dose form (basic dose form)"')
-        .then(v => {
-            setSearchResults([...searchResults, ...v]);
-        })
-        await Bioportal.search('drug form', ['HL7'], 'concept')
-        .then(v => {
-            setSearchResults([...searchResults, ...v]);
-        })
+       await Bioportal.search(shortList, ['HL7', 'SNOMEDCT'], 'text', undefined, true)
+       .then(v => {
+           setSearchResults([...searchResults, ...v]);
+       })
     }
     dosageCodes.push(...searchResults)
 }
