@@ -329,14 +329,16 @@ function GetDosageUnits() : string[] {
 
 async function GetDosageSageCodings(): Promise<void>  {
     const [searchResults, setSearchResults] = useState<SageCoding[]>([]);
-    // , 'capsule', 'patch', 'mcg', 'gram', 'ml', 'mg'
-    const shortList = ['tablet'].reduce((acc, item) => item + ', ' + acc);
+    const shortList = ['tablet', 'capsule', 'patch', 'mcg', 'gram', 'ml', 'mg']
     if (!State.get().bioportal.doseUnitsIsRetrieved && dosageCodes.length == 0) {
        State.get().bioportal.set({doseUnitsIsRetrieved: true});
-       await Bioportal.search(shortList, ['HL7', 'SNOMEDCT'], 'text', undefined, true)
-       .then(v => {
-           setSearchResults([...searchResults, ...v]);
-       })
+       for (let i = 0; i < shortList.length; i++) {
+           const searchTerm = shortList[i]  
+            await Bioportal.search(searchTerm, ['HL7', 'SNOMEDCT'], 'text', undefined, true)
+            .then(v => {
+                setSearchResults([...searchResults, ...v]);
+            })
+       }
     }
     dosageCodes.push(...searchResults)
 }
