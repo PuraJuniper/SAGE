@@ -23,6 +23,9 @@ export default function App() {
         // Load necessary profiles, etc for SAGE to function
         State.emit("load_initial_json", "/profiles/cpg.json", "", false);
 
+        //Load bioportal responses
+        State.emit("pull_bioportal_results")
+
         return () => { State.get().ui.getListener().off('update', sageLoadingListener); }
     }, [])
 
@@ -52,6 +55,7 @@ export default function App() {
 
     // Return element based on mode
     const baseElement: JSX.Element = (() => {
+
         if (isSageLoading) { // (Still loading necessary data)
             return <div role="progressbar" aria-label="loading-symbol" className="spinner"><img src="../img/ajax-loader.gif" /></div>;
         }
@@ -75,3 +79,4 @@ export default function App() {
         </BrowserRouter>
     );
 }
+

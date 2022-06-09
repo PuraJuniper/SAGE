@@ -14,6 +14,9 @@ import { ACTIVITY_DEFINITION, PLAN_DEFINITION, QUESTIONNAIRE } from './simplifie
 import hypertensionLibraryJson from "../public/samples/hypertension-library.json";
 import * as cql from "cql-execution";
 import * as SageUtils from "./helpers/sage-utils";
+import * as Bioportal from './simplified/cql-wizard/bioportal';
+import { SageCoding } from './simplified/cql-wizard/wizardLogic';
+import { useState } from 'react';
 
 const canMoveNode = function(node: SageNodeInitialized, parent: SageNodeInitialized) {
 	if (!["objectArray", "valueArray"].includes(parent?.nodeType)) {
@@ -759,6 +762,21 @@ State.on("load_library", function(library, url, fhirLibrary) {
 		url: url,
 	});
 });
+
+State.on("pull_bioportal_results", async function GetDosageSageCodings(): Promise<void>  {
+    const shortList = ['tablet', 'capsule', 'patch', 'mcg', 'gram', 'ml', 'mg']
+    if (!State.get().bioportal.doseUnitsIsRetrieved && State.get().bioportal.doseUOMs.length == 0) {
+       State.get().bioportal.set({doseUnitsIsRetrieved: true});
+       for (let i = 0; i < shortList.length; i++) {
+           const searchTerm = shortList[i]  
+            await Bioportal.search(searchTerm, ['HL7', 'SNOMEDCT'], 'text', undefined, true)
+            .then(v => {
+                const firstResult = v[0];
+                State.get().bioportal.set({doseUOMs: [...State.get().bioportal.doseUOMs, firstResult].filter(res => res !== undefined)});
+            })
+       }
+    }
+})
 
 State.on("insert_resource_into_bundle", function(resource) {
 	bundleInsert(resource, false);

@@ -3,6 +3,7 @@ import { Library } from 'fhir/r4';
 import Freezer, { EventDict, FE, FreezerNode } from 'freezer-js';
 import { SageNewResource, SageNode, SageNodeInitialized, SimplifiedCodesystems, SimplifiedProfiles, SimplifiedValuesets } from './helpers/schema-utils';
 import Authoring, { AuthoringState } from './simplified/authoringInfo';
+import { SageCoding } from './simplified/cql-wizard/wizardLogic';
 
 export interface StateVars {
 	ui: {
@@ -57,7 +58,8 @@ export interface StateVars {
 	valuesets: SimplifiedValuesets,
 	codesystems: SimplifiedCodesystems,
 	bioportal: {
-		doseUnitsIsRetrieved: boolean
+		doseUnitsIsRetrieved: boolean,
+		doseUOMs: SageCoding[]
 	},
 	bioportalApikey?: string,
 }
@@ -112,6 +114,7 @@ export interface SageReactions {
 	"load_array_into": (nodeToWriteTo: SageNodeInitializedFreezerNode, jsonArray: any[]) => unknown;
 	"load_library": (library: cql.Library, url: string, fhirLibrary: Library) => unknown;
 	"insert_resource_into_bundle": (resource: SageNewResource) => void;
+	"pull_bioportal_results": () => void
 }
 
 const defaultStateVars: StateVars = {
@@ -164,7 +167,8 @@ const defaultStateVars: StateVars = {
 	valuesets: {},
 	codesystems: {},
 	bioportal: {
-		doseUnitsIsRetrieved: false
+		doseUnitsIsRetrieved: false,
+		doseUOMs: []
 	},
 	bioportalApikey: process.env.BIOPORTAL_APIKEY ?? undefined
 }
