@@ -323,22 +323,27 @@ function updateUnitNode(changedField: string, fieldValue: string, fieldHandlers:
 }
 
 function GetDosageUnits() : string[] {
-    return State.get().bioportal.doseUOMs.map(sc => sc.display);
+    if (!State.get().bioportal.doseUnitsIsRetrieved) {
+        State.emit("pull_bioportal_results")
+    }
+    return State.get().bioportal.doseUOMs.map(sc => sc.display).sort();
 }
 
-// export async function GetDosageSageCodings(): Promise<SageCoding[]>  {
-//     const [searchResults, setSearchResults] = useState<SageCoding[]>([]);
-//     const shortList = ['tablet', 'capsule', 'patch', 'mcg', 'gram', 'ml', 'mg']
-//     if (!State.get().bioportal.doseUnitsIsRetrieved && State.get().bioportal.doseUOMs.length == 0) {
-//        State.get().bioportal.set({doseUnitsIsRetrieved: true});
-//        for (let i = 0; i < shortList.length; i++) {
-//            const searchTerm = shortList[i]  
-//             await Bioportal.search(searchTerm, ['HL7', 'SNOMEDCT'], 'text', undefined, true)
-//             .then(v => {
-//                 const firstResult = v[0];
-//                 setSearchResults([...searchResults, firstResult].filter(res => res !== undefined));
-//             })
-//        }
-//     }
-//     return searchResults;
-// }
+export async function getDosageSageCodings(): Promise<void> {
+    const shortList: { name: string, notation: string }[] =
+        [{ name: 'tablet', notation: '732936001' },
+        { name: 'capsule', notation: '732937005' },
+        { name: 'patch', notation: '739003001' },
+        { name: 'mcg', notation: '258685003' },
+        { name: 'gram', notation: '258682000' },
+        { name: 'ml', notation: '258773002' },
+        { name: 'mg', notation: '258684004' }
+        ]
+    if (!State.get().bioportal.doseUnitsIsRetrieved && State.get().bioportal.doseUOMs.length == 0) {
+        State.get().bioportal.set({ doseUnitsIsRetrieved: true });
+        await Bioportal.search(shortList.map(item => item.notation).reduce((acc, code) => code + ' ' + acc), ['HL7', 'SNOMEDCT'], 'text', undefined)
+            .then(v => {
+                State.get().bioportal.set({ doseUOMs: [...State.get().bioportal.doseUOMs, ...v].filter(res => res !== undefined) });
+            })
+    }
+}

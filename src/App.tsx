@@ -23,9 +23,6 @@ export default function App() {
         // Load necessary profiles, etc for SAGE to function
         State.emit("load_initial_json", "/profiles/cpg.json", "", false);
 
-        //Load bioportal responses
-        State.emit("pull_bioportal_results")
-
         return () => { State.get().ui.getListener().off('update', sageLoadingListener); }
     }, [])
 
