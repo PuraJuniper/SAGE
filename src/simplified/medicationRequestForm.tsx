@@ -336,7 +336,8 @@ async function GetDosageSageCodings(): Promise<void>  {
            const searchTerm = shortList[i]  
             await Bioportal.search(searchTerm, ['HL7', 'SNOMEDCT'], 'text', undefined, true)
             .then(v => {
-                setSearchResults([...searchResults, ...v]);
+                const firstResult = v[0];
+                setSearchResults([...searchResults, firstResult].filter(res => res !== undefined));
             })
        }
     }
