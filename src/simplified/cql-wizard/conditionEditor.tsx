@@ -51,7 +51,8 @@ export const ConditionPreview = (props: ConditionEditorProps) => {
     const condition = findEditableCondition(props.pdConditions);
     return (
         <>
-            {condition === null ? null :
+        <Row className="mb-3"><Col style={{fontWeight: 'bold'}}>Conditions: </Col></Row>
+            {condition === null ?<>None</> :
                 <SubExpressionElement
                     subExpression={condition.expr}
                     handleEditSubExpression={function (newSubExpr: SubExpression): void {
