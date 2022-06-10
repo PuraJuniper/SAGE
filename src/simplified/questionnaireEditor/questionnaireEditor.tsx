@@ -125,6 +125,22 @@ export const QuestionnaireEditor = (props: QuestionnaireEditorProps) => {
         {title:"Page 3: Card Preview",	           text: "Review and Save"},
     ];
 
+    function iFrameLoaded() {
+        const questionnaireString = JSON.stringify(questionnaireResource.resource);
+        const schemeDisplayer = document.getElementById('schemeFrame');
+        if (schemeDisplayer) {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            schemeDisplayer.contentWindow.postMessage(
+                {
+                    questionnaireString: questionnaireString,
+                    language: 'en-GB',
+                    selectedReceiverEndpoint: '',
+                },
+                '*',
+            );
+        }
+    }
 
     console.log(questionnaireResource);
 
@@ -147,6 +163,18 @@ export const QuestionnaireEditor = (props: QuestionnaireEditorProps) => {
                         {questionnaireResource.model !== null ?
                             <Survey model={questionnaireResource.model} /> :
                             null}
+                        <iframe
+                            id="schemeFrame"
+                            style={{
+                                width: '100%',
+                                height: '70vh',
+                                padding: '20px',
+                                borderRadius: '2rem',
+                                background: '#f5f3f3',
+                            }}
+                            onLoad={iFrameLoaded}
+                            src="https://structor-for-sage.web.app/iframe/index.html"
+                        ></iframe>
                     </Card.Body>
                 </Card> :
                 null}
