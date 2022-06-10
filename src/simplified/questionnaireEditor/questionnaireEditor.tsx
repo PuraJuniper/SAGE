@@ -7,12 +7,6 @@ import { decorateFhirData, getChildOfNode, getChildOfNodePath, toFhir } from "..
 import State, { SageNodeInitializedFreezerNode } from "../../state";
 import { buttonSpacer, CardNav, stepProps } from '../outerCardForm';
 import StructorFrame, { StructorFrameRef } from "./structorFrame";
-import { Model, Survey, StylesManager, FunctionFactory, Serializer, SurveyModel } from "survey-react";
-import converter from 'questionnaire-to-survey';
-
-import 'survey-react/modern.min.css';
-StylesManager.applyTheme("modern");
-const reactConverter = converter(FunctionFactory, Model, Serializer, StylesManager);
 
 interface QuestionnaireEditorProps {
     planDefNode: SageNodeInitializedFreezerNode,
@@ -23,7 +17,7 @@ interface QuestionnaireEditorProps {
 }
 
 export const QuestionnaireEditor = (props: QuestionnaireEditorProps) => {
-    const [questionnaireResource, setQuestionnaireResource] = useState<{ resource: Questionnaire, model: SurveyModel | null }>(() => {
+    const [questionnaireResource, setQuestionnaireResource] = useState<Questionnaire>(() => {
         const initialQuestionnaire = toFhir(props.questionnareNode, false) as Questionnaire
         if (initialQuestionnaire.title === undefined) {
             initialQuestionnaire.title = "New Questionnaire"
@@ -31,17 +25,8 @@ export const QuestionnaireEditor = (props: QuestionnaireEditorProps) => {
         if (initialQuestionnaire.description === undefined) {
             initialQuestionnaire.description = "Sample Description";
         }
-        return genQuestionnaireResponseState(initialQuestionnaire);
+        return initialQuestionnaire;
     });
-
-    function genQuestionnaireResponseState(newQuestionnaire: Questionnaire) {
-        console.log(newQuestionnaire.item === undefined ? null : reactConverter(newQuestionnaire));
-        return {
-            resource: newQuestionnaire,
-            model: newQuestionnaire.item === undefined ? null : reactConverter(newQuestionnaire)
-        };
-    }
-
     const structorRef = useRef<StructorFrameRef>(null);
     const [step, setStep] = useState<number>(1);
 
@@ -51,23 +36,23 @@ export const QuestionnaireEditor = (props: QuestionnaireEditorProps) => {
     
     function handleQuestionnaireSaved(newQuestionnaire: Questionnaire) {
         console.log(newQuestionnaire);
-        setQuestionnaireResource(genQuestionnaireResponseState(newQuestionnaire));
+        setQuestionnaireResource(newQuestionnaire);
         setStep(curStep => curStep + 1);
         return true;
     }
 
     function handleSaveCard() {
-        const qSageNode = decorateFhirData(State.get().profiles, questionnaireResource.resource);
+        const qSageNode = decorateFhirData(State.get().profiles, questionnaireResource);
         if (!qSageNode) {
             console.log("Warning: Could not convert exported Questionnaire from Structor into SAGE")
         }
         else {
             props.questionnareNode.set(qSageNode);
             // Copy certain fields from the questionnaire
-            State.emit("value_change", getChildOfNode(props.planDefNode, "title"), `Use Questionnaire "${questionnaireResource.resource.title}"`, false);
-            State.emit("value_change", getChildOfNodePath(props.planDefNode, ["action", "title"]), `Use Questionnaire "${questionnaireResource.resource.title}"`, false);
-            State.emit("value_change", getChildOfNode(props.planDefNode, "description"), `Collect information using FHIR Questionnaire: ${questionnaireResource.resource.title}`, false);
-            State.emit("value_change", getChildOfNodePath(props.planDefNode, ["action", "description"]), `Collect information using FHIR Questionnaire: ${questionnaireResource.resource.title}`, false);
+            State.emit("value_change", getChildOfNode(props.planDefNode, "title"), `Use Questionnaire "${questionnaireResource.title}"`, false);
+            State.emit("value_change", getChildOfNodePath(props.planDefNode, ["action", "title"]), `Use Questionnaire "${questionnaireResource.title}"`, false);
+            State.emit("value_change", getChildOfNode(props.planDefNode, "description"), `Collect information using FHIR Questionnaire: ${questionnaireResource.title}`, false);
+            State.emit("value_change", getChildOfNodePath(props.planDefNode, ["action", "description"]), `Collect information using FHIR Questionnaire: ${questionnaireResource.title}`, false);
         }
         props.handleSaveResource();
     }
@@ -126,7 +111,7 @@ export const QuestionnaireEditor = (props: QuestionnaireEditorProps) => {
     ];
 
     function iFrameLoaded() {
-        const questionnaireString = JSON.stringify(questionnaireResource.resource);
+        const questionnaireString = JSON.stringify(questionnaireResource);
         const schemeDisplayer = document.getElementById('schemeFrame');
         if (schemeDisplayer) {
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -143,7 +128,7 @@ export const QuestionnaireEditor = (props: QuestionnaireEditorProps) => {
     }
 
     console.log(questionnaireResource);
-
+    
     return (
         <div style={{display: "flex"}} >
             <div style={{flexGrow: 1, margin: "50px"}}>
@@ -151,7 +136,7 @@ export const QuestionnaireEditor = (props: QuestionnaireEditorProps) => {
 
             {CardNav(step, questionaireSteps, (selectedKey) => setStep(parseInt(selectedKey ?? "1") ))}
             {step === 1 ?
-                <StructorFrame ref={structorRef} questionnaireFromSage={questionnaireResource.resource} questionnaireSavedCallback={handleQuestionnaireSaved} 
+                <StructorFrame ref={structorRef} questionnaireFromSage={questionnaireResource} questionnaireSavedCallback={handleQuestionnaireSaved} 
                     structorReadyCallback={()=>{return 0;}}
                 /> :
                 null}
@@ -160,9 +145,6 @@ export const QuestionnaireEditor = (props: QuestionnaireEditorProps) => {
                 <Card style={{ padding: "20px", margin: "10px", borderWidth: "2px", borderColor:'#2D2E74', borderRadius: '40px'}}>
                     <Card.Title>QUESTIONNAIRE</Card.Title>
                     <Card.Body>
-                        {questionnaireResource.model !== null ?
-                            <Survey model={questionnaireResource.model} /> :
-                            null}
                         <iframe
                             id="schemeFrame"
                             style={{
