@@ -376,16 +376,17 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
                     function (e: React.ChangeEvent<HTMLInputElement>) {
                         setExistsValue({ toggleState: e.currentTarget.value === toggleState.enabled.toString() ? toggleState.enabled : toggleState.disabled })
                         props.wizDispatch(["setExists", e.currentTarget.value === toggleState.enabled.toString()]);
+                        if (e.currentTarget.value === toggleState.disabled.toString()) {
+                            props.wizDispatch(["setAtLeast", {atLeast: null, noMoreThan: null}]) 
+                            props.wizDispatch(["setNoMoreThan", {atLeast: null, noMoreThan: null}]) 
+                        }
                     })}
                 {includeCardinality(props.wizState.resType) && existsValue.toggleState === toggleState.enabled ? cardinalityButtonGroup(
                     'atLeast',
                     [{ name: 'At Least'}],
                     (n) => 'outline-secondary',
                     atLeast,
-                    function (e: React.ChangeEvent<HTMLInputElement>) {
-                            setAtLeast({ toggleState: e.currentTarget.value === toggleState.enabled.toString() ? toggleState.disabled : toggleState.enabled, value: props.wizState.atLeast ?? 0 });
-                            props.wizDispatch(["setAtLeast", {atLeast: !e.currentTarget.checked ? null : atLeast.value, noMoreThan: props.wizState.noMoreThan}]) 
-                    },
+                    function (e: React.ChangeEvent<HTMLInputElement>) { cardinalityOnEnable(e, 'atLeast'); },
                     props.wizState.atLeast ?? 0,
                     (e: any) => props.wizDispatch(["setAtLeast", {atLeast: convertFormInputToNumber(e.currentTarget.value), noMoreThan: props.wizState.noMoreThan}]))
                 : null}
@@ -394,10 +395,7 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
                     [{ name: 'No More Than'}],
                     (n) => 'outline-secondary',
                     noMoreThan,
-                    function (e: React.ChangeEvent<HTMLInputElement>) {
-                        setNoMoreThan({ toggleState: e.currentTarget.value === toggleState.enabled.toString() ? toggleState.disabled : toggleState.enabled, value: props.wizState.noMoreThan ?? 0 });
-                        props.wizDispatch(["setNoMoreThan", {atLeast: props.wizState.atLeast, noMoreThan: !e.currentTarget.checked ? null : noMoreThan.value}]) 
-                    },
+                    function (e: React.ChangeEvent<HTMLInputElement>) { cardinalityOnEnable(e, 'noMoreThan'); },
                     props.wizState.noMoreThan ?? 0,
                     (e: any) => props.wizDispatch(["setNoMoreThan", {atLeast: props.wizState.atLeast, noMoreThan: convertFormInputToNumber(e.currentTarget.value)}]),
                     props.wizState.atLeast !== null && props.wizState.noMoreThan !== null && props.wizState.atLeast > props.wizState.noMoreThan)
@@ -430,6 +428,17 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
             </div>
         </>
     )
+
+    function cardinalityOnEnable(e: React.ChangeEvent<HTMLInputElement>, cardinality: 'atLeast' | 'noMoreThan') {
+        const isAtLeast = cardinality === 'atLeast';
+        const isNoMoreThan = !isAtLeast;
+        const cardinalityDispatch = isAtLeast ? "setAtLeast" : "setNoMoreThan";
+        const cardinalityCurState = (cardinality: boolean) => cardinality ? props.wizState.atLeast : props.wizState.noMoreThan;
+        const uiSelectedValue = (cardinality: boolean) => !e.currentTarget.checked ? null : cardinality ? atLeast.value : noMoreThan.value;
+        const cardinalitySetter = isAtLeast ? setAtLeast : setNoMoreThan;
+        cardinalitySetter({ toggleState: e.currentTarget.value === toggleState.enabled.toString() ? toggleState.disabled : toggleState.enabled, value: cardinalityCurState(isAtLeast) ?? 0 });
+        props.wizDispatch([cardinalityDispatch, { atLeast: isAtLeast ? uiSelectedValue(isAtLeast) : cardinalityCurState(isAtLeast), noMoreThan: isAtLeast ? cardinalityCurState(isNoMoreThan) : uiSelectedValue(isNoMoreThan) }]);
+    }
 }
 
 
