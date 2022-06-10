@@ -377,7 +377,7 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
                         setExistsValue({ toggleState: e.currentTarget.value === toggleState.enabled.toString() ? toggleState.enabled : toggleState.disabled })
                         props.wizDispatch(["setExists", e.currentTarget.value === toggleState.enabled.toString()]);
                     })}
-                {includeCardinality(props.wizState.resType) ? cardinalityButtonGroup(
+                {includeCardinality(props.wizState.resType) && existsValue.toggleState === toggleState.enabled ? cardinalityButtonGroup(
                     'atLeast',
                     [{ name: 'At Least'}],
                     (n) => 'outline-secondary',
@@ -389,7 +389,7 @@ export const CqlWizardSelectFilters = (props: CqlWizardSelectFiltersProps) => {
                     props.wizState.atLeast ?? 0,
                     (e: any) => props.wizDispatch(["setAtLeast", {atLeast: convertFormInputToNumber(e.currentTarget.value), noMoreThan: props.wizState.noMoreThan}]))
                 : null}
-                {includeCardinality(props.wizState.resType) ? cardinalityButtonGroup(
+                {includeCardinality(props.wizState.resType) && existsValue.toggleState === toggleState.enabled ? cardinalityButtonGroup(
                     'noMoreThan',
                     [{ name: 'No More Than'}],
                     (n) => 'outline-secondary',
