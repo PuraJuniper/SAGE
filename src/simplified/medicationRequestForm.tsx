@@ -10,7 +10,7 @@ import { SageCoding } from "./cql-wizard/wizardLogic";
 import { FriendlyResourceProps, friendlyTimeUnit } from "./nameHelpers";
 import { dropdownBoxProps, invisibleFieldProps, textBoxProps, timeUnitsDropdownProps } from "./outerCardForm";
 
-const dosageCodes: SageCoding[] = [];
+// const dosageCodes: SageCoding[] = [];
 
 export class MedicationRequestForm implements ICardForm {
 
@@ -310,8 +310,8 @@ function updateDosageAutofill(changedField: string, fieldValue: string, fieldHan
 }
 
 function updateUnitNode(changedField: string, fieldValue: string, fieldHandlers: Map<string, FieldHandlerProps>, requiredField?: string): string {
-    GetDosageSageCodings();
-    const dosageSageCode = dosageCodes.find(dc => dc.display == fieldValue);
+    // GetDosageSageCodings();
+    const dosageSageCode = State.get().bioportal.doseUOMs.find(dc => dc.display == fieldValue);
     switch (requiredField) {
         case 'system':
             return dosageSageCode ? dosageSageCode.system == "" ? "http://unitsofmeasure.org" : dosageSageCode.system : "NOT_FOUND";
@@ -323,22 +323,27 @@ function updateUnitNode(changedField: string, fieldValue: string, fieldHandlers:
 }
 
 function GetDosageUnits() : string[] {
-    GetDosageSageCodings();
-    return dosageCodes.map(sc => sc.display);
+    if (!State.get().bioportal.doseUnitsIsRetrieved) {
+        State.emit("pull_bioportal_results")
+    }
+    return State.get().bioportal.doseUOMs.map(sc => sc.display).sort();
 }
 
-async function GetDosageSageCodings(): Promise<void>  {
-    const [searchResults, setSearchResults] = useState<SageCoding[]>([]);
-    if (!State.get().bioportal.doseUnitsIsRetrieved && dosageCodes.length == 0) {
-       State.get().bioportal.set({doseUnitsIsRetrieved: true});
-        await Bioportal.searchForSNOMEDConcept('"Basic dose form (basic dose form)"')
-        .then(v => {
-            setSearchResults([...searchResults, ...v]);
-        })
-        await Bioportal.search('drug form', ['HL7'], 'concept')
-        .then(v => {
-            setSearchResults([...searchResults, ...v]);
-        })
+export async function getDosageSageCodings(): Promise<void> {
+    const shortList: { name: string, notation: string }[] =
+        [{ name: 'tablet', notation: '732936001' },
+        { name: 'capsule', notation: '732937005' },
+        { name: 'patch', notation: '739003001' },
+        { name: 'mcg', notation: '258685003' },
+        { name: 'gram', notation: '258682000' },
+        { name: 'ml', notation: '258773002' },
+        { name: 'mg', notation: '258684004' }
+        ]
+    if (!State.get().bioportal.doseUnitsIsRetrieved && State.get().bioportal.doseUOMs.length == 0) {
+        State.get().bioportal.set({ doseUnitsIsRetrieved: true });
+        await Bioportal.search(shortList.map(item => item.notation).reduce((acc, code) => code + ' ' + acc), ['HL7', 'SNOMEDCT'], 'text', undefined)
+            .then(v => {
+                State.get().bioportal.set({ doseUOMs: [...State.get().bioportal.doseUOMs, ...v].filter(res => res !== undefined) });
+            })
     }
-    dosageCodes.push(...searchResults)
 }

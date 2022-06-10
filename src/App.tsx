@@ -52,6 +52,7 @@ export default function App() {
 
     // Return element based on mode
     const baseElement: JSX.Element = (() => {
+
         if (isSageLoading) { // (Still loading necessary data)
             return <div role="progressbar" aria-label="loading-symbol" className="spinner"><img src="../img/ajax-loader.gif" /></div>;
         }
@@ -75,3 +76,4 @@ export default function App() {
         </BrowserRouter>
     );
 }
+

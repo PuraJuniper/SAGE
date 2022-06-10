@@ -14,6 +14,10 @@ import { ACTIVITY_DEFINITION, PLAN_DEFINITION, QUESTIONNAIRE } from './simplifie
 import hypertensionLibraryJson from "../public/samples/hypertension-library.json";
 import * as cql from "cql-execution";
 import * as SageUtils from "./helpers/sage-utils";
+import * as Bioportal from './simplified/cql-wizard/bioportal';
+import { SageCoding } from './simplified/cql-wizard/wizardLogic';
+import { useState } from 'react';
+import { getDosageSageCodings } from './simplified/medicationRequestForm';
 
 const canMoveNode = function(node: SageNodeInitialized, parent: SageNodeInitialized) {
 	if (!["objectArray", "valueArray"].includes(parent?.nodeType)) {
@@ -759,6 +763,8 @@ State.on("load_library", function(library, url, fhirLibrary) {
 		url: url,
 	});
 });
+
+State.on("pull_bioportal_results", getDosageSageCodings)
 
 State.on("insert_resource_into_bundle", function(resource) {
 	bundleInsert(resource, false);
