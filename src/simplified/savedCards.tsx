@@ -15,12 +15,13 @@ import { CreateCardWorkflow } from './selectView';
 
 
 
-export const CardTabTitle = (text: string, backgroundColor: string) => <Nav as={"header"} variant="tabs" defaultActiveKey="#disabled" style={{borderBottomColor: "inherit", borderBottomWidth: "inherit"}}>
-    <Nav.Item style={{backgroundColor: backgroundColor, borderBottomColor: "inherit" }}>
+export const CardTabTitle = (text: string, backgroundColor: string) => <Nav
+    as={"header"} variant="tabs" defaultActiveKey="#disabled" style={{ borderBottomColor: "inherit", borderBottomWidth: "inherit", marginTop: '1rem' }}>
+    <Nav.Item style={{backgroundColor: backgroundColor, borderBottomColor: "inherit", borderTopLeftRadius: "15px", borderTopRightRadius: "15px", zIndex: "2" }}>
         <Nav.Link href="#disabled" disabled style={{
-            color: "var(--sage-dark-purple)", backgroundColor: "transparent", borderColor: "inherit",
-            borderBottomColor: "inherit", zIndex: "+1", marginBottom: "-2px", borderBottomWidth: "2px",
-            position: "relative", borderBottomLeftRadius: "3px", borderWidth: "2px", borderTopLeftRadius: "15px", borderTopRightRadius: "15px"
+            color: "var(--sage-dark-purple)", backgroundColor: "inherit", borderColor: "inherit",
+            borderBottomColor: "inherit", zIndex: "+1", marginBottom: "-2px",
+        position: "relative", borderBottomLeftRadius: "inherit", borderWidth: "2px 2px 0px 2px", borderTopLeftRadius: "inherit", borderTopRightRadius: "inherit"
         }}>
             {text}
         </Nav.Link>

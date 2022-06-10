@@ -51,7 +51,8 @@ export const ConditionPreview = (props: ConditionEditorProps) => {
     const condition = findEditableCondition(props.pdConditions);
     return (
         <>
-            {condition === null ? null :
+        <Row className="mb-3"><Col style={{fontWeight: 'bold'}}>Conditions: </Col></Row>
+            {condition === null ?<>None</> :
                 <SubExpressionElement
                     subExpression={condition.expr}
                     handleEditSubExpression={function (newSubExpr: SubExpression): void {
@@ -60,7 +61,8 @@ export const ConditionPreview = (props: ConditionEditorProps) => {
                     handleDeleteSubExpression={function (): void {
                         throw new Error("Function not implemented.");
                     }}
-                    isPreview={true} />
+                    isPreview={true}
+                    first={true} />
             }
         </>
     )
@@ -83,7 +85,7 @@ export const ConditionEditor = (props: ConditionEditorProps) => {
                                         conditionId: `index-${SchemaUtils.getNextId()}`, // Need some unique id
                                         expr: {
                                             subExpr: [createNewWizExpression(savedState)],
-                                            subExprBool: "and",
+                                            subExprBool: "or",
                                         }
                                     };
                                     const newCondition: PlanDefinitionActionCondition = {
@@ -115,6 +117,7 @@ export const ConditionEditor = (props: ConditionEditorProps) => {
                             saveEditableCondition(draftCondition.conditionId, newCond);
                             return setDraftCondition(newCond);
                         }}
+                        first={true}
                     />
                 }
             </React.StrictMode>
@@ -127,6 +130,7 @@ interface ConditionElementProps {
     handleEditSubExpression: (newSubExpr: SubExpression) => void,
     handleDeleteSubExpression: () => void,
     isPreview?: boolean;
+    first?: boolean
 }
 const SubExpressionElement = (props: ConditionElementProps) => {
     const [newWizardState, setNewWizardState] = useState<{ show: boolean, onClose: (savedState?: WizardState) => void }>({ show: false, onClose: () => 0 })
@@ -163,19 +167,19 @@ const SubExpressionElement = (props: ConditionElementProps) => {
         });
     }
 
-    function backgroundColor(boolVal: "or" | "and") { return boolVal === "or" ? "white" : "lightgrey"}
     return (
         <>
             {expressionTrimmed.subExpr.length === 0 ? null :
-                <Card style={{ backgroundColor: backgroundColor(expressionTrimmed.subExprBool), borderWidth: "2px", borderColor: 'var(--sage-dark-purple)' }}>
+                <Card style={{ backgroundColor: backgroundColor(expressionTrimmed.subExprBool, expressionTrimmed.subExpr.length > 0), borderWidth: "2px", borderColor: 'var(--sage-dark-purple)',
+                        width: `${props.first ? '100%' : '90%'}`, marginLeft: 'unset', marginBottom: '1rem' }}>
                     <Card.Body >
                         {
                             expressionTrimmed.subExpr.map((expr, exprIdx) => {
-                                const exprTitle = (titleString: string, exprBool: 'and' | 'or') => <span style={{
-                                    backgroundColor: backgroundColor(exprBool),
-                                    borderBottomColor: backgroundColor(exprBool), borderBottomWidth: "0px"
+                                const exprTitle = (titleString: string, bkgColor: 'white' | 'lightgrey') => <span style={{
+                                    backgroundColor: bkgColor,
+                                    borderBottomColor: bkgColor, borderBottomWidth: "0px"
                                 }}>
-                                    {CardTabTitle(titleString, backgroundColor(exprBool))}
+                                    {CardTabTitle(titleString, bkgColor)}
                                 </span>;
                                 const cardinalityString = (state : WizardState) => {
                                     const atLeast = state.atLeast === null ? '' : `At least ${state.atLeast}`
@@ -184,19 +188,18 @@ const SubExpressionElement = (props: ConditionElementProps) => {
                                     return `${atLeast}${conjunction}${noMoreThan}`;
                                 }
                                 if (isWizardExpression(expr)) {
+                                    const cardinality = `${cardinalityString(expr.curWizState)}${expr.curWizState.exists ? '' : ' NOT'}`
                                     return (
                                         <>
                                             {exprIdx > 0 ? 
-                                                exprTitle(`${expressionTrimmed.subExprBool.toUpperCase()} ${cardinalityString(expr.curWizState)}${expr.curWizState.exists ? '' : ' NOT'}`, expressionTrimmed.subExprBool)
-                                                : expr.curWizState.exists ?
-                                                    exprTitle(`${cardinalityString(expr.curWizState)}`, expressionTrimmed.subExprBool) 
-                                                    : exprTitle(`${cardinalityString(expr.curWizState)} NOT`, expressionTrimmed.subExprBool)}
+                                                exprTitle(`${expressionTrimmed.subExprBool.toUpperCase()} ${cardinality}`, backgroundColor(expressionTrimmed.subExprBool))
+                                                    : exprTitle(cardinality, backgroundColor(expressionTrimmed.subExprBool)) }
                                             {wizExpressionWithConditional(expr, handleEditExpr, exprIdx, handleDelete, props.isPreview, expressionTrimmed, setNewWizardState)}
                                         </>
                                     )
                                 } else {
                                     return (<>
-                                        {exprIdx > 0 ? exprTitle(expr.subExprBool.toUpperCase(), expr.subExprBool): null}
+                                        {exprIdx > 0 ? exprTitle(expressionTrimmed.subExprBool.toUpperCase(), backgroundColor(expressionTrimmed.subExprBool)): null}
                                         <SubExpressionElement
                                             key={expr.subExpr.toString()}
                                             subExpression={expr}
@@ -230,11 +233,17 @@ const SubExpressionElement = (props: ConditionElementProps) => {
     )
 }
 
+function backgroundColor(boolVal: "or" | "and", invert?: boolean) { 
+    const boolChecker = invert !== undefined && invert ? "or" : "and"
+    return boolVal === boolChecker ? "lightgrey" : "white"
+}
+
 interface WizardExpressionProps {
     wizExpression: WizExpression,
     handleEditExpression: (newExpr: WizExpression) => void,
     handleDeleteExpression: () => void,
     booleanConditionalButton: JSX.Element | null,
+    subExpr: SubExpression
     isPreview?: boolean
 }
 const WizardExpression = (props: WizardExpressionProps) => {
@@ -257,18 +266,15 @@ const WizardExpression = (props: WizardExpressionProps) => {
                     })
                 }}
             />
-            <Container style={{ borderStyle: 'solid', borderWidth: "2px", borderColor: 'var(--sage-dark-purple)' }}>
-                {/* <svg height="20px" width="20px" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                    <line x1="0" y1="50" x2="100" y2="50" stroke="black" />
-                </svg> */}
+            <Container style={{ borderStyle: 'solid', borderWidth: "2px", borderColor: 'var(--sage-dark-purple)', width: '90%', marginLeft: 'unset', backgroundColor: backgroundColor(props.subExpr.subExprBool)}}>
                 {friendlyWizardExpression()}
                 {props.isPreview ? null : <>
-                    <Container style={{textAlign: 'right'}}>
+                    <Container>
                         {props.booleanConditionalButton}
-                        <Button onClick={() => setShowWiz(true)}>
+                        <Button style={{margin: '0.25rem'}} onClick={() => setShowWiz(true)}>
                             <FontAwesomeIcon icon={faPenToSquare} /> Edit
                         </Button>
-                        <Button onClick={props.handleDeleteExpression}>
+                        <Button style={{margin: '0.25rem'}} onClick={props.handleDeleteExpression}>
                             <FontAwesomeIcon icon={faTrash} /> Delete
                         </Button>
                     </Container>
@@ -323,6 +329,7 @@ function wizExpressionWithConditional(expr: WizExpression, handleEditExpr: (edit
             handleEditExpression={(newExpr) => handleEditExpr(exprIdx, newExpr)}
             handleDeleteExpression={() => handleDelete(exprIdx)}
             isPreview={isPreview}
+            subExpr={subExp}
             booleanConditionalButton={newBooleanButton(isPreview, setNewWizardState,
                 function handleWizEditExpr(savedState: WizardState) {
                     handleEditExpr(exprIdx, {
@@ -337,7 +344,7 @@ function newBooleanButton(isPreview: boolean | undefined,
     setNewWizardState: React.Dispatch<React.SetStateAction<{ show: boolean; onClose: (savedState?: WizardState | undefined) => void; }>>,
     handleWizEditExpr: (savedState: WizardState) => void, buttonText: string) {
     return isPreview ? null :
-        <Button
+        <Button style={{margin: '0.25rem'}}
             onClick={() => {
                 setNewWizardState({
                     show: true,
