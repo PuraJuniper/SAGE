@@ -18,6 +18,8 @@ import * as BundleUtils from '../helpers/bundle-utils';
 import { saveAs } from 'file-saver';
 import { DATA_ELEMENT, fhirToFriendly, QUESTIONNAIRE } from '../simplified/nameHelpers';
 import _ from "lodash";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCopy, faDownload } from '@fortawesome/pro-solid-svg-icons';
 
 class ExportDialog extends React.Component {
     shouldComponentUpdate(nextProps) {
@@ -197,10 +199,24 @@ class ExportDialog extends React.Component {
                     </p>
                 </Modal.Body>
                 <Modal.Footer>
+                    <button className='btn btn-default'
+                        onClick={() => 
+                            navigator.clipboard.writeText(this.buildJson().jsonString).then(
+                                undefined,
+                                () => console.log("Failed to write to clipboard")
+                            )
+                        }
+                    >
+                        <FontAwesomeIcon icon={faCopy} className="me-2" />
+                        Copy To Clipboard
+                    </button>
                     <button
                         className="btn btn-default"
                         onClick={this.handleDownload.bind(this)}
-                    >Download</button>
+                    >
+                        <FontAwesomeIcon icon={faDownload} className="me-2" />
+                        Download
+                    </button>
                 </Modal.Footer>
             </Modal>
         );
