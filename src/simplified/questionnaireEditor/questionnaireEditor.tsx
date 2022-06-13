@@ -14,6 +14,7 @@ interface QuestionnaireEditorProps {
     handleExit: () => void,
     handleSaveResource: () => void,
     conditionEditor: JSX.Element,
+    conditionPreview: JSX.Element,
 }
 
 export const QuestionnaireEditor = (props: QuestionnaireEditorProps) => {
@@ -34,10 +35,14 @@ export const QuestionnaireEditor = (props: QuestionnaireEditorProps) => {
         structorRef.current?.throttledTriggerStructorSend();
 	}
     
+    const [selectedStep, setSelectedStep] = useState<number | null>(null);
     function handleQuestionnaireSaved(newQuestionnaire: Questionnaire) {
         console.log(newQuestionnaire);
         setQuestionnaireResource(newQuestionnaire);
-        setStep(curStep => curStep + 1);
+        if (selectedStep) {
+            setStep(selectedStep);
+            setSelectedStep(null);
+        }
         return true;
     }
 
@@ -92,7 +97,8 @@ export const QuestionnaireEditor = (props: QuestionnaireEditorProps) => {
         <Button variant='outline-primary' bsPrefix="card-nav-btn btn"
             onClick={() => {
                 if (step === 1) {
-                    // This function should cause `handleQuestionnaireSaved` to run, which will increment the step
+                    // This function will cause `handleQuestionnaireSaved()` to run, which will call setStep
+                    setSelectedStep(2);
                     saveQuestionnaire();
                 }
                 else {
@@ -134,7 +140,18 @@ export const QuestionnaireEditor = (props: QuestionnaireEditorProps) => {
             <div style={{flexGrow: 1, margin: "50px"}}>
             <div className='basic-page-titles'>{pageTitles.get(step)}</div>
 
-            {CardNav(step, questionaireSteps, (selectedKey) => setStep(parseInt(selectedKey ?? "1") ))}
+            {CardNav(step, questionaireSteps,
+                (selectedKey) => { 
+                    if (step === 1) {
+                        // If we're on step 1 (Structor's step), we must save the Questionnaire before navigating away
+                        setSelectedStep(parseInt(selectedKey ?? "1"));
+                        saveQuestionnaire(); // Will trigger `handleQuestionnaireSaved()` after saving
+                    }
+                    else {
+                        setStep(parseInt(selectedKey ?? "1"))
+                    }
+                }
+            )}
             {step === 1 ?
                 <StructorFrame ref={structorRef} questionnaireFromSage={questionnaireResource} questionnaireSavedCallback={handleQuestionnaireSaved} 
                     structorReadyCallback={()=>{return 0;}}
@@ -143,7 +160,7 @@ export const QuestionnaireEditor = (props: QuestionnaireEditorProps) => {
             {step === 2 ? props.conditionEditor : null}
             {step === 3 ?
                 <Card style={{ padding: "20px", margin: "10px", borderWidth: "2px", borderColor:'#2D2E74', borderRadius: '40px'}}>
-                    <Card.Title>QUESTIONNAIRE</Card.Title>
+                    <Card.Title>Collect Information</Card.Title>
                     <Card.Body>
                         <iframe
                             id="schemeFrame"
@@ -157,6 +174,7 @@ export const QuestionnaireEditor = (props: QuestionnaireEditorProps) => {
                             onLoad={iFrameLoaded}
                             src="https://structor-for-sage.web.app/iframe/index.html"
                         ></iframe>
+                        {props.conditionPreview}
                     </Card.Body>
                 </Card> :
                 null}

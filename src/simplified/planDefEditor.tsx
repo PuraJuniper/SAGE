@@ -171,7 +171,7 @@ export const PlanDefEditor = (props: PlanDefEditorProps) => {
             case ACTIVITY_DEFINITION:
                 return <CardEditor actNode={linkedResourceNode} planNode={props.planDefNode} handleExit={exitHandler} handleSaveResource={handleSaveResource} conditionEditor={conditionEditor} conditionPreview={conditionPreview}/>
             case QUESTIONNAIRE:
-                return <QuestionnaireEditor planDefNode={props.planDefNode} questionnareNode={linkedResourceNode} handleExit={exitHandler}  handleSaveResource={handleSaveResource} conditionEditor={conditionEditor} />
+                return <QuestionnaireEditor planDefNode={props.planDefNode} questionnareNode={linkedResourceNode} handleExit={exitHandler}  handleSaveResource={handleSaveResource} conditionEditor={conditionEditor} conditionPreview={conditionPreview} />
             default:
                 return (
                     <div>
