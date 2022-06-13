@@ -17,16 +17,18 @@ export const CqlWizardSelectCodes: React.FunctionComponent<CqlWizardSelectCodesP
     const [searchSystem, setSearchSystem] = useState<string>(ALL_SYSTEMS);
     const [isSearching, setIsSearching] = useState(false);
 
-    useEffect(() => {
-        if (props.wizState.codes.length === 0) {
-            wizDispatch(['setCodes', [{
-                code: 'test_code',
-                display: 'test code',
-                system: 'test',
-                version: 'test',
-            }]])
-        }
-    })
+    // // Uncomment to always add a dummy code to the condition (for faster testing)
+    // useEffect(() => {
+    //     if (props.wizState.codes.length === 0) {
+    //         wizDispatch(['setCodes', [{
+    //             code: 'test_code',
+    //             display: 'test code',
+    //             system: 'test',
+    //             version: 'test',
+    //         }]])
+    //     }
+    // })
+
     const {
         wizState,
         wizDispatch,
