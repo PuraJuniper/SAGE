@@ -1,4 +1,4 @@
-import { faCaretLeft, faDownload, faInfoCircle } from '@fortawesome/pro-solid-svg-icons';
+import { faCaretLeft, faFileExport } from '@fortawesome/pro-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React, { useState } from 'react';
 import { Button, Card, Col, Container, ListGroup, ListGroupItem, Modal, Nav, Row } from 'react-bootstrap';
@@ -50,7 +50,7 @@ const SavedCards = () => {
                 <Col md={3} style={{ textAlign: "left" }}>
                     <Button variant='outline-primary' bsPrefix="card-btn btn"
                         onClick={() => setShowExport(true)}>
-                        <FontAwesomeIcon icon={faDownload} />
+                        <FontAwesomeIcon icon={faFileExport} />
                         &nbsp;Export as FHIR Bundle
                     </Button>
                 </Col>
